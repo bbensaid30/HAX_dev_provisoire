@@ -214,7 +214,7 @@
     "href": "TP_bash/enonce_bash.html#les-motifs-de-filtrage-wildcards",
     "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
     "section": "3.2 Les motifs de filtrage (Wildcards)",
-    "text": "3.2 Les motifs de filtrage (Wildcards)\nPour appliquer une action sur un ensemble de fichiers sans les lister un par un :\n\n* : remplace n’importe quelle chaîne de 0, 1 ou plusieurs caractères. Par exemple *.csv correspond à tous les fichiers se terminant par .csv et data_* à tous les fichiers dont le nom commence par data_.\n? : remplace exactement un caractère unique. Par exemple, modele_?.py: correspond àmodele_1.py,modele_A.py, mais pas àmodele_10.py`."
+    "text": "3.2 Les motifs de filtrage (Wildcards)\nPour appliquer une action sur un ensemble de fichiers sans les lister un par un :\n\n* : remplace n’importe quelle chaîne de 0, 1 ou plusieurs caractères. Par exemple *.csv correspond à tous les fichiers se terminant par .csv et data_* à tous les fichiers dont le nom commence par data_.\n? : remplace exactement un caractère unique. Par exemple, modele_?.py correspond à modele_1.py, modele_A.py, mais pas à modele_10.py."
   },
   {
     "objectID": "TP_bash/enonce_bash.html#préparation-de-lenvironnement-de-tp",

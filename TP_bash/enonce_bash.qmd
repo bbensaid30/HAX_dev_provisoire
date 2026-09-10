@@ -125,7 +125,7 @@ Pour appliquer une action sur un ensemble de fichiers sans les lister un par un 
   Par exemple `*.csv` correspond à tous les fichiers se terminant par `.csv` et `data_*` à tous les fichiers dont le nom commence par `data_`.
 
 * `?` : remplace **exactement un** caractère unique.
-  Par exemple, modele_?.py` : correspond à `modele_1.py`, `modele_A.py`, mais pas à `modele_10.py`.
+  Par exemple, `modele_?.py` correspond à `modele_1.py`, `modele_A.py`, mais pas à `modele_10.py`.
 
 ---
 
