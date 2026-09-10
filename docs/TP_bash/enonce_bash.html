@@ -559,7 +559,12 @@ Chemins Absolus vs Chemins Relatifs
 <p>Trois serveurs (<code>alpha</code>, <code>beta</code>, <code>gamma</code>) contiennent chacun des dizaines de fichiers de logs systèmes <code>proc_*.log</code>.</p>
 <p>Un incident de sécurité critique a laissé une empreinte unique identifiée par la chaîne de caractères <code>INDICE_FINAL</code>.</p>
 <p><strong>Votre mission :</strong><br>
-À l’aide d’une commande unique utilisant <code>grep</code> avec ses options récursives (ou combiné avec <code>find</code>), identifiez : 1. Le serveur concerné. 2. Le fichier exact contenant l’empreinte. 3. La valeur secrète du token entre crochets.</p>
+À l’aide d’une commande unique utilisant <code>grep</code> avec ses options récursives (ou combiné avec <code>find</code>), identifiez :</p>
+<ol type="1">
+<li>Le serveur concerné.</li>
+<li>Le fichier exact contenant l’empreinte.</li>
+<li>La valeur secrète du token entre crochets.</li>
+</ol>
 <hr>
 </section>
 <section id="pour-aller-plus-loin-défis-avancés-optionnel" class="level1" data-number="7">
@@ -567,16 +572,22 @@ Chemins Absolus vs Chemins Relatifs
 <p><em>Cette section est réservée aux étudiants ayant terminé les exercices précédents en avance.</em></p>
 <section id="défi-a-expressions-régulières-et-extraction-dadresses-ip" class="level3" data-number="7.0.1">
 <h3 data-number="7.0.1" class="anchored" data-anchor-id="défi-a-expressions-régulières-et-extraction-dadresses-ip"><span class="header-section-number">7.0.1</span> Défi A : Expressions régulières et extraction d’adresses IP</h3>
-<p>Dans le fichier <code>exercice_3/logs/connexions.log</code>, isolez la liste unique de toutes les adresses IP ayant tenté une connexion, triées par ordre croissant : * <em>Indice :</em> utilisez <code>cut</code> ou explorez <code>grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"</code>.</p>
+<p>Dans le fichier <code>exercice_3/logs/connexions.log</code>, isolez la liste unique de toutes les adresses IP ayant tenté une connexion, triées par ordre croissant :</p>
+<ul>
+<li><em>Indice :</em> utilisez <code>cut</code> ou explorez <code>grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"</code>.</li>
+</ul>
 </section>
 <section id="défi-b-boucle-bash-en-une-ligne-one-liner" class="level3" data-number="7.0.2">
 <h3 data-number="7.0.2" class="anchored" data-anchor-id="défi-b-boucle-bash-en-une-ligne-one-liner"><span class="header-section-number">7.0.2</span> Défi B : Boucle Bash en une ligne (<em>One-liner</em>)</h3>
-<p>Depuis votre terminal, créez en une seule commande une série de 10 dossiers nommés <code>experience_01</code> à <code>experience_10</code>, contenant chacun un fichier vide <code>resultat.dat</code> : * <em>Indice :</em> observez la syntaxe de développement d’accolades <code>mkdir -p experience_{01..10}</code> ou utilisez une boucle <code>for i in $(seq -w 1 10); do ...; done</code>.</p>
+<p>Depuis votre terminal, créez en une seule commande une série de 10 dossiers nommés <code>experience_01</code> à <code>experience_10</code>, contenant chacun un fichier vide <code>resultat.dat</code> :</p>
+<ul>
+<li><em>Indice :</em> observez la syntaxe de développement d’accolades <code>mkdir -p experience_{01..10}</code> ou utilisez une boucle <code>for i in $(seq -w 1 10); do ...; done</code>.</li>
+</ul>
 </section>
 <section id="défi-c-agrégation-avec-awk" class="level3" data-number="7.0.3">
 <h3 data-number="7.0.3" class="anchored" data-anchor-id="défi-c-agrégation-avec-awk"><span class="header-section-number">7.0.3</span> Défi C : Agrégation avec <code>awk</code></h3>
-<p><code>awk</code> est un langage de traitement de flux complet intégré à Linux. À l’aide d’une seule commande <code>awk</code>, lisez <code>connexions.log</code> et affichez la phrase personnalisée :<br>
-<em>« Utilisateur [nom] connecté depuis l’IP [ip] »</em> pour chaque ligne ayant le statut <code>SUCCESS</code>.</p>
+<p><code>awk</code> est un langage de traitement de flux complet intégré à Linux. À l’aide d’une seule commande <code>awk</code>, lisez <code>connexions.log</code> et affichez la phrase personnalisée :</p>
+<p><em>« Utilisateur [nom] connecté depuis l’IP [ip] »</em> pour chaque ligne ayant le statut <code>SUCCESS</code>.</p>
 
 
 </section>

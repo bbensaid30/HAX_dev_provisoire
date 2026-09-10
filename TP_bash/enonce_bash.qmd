@@ -281,6 +281,7 @@ Un incident de sécurité critique a laissé une empreinte unique identifiée pa
 
 **Votre mission :**  
 À l'aide d'une commande unique utilisant `grep` avec ses options récursives (ou combiné avec `find`), identifiez :
+
 1. Le serveur concerné.
 2. Le fichier exact contenant l'empreinte.
 3. La valeur secrète du token entre crochets.
@@ -293,13 +294,16 @@ Un incident de sécurité critique a laissé une empreinte unique identifiée pa
 
 ### Défi A : Expressions régulières et extraction d'adresses IP
 Dans le fichier `exercice_3/logs/connexions.log`, isolez la liste unique de toutes les adresses IP ayant tenté une connexion, triées par ordre croissant :
+
 * *Indice :* utilisez `cut` ou explorez `grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"`.
 
 ### Défi B : Boucle Bash en une ligne (*One-liner*)
 Depuis votre terminal, créez en une seule commande une série de 10 dossiers nommés `experience_01` à `experience_10`, contenant chacun un fichier vide `resultat.dat` :
+
 * *Indice :* observez la syntaxe de développement d'accolades `mkdir -p experience_{01..10}` ou utilisez une boucle `for i in $(seq -w 1 10); do ...; done`.
 
 ### Défi C : Agrégation avec `awk`
 `awk` est un langage de traitement de flux complet intégré à Linux. 
 À l'aide d'une seule commande `awk`, lisez `connexions.log` et affichez la phrase personnalisée :  
+
 *« Utilisateur [nom] connecté depuis l'IP [ip] »* pour chaque ligne ayant le statut `SUCCESS`.
