@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Bensaid Bilel">
+
+<title>Correction Détaillée — TP 1 Bash &amp; Linux</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="correction_bash_files/libs/clipboard/clipboard.min.js"></script>
+<script src="correction_bash_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="correction_bash_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="correction_bash_files/libs/quarto-html/popper.min.js"></script>
+<script src="correction_bash_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="correction_bash_files/libs/quarto-html/anchor.min.js"></script>
+<link href="correction_bash_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="correction_bash_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="correction_bash_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="correction_bash_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="correction_bash_files/libs/bootstrap/bootstrap-d514875d253cdd9cab89c04d34b023ce.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Navigation du Corrigé</h2>
+   
+  <ul>
+  <li><a href="#guide-général-de-lenseignant" id="toc-guide-général-de-lenseignant" class="nav-link active" data-scroll-target="#guide-général-de-lenseignant"><span class="header-section-number">1</span> Guide Général de l’Enseignant</a>
+  <ul class="collapse">
+  <li><a href="#objectifs-pédagogiques-de-la-séance" id="toc-objectifs-pédagogiques-de-la-séance" class="nav-link" data-scroll-target="#objectifs-pédagogiques-de-la-séance"><span class="header-section-number">1.0.1</span> Objectifs pédagogiques de la séance</a></li>
+  </ul></li>
+  <li><a href="#exercice-1-gymnastique-de-navigation-arborescence" id="toc-exercice-1-gymnastique-de-navigation-arborescence" class="nav-link" data-scroll-target="#exercice-1-gymnastique-de-navigation-arborescence"><span class="header-section-number">2</span> Exercice 1 : Gymnastique de Navigation &amp; Arborescence</a>
+  <ul class="collapse">
+  <li><a href="#question-1-emplacement-initial" id="toc-question-1-emplacement-initial" class="nav-link" data-scroll-target="#question-1-emplacement-initial"><span class="header-section-number">2.0.1</span> Question 1 : Emplacement initial</a></li>
+  <li><a href="#question-2-navigation-vers-la-racine-absolue" id="toc-question-2-navigation-vers-la-racine-absolue" class="nav-link" data-scroll-target="#question-2-navigation-vers-la-racine-absolue"><span class="header-section-number">2.0.2</span> Question 2 : Navigation vers la racine absolue</a></li>
+  <li><a href="#question-3-entrée-en-chemin-relatif-dans-etc" id="toc-question-3-entrée-en-chemin-relatif-dans-etc" class="nav-link" data-scroll-target="#question-3-entrée-en-chemin-relatif-dans-etc"><span class="header-section-number">2.0.3</span> Question 3 : Entrée en chemin relatif dans <code>etc/</code></a></li>
+  <li><a href="#question-4-remonter-dun-cran-dans-larborescence" id="toc-question-4-remonter-dun-cran-dans-larborescence" class="nav-link" data-scroll-target="#question-4-remonter-dun-cran-dans-larborescence"><span class="header-section-number">2.0.4</span> Question 4 : Remonter d’un cran dans l’arborescence</a></li>
+  <li><a href="#question-5-retourner-au-répertoire-personnel-en-2-caractères" id="toc-question-5-retourner-au-répertoire-personnel-en-2-caractères" class="nav-link" data-scroll-target="#question-5-retourner-au-répertoire-personnel-en-2-caractères"><span class="header-section-number">2.0.5</span> Question 5 : Retourner au répertoire personnel en 2 caractères</a></li>
+  <li><a href="#question-6-révéler-les-fichiers-cachés" id="toc-question-6-révéler-les-fichiers-cachés" class="nav-link" data-scroll-target="#question-6-révéler-les-fichiers-cachés"><span class="header-section-number">2.0.6</span> Question 6 : Révéler les fichiers cachés</a></li>
+  </ul></li>
+  <li><a href="#préparation-décompression-de-larchive-de-travail" id="toc-préparation-décompression-de-larchive-de-travail" class="nav-link" data-scroll-target="#préparation-décompression-de-larchive-de-travail"><span class="header-section-number">3</span> Préparation : Décompression de l’Archive de Travail</a></li>
+  <li><a href="#exercice-2-manipulation-de-fichiers-jokers-wildcards" id="toc-exercice-2-manipulation-de-fichiers-jokers-wildcards" class="nav-link" data-scroll-target="#exercice-2-manipulation-de-fichiers-jokers-wildcards"><span class="header-section-number">4</span> Exercice 2 : Manipulation de Fichiers &amp; Jokers (<em>Wildcards</em>)</a>
+  <ul class="collapse">
+  <li><a href="#question-1-déplacer-tous-les-fichiers-.png-en-une-seule-commande" id="toc-question-1-déplacer-tous-les-fichiers-.png-en-une-seule-commande" class="nav-link" data-scroll-target="#question-1-déplacer-tous-les-fichiers-.png-en-une-seule-commande"><span class="header-section-number">4.0.1</span> Question 1 : Déplacer tous les fichiers <code>.png</code> en une seule commande</a></li>
+  <li><a href="#question-2-déplacer-tous-les-fichiers-.txt" id="toc-question-2-déplacer-tous-les-fichiers-.txt" class="nav-link" data-scroll-target="#question-2-déplacer-tous-les-fichiers-.txt"><span class="header-section-number">4.0.2</span> Question 2 : Déplacer tous les fichiers <code>.txt</code></a></li>
+  <li><a href="#question-3-création-du-dossier-code" id="toc-question-3-création-du-dossier-code" class="nav-link" data-scroll-target="#question-3-création-du-dossier-code"><span class="header-section-number">4.0.3</span> Question 3 : Création du dossier <code>code/</code></a></li>
+  <li><a href="#question-4-copie-de-script.py-vers-code" id="toc-question-4-copie-de-script.py-vers-code" class="nav-link" data-scroll-target="#question-4-copie-de-script.py-vers-code"><span class="header-section-number">4.0.4</span> Question 4 : Copie de <code>script.py</code> vers <code>code/</code></a></li>
+  <li><a href="#question-5-suppression-du-dossier-vrac" id="toc-question-5-suppression-du-dossier-vrac" class="nav-link" data-scroll-target="#question-5-suppression-du-dossier-vrac"><span class="header-section-number">4.0.5</span> Question 5 : Suppression du dossier <code>vrac/</code></a></li>
+  </ul></li>
+  <li><a href="#exercice-3-droits-daccès-et-permissions-linux" id="toc-exercice-3-droits-daccès-et-permissions-linux" class="nav-link" data-scroll-target="#exercice-3-droits-daccès-et-permissions-linux"><span class="header-section-number">5</span> Exercice 3 : Droits d’Accès et Permissions Linux</a>
+  <ul class="collapse">
+  <li><a href="#question-1-2-constat-du-blocage-dexécution" id="toc-question-1-2-constat-du-blocage-dexécution" class="nav-link" data-scroll-target="#question-1-2-constat-du-blocage-dexécution"><span class="header-section-number">5.0.1</span> Question 1 &amp; 2 : Constat du blocage d’exécution</a></li>
+  <li><a href="#question-3-rendre-le-script-exécutable-et-le-lancer" id="toc-question-3-rendre-le-script-exécutable-et-le-lancer" class="nav-link" data-scroll-target="#question-3-rendre-le-script-exécutable-et-le-lancer"><span class="header-section-number">5.0.2</span> Question 3 : Rendre le script exécutable et le lancer</a></li>
+  <li><a href="#question-4-5-sécurisation-du-fichier-didentifiants-secret.conf" id="toc-question-4-5-sécurisation-du-fichier-didentifiants-secret.conf" class="nav-link" data-scroll-target="#question-4-5-sécurisation-du-fichier-didentifiants-secret.conf"><span class="header-section-number">5.0.3</span> Question 4 &amp; 5 : Sécurisation du fichier d’identifiants <code>secret.conf</code></a></li>
+  </ul></li>
+  <li><a href="#exercice-4-redirections-filtres-et-pipelines" id="toc-exercice-4-redirections-filtres-et-pipelines" class="nav-link" data-scroll-target="#exercice-4-redirections-filtres-et-pipelines"><span class="header-section-number">6</span> Exercice 4 : Redirections, Filtres et Pipelines (<code>|</code>)</a>
+  <ul class="collapse">
+  <li><a href="#question-1-afficher-les-5-premières-lignes" id="toc-question-1-afficher-les-5-premières-lignes" class="nav-link" data-scroll-target="#question-1-afficher-les-5-premières-lignes"><span class="header-section-number">6.0.1</span> Question 1 : Afficher les 5 premières lignes</a></li>
+  <li><a href="#question-2-filtrer-les-échecs-de-connexion" id="toc-question-2-filtrer-les-échecs-de-connexion" class="nav-link" data-scroll-target="#question-2-filtrer-les-échecs-de-connexion"><span class="header-section-number">6.0.2</span> Question 2 : Filtrer les échecs de connexion</a></li>
+  <li><a href="#question-3-compter-le-nombre-total-déchecs-en-une-ligne" id="toc-question-3-compter-le-nombre-total-déchecs-en-une-ligne" class="nav-link" data-scroll-target="#question-3-compter-le-nombre-total-déchecs-en-une-ligne"><span class="header-section-number">6.0.3</span> Question 3 : Compter le nombre total d’échecs en une ligne</a></li>
+  <li><a href="#question-4-redirection-vers-un-nouveau-fichier" id="toc-question-4-redirection-vers-un-nouveau-fichier" class="nav-link" data-scroll-target="#question-4-redirection-vers-un-nouveau-fichier"><span class="header-section-number">6.0.4</span> Question 4 : Redirection vers un nouveau fichier</a></li>
+  <li><a href="#question-5-pipeline-complet-danalyse-décisionnelle" id="toc-question-5-pipeline-complet-danalyse-décisionnelle" class="nav-link" data-scroll-target="#question-5-pipeline-complet-danalyse-décisionnelle"><span class="header-section-number">6.0.5</span> Question 5 : Pipeline complet d’analyse décisionnelle</a></li>
+  </ul></li>
+  <li><a href="#le-défi-récapitulatif-recherche-opérationnelle" id="toc-le-défi-récapitulatif-recherche-opérationnelle" class="nav-link" data-scroll-target="#le-défi-récapitulatif-recherche-opérationnelle"><span class="header-section-number">7</span> Le Défi Récapitulatif : Recherche Opérationnelle</a>
+  <ul class="collapse">
+  <li><a href="#la-solution-canonique-en-une-seule-commande" id="toc-la-solution-canonique-en-une-seule-commande" class="nav-link" data-scroll-target="#la-solution-canonique-en-une-seule-commande"><span class="header-section-number">7.0.1</span> La solution canonique en une seule commande :</a></li>
+  <li><a href="#réponses-attendues" id="toc-réponses-attendues" class="nav-link" data-scroll-target="#réponses-attendues"><span class="header-section-number">7.0.2</span> Réponses attendues :</a></li>
+  <li><a href="#variante-alternative-combinant-find-et-xargs" id="toc-variante-alternative-combinant-find-et-xargs" class="nav-link" data-scroll-target="#variante-alternative-combinant-find-et-xargs"><span class="header-section-number">7.0.3</span> Variante alternative combinant <code>find</code> et <code>xargs</code> :</a></li>
+  </ul></li>
+  <li><a href="#pour-aller-plus-loin-solutions-des-défis-avancés" id="toc-pour-aller-plus-loin-solutions-des-défis-avancés" class="nav-link" data-scroll-target="#pour-aller-plus-loin-solutions-des-défis-avancés"><span class="header-section-number">8</span> Pour Aller Plus Loin : Solutions des Défis Avancés</a>
+  <ul class="collapse">
+  <li><a href="#défi-a-extraction-de-la-liste-unique-des-adresses-ip" id="toc-défi-a-extraction-de-la-liste-unique-des-adresses-ip" class="nav-link" data-scroll-target="#défi-a-extraction-de-la-liste-unique-des-adresses-ip"><span class="header-section-number">8.0.1</span> Défi A : Extraction de la liste unique des adresses IP</a></li>
+  <li><a href="#défi-b-création-de-masse-en-une-ligne-one-liner" id="toc-défi-b-création-de-masse-en-une-ligne-one-liner" class="nav-link" data-scroll-target="#défi-b-création-de-masse-en-une-ligne-one-liner"><span class="header-section-number">8.0.2</span> Défi B : Création de masse en une ligne (<em>One-liner</em>)</a></li>
+  <li><a href="#défi-c-traitement-de-flux-structuré-avec-awk" id="toc-défi-c-traitement-de-flux-structuré-avec-awk" class="nav-link" data-scroll-target="#défi-c-traitement-de-flux-structuré-avec-awk"><span class="header-section-number">8.0.3</span> Défi C : Traitement de flux structuré avec <code>awk</code></a></li>
+  </ul></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Autres formats</h2><ul><li><a href="../correction_bash.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Correction Détaillée — TP 1 Bash &amp; Linux</h1>
+<p class="subtitle lead">HAX712X — Développement Logiciel (M1 SSD)</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Bensaid Bilel </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">1 septembre 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="guide-général-de-lenseignant" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Guide Général de l’Enseignant</h1>
+<p>Ce document rassemble la correction intégrale, les sorties textuelles attendues ainsi que les explications techniques associées à chaque question du TP 1.</p>
+<section id="objectifs-pédagogiques-de-la-séance" class="level3" data-number="1.0.1">
+<h3 data-number="1.0.1" class="anchored" data-anchor-id="objectifs-pédagogiques-de-la-séance"><span class="header-section-number">1.0.1</span> Objectifs pédagogiques de la séance</h3>
+<ul>
+<li>Casser la peur du terminal en installant des réflexes mécaniques d’auto-complétion (<code>Tab</code>) et de gestion des processus (<code>Ctrl+C</code>).</li>
+<li>Démystifier la notion d’arborescence : passage maîtrisé des chemins relatifs aux chemins absolus.</li>
+<li>Comprendre le modèle de sécurité Unix (triplet utilisateur / groupe / autres en lecture, écriture, exécution).</li>
+<li>Maîtriser le paradigme de composition Unix : canaliser la sortie d’un outil simple pour alimenter le suivant via un tube (<code>|</code>).</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="exercice-1-gymnastique-de-navigation-arborescence" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Exercice 1 : Gymnastique de Navigation &amp; Arborescence</h1>
+<p>Cet exercice se déroule directement dans l’environnement local de la machine étudiante, avant toute décompression d’archive.</p>
+<section id="question-1-emplacement-initial" class="level3" data-number="2.0.1">
+<h3 data-number="2.0.1" class="anchored" data-anchor-id="question-1-emplacement-initial"><span class="header-section-number">2.0.1</span> Question 1 : Emplacement initial</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Sortie type :</strong> <code>/home/etudiant</code> (ou <code>/Users/nom</code> sous macOS).</li>
+<li><strong>Point pédagogique :</strong> Montrer que le terminal démarre par défaut dans le répertoire personnel de l’utilisateur, abrégé par le tilde <code>~</code>.</li>
+</ul>
+</section>
+<section id="question-2-navigation-vers-la-racine-absolue" class="level3" data-number="2.0.2">
+<h3 data-number="2.0.2" class="anchored" data-anchor-id="question-2-navigation-vers-la-racine-absolue"><span class="header-section-number">2.0.2</span> Question 2 : Navigation vers la racine absolue</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie type de <code>pwd</code> :</strong> <code>/</code></p></li>
+<li><p><strong>Sortie de <code>ls -l</code> :</strong></p>
+<pre class="text"><code>drwxr-xr-x   2 root root  4096 août 28 14:02 bin
+drwxr-xr-x 130 root root 12288 sept  8 09:15 etc
+drwxr-xr-x   3 root root  4096 sept  2 10:00 home
+drwxr-xr-x  14 root root  4096 août 12 11:22 var</code></pre></li>
+<li><p><strong>Piège fréquent :</strong> Confondre la racine <code>/</code> (<em>root directory</em>) avec le dossier personnel de l’administrateur <code>/root</code>. Expliquer que <code>/</code> est le socle absolu de tout le système de fichiers.</p></li>
+</ul>
+</section>
+<section id="question-3-entrée-en-chemin-relatif-dans-etc" class="level3" data-number="2.0.3">
+<h3 data-number="2.0.3" class="anchored" data-anchor-id="question-3-entrée-en-chemin-relatif-dans-etc"><span class="header-section-number">2.0.3</span> Question 3 : Entrée en chemin relatif dans <code>etc/</code></h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> etc</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Sortie attendue :</strong> <code>/etc</code></li>
+<li><strong>Point pédagogique :</strong> Faire remarquer l’absence de slash initial. <code>cd etc</code> signifie « descendre dans le dossier <code>etc</code> qui se trouve là où je suis ». Si l’étudiant tape <code>cd /etc</code>, il utilise un chemin absolu (le résultat est le même ici car on part de <code>/</code>, mais la mécanique conceptuelle est différente).</li>
+</ul>
+</section>
+<section id="question-4-remonter-dun-cran-dans-larborescence" class="level3" data-number="2.0.4">
+<h3 data-number="2.0.4" class="anchored" data-anchor-id="question-4-remonter-dun-cran-dans-larborescence"><span class="header-section-number">2.0.4</span> Question 4 : Remonter d’un cran dans l’arborescence</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ..</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Sortie attendue :</strong> <code>/</code></li>
+<li><strong>Explication :</strong> Le pseudo-répertoire <code>..</code> pointe systématiquement vers le répertoire parent direct. Tenter de faire <code>cd ..</code> depuis <code>/</code> n’a aucun effet (la racine est son propre parent).</li>
+</ul>
+</section>
+<section id="question-5-retourner-au-répertoire-personnel-en-2-caractères" class="level3" data-number="2.0.5">
+<h3 data-number="2.0.5" class="anchored" data-anchor-id="question-5-retourner-au-répertoire-personnel-en-2-caractères"><span class="header-section-number">2.0.5</span> Question 5 : Retourner au répertoire personnel en 2 caractères</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ou bien :</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Vérification :</strong> <code>pwd</code> renvoie à nouveau <code>/home/etudiant</code>.</li>
+<li><strong>Point pédagogique :</strong> La commande <code>cd</code> invoquée sans aucun argument ramène automatiquement à la maison (<code>$HOME</code>).</li>
+</ul>
+</section>
+<section id="question-6-révéler-les-fichiers-cachés" class="level3" data-number="2.0.6">
+<h3 data-number="2.0.6" class="anchored" data-anchor-id="question-6-révéler-les-fichiers-cachés"><span class="header-section-number">2.0.6</span> Question 6 : Révéler les fichiers cachés</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-a</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ou avec détails :</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie type :</strong></p>
+<pre class="text"><code>.   ..   .bash_history   .bashrc   .profile   .gitconfig   Documents   Downloads</code></pre></li>
+<li><p><strong>Explication :</strong> Sous Linux, un fichier est rendu « caché » par convention dès lors que son nom commence par un point <code>.</code>. Ce ne sont pas des fichiers cryptés : ce sont simplement des fichiers de configuration logicielle masqués pour ne pas encombrer l’affichage quotidien.</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="préparation-décompression-de-larchive-de-travail" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Préparation : Décompression de l’Archive de Travail</h1>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> tp1_linux.tar.gz</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> tp1_linux</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Décryptage des options de <code>tar</code> :</strong>
+<ul>
+<li><code>-x</code> : <em>extract</em> (extraire les fichiers de l’archive).</li>
+<li><code>-z</code> : <em>gzip</em> (décompresser le flux compressé avec l’algorithme gzip).</li>
+<li><code>-v</code> : <em>verbose</em> (lister à l’écran les fichiers au fur et à mesure de l’extraction).</li>
+<li><code>-f</code> : <em>file</em> (spécifier le nom du fichier archive cible — cette option doit toujours être placée immédiatement avant le nom de l’archive).</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="exercice-2-manipulation-de-fichiers-jokers-wildcards" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Exercice 2 : Manipulation de Fichiers &amp; Jokers (<em>Wildcards</em>)</h1>
+<p>Positionnement initial :</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> exercice_1</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> vrac/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="question-1-déplacer-tous-les-fichiers-.png-en-une-seule-commande" class="level3" data-number="4.0.1">
+<h3 data-number="4.0.1" class="anchored" data-anchor-id="question-1-déplacer-tous-les-fichiers-.png-en-une-seule-commande"><span class="header-section-number">4.0.1</span> Question 1 : Déplacer tous les fichiers <code>.png</code> en une seule commande</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mv</span> vrac/<span class="pp">*</span>.png documents/images/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Mécanisme sous-jacent (<em>Globbing</em>) :</strong> Ce n’est pas la commande <code>mv</code> qui comprend le caractère <code>*</code>. C’est l’interpréteur Bash qui, <strong>avant d’exécuter la commande</strong>, remplace <code>vrac/*.png</code> par la liste explicite <code>vrac/figure_test.png vrac/photo_01.png vrac/photo_02.png vrac/photo_03.png</code>.</li>
+<li><strong>Vérification :</strong> <code>ls documents/images/</code> doit afficher les 4 images.</li>
+</ul>
+</section>
+<section id="question-2-déplacer-tous-les-fichiers-.txt" class="level3" data-number="4.0.2">
+<h3 data-number="4.0.2" class="anchored" data-anchor-id="question-2-déplacer-tous-les-fichiers-.txt"><span class="header-section-number">4.0.2</span> Question 2 : Déplacer tous les fichiers <code>.txt</code></h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mv</span> vrac/<span class="pp">*</span>.txt documents/textes/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Vérification :</strong> <code>ls documents/textes/</code> doit afficher <code>notes.txt</code> et <code>rapport.txt</code>.</li>
+</ul>
+</section>
+<section id="question-3-création-du-dossier-code" class="level3" data-number="4.0.3">
+<h3 data-number="4.0.3" class="anchored" data-anchor-id="question-3-création-du-dossier-code"><span class="header-section-number">4.0.3</span> Question 3 : Création du dossier <code>code/</code></h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> code</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Erreur fréquente :</strong> Taper <code>mkdir /code</code>. Cela tente de créer un dossier à la racine absolue du système, ce qui échouera immédiatement par un message <code>Permission denied</code>. Rappeler l’importance de l’absence de <code>/</code> pour travailler dans le dossier courant.</li>
+</ul>
+</section>
+<section id="question-4-copie-de-script.py-vers-code" class="level3" data-number="4.0.4">
+<h3 data-number="4.0.4" class="anchored" data-anchor-id="question-4-copie-de-script.py-vers-code"><span class="header-section-number">4.0.4</span> Question 4 : Copie de <code>script.py</code> vers <code>code/</code></h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> vrac/script.py code/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Point pédagogique :</strong> Bien insister sur la différence sémantique : <code>cp</code> duplique les octets sur le disque (le fichier source existe toujours dans <code>vrac/</code>), alors que <code>mv</code> déplace le pointeur d’indexation sans dupliquer la donnée.</li>
+</ul>
+</section>
+<section id="question-5-suppression-du-dossier-vrac" class="level3" data-number="4.0.5">
+<h3 data-number="4.0.5" class="anchored" data-anchor-id="question-5-suppression-du-dossier-vrac"><span class="header-section-number">4.0.5</span> Question 5 : Suppression du dossier <code>vrac/</code></h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-r</span> vrac/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Explication de l’option <code>-r</code> :</strong> Par défaut, la commande <code>rm</code> refuse de supprimer un dossier pour éviter les désastres accidentels (<code>rm: cannot remove 'vrac/': Is a directory</code>). L’option récursive <code>-r</code> ordonne la suppression de tous les fichiers contenus à l’intérieur puis du dossier lui-même.</li>
+<li><strong>Avertissement de sécurité :</strong> Rappeler qu’il n’existe aucune commande <code>undo</code> ni aucune corbeille sous Linux. Tout ce qui est supprimé par <code>rm</code> est définitivement rayé du système de fichiers.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="exercice-3-droits-daccès-et-permissions-linux" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Exercice 3 : Droits d’Accès et Permissions Linux</h1>
+<p>Positionnement initial :</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../exercice_2</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> scripts/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="question-1-2-constat-du-blocage-dexécution" class="level3" data-number="5.0.1">
+<h3 data-number="5.0.1" class="anchored" data-anchor-id="question-1-2-constat-du-blocage-dexécution"><span class="header-section-number">5.0.1</span> Question 1 &amp; 2 : Constat du blocage d’exécution</h3>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/backup.sh</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Message renvoyé :</strong> <code>bash: ./scripts/backup.sh: Permission denied</code></li>
+<li><strong>Explication :</strong> En tapant <code>ls -l scripts/backup.sh</code>, on observe les droits : <code>-rw-r--r-- 1 etudiant etudiant 215 sept 10 08:00 scripts/backup.sh</code> Bien que l’utilisateur soit le propriétaire légitime du fichier, <strong>le bit d’exécution <code>x</code> est absent</strong>. Sous Unix, l’extension <code>.sh</code> ou <code>.exe</code> n’accorde aucun privilège : seul l’état des bits de permissions détermine si un fichier a le droit d’être chargé en mémoire comme un programme exécutable.</li>
+</ul>
+</section>
+<section id="question-3-rendre-le-script-exécutable-et-le-lancer" class="level3" data-number="5.0.2">
+<h3 data-number="5.0.2" class="anchored" data-anchor-id="question-3-rendre-le-script-exécutable-et-le-lancer"><span class="header-section-number">5.0.2</span> Question 3 : Rendre le script exécutable et le lancer</h3>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x scripts/backup.sh</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Variante stricte pour le propriétaire seul :</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># chmod u+x scripts/backup.sh</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/backup.sh</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie affichée dans le terminal :</strong></p>
+<pre class="text"><code>=========================================================
+[SUCCÈS] Le script de sauvegarde s'est exécuté sans erreur !
+Tous les instantanés système ont été synchronisés.
+=========================================================</code></pre></li>
+</ul>
+</section>
+<section id="question-4-5-sécurisation-du-fichier-didentifiants-secret.conf" class="level3" data-number="5.0.3">
+<h3 data-number="5.0.3" class="anchored" data-anchor-id="question-4-5-sécurisation-du-fichier-didentifiants-secret.conf"><span class="header-section-number">5.0.3</span> Question 4 &amp; 5 : Sécurisation du fichier d’identifiants <code>secret.conf</code></h3>
+<p>État initial : <code>chmod 666</code> (<code>-rw-rw-rw-</code>). N’importe quel processus de la machine peut lire et écraser les clés secrètes.</p>
+<p>Commande de restriction octale attendue :</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 600 scripts/secret.conf</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Vérification obligatoire :</strong></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> scripts/secret.conf</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>La sortie doit afficher rigoureusement : <code>-rw------- 1 etudiant etudiant 115 sept 10 08:00 scripts/secret.conf</code></p></li>
+<li><p><strong>Détail du calcul octal :</strong></p>
+<ul>
+<li><strong>Utilisateur (Propriétaire) = 6</strong> : Lecture (<span class="math inline">\(4\)</span>) + Écriture (<span class="math inline">\(2\)</span>) = <span class="math inline">\(6\)</span>.</li>
+<li><strong>Groupe = 0</strong> : Aucun droit (<span class="math inline">\(0\)</span>).</li>
+<li><strong>Autres = 0</strong> : Aucun droit (<span class="math inline">\(0\)</span>).</li>
+</ul></li>
+<li><p><strong>Variante symbolique équivalente :</strong></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> go-rw scripts/secret.conf</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>(retirer la lecture et l’écriture au groupe <code>g</code> et aux autres <code>o</code>)</em>.</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="exercice-4-redirections-filtres-et-pipelines" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Exercice 4 : Redirections, Filtres et Pipelines (<code>|</code>)</h1>
+<p>Positionnement initial :</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../exercice_3/logs</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="question-1-afficher-les-5-premières-lignes" class="level3" data-number="6.0.1">
+<h3 data-number="6.0.1" class="anchored" data-anchor-id="question-1-afficher-les-5-premières-lignes"><span class="header-section-number">6.0.1</span> Question 1 : Afficher les 5 premières lignes</h3>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> <span class="at">-n</span> 5 connexions.log</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie attendue :</strong></p>
+<pre class="text"><code>2026-09-10 08:01:12 user=alice ip=192.168.1.10 status=SUCCESS
+2026-09-10 08:02:45 user=bob ip=192.168.1.15 status=FAILED
+2026-09-10 08:05:01 user=charlie ip=192.168.1.20 status=SUCCESS
+2026-09-10 08:12:33 user=bob ip=192.168.1.15 status=FAILED
+2026-09-10 08:14:10 user=alice ip=192.168.1.10 status=SUCCESS</code></pre></li>
+<li><p><strong>Complément :</strong> Rappeler que la commande symétrique pour la fin de fichier est <code>tail -n 5 connexions.log</code>.</p></li>
+</ul>
+</section>
+<section id="question-2-filtrer-les-échecs-de-connexion" class="level3" data-number="6.0.2">
+<h3 data-number="6.0.2" class="anchored" data-anchor-id="question-2-filtrer-les-échecs-de-connexion"><span class="header-section-number">6.0.2</span> Question 2 : Filtrer les échecs de connexion</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">"status=FAILED"</span> connexions.log</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ou simplement :</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">"FAILED"</span> connexions.log</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Explication :</strong> <code>grep</code> parcourt le fichier ligne par ligne et n’imprime sur la sortie standard que celles qui contiennent le motif textuel exact.</li>
+</ul>
+</section>
+<section id="question-3-compter-le-nombre-total-déchecs-en-une-ligne" class="level3" data-number="6.0.3">
+<h3 data-number="6.0.3" class="anchored" data-anchor-id="question-3-compter-le-nombre-total-déchecs-en-une-ligne"><span class="header-section-number">6.0.3</span> Question 3 : Compter le nombre total d’échecs en une ligne</h3>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">"FAILED"</span> connexions.log <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Résultat numérique affiché :</strong> <code>6</code></li>
+<li><strong>Mécanisme du pipe <code>|</code> :</strong>
+<ol type="1">
+<li><code>grep "FAILED"</code> écrit les 6 lignes trouvées dans son flux <code>stdout</code>.</li>
+<li>Le tube <code>|</code> intercepte ce flux et le branche directement sur le <code>stdin</code> de la commande <code>wc -l</code>.</li>
+<li><code>wc -l</code> (<em>word count lines</em>) compte le nombre de sauts de ligne reçus et affiche <code>6</code>.</li>
+</ol></li>
+<li><strong>Variante native :</strong> <code>grep -c "FAILED" connexions.log</code> produit directement le même décompte sans tube.</li>
+</ul>
+</section>
+<section id="question-4-redirection-vers-un-nouveau-fichier" class="level3" data-number="6.0.4">
+<h3 data-number="6.0.4" class="anchored" data-anchor-id="question-4-redirection-vers-un-nouveau-fichier"><span class="header-section-number">6.0.4</span> Question 4 : Redirection vers un nouveau fichier</h3>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">"user=alice"</span> connexions.log <span class="op">&gt;</span> rapport_alice.txt</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Vérification :</strong></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> rapport_alice.txt</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Le fichier contient les 3 lignes associées aux connexions d’Alice.</p></li>
+<li><p><strong>Point pédagogique :</strong> Insister sur la différence critique entre <code>&gt;</code> (qui détruit le fichier de destination s’il existait déjà avant d’écrire) et <code>&gt;&gt;</code> (qui concatène à la fin).</p></li>
+</ul>
+</section>
+<section id="question-5-pipeline-complet-danalyse-décisionnelle" class="level3" data-number="6.0.5">
+<h3 data-number="6.0.5" class="anchored" data-anchor-id="question-5-pipeline-complet-danalyse-décisionnelle"><span class="header-section-number">6.0.5</span> Question 5 : Pipeline complet d’analyse décisionnelle</h3>
+<p>On cherche à produire la distribution des échecs d’authentification par utilisateur.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="st">"FAILED"</span> connexions.log <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> <span class="st">" "</span> <span class="at">-f</span> 3 <span class="kw">|</span> <span class="fu">sort</span> <span class="kw">|</span> <span class="fu">uniq</span> <span class="at">-c</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie exacte obtenue :</strong></p>
+<pre class="text"><code>      3 user=bob
+      2 user=eve
+      1 user=mallory</code></pre></li>
+<li><p><strong>Décomposition pas-à-pas du pipeline :</strong></p>
+<ol type="1">
+<li><code>grep "FAILED"</code> : sélectionne uniquement les 6 lignes d’échec.</li>
+<li><code>cut -d " " -f 3</code> : découpe chaque ligne selon l’espace (<code>-d " "</code>) et extrait le 3<sup>e</sup> champ (<code>-f 3</code>), c’est-à-dire <code>user=...</code>.</li>
+<li><code>sort</code> : trie les chaînes par ordre alphabétique (<code>user=bob</code>, <code>user=bob</code>, <code>user=bob</code>, <code>user=eve</code>, <code>user=eve</code>, <code>user=mallory</code>).</li>
+<li><code>uniq -c</code> : regroupe les occurrences identiques adjacentes et affiche leur effectif.</li>
+</ol></li>
+<li><p><strong>Piège capital à expliciter :</strong> La commande <code>uniq</code> ne compare <strong>que les lignes consécutives</strong>. Si l’on oublie <code>sort</code>, <code>uniq -c</code> ne regroupera pas les occurrences dispersées dans le fichier. Le passage par <code>sort</code> avant <code>uniq</code> est obligatoire sous Unix.</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="le-défi-récapitulatif-recherche-opérationnelle" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Le Défi Récapitulatif : Recherche Opérationnelle</h1>
+<p>Positionnement initial :</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../../defi</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="la-solution-canonique-en-une-seule-commande" class="level3" data-number="7.0.1">
+<h3 data-number="7.0.1" class="anchored" data-anchor-id="la-solution-canonique-en-une-seule-commande"><span class="header-section-number">7.0.1</span> La solution canonique en une seule commande :</h3>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-r</span> <span class="st">"INDICE_FINAL"</span> serveurs/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie immédiate :</strong></p>
+<pre class="text"><code>serveurs/beta/proc_7.log:2026-09-10 host=beta pid=1007 ALERT INDICE_FINAL : [LINUX_MASTER_2026]</code></pre></li>
+</ul>
+</section>
+<section id="réponses-attendues" class="level3" data-number="7.0.2">
+<h3 data-number="7.0.2" class="anchored" data-anchor-id="réponses-attendues"><span class="header-section-number">7.0.2</span> Réponses attendues :</h3>
+<ol type="1">
+<li><strong>Serveur concerné :</strong> <code>serveur beta</code></li>
+<li><strong>Fichier exact :</strong> <code>serveurs/beta/proc_7.log</code></li>
+<li><strong>Valeur de l’empreinte :</strong> <code>LINUX_MASTER_2026</code></li>
+</ol>
+</section>
+<section id="variante-alternative-combinant-find-et-xargs" class="level3" data-number="7.0.3">
+<h3 data-number="7.0.3" class="anchored" data-anchor-id="variante-alternative-combinant-find-et-xargs"><span class="header-section-number">7.0.3</span> Variante alternative combinant <code>find</code> et <code>xargs</code> :</h3>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> serveurs/ <span class="at">-type</span> f <span class="at">-name</span> <span class="st">"*.log"</span> <span class="at">-exec</span> grep <span class="at">-H</span> <span class="st">"INDICE_FINAL"</span> {} +</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Point pédagogique :</strong> L’option <code>-r</code> (ou <code>-R</code>) de <code>grep</code> permet une recherche récursive ultra-rapide dans tous les sous-dossiers. C’est l’équivalent textuel instantané de <code>Ctrl+Shift+F</code> dans un IDE moderne.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="pour-aller-plus-loin-solutions-des-défis-avancés" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Pour Aller Plus Loin : Solutions des Défis Avancés</h1>
+<section id="défi-a-extraction-de-la-liste-unique-des-adresses-ip" class="level3" data-number="8.0.1">
+<h3 data-number="8.0.1" class="anchored" data-anchor-id="défi-a-extraction-de-la-liste-unique-des-adresses-ip"><span class="header-section-number">8.0.1</span> Défi A : Extraction de la liste unique des adresses IP</h3>
+<p><strong>Solution 1 (Découpage syntaxique pur avec <code>cut</code>) :</strong></p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cut</span> <span class="at">-d</span> <span class="st">" "</span> <span class="at">-f</span> 4 connexions.log <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> <span class="st">"="</span> <span class="at">-f</span> 2 <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-u</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Solution 2 (Puissance des Expressions Régulières avec <code>grep -oE</code>) :</strong></p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span> <span class="at">-oE</span> <span class="st">"([0-9]{1,3}\.){3}[0-9]{1,3}"</span> connexions.log <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-u</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie ordonnée :</strong></p>
+<pre class="text"><code>10.0.0.99
+172.16.0.4
+192.168.1.10
+192.168.1.15
+192.168.1.20
+192.168.1.35</code></pre></li>
+<li><p><strong>Explication technique :</strong> L’option <code>-o</code> (<em>only-matching</em>) de <code>grep</code> n’affiche que la sous-chaîne qui correspond au motif regex, et non toute la ligne. L’option <code>-u</code> de <code>sort</code> applique le filtre d’unicité directement sans nécessiter <code>uniq</code>.</p></li>
+</ul>
+<hr>
+</section>
+<section id="défi-b-création-de-masse-en-une-ligne-one-liner" class="level3" data-number="8.0.2">
+<h3 data-number="8.0.2" class="anchored" data-anchor-id="défi-b-création-de-masse-en-une-ligne-one-liner"><span class="header-section-number">8.0.2</span> Défi B : Création de masse en une ligne (<em>One-liner</em>)</h3>
+<p><strong>Solution optimale (Expansion d’accolades Bash) :</strong></p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> experience_<span class="dt">{</span><span class="dv">01</span><span class="dt">..</span><span class="dv">10</span><span class="dt">}</span> <span class="kw">&amp;&amp;</span> <span class="fu">touch</span> experience_{01..10}/resultat.dat</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Solution itérative classique (Boucle <code>for</code>) :</strong></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="va">$(</span><span class="fu">seq</span> <span class="at">-w</span> 1 10<span class="va">)</span><span class="kw">;</span> <span class="cf">do</span> <span class="fu">mkdir</span> <span class="at">-p</span> <span class="st">"experience_</span><span class="va">$i</span><span class="st">"</span> <span class="kw">&amp;&amp;</span> <span class="fu">touch</span> <span class="st">"experience_</span><span class="va">$i</span><span class="st">/resultat.dat"</span><span class="kw">;</span> <span class="cf">done</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Point pédagogique :</strong> Montrer la puissance du mécanisme d’expansion native de Bash <code>{01..10}</code> qui évite d’écrire des scripts complexes pour instancier des plans d’expériences numériques.</li>
+</ul>
+<hr>
+</section>
+<section id="défi-c-traitement-de-flux-structuré-avec-awk" class="level3" data-number="8.0.3">
+<h3 data-number="8.0.3" class="anchored" data-anchor-id="défi-c-traitement-de-flux-structuré-avec-awk"><span class="header-section-number">8.0.3</span> Défi C : Traitement de flux structuré avec <code>awk</code></h3>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="at">-F</span><span class="st">'[ =]'</span> <span class="st">'$9=="SUCCESS" { print "Utilisateur [" $6 "] connecté depuis l'</span><span class="dt">\'</span><span class="st">'IP [" $8 "]" }'</span> connexions.log</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>Variante avec délimiteur par défaut :</strong></li>
+</ul>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="st">'$5=="status=SUCCESS" {</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="st">    split($3, u, "=");</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="st">    split($4, ip, "=");</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="st">    print "Utilisateur [" u[2] "] connecté depuis l'</span><span class="dt">\'</span><span class="st">'IP [" ip[2] "]"</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="st">}'</span> connexions.log</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>Sortie générée :</strong></p>
+<pre class="text"><code>Utilisateur [alice] connecté depuis l'IP [192.168.1.10]
+Utilisateur [charlie] connecté depuis l'IP [192.168.1.20]
+Utilisateur [alice] connecté depuis l'IP [192.168.1.10]
+Utilisateur [charlie] connecté depuis l'IP [192.168.1.20]
+Utilisateur [david] connecté depuis l'IP [192.168.1.35]
+Utilisateur [alice] connecté depuis l'IP [192.168.1.10]
+Utilisateur [bob] connecté depuis l'IP [192.168.1.15]
+Utilisateur [david] connecté depuis l'IP [192.168.1.35]</code></pre></li>
+<li><p><strong>Explication technique :</strong> L’option <code>-F'[ =]'</code> indique à <code>awk</code> que l’espace ET le signe égal servent simultanément de séparateurs de colonnes. La colonne <code>$6</code> récupère directement la valeur du nom d’utilisateur et <code>$8</code> l’adresse IP.</p></li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Master 1 Sciences des Données (SSD) — Université de Montpellier">
+
+<title>Cahier des Charges — Projet de Développement Logiciel (HAX712X)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="cahier_des_charges_files/libs/clipboard/clipboard.min.js"></script>
+<script src="cahier_des_charges_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="cahier_des_charges_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="cahier_des_charges_files/libs/quarto-html/popper.min.js"></script>
+<script src="cahier_des_charges_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="cahier_des_charges_files/libs/quarto-html/anchor.min.js"></script>
+<link href="cahier_des_charges_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="cahier_des_charges_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="cahier_des_charges_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="cahier_des_charges_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="cahier_des_charges_files/libs/bootstrap/bootstrap-1d4bd141b8037eef2aa72fbc65a93844.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sommaire</h2>
+   
+  <ul>
+  <li><a href="#présentation-générale-du-projet" id="toc-présentation-générale-du-projet" class="nav-link active" data-scroll-target="#présentation-générale-du-projet"><span class="header-section-number">1</span> Présentation Générale du Projet</a>
+  <ul class="collapse">
+  <li><a href="#objectifs-pédagogiques" id="toc-objectifs-pédagogiques" class="nav-link" data-scroll-target="#objectifs-pédagogiques"><span class="header-section-number">1.1</span> Objectifs Pédagogiques</a></li>
+  <li><a href="#organisation" id="toc-organisation" class="nav-link" data-scroll-target="#organisation"><span class="header-section-number">1.2</span> Organisation</a></li>
+  </ul></li>
+  <li><a href="#modèle-mathématique-et-règles-métier-du-combat" id="toc-modèle-mathématique-et-règles-métier-du-combat" class="nav-link" data-scroll-target="#modèle-mathématique-et-règles-métier-du-combat"><span class="header-section-number">2</span> Modèle Mathématique et Règles Métier du Combat</a>
+  <ul class="collapse">
+  <li><a href="#caractéristiques-et-normalisation-des-combattants" id="toc-caractéristiques-et-normalisation-des-combattants" class="nav-link" data-scroll-target="#caractéristiques-et-normalisation-des-combattants"><span class="header-section-number">2.1</span> Caractéristiques et Normalisation des Combattants</a></li>
+  <li><a href="#matrice-des-affinités-élémentaires" id="toc-matrice-des-affinités-élémentaires" class="nav-link" data-scroll-target="#matrice-des-affinités-élémentaires"><span class="header-section-number">2.2</span> Matrice des Affinités Élémentaires</a></li>
+  <li><a href="#algorithme-de-résolution-dun-tour" id="toc-algorithme-de-résolution-dun-tour" class="nav-link" data-scroll-target="#algorithme-de-résolution-dun-tour"><span class="header-section-number">2.3</span> Algorithme de Résolution d’un Tour</a>
+  <ul class="collapse">
+  <li><a href="#détermination-de-linitiative" id="toc-détermination-de-linitiative" class="nav-link" data-scroll-target="#détermination-de-linitiative"><span class="header-section-number">2.3.1</span> 1. Détermination de l’initiative</a></li>
+  <li><a href="#calcul-stochastique-des-dégâts" id="toc-calcul-stochastique-des-dégâts" class="nav-link" data-scroll-target="#calcul-stochastique-des-dégâts"><span class="header-section-number">2.3.2</span> 2. Calcul stochastique des dégâts</a></li>
+  <li><a href="#application-des-dégâts-et-terminaison" id="toc-application-des-dégâts-et-terminaison" class="nav-link" data-scroll-target="#application-des-dégâts-et-terminaison"><span class="header-section-number">2.3.3</span> 3. Application des dégâts et terminaison</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#architecture-logicielle-et-standards-de-développement" id="toc-architecture-logicielle-et-standards-de-développement" class="nav-link" data-scroll-target="#architecture-logicielle-et-standards-de-développement"><span class="header-section-number">3</span> Architecture Logicielle et Standards de Développement</a>
+  <ul class="collapse">
+  <li><a href="#arborescence-imposée-du-dépôt" id="toc-arborescence-imposée-du-dépôt" class="nav-link" data-scroll-target="#arborescence-imposée-du-dépôt"><span class="header-section-number">3.1</span> Arborescence Imposée du Dépôt</a></li>
+  <li><a href="#règles-de-programmation-orientée-objet-poo" id="toc-règles-de-programmation-orientée-objet-poo" class="nav-link" data-scroll-target="#règles-de-programmation-orientée-objet-poo"><span class="header-section-number">3.2</span> Règles de Programmation Orientée Objet (POO)</a></li>
+  <li><a href="#packaging-et-intégration-continue-ci" id="toc-packaging-et-intégration-continue-ci" class="nav-link" data-scroll-target="#packaging-et-intégration-continue-ci"><span class="header-section-number">3.3</span> Packaging et Intégration Continue (CI)</a></li>
+  </ul></li>
+  <li><a href="#pipeline-de-données-cache-local-et-simulation" id="toc-pipeline-de-données-cache-local-et-simulation" class="nav-link" data-scroll-target="#pipeline-de-données-cache-local-et-simulation"><span class="header-section-number">4</span> Pipeline de Données, Cache Local et Simulation</a>
+  <ul class="collapse">
+  <li><a href="#récupération-api-et-stratégie-de-cache-hors-ligne" id="toc-récupération-api-et-stratégie-de-cache-hors-ligne" class="nav-link" data-scroll-target="#récupération-api-et-stratégie-de-cache-hors-ligne"><span class="header-section-number">4.1</span> Récupération API et Stratégie de Cache Hors-Ligne</a></li>
+  <li><a href="#moteur-de-simulation-monte-carlo-parallélisé" id="toc-moteur-de-simulation-monte-carlo-parallélisé" class="nav-link" data-scroll-target="#moteur-de-simulation-monte-carlo-parallélisé"><span class="header-section-number">4.2</span> Moteur de Simulation Monte-Carlo Parallélisé</a></li>
+  </ul></li>
+  <li><a href="#spécifications-du-tableau-de-bord-streamlit" id="toc-spécifications-du-tableau-de-bord-streamlit" class="nav-link" data-scroll-target="#spécifications-du-tableau-de-bord-streamlit"><span class="header-section-number">5</span> Spécifications du Tableau de Bord Streamlit</a>
+  <ul class="collapse">
+  <li><a href="#module-1-simulateur-de-duel-et-télémétrie-en-direct" id="toc-module-1-simulateur-de-duel-et-télémétrie-en-direct" class="nav-link" data-scroll-target="#module-1-simulateur-de-duel-et-télémétrie-en-direct"><span class="header-section-number">5.1</span> Module 1 : Simulateur de Duel et Télémétrie en Direct</a></li>
+  <li><a href="#module-2-catalogue-et-analyse-exploratoire-des-données" id="toc-module-2-catalogue-et-analyse-exploratoire-des-données" class="nav-link" data-scroll-target="#module-2-catalogue-et-analyse-exploratoire-des-données"><span class="header-section-number">5.2</span> Module 2 : Catalogue et Analyse Exploratoire des Données</a></li>
+  <li><a href="#module-3-cartographie-géospatiale-des-arènes-doccitanie" id="toc-module-3-cartographie-géospatiale-des-arènes-doccitanie" class="nav-link" data-scroll-target="#module-3-cartographie-géospatiale-des-arènes-doccitanie"><span class="header-section-number">5.3</span> Module 3 : Cartographie Géospatiale des Arènes d’Occitanie</a></li>
+  </ul></li>
+  <li><a href="#spécifications-exhaustives-des-10-extensions-thématiques" id="toc-spécifications-exhaustives-des-10-extensions-thématiques" class="nav-link" data-scroll-target="#spécifications-exhaustives-des-10-extensions-thématiques"><span class="header-section-number">6</span> Spécifications Exhaustives des 10 Extensions Thématiques</a></li>
+  <li><a href="#spécifications-exhaustives-des-10-extensions-thématiques-1" id="toc-spécifications-exhaustives-des-10-extensions-thématiques-1" class="nav-link" data-scroll-target="#spécifications-exhaustives-des-10-extensions-thématiques-1"><span class="header-section-number">7</span> Spécifications Exhaustives des 10 Extensions Thématiques</a>
+  <ul class="collapse">
+  <li><a href="#extension-1-objets-passifs-et-équipements-stratégiques" id="toc-extension-1-objets-passifs-et-équipements-stratégiques" class="nav-link" data-scroll-target="#extension-1-objets-passifs-et-équipements-stratégiques"><span class="header-section-number">7.0.1</span> Extension 1 : Objets Passifs et Équipements Stratégiques</a></li>
+  <li><a href="#extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" id="toc-extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" class="nav-link" data-scroll-target="#extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team"><span class="header-section-number">7.0.2</span> Extension 2 : Combats d’Équipes 3 contre 3 avec Relais (Tag-Team)</a></li>
+  <li><a href="#extension-3-matrice-complète-de-méta-jeu-en-round-robin" id="toc-extension-3-matrice-complète-de-méta-jeu-en-round-robin" class="nav-link" data-scroll-target="#extension-3-matrice-complète-de-méta-jeu-en-round-robin"><span class="header-section-number">7.0.3</span> Extension 3 : Matrice Complète de Méta-Jeu en Round-Robin</a></li>
+  <li><a href="#extension-4-choix-stratégique-dattaques-précision-vs-puissance" id="toc-extension-4-choix-stratégique-dattaques-précision-vs-puissance" class="nav-link" data-scroll-target="#extension-4-choix-stratégique-dattaques-précision-vs-puissance"><span class="header-section-number">7.0.4</span> Extension 4 : Choix Stratégique d’Attaques (Précision vs Puissance)</a></li>
+  <li><a href="#extension-5-système-stochastique-daltérations-détat" id="toc-extension-5-système-stochastique-daltérations-détat" class="nav-link" data-scroll-target="#extension-5-système-stochastique-daltérations-détat"><span class="header-section-number">7.0.5</span> Extension 5 : Système Stochastique d’Altérations d’État</a></li>
+  <li><a href="#extension-6-gestion-des-points-de-compétence-pp-et-action-lutte" id="toc-extension-6-gestion-des-points-de-compétence-pp-et-action-lutte" class="nav-link" data-scroll-target="#extension-6-gestion-des-points-de-compétence-pp-et-action-lutte"><span class="header-section-number">7.0.6</span> Extension 6 : Gestion des Points de Compétence (PP) et Action Lutte</a></li>
+  <li><a href="#extension-7-accélération-vectorisée-et-profilage-numérique" id="toc-extension-7-accélération-vectorisée-et-profilage-numérique" class="nav-link" data-scroll-target="#extension-7-accélération-vectorisée-et-profilage-numérique"><span class="header-section-number">7.0.7</span> Extension 7 : Accélération Vectorisée et Profilage Numérique</a></li>
+  <li><a href="#extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule" id="toc-extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule" class="nav-link" data-scroll-target="#extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule"><span class="header-section-number">7.0.8</span> Extension 8 : Système Dynamique de Niveaux et Courbe de Bascule</a></li>
+  <li><a href="#extension-9-la-route-des-champions-occitanie---progression-sous-contrainte" id="toc-extension-9-la-route-des-champions-occitanie---progression-sous-contrainte" class="nav-link" data-scroll-target="#extension-9-la-route-des-champions-occitanie---progression-sous-contrainte"><span class="header-section-number">7.0.9</span> Extension 9 : La Route des Champions (Occitanie - Progression sous Contrainte)</a></li>
+  <li><a href="#extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif" id="toc-extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif" class="nav-link" data-scroll-target="#extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif"><span class="header-section-number">7.0.10</span> Extension 10 : Reconstitution Pas-à-Pas et Export de Combat (Replay Interactif)</a></li>
+  </ul></li>
+  <li><a href="#politique-de-bonus-valorisation-du-dépassement-technique" id="toc-politique-de-bonus-valorisation-du-dépassement-technique" class="nav-link" data-scroll-target="#politique-de-bonus-valorisation-du-dépassement-technique"><span class="header-section-number">8</span> Politique de Bonus (Valorisation du Dépassement Technique)</a>
+  <ul class="collapse">
+  <li><a href="#modalités-dattribution" id="toc-modalités-dattribution" class="nav-link" data-scroll-target="#modalités-dattribution"><span class="header-section-number">8.1</span> Modalités d’Attribution</a></li>
+  <li><a href="#exemples-dinitiatives-reconnues-pour-le-bonus" id="toc-exemples-dinitiatives-reconnues-pour-le-bonus" class="nav-link" data-scroll-target="#exemples-dinitiatives-reconnues-pour-le-bonus"><span class="header-section-number">8.2</span> Exemples d’Initiatives Reconnues pour le Bonus</a></li>
+  </ul></li>
+  <li><a href="#travail-collaboratif-gestion-de-version-et-intégrité" id="toc-travail-collaboratif-gestion-de-version-et-intégrité" class="nav-link" data-scroll-target="#travail-collaboratif-gestion-de-version-et-intégrité"><span class="header-section-number">9</span> Travail Collaboratif, Gestion de Version et Intégrité</a>
+  <ul class="collapse">
+  <li><a href="#bonnes-pratiques-git-imposées" id="toc-bonnes-pratiques-git-imposées" class="nav-link" data-scroll-target="#bonnes-pratiques-git-imposées"><span class="header-section-number">9.1</span> Bonnes Pratiques Git Imposées</a></li>
+  <li><a href="#document-contractuel-contributions.md" id="toc-document-contractuel-contributions.md" class="nav-link" data-scroll-target="#document-contractuel-contributions.md"><span class="header-section-number">9.2</span> Document Contractuel : <code>CONTRIBUTIONS.md</code></a></li>
+  <li><a href="#contrôle-automatisé-du-plagiat-et-de-lhistorique" id="toc-contrôle-automatisé-du-plagiat-et-de-lhistorique" class="nav-link" data-scroll-target="#contrôle-automatisé-du-plagiat-et-de-lhistorique"><span class="header-section-number">9.3</span> Contrôle Automatisé du Plagiat et de l’Historique</a></li>
+  </ul></li>
+  <li><a href="#modalités-dévaluation-et-grilles-de-notation" id="toc-modalités-dévaluation-et-grilles-de-notation" class="nav-link" data-scroll-target="#modalités-dévaluation-et-grilles-de-notation"><span class="header-section-number">10</span> Modalités d’Évaluation et Grilles de Notation</a>
+  <ul class="collapse">
+  <li><a href="#note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3" id="toc-note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3" class="nav-link" data-scroll-target="#note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3"><span class="header-section-number">10.1</span> Note 1 : Code, Architecture et Produit (/20 — Note de Groupe, Coeff 3)</a></li>
+  <li><a href="#note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2" id="toc-note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2" class="nav-link" data-scroll-target="#note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2"><span class="header-section-number">10.2</span> Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Note Individuelle, Coeff 2)</a></li>
+  </ul></li>
+  <li><a href="#calendrier-prévisionnel-et-jalons-de-développement" id="toc-calendrier-prévisionnel-et-jalons-de-développement" class="nav-link" data-scroll-target="#calendrier-prévisionnel-et-jalons-de-développement"><span class="header-section-number">11</span> Calendrier Prévisionnel et Jalons de Développement</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Autres formats</h2><ul><li><a href="../cahier_des_charges.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cahier des Charges — Projet de Développement Logiciel (HAX712X)</h1>
+<p class="subtitle lead">PyArena : Simulateur Stochastique, Génie Logiciel et Dashboard Décisionnel</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Master 1 Sciences des Données (SSD) — Université de Montpellier </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">11 septembre 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="présentation-générale-du-projet" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Présentation Générale du Projet</h1>
+<p>Le projet de l’UE Développement Logiciel (HAX712X) constitue le fil conducteur pratique du semestre pour la promotion de <strong>Master 1 Sciences des Données (SSD)</strong>.</p>
+<p>L’objectif est de concevoir, développer, tester, documenter et déployer une bibliothèque logicielle complète en Python modélisant une arène de combat au tour par tour (<strong>moteur headless</strong>), couplée à un pipeline d’ingestion de données et à un <strong>tableau de bord analytique interactif (Streamlit)</strong>.</p>
+<section id="objectifs-pédagogiques" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="objectifs-pédagogiques"><span class="header-section-number">1.1</span> Objectifs Pédagogiques</h2>
+<ol type="1">
+<li><strong>Conception logicielle industrielle :</strong> Programmation orientée objet stricte, modularité, encapsulation, gestion rigoureuse des erreurs et packaging standard (<code>pyproject.toml</code>).</li>
+<li><strong>Assurance qualité :</strong> Tests unitaires automatisés (<code>pytest</code>), mesure de couverture de code et intégration continue (GitHub Actions).</li>
+<li><strong>Calcul intensif et Data Science :</strong> Simulation stochastique de Monte-Carlo, parallélisation multi-coeurs (<code>multiprocessing</code> / <code>joblib</code>), ingestion d’API Web et mise en cache locale.</li>
+<li><strong>Visualisation avancée :</strong> Exploration de données (Plotly), cartographie géographique interactive (Folium / GeoPandas) et déploiement d’une application web décisionnelle.</li>
+</ol>
+</section>
+<section id="organisation" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="organisation"><span class="header-section-number">1.2</span> Organisation</h2>
+<ul>
+<li>Le projet s’effectue obligatoirement en <strong>groupes de 3 étudiants</strong> (exceptionnellement un groupe de 4 en fonction de l’effectif total).</li>
+<li>Le moteur de simulation, l’ingestion API, les tests unitaires et le dashboard constituent un <strong>socle commun obligatoire</strong>.</li>
+<li>Chaque groupe choisit <strong>une extension thématique exclusive</strong> parmi les 10 proposées afin d’approfondir un volet algorithmique ou fonctionnel précis.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="modèle-mathématique-et-règles-métier-du-combat" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Modèle Mathématique et Règles Métier du Combat</h1>
+<p>Le système dynamique modélisé est un duel discret au tour par tour entre deux entités. Le modèle est entièrement formel et autosuffisant : <strong>aucune connaissance préalable de jeux vidéo (Pokemon) n’est requise</strong>.</p>
+<section id="caractéristiques-et-normalisation-des-combattants" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="caractéristiques-et-normalisation-des-combattants"><span class="header-section-number">2.1</span> Caractéristiques et Normalisation des Combattants</h2>
+<p>Chaque combattant <span class="math inline">\(C\)</span> est modélisé par un vecteur d’état à sept dimensions : <span class="math display">\[C = \langle \text{id}, \text{nom}, T, \text{PV}_{\max}, \text{PV}, A, D, V \rangle\]</span></p>
+<ul>
+<li><span class="math inline">\(\text{id} \in [\![1, 151]\!]\)</span> : identifiant officiel dans la PokéAPI (première génération).</li>
+<li><span class="math inline">\(\text{nom} \in \mathbb{S}\)</span> : identifiant textuel unique (ex. : <code>"Pikachu"</code>, <code>"Charizard"</code>).</li>
+<li><span class="math inline">\(T \in \mathcal{T}\)</span> : type élémentaire appartenant à <span class="math inline">\(\mathcal{T} = \{\text{Normal}, \text{Feu}, \text{Eau}, \text{Plante}, \text{Électrik}, ...\}\)</span>.</li>
+<li>Les caractéristiques opérationnelles sont normalisées au <strong>Niveau 50 standard</strong> à partir des statistiques de base brutes (<span class="math inline">\(\text{Stat}_{\text{base}}\)</span>) récupérées sur l’API : <span class="math display">\[\text{PV}_{\max} = \text{PV}_{\text{base}} + 60\]</span> <span class="math display">\[A = A_{\text{base}} + 5, \quad D = D_{\text{base}} + 5, \quad V = V_{\text{base}} + 5\]</span></li>
+<li><span class="math inline">\(\text{PV} \in [\![0, \text{PV}_{\max}]\!]\)</span> : points de vie courants du combattant.</li>
+</ul>
+<p>Si <span class="math inline">\(\text{PV} = 0\)</span>, l’entité est déclarée <strong>K.-O.</strong> (<em>fainted</em>) et ne peut plus réaliser aucune action.</p>
+</section>
+<section id="matrice-des-affinités-élémentaires" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="matrice-des-affinités-élémentaires"><span class="header-section-number">2.2</span> Matrice des Affinités Élémentaires</h2>
+<p>Le coefficient multiplicateur <span class="math inline">\(M(T_{\text{att}}, T_{\text{déf}}) \in \{0.5, 1.0, 2.0\}\)</span> modélise l’avantage ou le désavantage élémentaire :</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type Attaquant (<span class="math inline">\(T_{\text{att}}\)</span>) &nbsp;Type Défenseur (<span class="math inline">\(T_{\text{déf}}\)</span>)</th>
+<th style="text-align: center;">Normal</th>
+<th style="text-align: center;">Feu</th>
+<th style="text-align: center;">Eau</th>
+<th style="text-align: center;">Plante</th>
+<th style="text-align: center;">Électrik</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Normal</strong></td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">1.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Feu</strong></td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">2.0</td>
+<td style="text-align: center;">1.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Eau</strong></td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">2.0</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">1.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Plante</strong></td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">2.0</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">1.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Électrik</strong></td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">1.0</td>
+<td style="text-align: center;">2.0</td>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">0.5</td>
+</tr>
+</tbody>
+</table>
+<p>Un fichier <code>data/types.csv</code> est fourni pour charger cette matrice de manière automatisée dans le package.</p>
+</section>
+<section id="algorithme-de-résolution-dun-tour" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="algorithme-de-résolution-dun-tour"><span class="header-section-number">2.3</span> Algorithme de Résolution d’un Tour</h2>
+<p>Soient deux combattants <span class="math inline">\(C_1\)</span> et <span class="math inline">\(C_2\)</span>. Le duel se décompose en tours séquentiels successifs :</p>
+<section id="détermination-de-linitiative" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="détermination-de-linitiative"><span class="header-section-number">2.3.1</span> 1. Détermination de l’initiative</h3>
+<ul>
+<li>Le combattant possédant la vitesse <span class="math inline">\(V\)</span> la plus élevée frappe en premier.</li>
+<li>En cas d’égalité stricte (<span class="math inline">\(V_1 = V_2\)</span>), le premier attaquant est désigné par un tirage de Bernoulli <span class="math inline">\(B \sim \mathcal{B}(0.5)\)</span>.</li>
+</ul>
+</section>
+<section id="calcul-stochastique-des-dégâts" class="level3" data-number="2.3.2">
+<h3 data-number="2.3.2" class="anchored" data-anchor-id="calcul-stochastique-des-dégâts"><span class="header-section-number">2.3.2</span> 2. Calcul stochastique des dégâts</h3>
+<p>L’attaquant actif assène une attaque standard de puissance nominale <span class="math inline">\(P = 50\)</span>.</p>
+<p>La formule fermée des dégâts réels infligés est : <span class="math display">\[\text{Dégâts} = \max\left(1, \left\lfloor \left( \frac{22 \times P \times \frac{A_{\text{att}}}{D_{\text{déf}}}}{50} + 2 \right) \times M(T_{\text{att}}, T_{\text{déf}}) \times U \times K \right\rfloor\right)\]</span></p>
+<p>avec : * <span class="math inline">\(\lfloor x \rfloor\)</span> : partie entière inférieure. * <span class="math inline">\(M(T_{\text{att}}, T_{\text{déf}})\)</span> : multiplicateur issu de la matrice des types. * <span class="math inline">\(U\)</span> : variable aléatoire modélisant la variabilité du coup, <span class="math inline">\(U \sim \mathcal{U}([0.85, 1.00])\)</span>. * <span class="math inline">\(K\)</span> : multiplicateur de coup critique gouverné par une variable de Bernoulli <span class="math inline">\(X_{\text{crit}} \sim \mathcal{B}(0.10)\)</span> : <span class="math display">\[K = \begin{cases} 1.5 &amp; \text{si } X_{\text{crit}} = 1 \text{ (probabilité } 10\%) \\ 1.0 &amp; \text{sinon} \end{cases}\]</span></p>
+</section>
+<section id="application-des-dégâts-et-terminaison" class="level3" data-number="2.3.3">
+<h3 data-number="2.3.3" class="anchored" data-anchor-id="application-des-dégâts-et-terminaison"><span class="header-section-number">2.3.3</span> 3. Application des dégâts et terminaison</h3>
+<p><span class="math display">\[\text{PV}_{\text{déf}} \leftarrow \max(0, \text{PV}_{\text{déf}} - \text{Dégâts})\]</span></p>
+<ul>
+<li>Si <span class="math inline">\(\text{PV}_{\text{déf}} = 0\)</span> : le défenseur est K.-O., le combat prend fin <strong>immédiatement</strong>. Le défenseur ne riposte pas.</li>
+<li>Si <span class="math inline">\(\text{PV}_{\text{déf}} &gt; 0\)</span> : le défenseur devient attaquant et exécute à son tour les étapes 2 et 3.</li>
+</ul>
+<hr>
+</section>
+</section>
+</section>
+<section id="architecture-logicielle-et-standards-de-développement" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Architecture Logicielle et Standards de Développement</h1>
+<section id="arborescence-imposée-du-dépôt" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="arborescence-imposée-du-dépôt"><span class="header-section-number">3.1</span> Arborescence Imposée du Dépôt</h2>
+<p>L’organisation des répertoires doit impérativement respecter le schéma suivant :</p>
+<pre class="text"><code>pyarena/
+├── pyproject.toml              # Configuration du package, pytest, linters et dépendances
+├── README.md                   # Instructions d'installation et de reproduction
+├── CONTRIBUTIONS.md            # Tableau contractuel de contribution individuelle
+├── data/
+│   ├── types.csv               # Matrice des coefficients élémentaires
+│   ├── arenes_occitanie.geojson# Données spatiales régionales
+│   └── cache/                  # Fichiers JSON locaux de l'API (ignorés par Git)
+├── src/
+│   └── pyarena/
+│       ├── __init__.py         # Export des classes et fonctions publiques
+│       ├── core/
+│       │   ├── __init__.py
+│       │   ├── exceptions.py   # Classes d'erreurs maison
+│       │   ├── models.py       # Classes Fighter, Team, BattleResult
+│       │   └── engine.py       # Moteur d'exécution des tours et du combat
+│       ├── io/
+│       │   ├── __init__.py
+│       │   ├── fetcher.py      # Client HTTP PokéAPI avec stratégie de cache
+│       │   └── loader.py       # Parsers CSV et GeoJSON
+│       ├── simulation/
+│       │   ├── __init__.py
+│       │   └── monte_carlo.py  # Moteur Monte-Carlo parallélisé (joblib/multiprocessing)
+│       └── extensions/         # Emplacement unique du code de l'extension choisie
+│           └── __init__.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_models.py          # Tests unitaires des entités et de l'encapsulation
+│   ├── test_engine.py          # Tests déterministes du calcul des dégâts
+│   ├── test_simulation.py      # Tests de reproductibilité et de parallélisation
+│   └── test_extension.py       # Tests unitaires spécifiques à l'extension
+└── app/
+    ├── main.py                 # Point d'entrée de l'application Streamlit
+    ├── pages/                  # Pages multipages Streamlit
+    └── utils.py                # Fonctions d'affichage graphique Plotly/Folium</code></pre>
+</section>
+<section id="règles-de-programmation-orientée-objet-poo" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="règles-de-programmation-orientée-objet-poo"><span class="header-section-number">3.2</span> Règles de Programmation Orientée Objet (POO)</h2>
+<ol type="1">
+<li><strong>Abstraction :</strong>
+<ul>
+<li>Présence obligatoire d’une classe abstraite <code>BaseFighter</code> héritant de <code>abc.ABC</code>.</li>
+<li>Définition explicite des méthodes abstraites via <code>@abstractmethod</code> :
+<ul>
+<li><code>take_damage(self, amount: int) -&gt; None</code></li>
+<li><code>is_alive(self) -&gt; bool</code></li>
+<li><code>reset_stats(self) -&gt; None</code></li>
+</ul></li>
+</ul></li>
+<li><strong>Encapsulation stricte :</strong>
+<ul>
+<li>Les attributs critiques (dont les points de vie) doivent être privés ou protégés et exposés via des propriétés <code>@property</code>.</li>
+<li>Le setter associé à la santé doit empêcher toute affectation d’une valeur négative ou supérieure à <span class="math inline">\(\text{PV}_{\max}\)</span>.</li>
+</ul></li>
+<li><strong>Méthodes spéciales (dunder methods) :</strong>
+<ul>
+<li>Implémenter obligatoirement <code>__repr__</code> (représentation technique complète), <code>__str__</code> (affichage convivial) et <code>__eq__</code> (égalité structurelle basée sur l’identifiant).</li>
+</ul></li>
+<li><strong>Hiérarchie d’exceptions maison :</strong>
+<ul>
+<li>Définir une exception de base <code>PyArenaException(Exception)</code> dans <code>exceptions.py</code>.</li>
+<li>Implémenter au minimum :
+<ul>
+<li><code>FighterFaintedError</code> : levée lorsqu’un combattant K.-O. tente d’agir.</li>
+<li><code>InvalidStatError</code> : levée si une statistique d’entrée est hors des bornes autorisées.</li>
+<li><code>DataFetchError</code> : levée si l’API est injoignable et qu’aucun cache local n’existe.</li>
+</ul></li>
+</ul></li>
+</ol>
+</section>
+<section id="packaging-et-intégration-continue-ci" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="packaging-et-intégration-continue-ci"><span class="header-section-number">3.3</span> Packaging et Intégration Continue (CI)</h2>
+<ul>
+<li><p>Le paquet doit être installable en mode développement à la racine du dépôt :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> .</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Un workflow GitHub Actions (<code>.github/workflows/ci.yml</code>) doit s’exécuter à chaque commit poussé sur <code>main</code> et à chaque Pull Request :</p>
+<ol type="1">
+<li>Vérification du formatage et du style avec <code>ruff check</code> ou <code>flake8</code>.</li>
+<li>Exécution de l’intégralité des tests avec <code>pytest</code>.</li>
+<li>Vérification du seuil de couverture de code : <strong>la couverture mesurée par <code>pytest-cov</code> sur le package <code>pyarena</code> doit être supérieure ou égale à 70 %</strong>.</li>
+</ol></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="pipeline-de-données-cache-local-et-simulation" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Pipeline de Données, Cache Local et Simulation</h1>
+<section id="récupération-api-et-stratégie-de-cache-hors-ligne" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="récupération-api-et-stratégie-de-cache-hors-ligne"><span class="header-section-number">4.1</span> Récupération API et Stratégie de Cache Hors-Ligne</h2>
+<ul>
+<li>Le module <code>fetcher.py</code> doit implémenter une classe <code>DataFetcher</code> interrogeant l’API publique ouverte <code>[https://pokeapi.co/api/v2/pokemon/](https://pokeapi.co/api/v2/pokemon/){id}</code> pour les 151 premières créatures (<span class="math inline">\(\text{id} \in [\![1, 151]\!]\)</span>).</li>
+<li><strong>Mise en cache locale obligatoire :</strong> Tout appel réseau réussi enregistre immédiatement le fichier JSON sous <code>data/cache/{id}.json</code>.</li>
+<li>Lors d’une demande ultérieure, le système charge directement le fichier local sans déclencher de requête HTTP.</li>
+<li>Le dossier <code>data/cache/</code> doit figurer dans le fichier <code>.gitignore</code> : les données brutes ne doivent pas être versionnées sur Git.</li>
+</ul>
+</section>
+<section id="moteur-de-simulation-monte-carlo-parallélisé" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="moteur-de-simulation-monte-carlo-parallélisé"><span class="header-section-number">4.2</span> Moteur de Simulation Monte-Carlo Parallélisé</h2>
+<ul>
+<li><p>La fonction de combat élémentaire <code>simulate_battle(f1, f2, seed=None)</code> doit permettre l’injection d’une graine aléatoire (<code>seed</code>) pour garantir la reproductibilité parfaite d’une confrontation.</p></li>
+<li><p>Le module <code>monte_carlo.py</code> doit proposer une fonction :</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_monte_carlo(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    f1: BaseFighter, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    f2: BaseFighter, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    n_simulations: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5000</span>, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    n_jobs: <span class="bu">int</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Parallélisation :</strong> L’exécution des <span class="math inline">\(n_{\text{simulations}}\)</span> duels doit être distribuée sur l’ensemble des cœurs CPU de la machine hôte (<code>multiprocessing.Pool</code> ou <code>joblib.Parallel</code>).</p></li>
+<li><p><strong>Mesures retournées :</strong></p>
+<ol type="1">
+<li>Probabilité de victoire estimée de <span class="math inline">\(C_1\)</span> : <span class="math display">\[\hat{p} = \frac{\text{Nombre de victoires de } C_1}{n_{\text{simulations}}}\]</span></li>
+<li>Intervalle de confiance asymptotique à 95 % : <span class="math display">\[\mathrm{IC}_{0.95}(\hat{p}) = \left[ \hat{p} - 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}}, \; \hat{p} + 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}} \right]\]</span></li>
+<li>Distribution du nombre de tours jusqu’au terme du combat (moyenne, médiane, écart-type).</li>
+</ol></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="spécifications-du-tableau-de-bord-streamlit" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Spécifications du Tableau de Bord Streamlit</h1>
+<p>L’application Streamlit (<code>app/main.py</code>) est un outil décisionnel interactif comprenant obligatoirement les trois modules suivants :</p>
+<section id="module-1-simulateur-de-duel-et-télémétrie-en-direct" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="module-1-simulateur-de-duel-et-télémétrie-en-direct"><span class="header-section-number">5.1</span> Module 1 : Simulateur de Duel et Télémétrie en Direct</h2>
+<ul>
+<li>Deux listes déroulantes permettent de sélectionner les combattants <span class="math inline">\(A\)</span> et <span class="math inline">\(B\)</span> parmi les 151 disponibles.</li>
+<li>Affichage immédiat des sprites officiels (PNG transparents issus du cache ou de l’URL) et de leurs statistiques de niveau 50.</li>
+<li>Curseur interactif pour régler le nombre de simulations (<span class="math inline">\(100 \le N \le 10\,000\)</span>).</li>
+<li>Restitution post-calcul :
+<ul>
+<li>Winrates comparés avec barres de progression.</li>
+<li>Intervalle de confiance à 95 % affiché numériquement.</li>
+<li>Histogramme Plotly interactif de la distribution du nombre de tours.</li>
+<li>Journal textuel pas-à-pas (<em>log</em>) d’un match témoin généré avec graine fixée.</li>
+</ul></li>
+</ul>
+</section>
+<section id="module-2-catalogue-et-analyse-exploratoire-des-données" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="module-2-catalogue-et-analyse-exploratoire-des-données"><span class="header-section-number">5.2</span> Module 2 : Catalogue et Analyse Exploratoire des Données</h2>
+<ul>
+<li>Tableau de données interactif avec pagination et filtres dynamiques (par type, par plage de PV ou d’attaque).</li>
+<li>Graphique de dispersion interactif Plotly : <em>Attaque</em> en abscisse, <em>Défense</em> en ordonnée, taille des marqueurs proportionnelle aux <em>PV</em>, couleur assignée selon le <em>Type</em>.</li>
+<li>Boîtes à moustaches (<em>boxplots</em>) comparant la distribution de la vitesse entre les 5 familles élémentaires.</li>
+</ul>
+</section>
+<section id="module-3-cartographie-géospatiale-des-arènes-doccitanie" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="module-3-cartographie-géospatiale-des-arènes-doccitanie"><span class="header-section-number">5.3</span> Module 3 : Cartographie Géospatiale des Arènes d’Occitanie</h2>
+<ul>
+<li>Exploitation du fichier <code>data/arenes_occitanie.geojson</code> regroupant 30 sites régionaux (Montpellier, Sète, Nîmes, Toulouse, Perpignan…).</li>
+<li>Affichage de la carte dynamique via <code>streamlit-folium</code>.</li>
+<li>Marqueurs géoréférencés colorés selon le type élémentaire de l’arène.</li>
+<li>Clic sur un marqueur : ouverture d’un pop-up affichant le nom de l’arène, son champion, son sprite officiel et ses statistiques.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="spécifications-exhaustives-des-10-extensions-thématiques" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Spécifications Exhaustives des 10 Extensions Thématiques</h1>
+<p>Chaque groupe développe <strong>une seule</strong> extension. L’extension doit obligatoirement comporter : 1. Un module dédié dans <code>src/pyarena/extensions/</code>. 2. Une suite de tests unitaires dédiée dans <code>tests/test_extension.py</code>. 3. Un onglet ou composant dédié dans l’application Streamlit.</p>
+<hr>
+</section>
+<section id="spécifications-exhaustives-des-10-extensions-thématiques-1" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Spécifications Exhaustives des 10 Extensions Thématiques</h1>
+<p>Chaque groupe développe <strong>une seule</strong> extension parmi la liste ci-dessous. Toutes les extensions sont calibrées pour représenter un volume de travail équivalent (environ 100 à 150 lignes de code métier, une suite de tests unitaires dédiée et un composant interactif dans Streamlit).</p>
+<p>Aucune extension ne requiert d’algorithme complexe hors programme : elles s’appuient exclusivement sur la modélisation orientée objet, des calculs de probabilités élémentaires, des boucles de balayage ou des manipulations de données tabulaires/spatiales.</p>
+<hr>
+<section id="extension-1-objets-passifs-et-équipements-stratégiques" class="level3" data-number="7.0.1">
+<h3 data-number="7.0.1" class="anchored" data-anchor-id="extension-1-objets-passifs-et-équipements-stratégiques"><span class="header-section-number">7.0.1</span> Extension 1 : Objets Passifs et Équipements Stratégiques</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Évaluer comment l’attribution d’un objet passif peut compenser un déficit initial de statistiques ou modifier radicalement l’issue d’un duel.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Créer une classe de base abstraite <code>BaseItem</code> dans <code>src/pyarena/extensions/items.py</code> avec les méthodes :
+<ul>
+<li><code>apply_passive(self, fighter: BaseFighter) -&gt; None</code> (ajustement de statistiques au début du match)</li>
+<li><code>on_damage_received(self, incoming_damage: int, current_hp: int) -&gt; int</code> (altération des dégâts subis)</li>
+<li><code>on_turn_end(self, fighter: BaseFighter) -&gt; None</code> (effets de régénération en fin de tour)</li>
+</ul></li>
+<li>Implémenter obligatoirement 4 objets concrets :
+<ol type="1">
+<li><em>Ceinture Force</em> : si <span class="math inline">\(\text{PV} = \text{PV}_{\max}\)</span> et que les dégâts entrants sont mortels, laisse le combattant à <span class="math inline">\(\text{PV} = 1\)</span> (usage unique par match).</li>
+<li><em>Baie Sitrus</em> : dès que <span class="math inline">\(\text{PV} \le 0{,}5 \times \text{PV}_{\max}\)</span>, rend immédiatement <span class="math inline">\(\lfloor 0{,}25 \times \text{PV}_{\max} \rfloor\)</span> PV (consommable, usage unique).</li>
+<li><em>Orbe Vie</em> : augmente les dégâts infligés par le porteur de 30 %, mais lui retire <span class="math inline">\(\lfloor 0{,}10 \times \text{PV}_{\max} \rfloor\)</span> PV après chaque frappe assénée.</li>
+<li><em>Restes</em> : régénère <span class="math inline">\(\lfloor \frac{\text{PV}_{\max}}{16} \rfloor\)</span> PV à la fin de chaque tour.</li>
+</ol></li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Vérifier que la Ceinture Force s’active bien sur une frappe létale si les PV sont pleins, mais pas si le combattant a déjà subi des dégâts préalables.</li>
+<li>Vérifier que la Baie Sitrus ne s’active pas au-dessus du seuil de 50 % de PV.</li>
+<li>Contrôler le bon calcul des dégâts de contrecoup de l’Orbe Vie.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Menus déroulants permettant d’équiper un objet sur le combattant <span class="math inline">\(A\)</span> et/ou <span class="math inline">\(B\)</span>, et affichage du delta de winrate (+X %) induit par chaque objet.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" class="level3" data-number="7.0.2">
+<h3 data-number="7.0.2" class="anchored" data-anchor-id="extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team"><span class="header-section-number">7.0.2</span> Extension 2 : Combats d’Équipes 3 contre 3 avec Relais (Tag-Team)</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Modéliser un format de match en relais et déterminer si l’ordre d’entrée en piste (<em>lead</em>) influence statistiquement la victoire finale.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Créer une classe <code>Team</code> dans <code>src/pyarena/extensions/teams.py</code> gérant une file ordonnée de 3 combattants.</li>
+<li>Créer une classe <code>TeamBattle</code> : les premiers combattants de chaque équipe s’affrontent. Dès qu’un combattant tombe K.-O., le suivant dans la file entre immédiatement dans l’arène. Le combattant adverse conserve ses PV entamés (pas de régénération entre les duels).</li>
+<li>Condition de fin : la confrontation s’arrête dès que les 3 membres d’une équipe sont tous K.-O.</li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Vérifier le passage automatique au combattant numéro 2 lors du premier K.-O.</li>
+<li>Vérifier que le combattant restant conserve exactement ses PV résiduels à l’entrée du combattant adverse suivant.</li>
+<li>Valider l’arrêt de la partie au troisième K.-O.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Sélecteur de 3 combattants par équipe, affichage dynamique des 6 jauges de santé et comparaison graphique du winrate selon que l’on inverse l’ordre d’apparition des membres d’une équipe.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-3-matrice-complète-de-méta-jeu-en-round-robin" class="level3" data-number="7.0.3">
+<h3 data-number="7.0.3" class="anchored" data-anchor-id="extension-3-matrice-complète-de-méta-jeu-en-round-robin"><span class="header-section-number">7.0.3</span> Extension 3 : Matrice Complète de Méta-Jeu en Round-Robin</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Identifier si un panel de combattants présente des relations circulaires intransitives (type « Pierre-Feuille-Ciseaux ») ou s’il existe une créature dominante dans tous les cas de figure.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Créer un module <code>src/pyarena/extensions/round_robin.py</code>.</li>
+<li>Isoler une sélection fixe de 10 combattants représentatifs aux types élémentaires variés.</li>
+<li>Automatiser le calcul des duels croisés : <span class="math inline">\(\frac{10 \times 9}{2} = 45\)</span> confrontations distinctes, chacune simulée sur <span class="math inline">\(N = 1\,500\)</span> itérations parallélisées.</li>
+<li>Construire la matrice d’adjacence <span class="math inline">\(10 \times 10\)</span> où la cellule <span class="math inline">\((i, j)\)</span> consigne l’estimation ponctuelle <span class="math inline">\(\hat{p}(C_i \text{ bat } C_j)\)</span>.</li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Vérifier les propriétés de cohérence de la matrice : <span class="math inline">\(M_{i,i} = 0{,}5\)</span> et pour tout <span class="math inline">\(i \neq j\)</span>, <span class="math inline">\(M_{i,j} + M_{j,i} = 1{,}0\)</span> (à tolérance machine près).</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Heatmap interactive Plotly de la matrice <span class="math inline">\(10 \times 10\)</span>, accompagnée du tableau récapitulatif classant les 10 combattants selon leur score moyen cumulé.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-4-choix-stratégique-dattaques-précision-vs-puissance" class="level3" data-number="7.0.4">
+<h3 data-number="7.0.4" class="anchored" data-anchor-id="extension-4-choix-stratégique-dattaques-précision-vs-puissance"><span class="header-section-number">7.0.4</span> Extension 4 : Choix Stratégique d’Attaques (Précision vs Puissance)</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Comparer la fiabilité d’une stratégie de jeu prudente (dégâts modérés constants) face à une stratégie agressive reposant sur des attaques puissantes mais imprécises.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Modifier la classe <code>Fighter</code> dans <code>src/pyarena/extensions/moves.py</code> pour lui conférer deux capacités :
+<ol type="1">
+<li><em>Frappe Sûre</em> : Puissance <span class="math inline">\(P = 40\)</span>, Précision <span class="math inline">\(\alpha = 1{,}00\)</span> (réussite garantie).</li>
+<li><em>Frappe Risquée</em> : Puissance <span class="math inline">\(P = 85\)</span>, Précision <span class="math inline">\(\alpha = 0{,}65\)</span> (35 % de chances d’échouer complètement et de n’infliger aucun dégât).</li>
+</ol></li>
+<li>Implémenter 3 règles de décision sélectionnables pour l’attaquant :
+<ul>
+<li><em>Stratégie Prudente</em> : utilise systématiquement la Frappe Sûre.</li>
+<li><em>Stratégie Agressive</em> : utilise systématiquement la Frappe Risquée.</li>
+<li><em>Stratégie Gloutonne (Espérance)</em> : calcule à chaque tour les dégâts moyens espérés de chaque coup <span class="math inline">\(\mathbb{E}[\text{Dégâts}] = \alpha \times \text{Dégâts}\)</span> et choisit la frappe qui maximise ce gain immédiat.</li>
+</ul></li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Valider sur 10 000 lancers simulés que la fréquence d’échec de la Frappe Risquée est bien conforme à <span class="math inline">\(0{,}35 \pm 0{,}015\)</span>.</li>
+<li>Vérifier qu’une attaque ratée n’inflige aucun dégât et ne déclenche aucun coup critique.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Interface permettant d’assigner une stratégie à chaque joueur et affichage superposé des distributions de victoires obtenues.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-5-système-stochastique-daltérations-détat" class="level3" data-number="7.0.5">
+<h3 data-number="7.0.5" class="anchored" data-anchor-id="extension-5-système-stochastique-daltérations-détat"><span class="header-section-number">7.0.5</span> Extension 5 : Système Stochastique d’Altérations d’État</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Mesurer à quel point des altérations de statut infligées aléatoirement peuvent déstabiliser un duel et prolonger la durée des matchs.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Définir une énumération <code>Status(Enum)</code> dans <code>src/pyarena/extensions/statuses.py</code> : <code>NONE</code>, <code>PARALYSIS</code>, <code>BURN</code>.</li>
+<li>Chaque coup porté a une probabilité <span class="math inline">\(p = 0{,}15\)</span> d’induire une altération d’état sur la cible (si elle est indemne) :
+<ul>
+<li><em>Paralysie</em> : divise définitivement la statistique de vitesse par deux (<span class="math inline">\(V \leftarrow \lfloor V / 2 \rfloor\)</span>). De plus, au début de chaque tour, le combattant a 25 % de chances d’être tétanisé et d’annuler son attaque.</li>
+<li><em>Brûlure</em> : divise l’Attaque par deux (<span class="math inline">\(A \leftarrow \lfloor A / 2 \rfloor\)</span>). À la fin de chaque tour, le porteur perd <span class="math inline">\(\lfloor \frac{\text{PV}_{\max}}{16} \rfloor\)</span> PV résiduels.</li>
+</ul></li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Vérifier que la vitesse ou l’attaque est effectivement divisée par deux lors de l’application du statut.</li>
+<li>Valider la non-cumulabilité des statuts majeurs : une entité déjà paralysée ne peut pas être brûlée.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Visualisation par histogrammes Plotly comparant l’espérance et la variance du nombre de tours jusqu’au K.-O. avec et sans altérations de statut.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-6-gestion-des-points-de-compétence-pp-et-action-lutte" class="level3" data-number="7.0.6">
+<h3 data-number="7.0.6" class="anchored" data-anchor-id="extension-6-gestion-des-points-de-compétence-pp-et-action-lutte"><span class="header-section-number">7.0.6</span> Extension 6 : Gestion des Points de Compétence (PP) et Action Lutte</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Introduire la gestion des ressources en combat d’usure en limitant le nombre de frappes puissantes disponibles avant le recours à l’action de secours.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Créer une classe <code>Move</code> dans <code>src/pyarena/extensions/skills.py</code> associant une puissance, un type et un capital de Points de Puissance (PP).</li>
+<li>Doter chaque combattant de deux capacités :
+<ol type="1">
+<li><em>Capacité Majeure</em> : Puissance <span class="math inline">\(P = 75\)</span>, mais limitée à <span class="math inline">\(\text{PP}_{\max} = 5\)</span> utilisations.</li>
+<li><em>Capacité Standard</em> : Puissance <span class="math inline">\(P = 45\)</span>, dotée de <span class="math inline">\(\text{PP}_{\max} = 15\)</span> utilisations.</li>
+</ol></li>
+<li>Le combattant consomme en priorité sa capacité majeure, puis sa capacité standard lorsque les PP sont épuisés.</li>
+<li>Dès que le stock total de PP tombe à 0, le combattant est contraint d’utiliser l’action par défaut <em>Lutte</em> : puissance fixe <span class="math inline">\(P = 50\)</span>, et subit en contrecoup immédiat une perte de PV égale à <span class="math inline">\(\lfloor 0{,}25 \times \text{Dégâts infligés} \rfloor\)</span>.</li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Vérifier la décrémentation stricte des compteurs de PP à chaque utilisation.</li>
+<li>Valider le basculement forcé vers l’action Lutte dès que l’ensemble des PP est épuisé.</li>
+<li>Contrôler le calcul arithmétique de la perte de points de vie par contrecoup.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Jauges visuelles d’épuisement des réserves de PP en temps réel et suivi statistique de la fréquence d’apparition du mode Lutte lors des matchs longs.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-7-accélération-vectorisée-et-profilage-numérique" class="level3" data-number="7.0.7">
+<h3 data-number="7.0.7" class="anchored" data-anchor-id="extension-7-accélération-vectorisée-et-profilage-numérique"><span class="header-section-number">7.0.7</span> Extension 7 : Accélération Vectorisée et Profilage Numérique</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Identifier les goulots d’étranglement de l’implémentation objet en temps d’exécution et proposer une réécriture mathématique vectorisée pour traiter de très gros volumes de simulations.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Profiler l’exécution de 10 000 combats en Python objet standard avec le module <code>cProfile</code> pour chiffrer le temps passé dans chaque méthode.</li>
+<li>Concevoir dans <code>src/pyarena/extensions/fast_sim.py</code> une version optimisée de la boucle de combat :
+<ul>
+<li>Les entités sont représentées par de simples tableaux NumPy 1D d’entiers et de flottants au lieu d’instances de classes complexes.</li>
+<li>Utilisation de générateurs de nombres aléatoires vectorisés (<code>numpy.random.default_rng</code>) ou de fonctions compilées avec le décorateur <code>@njit</code> de <strong>Numba</strong>.</li>
+</ul></li>
+<li>Construire un banc d’essai comparant rigoureusement le temps d’exécution sur des tailles d’échantillons <span class="math inline">\(N \in [10^2, 10^5]\)</span>.</li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Test de conformité statistique validant que la fonction rapide et la version orientée objet produisent des winrates identiques à tolérance d’échantillonnage près.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Graphique interactif du facteur d’accélération (<em>speedup</em> = <span class="math inline">\(\frac{T_{\text{objet}}}{T_{\text{optimisé}}}\)</span>) affiché sur le dashboard en fonction du volume de simulations <span class="math inline">\(N\)</span>.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule" class="level3" data-number="7.0.8">
+<h3 data-number="7.0.8" class="anchored" data-anchor-id="extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule"><span class="header-section-number">7.0.8</span> Extension 8 : Système Dynamique de Niveaux et Courbe de Bascule</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Déterminer précisément à partir de quel différentiel de niveau un combattant intrinsèquement défavorisé (statistiques faibles ou type élémentaire désavantageux) parvient à renverser les probabilités face à un adversaire supérieur.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Créer un module <code>src/pyarena/extensions/levels.py</code> permettant d’instancier un combattant à un niveau arbitraire <span class="math inline">\(L \in [\![1, 100]\!]\)</span>.</li>
+<li>Implémenter le recalcul dynamique des caractéristiques selon les formules officielles : <span class="math display">\[\text{PV}(L) = \left\lfloor \frac{2 \times \text{PV}_{\text{base}} \times L}{100} \right\rfloor + L + 10\]</span> <span class="math display">\[\text{Stat}(L) = \left\lfloor \frac{2 \times \text{Stat}_{\text{base}} \times L}{100} \right\rfloor + 5 \quad (\text{pour } A, D, V)\]</span></li>
+<li>Implémenter une fonction de balayage <code>find_turnover_level(f1, f2_lvl50, step=5)</code> qui évalue le winrate de <span class="math inline">\(C_1\)</span> pour des niveaux progressifs <span class="math inline">\(L \in \{5, 10, 15, \dots, 100\}\)</span> face à un adversaire fixé au niveau 50.</li>
+<li>Déterminer le <em>Niveau Critique</em> <span class="math inline">\(L^*\)</span> correspondant au premier niveau où <span class="math inline">\(\hat{p}(L^*) \ge 0{,}50\)</span>.</li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Valider l’exactitude numérique des statistiques calculées aux niveaux bornes <span class="math inline">\(L=1\)</span>, <span class="math inline">\(L=50\)</span> et <span class="math inline">\(L=100\)</span> à partir de valeurs de test vérifiées.</li>
+<li>Vérifier que les statistiques sont des fonctions strictement croissantes du niveau <span class="math inline">\(L\)</span>.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Curseur de niveau dynamique et courbe Plotly de la fonction de winrate <span class="math inline">\(L \mapsto \hat{p}(L)\)</span> avec mise en évidence du seuil de bascule <span class="math inline">\(L^*\)</span>.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-9-la-route-des-champions-occitanie---progression-sous-contrainte" class="level3" data-number="7.0.9">
+<h3 data-number="7.0.9" class="anchored" data-anchor-id="extension-9-la-route-des-champions-occitanie---progression-sous-contrainte"><span class="header-section-number">7.0.9</span> Extension 9 : La Route des Champions (Occitanie - Progression sous Contrainte)</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Modéliser la tournée géographique d’un dresseur devant défier les arènes régionales dans un ordre de difficulté croissant, et mesurer le surcoût kilométrique imposé par cette progression par rapport à un itinéraire géographiquement direct.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Exploiter le fichier <code>data/arenes_occitanie.geojson</code> contenant les coordonnées géographiques et les niveaux de difficulté des arènes régionales (échelonnés du niveau 15 au niveau 60).</li>
+<li>Dans <code>src/pyarena/extensions/routing.py</code>, implémenter le calcul de la distance géodésique de Haversine entre deux coordonnées <span class="math inline">\((\text{lat}, \text{lon})\)</span> : <span class="math display">\[d = 2 R \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta \varphi}{2}\right) + \cos(\varphi_1)\cos(\varphi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)}\right) \quad \text{avec } R = 6\,371\text{ km}\]</span></li>
+<li>Calculer et comparer deux itinéraires partant de Montpellier :
+<ol type="1">
+<li><em>L’Itinéraire des Champions</em> : visite obligatoire des arènes triées par ordre de niveau croissant.</li>
+<li><em>L’Itinéraire Naïf le Plus Proche</em> : visite séquentielle selon la règle gloutonne du point géographiquement le plus proche sans tenir compte du niveau.</li>
+</ol></li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Vérifier que la distance de Haversine entre deux points identiques est nulle, et conforme aux distances réelles interurbaines connues (ex. Montpellier–Nîmes <span class="math inline">\(\approx 45-55\)</span> km à vol d’oiseau).</li>
+<li>Valider que chaque ville de la sélection est visitée exactement une fois dans les deux parcours.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong> Tracé comparatif des deux tracés sur la carte interactive Folium (<code>folium.PolyLine</code> de couleurs distinctes) et affichage métrique de l’écart kilométrique induit par la contrainte de niveau.</li>
+</ul>
+<hr>
+</section>
+<section id="extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif" class="level3" data-number="7.0.10">
+<h3 data-number="7.0.10" class="anchored" data-anchor-id="extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif"><span class="header-section-number">7.0.10</span> Extension 10 : Reconstitution Pas-à-Pas et Export de Combat (Replay Interactif)</h3>
+<ul>
+<li><strong>Problématique jeu :</strong> Permettre l’enregistrement, l’exportation et le visionnage interactif tour par tour d’un match stochastique remarquable sans recalculer la simulation.</li>
+<li><strong>Spécifications logicielles :</strong>
+<ul>
+<li>Concevoir dans <code>src/pyarena/extensions/replayer.py</code> une structure d’enregistrement capturant l’ensemble des événements du match dans une structure tabulaire ou une liste de dictionnaires : <code>{"tour": i, "attaquant": str, "cible": str, "degats": int, "critique": bool, "pv_restants_cible": int}</code>.</li>
+<li>Implémenter deux fonctions d’entrée/sortie :
+<ul>
+<li><code>export_match_json(battle_log, filepath: str) -&gt; None</code> : sauvegarde du journal au format JSON.</li>
+<li><code>load_match_json(filepath: str) -&gt; list[dict]</code> : chargement et validation du schéma d’un journal sauvegardé.</li>
+</ul></li>
+</ul></li>
+<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
+<ul>
+<li>Vérifier que l’export puis le rechargement d’un match redonnent exactement la même séquence de valeurs (test d’aller-retour / sérialisation).</li>
+<li>Vérifier que le journal consigne bien une décroissance monotone des PV de la cible et s’arrête exactement au tour où une entité atteint 0 PV.</li>
+</ul></li>
+<li><strong>Intégration Streamlit :</strong>
+<ul>
+<li>Composant de téléversement (<code>st.file_uploader</code>) permettant de charger un match sauvegardé au format JSON.</li>
+<li>Lecteur interactif avec curseur temporel et boutons de navigation (<em>« Tour Précédent »</em> / <em>« Tour Suivant »</em>).</li>
+<li>Barres de santé animées changeant de couleur selon l’état du combattant (vert <span class="math inline">\(&gt;50\%\)</span>, orange <span class="math inline">\(20-50\%\)</span>, rouge <span class="math inline">\(&lt;20\%\)</span>) et boîte de dialogue commentant l’action du tour sélectionné.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="politique-de-bonus-valorisation-du-dépassement-technique" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Politique de Bonus (Valorisation du Dépassement Technique)</h1>
+<p>Afin d’encourager la curiosité, l’approfondissement algorithmique et les initiatives personnelles, un système de <strong>points de bonus</strong> est prévu.</p>
+<section id="modalités-dattribution" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="modalités-dattribution"><span class="header-section-number">8.1</span> Modalités d’Attribution</h2>
+<ul>
+<li><strong>Plafond strict :</strong> Les bonus peuvent rapporter jusqu’à <strong>+2 points</strong> sur la Note Technique de Code (la note finale restant plafonnée à 20/20).</li>
+<li><strong>Condition impérative d’éligibilité :</strong> Les points de bonus ne sont comptabilisés que si le <strong>socle commun obligatoire</strong> (POO, packaging, tests unitaires avec couverture <span class="math inline">\(\ge 70\%\)</span>, intégration continue GitHub Actions et dashboard) et <strong>l’extension attribuée</strong> sont intégralement fonctionnels et exempts de régression le jour du rendu.</li>
+<li><strong>Documentation obligatoire :</strong> Tout ajout faisant l’objet d’une demande de bonus doit être explicitement répertorié dans une section dédiée du fichier <code>README.md</code> intitulée <code>## Fonctionnalités Bonus Implémentées</code>.</li>
+</ul>
+</section>
+<section id="exemples-dinitiatives-reconnues-pour-le-bonus" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="exemples-dinitiatives-reconnues-pour-le-bonus"><span class="header-section-number">8.2</span> Exemples d’Initiatives Reconnues pour le Bonus</h2>
+<ol type="1">
+<li><strong>Prise en compte du double type élémentaire (+0,75 pt) :</strong> Intégrer le fait que certaines créatures possèdent deux types combinés (ex. Feu/Vol ou Eau/Sol). Adapter le calcul de dégâts pour multiplier les coefficients d’affinité élémentaire issus des deux types, autorisant des multiplicateurs de dégâts cumulés de <span class="math inline">\(\times 4\)</span> ou de <span class="math inline">\(\times 0{,}25\)</span>.</li>
+<li><strong>Matrice officielle complète des 18 types (+0,5 pt) :</strong> Remplacer la matrice simplifiée des éléments par l’ingestion et la gestion rigoureuse de la table officielle complète des 18 types (incluant Spectre, Dragon, Acier, Fée…), avec gestion des immunités strictes (multiplicateur <span class="math inline">\(\times 0{,}0\)</span>).</li>
+<li><strong>Arbre de décision tactique (Minimax élémentaire à 2 tours) (+1 pt) :</strong> Pour les extensions impliquant des choix d’actions multiples (Extensions 2 ou 4), concevoir un agent évaluant l’arbre des états possibles à horizon 2 tours afin de sélectionner l’action minimisant la perte maximale de PV face au contre adverse.</li>
+<li><strong>Intégration multimédia officielle (Audio &amp; Thèmes) (+0,5 pt) :</strong> Exploiter les champs audio disponibles sur l’API pour jouer les cris officiels des combattants (format OGG/MP3 via <code>st.audio</code>) lors du K.-O. ou de l’entrée dans l’arène, et habiller l’application Streamlit d’une charte graphique soignée.</li>
+<li><strong>Déploiement public sur le Cloud (+0,5 pt) :</strong> Déployer l’application Streamlit sur l’infrastructure gratuite <em>Streamlit Community Cloud</em> et fournir l’URL publique active directement dans l’en-tête du fichier <code>README.md</code>.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="travail-collaboratif-gestion-de-version-et-intégrité" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> Travail Collaboratif, Gestion de Version et Intégrité</h1>
+<section id="bonnes-pratiques-git-imposées" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="bonnes-pratiques-git-imposées"><span class="header-section-number">9.1</span> Bonnes Pratiques Git Imposées</h2>
+<ol type="1">
+<li><strong>Protection absolue de la branche <code>main</code> :</strong> Aucun push direct n’est toléré sur <code>main</code>.</li>
+<li><strong>Workflow par branches et Pull Requests :</strong> Toute nouvelle brique ou correction d’anomalie fait l’objet d’une branche distincte (ex. : <code>feat/models-validation</code>, <code>fix/crit-calc</code>), soumise à validation par une Pull Request relue par un autre membre du groupe.</li>
+<li><strong>Atomicité des commits :</strong> Les commits doivent être ciblés et porter un message explicite respectant la convention standard (<code>feat: ...</code>, <code>fix: ...</code>, <code>test: ...</code>).</li>
+</ol>
+</section>
+<section id="document-contractuel-contributions.md" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="document-contractuel-contributions.md"><span class="header-section-number">9.2</span> Document Contractuel : <code>CONTRIBUTIONS.md</code></h2>
+<p>À la racine du dépôt, le fichier <code>CONTRIBUTIONS.md</code> doit consigner précisément l’investissement effectif de chaque membre selon le tableau type :</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 27%">
+<col style="width: 22%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Membre</th>
+<th style="text-align: center;">Identifiant GitHub</th>
+<th style="text-align: left;">Rôle et Modules Développés</th>
+<th style="text-align: center;">Numéros des PRs Soumises et Revues</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Étudiant 1</td>
+<td style="text-align: center;"><code>@login1</code></td>
+<td style="text-align: left;">Conception du module <code>core/</code>, tests <code>pytest</code></td>
+<td style="text-align: center;">PRs #1, #4 (Revues : #2, #5)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Étudiant 2</td>
+<td style="text-align: center;"><code>@login2</code></td>
+<td style="text-align: left;">Client API <code>io/fetcher.py</code>, Dashboard Streamlit</td>
+<td style="text-align: center;">PRs #2, #5 (Revues : #3)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Étudiant 3</td>
+<td style="text-align: center;"><code>@login3</code></td>
+<td style="text-align: left;">Parallélisation <code>simulation/</code>, Extension choisie</td>
+<td style="text-align: center;">PRs #3, #6 (Revues : #1, #4)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="contrôle-automatisé-du-plagiat-et-de-lhistorique" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="contrôle-automatisé-du-plagiat-et-de-lhistorique"><span class="header-section-number">9.3</span> Contrôle Automatisé du Plagiat et de l’Historique</h2>
+<ul>
+<li><strong>Analyse de régularité :</strong> La distribution temporelle des commits sera examinée sur GitHub. Tout « commit massif » (injection soudaine de plusieurs centaines de lignes de code en fin de projet) sans historique incrémental fera l’objet d’une pénalité individuelle.</li>
+<li><strong>Analyse syntaxique structurelle (<code>copydetect</code>) :</strong> L’ensemble des répertoires <code>src/</code> rendus sera soumis à un contrôle automatisé comparant les arbres syntaxiques abstraits (AST) via l’outil <code>copydetect</code>. Les dépôts présentant une similarité non fortuite seront pénalisés.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="modalités-dévaluation-et-grilles-de-notation" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Modalités d’Évaluation et Grilles de Notation</h1>
+<p>L’évaluation donne lieu à deux notes sur 20 indépendantes : la <strong>Note Technique de Code (coefficient 3)</strong> et la <strong>Note Individuelle de Soutenance (coefficient 2)</strong>.</p>
+<p><span class="math display">\[\text{Note Finale} = \frac{3 \times \text{Note Code} + 2 \times \text{Note Soutenance}}{5}\]</span></p>
+<section id="note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3"><span class="header-section-number">10.1</span> Note 1 : Code, Architecture et Produit (/20 — Note de Groupe, Coeff 3)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 38%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Critère</th>
+<th style="text-align: center;">Barème</th>
+<th style="text-align: left;">Éléments évalués concrètement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Architecture Orientée Objet</strong></td>
+<td style="text-align: center;"><strong>/ 4</strong></td>
+<td style="text-align: left;">Respect des classes abstraites, encapsulation (<code>@property</code>), gestion des exceptions maison, typage strict.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Packaging &amp; Propreté</strong></td>
+<td style="text-align: center;"><strong>/ 2</strong></td>
+<td style="text-align: left;">Fichier <code>pyproject.toml</code> fonctionnel, installation immédiate via <code>pip install -e .</code>, arborescence scrupuleusement respectée.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Tests &amp; Intégration Continue</strong></td>
+<td style="text-align: center;"><strong>/ 4</strong></td>
+<td style="text-align: left;">Couverture mesurée par <code>pytest-cov</code> <span class="math inline">\(\ge 70\%\)</span>, pertinence des tests aux limites, workflow GitHub Actions au vert (si rouge : -2 points d’office).</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Données &amp; Parallélisme</strong></td>
+<td style="text-align: center;"><strong>/ 3</strong></td>
+<td style="text-align: left;">Système de cache local opérationnel (mode déconnecté), exécution distribuée de Monte-Carlo (<code>joblib</code>/<code>multiprocessing</code>), intervalles de confiance corrects.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Dashboard Streamlit</strong></td>
+<td style="text-align: center;"><strong>/ 4</strong></td>
+<td style="text-align: left;">Réactivité de l’application, présence des sprites officiels, visualisations Plotly pertinentes, carte Folium fonctionnelle.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Réalisation de l’Extension</strong></td>
+<td style="text-align: center;"><strong>/ 3</strong></td>
+<td style="text-align: left;">Respect rigoureux du cahier des charges spécifique à l’extension attribuée et couverture par ses tests unitaires.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2"><span class="header-section-number">10.2</span> Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Note Individuelle, Coeff 2)</h2>
+<p>Chaque groupe dispose de <strong>20 minutes d’évaluation</strong> décomposées en : * 10 minutes d’exposé et de démonstration applicative en direct. * 10 minutes de questions techniques individuelles.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 38%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Critère</th>
+<th style="text-align: center;">Barème</th>
+<th style="text-align: left;">Éléments évalués concrètement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Qualité des supports visuels</strong></td>
+<td style="text-align: center;"><strong>/ 3</strong></td>
+<td style="text-align: left;">Diapositives claires et professionnelles, schémas d’architecture soignés, absence de blocs de code illisibles.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Démonstration technique live</strong></td>
+<td style="text-align: center;"><strong>/ 4</strong></td>
+<td style="text-align: left;">Démonstration fluide de l’application Streamlit sans plantage imprévu, exécution en direct de la suite de tests <code>pytest</code>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Maîtrise individuelle du code</strong></td>
+<td style="text-align: center;"><strong>/ 8</strong></td>
+<td style="text-align: left;">Aptitude de chaque étudiant à naviguer dans le code, à expliquer précisément la logique d’une fonction et à justifier ses choix algorithmiques.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Compréhension des concepts</strong></td>
+<td style="text-align: center;"><strong>/ 3</strong></td>
+<td style="text-align: left;">Maîtrise rigoureuse du vocabulaire : polymorphisme, complexité temporelle, stochasticité, décorateurs, conditions de concurrence.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Investissement Git vérifiable</strong></td>
+<td style="text-align: center;"><strong>/ 2</strong></td>
+<td style="text-align: left;">Cohérence vérifiée entre les déclarations du fichier <code>CONTRIBUTIONS.md</code> et les métriques réelles d’activité GitHub (commits, PRs créées et revues).</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="calendrier-prévisionnel-et-jalons-de-développement" class="level1" data-number="11">
+<h1 data-number="11"><span class="header-section-number">11</span> Calendrier Prévisionnel et Jalons de Développement</h1>
+<p>Le calendrier est articulé autour de jalons structurants afin d’assurer une progression continue :</p>
+<ul>
+<li><strong>Fin Septembre (Séance 2) :</strong>
+<ul>
+<li>Constitution définitive des trinômes.</li>
+<li>Inscription sur le tableur partagé pour l’attribution de l’extension thématique (règle du premier arrivé, premier servi).</li>
+</ul></li>
+<li><strong>Mi-Octobre (Jalon 1) :</strong>
+<ul>
+<li>Initialisation du dépôt GitHub à partir du template officiel.</li>
+<li>Mise en place de la protection de branche sur <code>main</code> et vérification de la CI GitHub Actions.</li>
+</ul></li>
+<li><strong>Fin Octobre (Jalon 2) :</strong>
+<ul>
+<li>Finalisation du cœur orienté objet dans <code>src/pyarena/core/</code> (<code>BaseFighter</code>, <code>Fighter</code>, <code>engine.py</code>).</li>
+<li>Implémentation des premières exceptions personnalisées et validation des tests unitaires <code>pytest</code> sur les règles de combat de base.</li>
+</ul></li>
+<li><strong>Mi-Novembre (Jalon 3) :</strong>
+<ul>
+<li>Client PokéAPI opérationnel avec politique de mise en cache locale sur disque (<code>data/cache/</code>).</li>
+<li>Moteur de simulation Monte-Carlo parallélisé fonctionnel avec calcul des intervalles de confiance asymptotiques.</li>
+</ul></li>
+<li><strong>Début Décembre (Jalon 4) :</strong>
+<ul>
+<li>Implémentation et tests unitaires de l’extension thématique finalisés.</li>
+<li>Dashboard Streamlit achevé (simulateur live, catalogue et cartographie Folium des arènes régionales).</li>
+</ul></li>
+<li><strong>Mi-Décembre :</strong>
+<ul>
+<li>Gel définitif des dépôts GitHub sur la branche <code>main</code>.</li>
+<li>Soutenances orales de fin de semestre.</li>
+</ul></li>
+</ul>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
