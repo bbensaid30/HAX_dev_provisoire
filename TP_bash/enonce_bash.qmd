@@ -290,20 +290,19 @@ Un incident de sécurité critique a laissé une empreinte unique identifiée pa
 
 # Pour Aller Plus Loin : Défis Avancés (Optionnel)
 
-*Cette section est réservée aux étudiants ayant terminé les exercices précédents en avance.*
+*Cette section s'adresse aux étudiants ayant terminé en avance. Elle mobilise uniquement les commandes vues aujourd'hui, combinées de manière plus poussée.*
 
-### Défi A : Expressions régulières et extraction d'adresses IP
-Dans le fichier `exercice_3/logs/connexions.log`, isolez la liste unique de toutes les adresses IP ayant tenté une connexion, triées par ordre croissant :
+### Défi A : Identification du top 1 des attaquants (Pipeline strict)
+En reprenant `exercice_3/logs/connexions.log`, écrivez une commande unique qui affiche **uniquement le nom d'utilisateur** (sans le préfixe `user=` et sans le décompte) ayant cumulé le plus grand nombre d'échecs de connexion (`FAILED`).
 
-* *Indice :* utilisez `cut` ou explorez `grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"`.
+* *Indice :* chaînez votre pipeline précédent avec un nouveau `sort` numérique, `tail` (ou `head`), et un dernier `cut`.
 
-### Défi B : Boucle Bash en une ligne (*One-liner*)
-Depuis votre terminal, créez en une seule commande une série de 10 dossiers nommés `experience_01` à `experience_10`, contenant chacun un fichier vide `resultat.dat` :
+### Défi B : Filtrage temporel avec Expressions Régulières (`grep -E`)
+Affichez uniquement les lignes de connexion enregistrées entre 08h20 et 08h39 inclus.
 
-* *Indice :* observez la syntaxe de développement d'accolades `mkdir -p experience_{01..10}` ou utilisez une boucle `for i in $(seq -w 1 10); do ...; done`.
+* *Notion :* l'option `-E` de `grep` active les expressions régulières étendues. Le crochet `[23]` permet de cibler le chiffre 2 ou 3.
 
-### Défi C : Agrégation avec `awk`
-`awk` est un langage de traitement de flux complet intégré à Linux. 
-À l'aide d'une seule commande `awk`, lisez `connexions.log` et affichez la phrase personnalisée :  
+* *Indice :* cherchez le motif correspondant à l'intervalle horaire dans la chaîne de date.
 
-*« Utilisateur [nom] connecté depuis l'IP [ip] »* pour chaque ligne ayant le statut `SUCCESS`.
+### Défi C : Détection de fichiers suspects par date (`find`)
+Dans le dossier `defi/`, utilisez la commande `find` avec l'option `-mmin` pour localiser automatiquement les fichiers créés ou modifiés au cours des 60 dernières minutes.

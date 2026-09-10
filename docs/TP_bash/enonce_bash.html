@@ -223,9 +223,9 @@ window.Quarto = {
   <li><a href="#le-défi-récapitulatif-20-min" id="toc-le-défi-récapitulatif-20-min" class="nav-link" data-scroll-target="#le-défi-récapitulatif-20-min"><span class="header-section-number">6</span> Le Défi Récapitulatif (20 min)</a></li>
   <li><a href="#pour-aller-plus-loin-défis-avancés-optionnel" id="toc-pour-aller-plus-loin-défis-avancés-optionnel" class="nav-link" data-scroll-target="#pour-aller-plus-loin-défis-avancés-optionnel"><span class="header-section-number">7</span> Pour Aller Plus Loin : Défis Avancés (Optionnel)</a>
   <ul class="collapse">
-  <li><a href="#défi-a-expressions-régulières-et-extraction-dadresses-ip" id="toc-défi-a-expressions-régulières-et-extraction-dadresses-ip" class="nav-link" data-scroll-target="#défi-a-expressions-régulières-et-extraction-dadresses-ip"><span class="header-section-number">7.0.1</span> Défi A : Expressions régulières et extraction d’adresses IP</a></li>
-  <li><a href="#défi-b-boucle-bash-en-une-ligne-one-liner" id="toc-défi-b-boucle-bash-en-une-ligne-one-liner" class="nav-link" data-scroll-target="#défi-b-boucle-bash-en-une-ligne-one-liner"><span class="header-section-number">7.0.2</span> Défi B : Boucle Bash en une ligne (<em>One-liner</em>)</a></li>
-  <li><a href="#défi-c-agrégation-avec-awk" id="toc-défi-c-agrégation-avec-awk" class="nav-link" data-scroll-target="#défi-c-agrégation-avec-awk"><span class="header-section-number">7.0.3</span> Défi C : Agrégation avec <code>awk</code></a></li>
+  <li><a href="#défi-a-identification-du-top-1-des-attaquants-pipeline-strict" id="toc-défi-a-identification-du-top-1-des-attaquants-pipeline-strict" class="nav-link" data-scroll-target="#défi-a-identification-du-top-1-des-attaquants-pipeline-strict"><span class="header-section-number">7.0.1</span> Défi A : Identification du top 1 des attaquants (Pipeline strict)</a></li>
+  <li><a href="#défi-b-filtrage-temporel-avec-expressions-régulières-grep--e" id="toc-défi-b-filtrage-temporel-avec-expressions-régulières-grep--e" class="nav-link" data-scroll-target="#défi-b-filtrage-temporel-avec-expressions-régulières-grep--e"><span class="header-section-number">7.0.2</span> Défi B : Filtrage temporel avec Expressions Régulières (<code>grep -E</code>)</a></li>
+  <li><a href="#défi-c-détection-de-fichiers-suspects-par-date-find" id="toc-défi-c-détection-de-fichiers-suspects-par-date-find" class="nav-link" data-scroll-target="#défi-c-détection-de-fichiers-suspects-par-date-find"><span class="header-section-number">7.0.3</span> Défi C : Détection de fichiers suspects par date (<code>find</code>)</a></li>
   </ul></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Autres formats</h2><ul><li><a href="enonce_bash.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -569,25 +569,25 @@ Chemins Absolus vs Chemins Relatifs
 </section>
 <section id="pour-aller-plus-loin-défis-avancés-optionnel" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Pour Aller Plus Loin : Défis Avancés (Optionnel)</h1>
-<p><em>Cette section est réservée aux étudiants ayant terminé les exercices précédents en avance.</em></p>
-<section id="défi-a-expressions-régulières-et-extraction-dadresses-ip" class="level3" data-number="7.0.1">
-<h3 data-number="7.0.1" class="anchored" data-anchor-id="défi-a-expressions-régulières-et-extraction-dadresses-ip"><span class="header-section-number">7.0.1</span> Défi A : Expressions régulières et extraction d’adresses IP</h3>
-<p>Dans le fichier <code>exercice_3/logs/connexions.log</code>, isolez la liste unique de toutes les adresses IP ayant tenté une connexion, triées par ordre croissant :</p>
+<p><em>Cette section s’adresse aux étudiants ayant terminé en avance. Elle mobilise uniquement les commandes vues aujourd’hui, combinées de manière plus poussée.</em></p>
+<section id="défi-a-identification-du-top-1-des-attaquants-pipeline-strict" class="level3" data-number="7.0.1">
+<h3 data-number="7.0.1" class="anchored" data-anchor-id="défi-a-identification-du-top-1-des-attaquants-pipeline-strict"><span class="header-section-number">7.0.1</span> Défi A : Identification du top 1 des attaquants (Pipeline strict)</h3>
+<p>En reprenant <code>exercice_3/logs/connexions.log</code>, écrivez une commande unique qui affiche <strong>uniquement le nom d’utilisateur</strong> (sans le préfixe <code>user=</code> et sans le décompte) ayant cumulé le plus grand nombre d’échecs de connexion (<code>FAILED</code>).</p>
 <ul>
-<li><em>Indice :</em> utilisez <code>cut</code> ou explorez <code>grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"</code>.</li>
+<li><em>Indice :</em> chaînez votre pipeline précédent avec un nouveau <code>sort</code> numérique, <code>tail</code> (ou <code>head</code>), et un dernier <code>cut</code>.</li>
 </ul>
 </section>
-<section id="défi-b-boucle-bash-en-une-ligne-one-liner" class="level3" data-number="7.0.2">
-<h3 data-number="7.0.2" class="anchored" data-anchor-id="défi-b-boucle-bash-en-une-ligne-one-liner"><span class="header-section-number">7.0.2</span> Défi B : Boucle Bash en une ligne (<em>One-liner</em>)</h3>
-<p>Depuis votre terminal, créez en une seule commande une série de 10 dossiers nommés <code>experience_01</code> à <code>experience_10</code>, contenant chacun un fichier vide <code>resultat.dat</code> :</p>
+<section id="défi-b-filtrage-temporel-avec-expressions-régulières-grep--e" class="level3" data-number="7.0.2">
+<h3 data-number="7.0.2" class="anchored" data-anchor-id="défi-b-filtrage-temporel-avec-expressions-régulières-grep--e"><span class="header-section-number">7.0.2</span> Défi B : Filtrage temporel avec Expressions Régulières (<code>grep -E</code>)</h3>
+<p>Affichez uniquement les lignes de connexion enregistrées entre 08h20 et 08h39 inclus.</p>
 <ul>
-<li><em>Indice :</em> observez la syntaxe de développement d’accolades <code>mkdir -p experience_{01..10}</code> ou utilisez une boucle <code>for i in $(seq -w 1 10); do ...; done</code>.</li>
+<li><p><em>Notion :</em> l’option <code>-E</code> de <code>grep</code> active les expressions régulières étendues. Le crochet <code>[23]</code> permet de cibler le chiffre 2 ou 3.</p></li>
+<li><p><em>Indice :</em> cherchez le motif correspondant à l’intervalle horaire dans la chaîne de date.</p></li>
 </ul>
 </section>
-<section id="défi-c-agrégation-avec-awk" class="level3" data-number="7.0.3">
-<h3 data-number="7.0.3" class="anchored" data-anchor-id="défi-c-agrégation-avec-awk"><span class="header-section-number">7.0.3</span> Défi C : Agrégation avec <code>awk</code></h3>
-<p><code>awk</code> est un langage de traitement de flux complet intégré à Linux. À l’aide d’une seule commande <code>awk</code>, lisez <code>connexions.log</code> et affichez la phrase personnalisée :</p>
-<p><em>« Utilisateur [nom] connecté depuis l’IP [ip] »</em> pour chaque ligne ayant le statut <code>SUCCESS</code>.</p>
+<section id="défi-c-détection-de-fichiers-suspects-par-date-find" class="level3" data-number="7.0.3">
+<h3 data-number="7.0.3" class="anchored" data-anchor-id="défi-c-détection-de-fichiers-suspects-par-date-find"><span class="header-section-number">7.0.3</span> Défi C : Détection de fichiers suspects par date (<code>find</code>)</h3>
+<p>Dans le dossier <code>defi/</code>, utilisez la commande <code>find</code> avec l’option <code>-mmin</code> pour localiser automatiquement les fichiers créés ou modifiés au cours des 60 dernières minutes.</p>
 
 
 </section>
