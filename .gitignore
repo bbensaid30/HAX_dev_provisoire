@@ -1,0 +1,13 @@
+# Fichiers de correction (sources et éventuels rendus locaux)
+*correction*
+*_prof*
+
+# Fichiers internes et caches de Quarto
+/.quarto/
+*_files/
+*_cache/
+
+# Fichiers systèmes / environnement
+.DS_Store
+__pycache__/
+.venv/

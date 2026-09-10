@@ -8,7 +8,7 @@
 
 <meta name="author" content="Bensaid Bilel">
 
-<title>TP 1 : Prise en main de Linux &amp; Maîtrise de la Ligne de Commande Bash</title>
+<title>TP 1 : Prise en main de Linux &amp; Maîtrise de la Ligne de Commande Bash – HAX712X — Dev Logiciel</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -59,17 +59,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="enonce_bash_files/libs/clipboard/clipboard.min.js"></script>
-<script src="enonce_bash_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="enonce_bash_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="enonce_bash_files/libs/quarto-html/popper.min.js"></script>
-<script src="enonce_bash_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="enonce_bash_files/libs/quarto-html/anchor.min.js"></script>
-<link href="enonce_bash_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="enonce_bash_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="enonce_bash_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="enonce_bash_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="enonce_bash_files/libs/bootstrap/bootstrap-4eb3980a75107de2e6fdaf3d20757010.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-98841bece9ba0017221a8c8fe42336b1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -103,11 +136,59 @@ window.Quarto = {
 
 </head>
 
-<body class="quarto-light">
+<body class="nav-fixed quarto-light">
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc" class="toc-active">
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">HAX712X — Dev Logiciel</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Recherche"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Basculer la navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Accueil</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../Projet2026/cahier_des_charges.html"> 
+<span class="menu-text">Projet 2026-2027</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tps" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">TPs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tps">    
+        <li>
+    <a class="dropdown-item" href="../TP_bash/enonce_bash.html">
+ <span class="dropdown-text">TP 1 : Linux &amp; Bash</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../installation_wsl.html"> 
+<span class="menu-text">Guide WSL</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table des matières</h2>
    
   <ul>
@@ -147,8 +228,9 @@ window.Quarto = {
   <li><a href="#défi-c-agrégation-avec-awk" id="toc-défi-c-agrégation-avec-awk" class="nav-link" data-scroll-target="#défi-c-agrégation-avec-awk"><span class="header-section-number">7.0.3</span> Défi C : Agrégation avec <code>awk</code></a></li>
   </ul></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Autres formats</h2><ul><li><a href="../enonce_bash.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
-</div>
+<div class="quarto-alternate-formats"><h2>Autres formats</h2><ul><li><a href="enonce_bash.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+    </div>
+<!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -418,7 +500,12 @@ Chemins Absolus vs Chemins Relatifs
 <h1 data-number="5"><span class="header-section-number">5</span> Partie 4 : Redirections, Filtres et Pipelines (<code>|</code>) (45 min)</h1>
 <section id="modèle-mental-les-tuyaux-de-données" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="modèle-mental-les-tuyaux-de-données"><span class="header-section-number">5.1</span> Modèle mental : Les tuyaux de données</h2>
-<p>Chaque programme exécuté dans un terminal dispose par défaut de trois flux de communication : 1. <strong>L’entrée standard (<code>stdin</code> - canal 0)</strong> : ce que vous tapez au clavier. 2. <strong>La sortie standard (<code>stdout</code> - canal 1)</strong> : le résultat produit affiché à l’écran. 3. <strong>La sortie d’erreur (<code>stderr</code> - canal 2)</strong> : les messages d’erreurs affichés à l’écran.</p>
+<p>Chaque programme exécuté dans un terminal dispose par défaut de trois flux de communication :</p>
+<ol type="1">
+<li><strong>L’entrée standard (<code>stdin</code> - canal 0)</strong> : ce que vous tapez au clavier.</li>
+<li><strong>La sortie standard (<code>stdout</code> - canal 1)</strong> : le résultat produit affiché à l’écran.</li>
+<li><strong>La sortie d’erreur (<code>stderr</code> - canal 2)</strong> : les messages d’erreurs affichés à l’écran.</li>
+</ol>
 <p>Bash permet de détourner ces flux grâce aux <strong>redirections</strong> et au <strong>tube (pipe)</strong> :</p>
 <ul>
 <li><code>commande &gt; fichier</code> : redirige la sortie vers un fichier <strong>en écrasant</strong> son contenu préalable.</li>
@@ -484,11 +571,12 @@ Chemins Absolus vs Chemins Relatifs
 <h3 data-number="7.0.3" class="anchored" data-anchor-id="défi-c-agrégation-avec-awk"><span class="header-section-number">7.0.3</span> Défi C : Agrégation avec <code>awk</code></h3>
 <p><code>awk</code> est un langage de traitement de flux complet intégré à Linux. À l’aide d’une seule commande <code>awk</code>, lisez <code>connexions.log</code> et affichez la phrase personnalisée :<br>
 <em>« Utilisateur [nom] connecté depuis l’IP [ip] »</em> pour chaque ligne ayant le statut <code>SUCCESS</code>.</p>
+
+
 </section>
 </section>
 
-</main>
-<!-- /main column -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

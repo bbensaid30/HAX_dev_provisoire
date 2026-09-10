@@ -1,0 +1,268 @@
+[
+  {
+    "objectID": "installation_wsl.html",
+    "href": "installation_wsl.html",
+    "title": "Guide de Configuration Windows : WSL 2 & Visual Studio Code",
+    "section": "",
+    "text": "Tous les outils industriels modernes de calcul scientifique, de traitement de données et d’ingénierie logicielle (Bash, Git, environnements virtuels Python, suites de tests pytest, déploiement d’applications) sont nativement conçus pour fonctionner sur des systèmes d’exploitation de type Unix (Linux, macOS).\nL’exécution native sous l’invite de commande Windows classique (cmd.exe ou PowerShell) engendre des dysfonctionnements récurrents : * Problèmes d’encodage de caractères (UTF-8 vs Windows-1252). * Incompatibilités des séparateurs de chemins (\\ vs /). * Absence de gestion des permissions d’exécution de fichiers (chmod). * Lenteurs et plantages sur certains modules de calcul distribué (multiprocessing).\nPour travailler dans les mêmes conditions que sur les machines des salles de TP ou sur macOS, les étudiants disposant d’un PC sous Windows doivent installer WSL 2 (Windows Subsystem for Linux)."
+  },
+  {
+    "objectID": "installation_wsl.html#la-bonne-pratique-travaillez-dans-votre-espace-personnel-linux",
+    "href": "installation_wsl.html#la-bonne-pratique-travaillez-dans-votre-espace-personnel-linux",
+    "title": "Guide de Configuration Windows : WSL 2 & Visual Studio Code",
+    "section": "La bonne pratique : travaillez dans votre espace personnel Linux",
+    "text": "La bonne pratique : travaillez dans votre espace personnel Linux\nToutes vos activités de cours, projets, clones Git et bibliothèques doivent résider dans votre dossier personnel Ubuntu (/home/&lt;votre_nom&gt;/, abrégé par le tilde ~) :\n# Se placer dans son répertoire personnel Linux\ncd ~\n\n# Créer un dossier pour l'UE et y entrer\nmkdir -p dev_logiciel\ncd dev_logiciel\n\n# Vérifier son emplacement absolu\npwd\n# La sortie doit afficher : /home/&lt;votre_nom&gt;/dev_logiciel"
+  },
+  {
+    "objectID": "installation_wsl.html#procédure-de-configuration",
+    "href": "installation_wsl.html#procédure-de-configuration",
+    "title": "Guide de Configuration Windows : WSL 2 & Visual Studio Code",
+    "section": "Procédure de configuration",
+    "text": "Procédure de configuration\n\nInstallez Visual Studio Code sous Windows depuis le site officiel : https://code.visualstudio.com/.\nOuvrez VS Code sous Windows, rendez-vous dans l’onglet des extensions (Ctrl + Maj + X) et installez l’extension officielle :\n\nWSL (éditée par Microsoft).\n\nOuvrez votre terminal Ubuntu (accessible depuis le menu Démarrer de Windows).\nDéplacez-vous dans votre dossier de travail et lancez VS Code directement depuis Linux :\ncd ~/dev_logiciel\ncode .\nAu premier lancement, un petit serveur VS Code s’installe dans Ubuntu. La fenêtre s’ouvre alors sous Windows :\n\nEn bas à gauche, une étiquette bleue affiche : WSL: Ubuntu.\nL’interface graphique, la souris, les onglets et les thèmes tournent sous Windows.\nLe terminal intégré (Ctrl + ~), Git, Python et les extensions tournent nativement sous Linux à pleine vitesse.\n\n\n\n\n\n\n\n\nAccéder visuellement aux fichiers depuis Windows\n\n\n\nSi vous avez besoin d’ouvrir votre dossier Linux dans l’explorateur de fichiers Windows (pour glisser une image ou visualiser un document), tapez simplement dans votre terminal Ubuntu :\nexplorer.exe .\nWindows ouvrira une fenêtre pointant sur le chemin réseau sécurisé \\\\wsl$\\Ubuntu\\home\\...."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html",
+    "href": "Projet2026/cahier_des_charges.html",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "",
+    "text": "Le projet de l’UE Développement Logiciel (HAX712X) constitue le fil conducteur pratique du semestre pour la promotion de Master 1 Sciences des Données (SSD).\nL’objectif est de concevoir, développer, tester, documenter et déployer une bibliothèque logicielle complète en Python modélisant une arène de combat au tour par tour (moteur headless), couplée à un pipeline d’ingestion de données et à un tableau de bord analytique interactif (Streamlit).\n\n\n\nConception logicielle industrielle : Programmation orientée objet stricte, modularité, encapsulation, gestion rigoureuse des erreurs et packaging standard (pyproject.toml).\nAssurance qualité : Tests unitaires automatisés (pytest), mesure de couverture de code et intégration continue (GitHub Actions).\nCalcul intensif et Data Science : Simulation stochastique de Monte-Carlo, parallélisation multi-coeurs (multiprocessing / joblib), ingestion d’API Web et mise en cache locale.\nVisualisation avancée : Exploration de données (Plotly), cartographie géographique interactive (Folium / GeoPandas) et déploiement d’une application web décisionnelle.\n\n\n\n\n\nLe projet s’effectue obligatoirement en groupes de 3 étudiants (exceptionnellement un groupe de 4 en fonction de l’effectif total).\nLe moteur de simulation, l’ingestion API, les tests unitaires et le dashboard constituent un socle commun obligatoire.\nChaque groupe choisit une extension thématique exclusive parmi les 10 proposées afin d’approfondir un volet algorithmique ou fonctionnel précis."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#objectifs-pédagogiques",
+    "href": "Projet2026/cahier_des_charges.html#objectifs-pédagogiques",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "",
+    "text": "Conception logicielle industrielle : Programmation orientée objet stricte, modularité, encapsulation, gestion rigoureuse des erreurs et packaging standard (pyproject.toml).\nAssurance qualité : Tests unitaires automatisés (pytest), mesure de couverture de code et intégration continue (GitHub Actions).\nCalcul intensif et Data Science : Simulation stochastique de Monte-Carlo, parallélisation multi-coeurs (multiprocessing / joblib), ingestion d’API Web et mise en cache locale.\nVisualisation avancée : Exploration de données (Plotly), cartographie géographique interactive (Folium / GeoPandas) et déploiement d’une application web décisionnelle."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#organisation",
+    "href": "Projet2026/cahier_des_charges.html#organisation",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "",
+    "text": "Le projet s’effectue obligatoirement en groupes de 3 étudiants (exceptionnellement un groupe de 4 en fonction de l’effectif total).\nLe moteur de simulation, l’ingestion API, les tests unitaires et le dashboard constituent un socle commun obligatoire.\nChaque groupe choisit une extension thématique exclusive parmi les 10 proposées afin d’approfondir un volet algorithmique ou fonctionnel précis."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#caractéristiques-et-normalisation-des-combattants",
+    "href": "Projet2026/cahier_des_charges.html#caractéristiques-et-normalisation-des-combattants",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "2.1 Caractéristiques et Normalisation des Combattants",
+    "text": "2.1 Caractéristiques et Normalisation des Combattants\nChaque combattant \\(C\\) est modélisé par un vecteur d’état à sept dimensions : \\[C = \\langle \\text{id}, \\text{nom}, T, \\text{PV}_{\\max}, \\text{PV}, A, D, V \\rangle\\]\n\n\\(\\text{id} \\in [\\![1, 151]\\!]\\) : identifiant officiel dans la PokéAPI (première génération).\n\\(\\text{nom} \\in \\mathbb{S}\\) : identifiant textuel unique (ex. : \"Pikachu\", \"Charizard\").\n\\(T \\in \\mathcal{T}\\) : type élémentaire appartenant à \\(\\mathcal{T} = \\{\\text{Normal}, \\text{Feu}, \\text{Eau}, \\text{Plante}, \\text{Électrik}, ...\\}\\).\nLes caractéristiques opérationnelles sont normalisées au Niveau 50 standard à partir des statistiques de base brutes (\\(\\text{Stat}_{\\text{base}}\\)) récupérées sur l’API : \\[\\text{PV}_{\\max} = \\text{PV}_{\\text{base}} + 60\\] \\[A = A_{\\text{base}} + 5, \\quad D = D_{\\text{base}} + 5, \\quad V = V_{\\text{base}} + 5\\]\n\\(\\text{PV} \\in [\\![0, \\text{PV}_{\\max}]\\!]\\) : points de vie courants du combattant.\n\nSi \\(\\text{PV} = 0\\), l’entité est déclarée K.-O. (fainted) et ne peut plus réaliser aucune action."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#matrice-des-affinités-élémentaires",
+    "href": "Projet2026/cahier_des_charges.html#matrice-des-affinités-élémentaires",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "2.2 Matrice des Affinités Élémentaires",
+    "text": "2.2 Matrice des Affinités Élémentaires\nLe coefficient multiplicateur \\(M(T_{\\text{att}}, T_{\\text{déf}}) \\in \\{0.5, 1.0, 2.0\\}\\) modélise l’avantage ou le désavantage élémentaire :\n\n\n\n\n\n\n\n\n\n\n\nType Attaquant (\\(T_{\\text{att}}\\))  Type Défenseur (\\(T_{\\text{déf}}\\))\nNormal\nFeu\nEau\nPlante\nÉlectrik\n\n\n\n\nNormal\n1.0\n1.0\n1.0\n1.0\n1.0\n\n\nFeu\n1.0\n0.5\n0.5\n2.0\n1.0\n\n\nEau\n1.0\n2.0\n0.5\n0.5\n1.0\n\n\nPlante\n1.0\n0.5\n2.0\n0.5\n1.0\n\n\nÉlectrik\n1.0\n1.0\n2.0\n0.5\n0.5\n\n\n\nUn fichier data/types.csv est fourni pour charger cette matrice de manière automatisée dans le package."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#algorithme-de-résolution-dun-tour",
+    "href": "Projet2026/cahier_des_charges.html#algorithme-de-résolution-dun-tour",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "2.3 Algorithme de Résolution d’un Tour",
+    "text": "2.3 Algorithme de Résolution d’un Tour\nSoient deux combattants \\(C_1\\) et \\(C_2\\). Le duel se décompose en tours séquentiels successifs :\n\n2.3.1 1. Détermination de l’initiative\n\nLe combattant possédant la vitesse \\(V\\) la plus élevée frappe en premier.\nEn cas d’égalité stricte (\\(V_1 = V_2\\)), le premier attaquant est désigné par un tirage de Bernoulli \\(B \\sim \\mathcal{B}(0.5)\\).\n\n\n\n2.3.2 2. Calcul stochastique des dégâts\nL’attaquant actif assène une attaque standard de puissance nominale \\(P = 50\\).\nLa formule fermée des dégâts réels infligés est : \\[\\text{Dégâts} = \\max\\left(1, \\left\\lfloor \\left( \\frac{22 \\times P \\times \\frac{A_{\\text{att}}}{D_{\\text{déf}}}}{50} + 2 \\right) \\times M(T_{\\text{att}}, T_{\\text{déf}}) \\times U \\times K \\right\\rfloor\\right)\\]\navec : * \\(\\lfloor x \\rfloor\\) : partie entière inférieure. * \\(M(T_{\\text{att}}, T_{\\text{déf}})\\) : multiplicateur issu de la matrice des types. * \\(U\\) : variable aléatoire modélisant la variabilité du coup, \\(U \\sim \\mathcal{U}([0.85, 1.00])\\). * \\(K\\) : multiplicateur de coup critique gouverné par une variable de Bernoulli \\(X_{\\text{crit}} \\sim \\mathcal{B}(0.10)\\) : \\[K = \\begin{cases} 1.5 & \\text{si } X_{\\text{crit}} = 1 \\text{ (probabilité } 10\\%) \\\\ 1.0 & \\text{sinon} \\end{cases}\\]\n\n\n2.3.3 3. Application des dégâts et terminaison\n\\[\\text{PV}_{\\text{déf}} \\leftarrow \\max(0, \\text{PV}_{\\text{déf}} - \\text{Dégâts})\\]\n\nSi \\(\\text{PV}_{\\text{déf}} = 0\\) : le défenseur est K.-O., le combat prend fin immédiatement. Le défenseur ne riposte pas.\nSi \\(\\text{PV}_{\\text{déf}} &gt; 0\\) : le défenseur devient attaquant et exécute à son tour les étapes 2 et 3."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#arborescence-imposée-du-dépôt",
+    "href": "Projet2026/cahier_des_charges.html#arborescence-imposée-du-dépôt",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "3.1 Arborescence Imposée du Dépôt",
+    "text": "3.1 Arborescence Imposée du Dépôt\nL’organisation des répertoires doit impérativement respecter le schéma suivant :\npyarena/\n├── pyproject.toml              # Configuration du package, pytest, linters et dépendances\n├── README.md                   # Instructions d'installation et de reproduction\n├── CONTRIBUTIONS.md            # Tableau contractuel de contribution individuelle\n├── data/\n│   ├── types.csv               # Matrice des coefficients élémentaires\n│   ├── arenes_occitanie.geojson# Données spatiales régionales\n│   └── cache/                  # Fichiers JSON locaux de l'API (ignorés par Git)\n├── src/\n│   └── pyarena/\n│       ├── __init__.py         # Export des classes et fonctions publiques\n│       ├── core/\n│       │   ├── __init__.py\n│       │   ├── exceptions.py   # Classes d'erreurs maison\n│       │   ├── models.py       # Classes Fighter, Team, BattleResult\n│       │   └── engine.py       # Moteur d'exécution des tours et du combat\n│       ├── io/\n│       │   ├── __init__.py\n│       │   ├── fetcher.py      # Client HTTP PokéAPI avec stratégie de cache\n│       │   └── loader.py       # Parsers CSV et GeoJSON\n│       ├── simulation/\n│       │   ├── __init__.py\n│       │   └── monte_carlo.py  # Moteur Monte-Carlo parallélisé (joblib/multiprocessing)\n│       └── extensions/         # Emplacement unique du code de l'extension choisie\n│           └── __init__.py\n├── tests/\n│   ├── __init__.py\n│   ├── test_models.py          # Tests unitaires des entités et de l'encapsulation\n│   ├── test_engine.py          # Tests déterministes du calcul des dégâts\n│   ├── test_simulation.py      # Tests de reproductibilité et de parallélisation\n│   └── test_extension.py       # Tests unitaires spécifiques à l'extension\n└── app/\n    ├── main.py                 # Point d'entrée de l'application Streamlit\n    ├── pages/                  # Pages multipages Streamlit\n    └── utils.py                # Fonctions d'affichage graphique Plotly/Folium"
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#règles-de-programmation-orientée-objet-poo",
+    "href": "Projet2026/cahier_des_charges.html#règles-de-programmation-orientée-objet-poo",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "3.2 Règles de Programmation Orientée Objet (POO)",
+    "text": "3.2 Règles de Programmation Orientée Objet (POO)\n\nAbstraction :\n\nPrésence obligatoire d’une classe abstraite BaseFighter héritant de abc.ABC.\nDéfinition explicite des méthodes abstraites via @abstractmethod :\n\ntake_damage(self, amount: int) -&gt; None\nis_alive(self) -&gt; bool\nreset_stats(self) -&gt; None\n\n\nEncapsulation stricte :\n\nLes attributs critiques (dont les points de vie) doivent être privés ou protégés et exposés via des propriétés @property.\nLe setter associé à la santé doit empêcher toute affectation d’une valeur négative ou supérieure à \\(\\text{PV}_{\\max}\\).\n\nMéthodes spéciales (dunder methods) :\n\nImplémenter obligatoirement __repr__ (représentation technique complète), __str__ (affichage convivial) et __eq__ (égalité structurelle basée sur l’identifiant).\n\nHiérarchie d’exceptions maison :\n\nDéfinir une exception de base PyArenaException(Exception) dans exceptions.py.\nImplémenter au minimum :\n\nFighterFaintedError : levée lorsqu’un combattant K.-O. tente d’agir.\nInvalidStatError : levée si une statistique d’entrée est hors des bornes autorisées.\nDataFetchError : levée si l’API est injoignable et qu’aucun cache local n’existe."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#packaging-et-intégration-continue-ci",
+    "href": "Projet2026/cahier_des_charges.html#packaging-et-intégration-continue-ci",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "3.3 Packaging et Intégration Continue (CI)",
+    "text": "3.3 Packaging et Intégration Continue (CI)\n\nLe paquet doit être installable en mode développement à la racine du dépôt :\npip install -e .\nUn workflow GitHub Actions (.github/workflows/ci.yml) doit s’exécuter à chaque commit poussé sur main et à chaque Pull Request :\n\nVérification du formatage et du style avec ruff check ou flake8.\nExécution de l’intégralité des tests avec pytest.\nVérification du seuil de couverture de code : la couverture mesurée par pytest-cov sur le package pyarena doit être supérieure ou égale à 70 %."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#récupération-api-et-stratégie-de-cache-hors-ligne",
+    "href": "Projet2026/cahier_des_charges.html#récupération-api-et-stratégie-de-cache-hors-ligne",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "4.1 Récupération API et Stratégie de Cache Hors-Ligne",
+    "text": "4.1 Récupération API et Stratégie de Cache Hors-Ligne\n\nLe module fetcher.py doit implémenter une classe DataFetcher interrogeant l’API publique ouverte [https://pokeapi.co/api/v2/pokemon/](https://pokeapi.co/api/v2/pokemon/){id} pour les 151 premières créatures (\\(\\text{id} \\in [\\![1, 151]\\!]\\)).\nMise en cache locale obligatoire : Tout appel réseau réussi enregistre immédiatement le fichier JSON sous data/cache/{id}.json.\nLors d’une demande ultérieure, le système charge directement le fichier local sans déclencher de requête HTTP.\nLe dossier data/cache/ doit figurer dans le fichier .gitignore : les données brutes ne doivent pas être versionnées sur Git."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#moteur-de-simulation-monte-carlo-parallélisé",
+    "href": "Projet2026/cahier_des_charges.html#moteur-de-simulation-monte-carlo-parallélisé",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "4.2 Moteur de Simulation Monte-Carlo Parallélisé",
+    "text": "4.2 Moteur de Simulation Monte-Carlo Parallélisé\n\nLa fonction de combat élémentaire simulate_battle(f1, f2, seed=None) doit permettre l’injection d’une graine aléatoire (seed) pour garantir la reproductibilité parfaite d’une confrontation.\nLe module monte_carlo.py doit proposer une fonction :\ndef run_monte_carlo(\n    f1: BaseFighter, \n    f2: BaseFighter, \n    n_simulations: int = 5000, \n    n_jobs: int = -1\n) -&gt; dict:\nParallélisation : L’exécution des \\(n_{\\text{simulations}}\\) duels doit être distribuée sur l’ensemble des cœurs CPU de la machine hôte (multiprocessing.Pool ou joblib.Parallel).\nMesures retournées :\n\nProbabilité de victoire estimée de \\(C_1\\) : \\[\\hat{p} = \\frac{\\text{Nombre de victoires de } C_1}{n_{\\text{simulations}}}\\]\nIntervalle de confiance asymptotique à 95 % : \\[\\mathrm{IC}_{0.95}(\\hat{p}) = \\left[ \\hat{p} - 1.96 \\sqrt{\\frac{\\hat{p}(1 - \\hat{p})}{n_{\\text{simulations}}}}, \\; \\hat{p} + 1.96 \\sqrt{\\frac{\\hat{p}(1 - \\hat{p})}{n_{\\text{simulations}}}} \\right]\\]\nDistribution du nombre de tours jusqu’au terme du combat (moyenne, médiane, écart-type)."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#module-1-simulateur-de-duel-et-télémétrie-en-direct",
+    "href": "Projet2026/cahier_des_charges.html#module-1-simulateur-de-duel-et-télémétrie-en-direct",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "5.1 Module 1 : Simulateur de Duel et Télémétrie en Direct",
+    "text": "5.1 Module 1 : Simulateur de Duel et Télémétrie en Direct\n\nDeux listes déroulantes permettent de sélectionner les combattants \\(A\\) et \\(B\\) parmi les 151 disponibles.\nAffichage immédiat des sprites officiels (PNG transparents issus du cache ou de l’URL) et de leurs statistiques de niveau 50.\nCurseur interactif pour régler le nombre de simulations (\\(100 \\le N \\le 10\\,000\\)).\nRestitution post-calcul :\n\nWinrates comparés avec barres de progression.\nIntervalle de confiance à 95 % affiché numériquement.\nHistogramme Plotly interactif de la distribution du nombre de tours.\nJournal textuel pas-à-pas (log) d’un match témoin généré avec graine fixée."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#module-2-catalogue-et-analyse-exploratoire-des-données",
+    "href": "Projet2026/cahier_des_charges.html#module-2-catalogue-et-analyse-exploratoire-des-données",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "5.2 Module 2 : Catalogue et Analyse Exploratoire des Données",
+    "text": "5.2 Module 2 : Catalogue et Analyse Exploratoire des Données\n\nTableau de données interactif avec pagination et filtres dynamiques (par type, par plage de PV ou d’attaque).\nGraphique de dispersion interactif Plotly : Attaque en abscisse, Défense en ordonnée, taille des marqueurs proportionnelle aux PV, couleur assignée selon le Type.\nBoîtes à moustaches (boxplots) comparant la distribution de la vitesse entre les 5 familles élémentaires."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#module-3-cartographie-géospatiale-des-arènes-doccitanie",
+    "href": "Projet2026/cahier_des_charges.html#module-3-cartographie-géospatiale-des-arènes-doccitanie",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "5.3 Module 3 : Cartographie Géospatiale des Arènes d’Occitanie",
+    "text": "5.3 Module 3 : Cartographie Géospatiale des Arènes d’Occitanie\n\nExploitation du fichier data/arenes_occitanie.geojson regroupant 30 sites régionaux (Montpellier, Sète, Nîmes, Toulouse, Perpignan…).\nAffichage de la carte dynamique via streamlit-folium.\nMarqueurs géoréférencés colorés selon le type élémentaire de l’arène.\nClic sur un marqueur : ouverture d’un pop-up affichant le nom de l’arène, son champion, son sprite officiel et ses statistiques."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#modalités-dattribution",
+    "href": "Projet2026/cahier_des_charges.html#modalités-dattribution",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "8.1 Modalités d’Attribution",
+    "text": "8.1 Modalités d’Attribution\n\nPlafond strict : Les bonus peuvent rapporter jusqu’à +2 points sur la Note Technique de Code (la note finale restant plafonnée à 20/20).\nCondition impérative d’éligibilité : Les points de bonus ne sont comptabilisés que si le socle commun obligatoire (POO, packaging, tests unitaires avec couverture \\(\\ge 70\\%\\), intégration continue GitHub Actions et dashboard) et l’extension attribuée sont intégralement fonctionnels et exempts de régression le jour du rendu.\nDocumentation obligatoire : Tout ajout faisant l’objet d’une demande de bonus doit être explicitement répertorié dans une section dédiée du fichier README.md intitulée ## Fonctionnalités Bonus Implémentées."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#exemples-dinitiatives-reconnues-pour-le-bonus",
+    "href": "Projet2026/cahier_des_charges.html#exemples-dinitiatives-reconnues-pour-le-bonus",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "8.2 Exemples d’Initiatives Reconnues pour le Bonus",
+    "text": "8.2 Exemples d’Initiatives Reconnues pour le Bonus\n\nPrise en compte du double type élémentaire (+0,75 pt) : Intégrer le fait que certaines créatures possèdent deux types combinés (ex. Feu/Vol ou Eau/Sol). Adapter le calcul de dégâts pour multiplier les coefficients d’affinité élémentaire issus des deux types, autorisant des multiplicateurs de dégâts cumulés de \\(\\times 4\\) ou de \\(\\times 0{,}25\\).\nMatrice officielle complète des 18 types (+0,5 pt) : Remplacer la matrice simplifiée des éléments par l’ingestion et la gestion rigoureuse de la table officielle complète des 18 types (incluant Spectre, Dragon, Acier, Fée…), avec gestion des immunités strictes (multiplicateur \\(\\times 0{,}0\\)).\nArbre de décision tactique (Minimax élémentaire à 2 tours) (+1 pt) : Pour les extensions impliquant des choix d’actions multiples (Extensions 2 ou 4), concevoir un agent évaluant l’arbre des états possibles à horizon 2 tours afin de sélectionner l’action minimisant la perte maximale de PV face au contre adverse.\nIntégration multimédia officielle (Audio & Thèmes) (+0,5 pt) : Exploiter les champs audio disponibles sur l’API pour jouer les cris officiels des combattants (format OGG/MP3 via st.audio) lors du K.-O. ou de l’entrée dans l’arène, et habiller l’application Streamlit d’une charte graphique soignée.\nDéploiement public sur le Cloud (+0,5 pt) : Déployer l’application Streamlit sur l’infrastructure gratuite Streamlit Community Cloud et fournir l’URL publique active directement dans l’en-tête du fichier README.md."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#bonnes-pratiques-git-imposées",
+    "href": "Projet2026/cahier_des_charges.html#bonnes-pratiques-git-imposées",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "9.1 Bonnes Pratiques Git Imposées",
+    "text": "9.1 Bonnes Pratiques Git Imposées\n\nProtection absolue de la branche main : Aucun push direct n’est toléré sur main.\nWorkflow par branches et Pull Requests : Toute nouvelle brique ou correction d’anomalie fait l’objet d’une branche distincte (ex. : feat/models-validation, fix/crit-calc), soumise à validation par une Pull Request relue par un autre membre du groupe.\nAtomicité des commits : Les commits doivent être ciblés et porter un message explicite respectant la convention standard (feat: ..., fix: ..., test: ...)."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#document-contractuel-contributions.md",
+    "href": "Projet2026/cahier_des_charges.html#document-contractuel-contributions.md",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "9.2 Document Contractuel : CONTRIBUTIONS.md",
+    "text": "9.2 Document Contractuel : CONTRIBUTIONS.md\nÀ la racine du dépôt, le fichier CONTRIBUTIONS.md doit consigner précisément l’investissement effectif de chaque membre selon le tableau type :\n\n\n\n\n\n\n\n\n\nMembre\nIdentifiant GitHub\nRôle et Modules Développés\nNuméros des PRs Soumises et Revues\n\n\n\n\nÉtudiant 1\n@login1\nConception du module core/, tests pytest\nPRs #1, #4 (Revues : #2, #5)\n\n\nÉtudiant 2\n@login2\nClient API io/fetcher.py, Dashboard Streamlit\nPRs #2, #5 (Revues : #3)\n\n\nÉtudiant 3\n@login3\nParallélisation simulation/, Extension choisie\nPRs #3, #6 (Revues : #1, #4)"
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#contrôle-automatisé-du-plagiat-et-de-lhistorique",
+    "href": "Projet2026/cahier_des_charges.html#contrôle-automatisé-du-plagiat-et-de-lhistorique",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "9.3 Contrôle Automatisé du Plagiat et de l’Historique",
+    "text": "9.3 Contrôle Automatisé du Plagiat et de l’Historique\n\nAnalyse de régularité : La distribution temporelle des commits sera examinée sur GitHub. Tout « commit massif » (injection soudaine de plusieurs centaines de lignes de code en fin de projet) sans historique incrémental fera l’objet d’une pénalité individuelle.\nAnalyse syntaxique structurelle (copydetect) : L’ensemble des répertoires src/ rendus sera soumis à un contrôle automatisé comparant les arbres syntaxiques abstraits (AST) via l’outil copydetect. Les dépôts présentant une similarité non fortuite seront pénalisés."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3",
+    "href": "Projet2026/cahier_des_charges.html#note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "10.1 Note 1 : Code, Architecture et Produit (/20 — Note de Groupe, Coeff 3)",
+    "text": "10.1 Note 1 : Code, Architecture et Produit (/20 — Note de Groupe, Coeff 3)\n\n\n\n\n\n\n\n\nCritère\nBarème\nÉléments évalués concrètement\n\n\n\n\nArchitecture Orientée Objet\n/ 4\nRespect des classes abstraites, encapsulation (@property), gestion des exceptions maison, typage strict.\n\n\nPackaging & Propreté\n/ 2\nFichier pyproject.toml fonctionnel, installation immédiate via pip install -e ., arborescence scrupuleusement respectée.\n\n\nTests & Intégration Continue\n/ 4\nCouverture mesurée par pytest-cov \\(\\ge 70\\%\\), pertinence des tests aux limites, workflow GitHub Actions au vert (si rouge : -2 points d’office).\n\n\nDonnées & Parallélisme\n/ 3\nSystème de cache local opérationnel (mode déconnecté), exécution distribuée de Monte-Carlo (joblib/multiprocessing), intervalles de confiance corrects.\n\n\nDashboard Streamlit\n/ 4\nRéactivité de l’application, présence des sprites officiels, visualisations Plotly pertinentes, carte Folium fonctionnelle.\n\n\nRéalisation de l’Extension\n/ 3\nRespect rigoureux du cahier des charges spécifique à l’extension attribuée et couverture par ses tests unitaires."
+  },
+  {
+    "objectID": "Projet2026/cahier_des_charges.html#note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2",
+    "href": "Projet2026/cahier_des_charges.html#note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2",
+    "title": "Cahier des Charges — Projet de Développement Logiciel (HAX712X)",
+    "section": "10.2 Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Note Individuelle, Coeff 2)",
+    "text": "10.2 Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Note Individuelle, Coeff 2)\nChaque groupe dispose de 20 minutes d’évaluation décomposées en : * 10 minutes d’exposé et de démonstration applicative en direct. * 10 minutes de questions techniques individuelles.\n\n\n\n\n\n\n\n\nCritère\nBarème\nÉléments évalués concrètement\n\n\n\n\nQualité des supports visuels\n/ 3\nDiapositives claires et professionnelles, schémas d’architecture soignés, absence de blocs de code illisibles.\n\n\nDémonstration technique live\n/ 4\nDémonstration fluide de l’application Streamlit sans plantage imprévu, exécution en direct de la suite de tests pytest.\n\n\nMaîtrise individuelle du code\n/ 8\nAptitude de chaque étudiant à naviguer dans le code, à expliquer précisément la logique d’une fonction et à justifier ses choix algorithmiques.\n\n\nCompréhension des concepts\n/ 3\nMaîtrise rigoureuse du vocabulaire : polymorphisme, complexité temporelle, stochasticité, décorateurs, conditions de concurrence.\n\n\nInvestissement Git vérifiable\n/ 2\nCohérence vérifiée entre les déclarations du fichier CONTRIBUTIONS.md et les métriques réelles d’activité GitHub (commits, PRs créées et revues)."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Développement Logiciel (HAX712X)",
+    "section": "",
+    "text": "Bienvenue sur le site du cours de Développement Logiciel.\n\nCahier des charges du Projet PyArena\nTP 1 : Prise en main de Linux & Bash\nGuide d’installation Windows (WSL 2 & VS Code)"
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html",
+    "href": "TP_bash/enonce_bash.html",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "",
+    "text": "Bienvenue dans votre premier TP d’ingénierie logicielle. Le terminal Bash n’est pas un outil d’archiviste : c’est l’interface directe avec le système d’exploitation, indispensable pour le calcul haute performance, la gestion de serveurs distants et le déploiement de modèles de données.\n\n\n\n\n\n\nLa grammaire universelle d’une commande Unix\n\n\n\nToutes les commandes Bash obéissent à la même structure : \\[\\texttt{nom\\_commande} \\quad [\\texttt{-options}] \\quad [\\texttt{arguments}]\\]\n\nLa commande : l’action à exécuter (ex. : ls, cd, rm).\nLes options (flags) : modifient le comportement de la commande. Elles commencent par un tiret - pour les options courtes (ex. : -l, -a, -h) ou deux tirets -- pour les options longues (ex. : --all, --human-readable). On peut combiner les options courtes : ls -l -a -h s’écrit de manière équivalente ls -lah.\nLes arguments : la cible sur laquelle s’applique l’action (un nom de fichier, un dossier, une chaîne de texte).\n\n\n\n\n\nAvant de taper la moindre commande, intégrez ces quatre automatismes :\n\nLa touche Tabulation (Auto-complétion) : Ne tapez jamais un nom de fichier ou de dossier en entier. Tapez les deux premières lettres et appuyez sur Tab. Le terminal complète le nom automatiquement. Si deux fichiers ont le même début, appuyez deux fois sur Tab pour afficher les choix possibles.\nLes flèches Haut et Bas (Historique) : Inutile de retaper une commande précédente : les flèches permettent de naviguer dans l’historique de vos instructions.\nCtrl + C (Arrêt d’urgence) : Si une commande tourne en boucle infinie ou bloque l’écran, Ctrl + C envoie un signal d’interruption immédiat (SIGINT) et vous rend la main.\nCtrl + L (ou commande clear) : Nettoie l’affichage du terminal sans effacer l’historique de vos actions."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#modèle-mental-larbre-inversé",
+    "href": "TP_bash/enonce_bash.html#modèle-mental-larbre-inversé",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "2.1 Modèle mental : L’arbre inversé",
+    "text": "2.1 Modèle mental : L’arbre inversé\nSous Linux, il n’existe pas de disques C: ou D: comme sous Windows. Tout le système est organisé sous la forme d’un arbre unique dont l’origine absolue est la racine, notée / (root).\nTrois symboles spéciaux sont omniprésents : * / : la racine du système (le sommet de l’arborescence). * ~ (tilde) : votre répertoire personnel (home directory, ex. : /home/etudiant). * . : le répertoire courant (où vous vous trouvez actuellement). * .. : le répertoire parent (le dossier situé immédiatement au-dessus).\n\n\n\n\n\n\nChemins Absolus vs Chemins Relatifs\n\n\n\n\nUn chemin absolu commence obligatoirement par / ou ~. Il décrit l’itinéraire depuis la racine du système, quel que soit l’endroit où vous vous trouvez.\n\nExemple : /home/etudiant/Documents/tp1/\n\nUn chemin relatif ne commence jamais par /. Il décrit le chemin à emprunter en partant de l’endroit où vous êtes actuellement.\n\nExemple : si vous êtes dans Documents/, le chemin vers le sous-dossier s’écrit simplement tp1/ ou ./tp1/. Pour remonter d’un cran, on écrit ../."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#commandes-fondamentales-dexploration",
+    "href": "TP_bash/enonce_bash.html#commandes-fondamentales-dexploration",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "2.2 Commandes fondamentales d’exploration",
+    "text": "2.2 Commandes fondamentales d’exploration\n\n\n\n\n\n\n\n\nCommande\nRôle\nExemple type\n\n\n\n\npwd\nPrint Working Directory : affiche le chemin absolu du dossier actuel\npwd\n\n\nls\nListe les fichiers et dossiers visibles\nls\n\n\nls -l\nFormat long : affiche les droits, propriétaire, taille et date\nls -l\n\n\nls -a\nAffiche tous les fichiers, y compris les fichiers cachés (qui débutent par .)\nls -a\n\n\nls -lah\nFormat long, tous les fichiers, avec tailles lisibles en Ko/Mo/Go (-h)\nls -lah\n\n\ncd &lt;chemin&gt;\nChange Directory : change de répertoire de travail\ncd ..\n\n\ncd ~ ou cd\nRetourne directement à votre répertoire personnel (home)\ncd\n\n\ncd -\nRevient au répertoire où vous étiez juste avant la dernière commande\ncd -"
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#exercice-1-gymnastique-de-navigation-à-faire-directement-dans-votre-terminal",
+    "href": "TP_bash/enonce_bash.html#exercice-1-gymnastique-de-navigation-à-faire-directement-dans-votre-terminal",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "2.3 Exercice 1 : Gymnastique de navigation (À faire directement dans votre terminal)",
+    "text": "2.3 Exercice 1 : Gymnastique de navigation (À faire directement dans votre terminal)\n\nOuvrez votre terminal. Tapez pwd. Quel est votre emplacement initial ?\nDéplacez-vous à la racine du système :\ncd /\npwd\nls -l\nObservez les dossiers fondamentaux d’un système Linux (/bin, /etc, /home, /var…).\nEntrez dans le dossier etc/ en chemin relatif. Vérifiez avec pwd.\nRemontez d’un cran dans l’arborescence sans utiliser le mot root.\nRetournez dans votre répertoire personnel en une seule commande de deux caractères.\nAffichez les fichiers cachés de votre répertoire personnel. Repérez les fichiers de configuration débutant par un point (ex. : .bashrc, .profile ou .gitconfig)."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#les-commandes-décriture-et-de-gestion",
+    "href": "TP_bash/enonce_bash.html#les-commandes-décriture-et-de-gestion",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "3.1 Les commandes d’écriture et de gestion",
+    "text": "3.1 Les commandes d’écriture et de gestion\n\nmkdir dossier : crée un répertoire (make directory). L’option -p permet de créer une hiérarchie complète (ex. : mkdir -p a/b/c).\ntouch fichier.txt : crée un fichier vide s’il n’existe pas, ou met à jour sa date d’accès.\ncp source destination : copie un fichier (copy). Pour copier un dossier entier, l’option récursive -r est obligatoire : cp -r dossier_src/ dossier_dest/.\nmv source destination : déplace ou renomme un fichier/dossier (move).\nrm fichier : supprime définitivement un fichier (remove). Attention : il n’y a pas de corbeille sous Linux. Toute suppression est irréversible.\nrm -r dossier : supprime récursivement un dossier et tout son contenu.\ncat fichier : affiche l’intégralité du contenu d’un fichier texte dans la console."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#les-motifs-de-filtrage-wildcards",
+    "href": "TP_bash/enonce_bash.html#les-motifs-de-filtrage-wildcards",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "3.2 Les motifs de filtrage (Wildcards)",
+    "text": "3.2 Les motifs de filtrage (Wildcards)\nPour appliquer une action sur un ensemble de fichiers sans les lister un par un :\n\n* : remplace n’importe quelle chaîne de 0, 1 ou plusieurs caractères. Par exemple *.csv correspond à tous les fichiers se terminant par .csv et data_* à tous les fichiers dont le nom commence par data_.\n? : remplace exactement un caractère unique. Par exemple, modele_?.py: correspond àmodele_1.py,modele_A.py, mais pas àmodele_10.py`."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#préparation-de-lenvironnement-de-tp",
+    "href": "TP_bash/enonce_bash.html#préparation-de-lenvironnement-de-tp",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "3.3 Préparation de l’environnement de TP",
+    "text": "3.3 Préparation de l’environnement de TP\nPour dérouler les exercices suivants, téléchargez l’archive du TP et décompressez-la :\n# Téléchargement et extraction de l'archive\ntar -xzvf tp1_linux.tar.gz\ncd tp1_linux\npwd"
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#exercice-2-rangement-automatisé",
+    "href": "TP_bash/enonce_bash.html#exercice-2-rangement-automatisé",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "3.4 Exercice 2 : Rangement automatisé",
+    "text": "3.4 Exercice 2 : Rangement automatisé\nEntrez dans le dossier exercice_1/ :\ncd exercice_1\nls -l vrac/\nLe sous-dossier vrac/ contient un mélange désordonné de fichiers (.png, .txt, .py, .csv).\n\nDéplacez en une seule commande tous les fichiers .png vers le dossier existant documents/images/.\nDéplacez en une seule commande tous les fichiers .txt vers documents/textes/.\nCréez un nouveau répertoire nommé code/ au même niveau que documents/.\nCopiez (sans le déplacer) le fichier vrac/script.py vers ce nouveau dossier code/.\nSupprimez le répertoire vrac/ devenu inutile avec son contenu restant."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#décoder-les-permissions-dun-fichier",
+    "href": "TP_bash/enonce_bash.html#décoder-les-permissions-dun-fichier",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "4.1 Décoder les permissions d’un fichier",
+    "text": "4.1 Décoder les permissions d’un fichier\nSous Unix, chaque fichier et répertoire est protégé par un triplet de droits appliqués à trois niveaux d’utilisateurs. Tapez ls -l :\n-  r w x  r - x  r - -   1   bilel   profs   4096  10 sept.  run.sh\n↑  └──┬──┘ └──┬──┘ └──┬──┘\n|     |       |       └── Droits des \"Autres\" (world / others : o)\n|     |       └────────── Droits du \"Groupe\" (group : g)\n|     └────────────────── Droits du \"Propriétaire\" (user / owner : u)\n└──────────────────────── Type (- = fichier, d = dossier)\nChaque triplet se compose de trois attributs :\n\nr (read - lecture) : valeur binaire = 4. Permet de lire le fichier (ou de faire ls dans un dossier).\nw (write - écriture) : valeur binaire = 2. Permet de modifier ou supprimer le fichier.\nx (execute - exécution) : valeur binaire = 1. Permet de lancer le fichier comme un programme exécutable (ou d’entrer cd dans un dossier).\n- : droit non accordé = 0.\n\nOn peut ainsi coder les droits soit par des lettres (u+x, go-w), soit par un chiffre octal (la somme des valeurs) :\n\n755 = rwxr-xr-x (le propriétaire peut tout faire ; le groupe et les autres peuvent lire et exécuter).\n644 = rw-r--r-- (droit standard d’un fichier texte : modifiable uniquement par son créateur).\n600 = rw------- (fichier privé : seul le propriétaire peut lire et modifier).\n\nLa commande pour modifier ces droits est chmod (change mode)."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#exercice-3-déblocage-de-script-et-sécurisation-de-données",
+    "href": "TP_bash/enonce_bash.html#exercice-3-déblocage-de-script-et-sécurisation-de-données",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "4.2 Exercice 3 : Déblocage de script et sécurisation de données",
+    "text": "4.2 Exercice 3 : Déblocage de script et sécurisation de données\nRevenez au dossier parent et entrez dans exercice_2/ :\ncd ../exercice_2\nls -l scripts/\n\nTentez d’exécuter le script de sauvegarde système :\n./scripts/backup.sh\nQuel message d’erreur s’affiche ? Pourquoi ?\nÀ l’aide de la commande ls -l scripts/backup.sh, identifiez les droits actuels du script.\nDonnez le droit d’exécution au script en utilisant la notation symbolique. Exécutez-le à nouveau.\nObservez le fichier scripts/secret.conf : il contient une clé d’API critique. Vérifier ses permissions actuelles. Modifiez ses droits en utilisant la notation octale pour que vous soyez le seul à pouvoir lire et écrire dans ce fichier, en retirant tout droit au groupe et aux autres.\nVérifiez le résultat avec ls -l scripts/secret.conf. Le motif affiché doit être strictement -rw-------."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#modèle-mental-les-tuyaux-de-données",
+    "href": "TP_bash/enonce_bash.html#modèle-mental-les-tuyaux-de-données",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "5.1 Modèle mental : Les tuyaux de données",
+    "text": "5.1 Modèle mental : Les tuyaux de données\nChaque programme exécuté dans un terminal dispose par défaut de trois flux de communication :\n\nL’entrée standard (stdin - canal 0) : ce que vous tapez au clavier.\nLa sortie standard (stdout - canal 1) : le résultat produit affiché à l’écran.\nLa sortie d’erreur (stderr - canal 2) : les messages d’erreurs affichés à l’écran.\n\nBash permet de détourner ces flux grâce aux redirections et au tube (pipe) :\n\ncommande &gt; fichier : redirige la sortie vers un fichier en écrasant son contenu préalable.\ncommande &gt;&gt; fichier : redirige la sortie en l’ajoutant à la fin du fichier (append).\ncommande1 | commande2 : connecte directement la sortie de commande1 à l’entrée de commande2. La donnée passe de l’une à l’autre en mémoire sans créer de fichier temporaire sur le disque."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#la-boîte-à-outils-du-data-analyst-en-ligne-de-commande",
+    "href": "TP_bash/enonce_bash.html#la-boîte-à-outils-du-data-analyst-en-ligne-de-commande",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "5.2 La boîte à outils du Data Analyst en ligne de commande",
+    "text": "5.2 La boîte à outils du Data Analyst en ligne de commande\n\ncat fichier : affiche tout le fichier.\nhead -n k fichier / tail -n k fichier : extrait les \\(k\\) premières / dernières lignes.\ngrep \"motif\" fichier : filtre et n’affiche que les lignes contenant le motif.\n\nOption -i : insensible à la casse (majuscule/minuscule).\nOption -v : inverse le filtre (affiche les lignes qui ne contiennent pas le motif).\nOption -c : compte le nombre de lignes correspondantes.\n\nwc -l fichier : compte le nombre de lignes (word count line).\ncut -d \"séparateur\" -f numéro : découpe une ligne selon un délimiteur et extrait la colonne indiquée.\nsort : trie les lignes par ordre alphabétique (ou numérique avec -n).\nuniq -c : élimine les doublons consécutifs et compte le nombre d’occurrences."
+  },
+  {
+    "objectID": "TP_bash/enonce_bash.html#exercice-4-analyse-de-logs-serveur",
+    "href": "TP_bash/enonce_bash.html#exercice-4-analyse-de-logs-serveur",
+    "title": "TP 1 : Prise en main de Linux & Maîtrise de la Ligne de Commande Bash",
+    "section": "5.3 Exercice 4 : Analyse de logs serveur",
+    "text": "5.3 Exercice 4 : Analyse de logs serveur\nEntrez dans le dossier exercice_3/logs/ :\ncd ../exercice_3/logs\nLe fichier connexions.log trace l’activité d’accès à un serveur de base de données.\n\nAffichez les 5 premières lignes du fichier pour comprendre sa structure.\nAffichez uniquement les lignes correspondant à un échec d’authentification (status=FAILED).\nPipeline de comptage : En combinant grep et wc -l avec un pipe |, déterminez en une seule ligne de commande le nombre total de tentatives échouées.\nExtraction et sauvegarde : Isolez toutes les lignes concernant l’utilisatrice alice et écrivez le résultat dans un nouveau fichier rapport_alice.txt.\nDétection d’attaque (Pipeline complet) : En enchaînant les commandes adéquates avec plusieurs tubes | (grep, cut, sort, uniq -c), produisez la liste ordonnée des utilisateurs ayant généré des échecs de connexion, avec le nombre précis d’échecs pour chacun."
+  }
+]

@@ -1,0 +1,152 @@
+---
+title: "Guide de Configuration Windows : WSL 2 & Visual Studio Code"
+subtitle: "HAX712X — Développement Logiciel (M1 SSD)"
+author: "Bensaid Bilel"
+date: "Septembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+  pdf:
+    toc: true
+    number-sections: true
+    geometry:
+      - top=20mm
+      - bottom=20mm
+      - left=20mm
+      - right=20mm
+---
+
+# Pourquoi un environnement Unix en Master SSD ?
+
+Tous les outils industriels modernes de calcul scientifique, de traitement de données et d'ingénierie logicielle (Bash, Git, environnements virtuels Python, suites de tests `pytest`, déploiement d'applications) sont nativement conçus pour fonctionner sur des systèmes d'exploitation de type **Unix** (Linux, macOS).
+
+L'exécution native sous l'invite de commande Windows classique (`cmd.exe` ou `PowerShell`) engendre des dysfonctionnements récurrents :
+* Problèmes d'encodage de caractères (UTF-8 vs Windows-1252).
+* Incompatibilités des séparateurs de chemins (`\` vs `/`).
+* Absence de gestion des permissions d'exécution de fichiers (`chmod`).
+* Lenteurs et plantages sur certains modules de calcul distribué (`multiprocessing`).
+
+Pour travailler dans les mêmes conditions que sur les machines des salles de TP ou sur macOS, les étudiants disposant d'un PC sous Windows doivent installer **WSL 2** (*Windows Subsystem for Linux*).
+
+---
+
+# Étape 1 : Installation de WSL 2 et d'Ubuntu
+
+L'installation moderne de Linux sous Windows 10 et 11 s'effectue en une commande unique :
+
+1. Cliquez sur le menu Démarrer, tapez **PowerShell**, faites un clic droit et choisissez **« Exécuter en tant qu'administrateur »**.
+2. Tapez la commande suivante :
+
+   ```powershell
+   wsl --install
+   ```
+
+3. Cette commande télécharge et installe le noyau Linux officiel de Microsoft ainsi que la distribution **Ubuntu**.
+4. **Redémarrez votre ordinateur** dès que PowerShell vous y invite.
+5. Au redémarrage, une fenêtre de terminal Ubuntu s'ouvre automatiquement. Elle vous demandera :
+
+   * Un identifiant d'utilisateur (*username*, en minuscules, sans espace ni accent).
+   * Un mot de passe (les caractères ne s'affichent pas lors de la saisie, ce qui est normal sous Unix).
+
+---
+
+# Étape 2 : La règle d'or du système de fichiers
+
+::: {.callout-warning}
+### Erreur critique à éviter : ne travaillez jamais dans `/mnt/c/` !
+Certains tutoriels suggèrent de cloner vos dépôts dans `/mnt/c/...` pour retrouver vos fichiers dans l'explorateur Windows classique. **C'est une très mauvaise pratique technique.**
+
+* `/mnt/c/` correspond au disque dur physique Windows (format NTFS).
+* Lorsque les outils Linux accèdent à `/mnt/c/`, chaque opération disque traverse une passerelle de conversion réseau interne (protocole 9P).
+* **Conséquence :** les opérations sur des milliers de petits fichiers (dépôt Git, environnement virtuel Python `.venv`, exécution de `pytest`) sont **10 à 20 fois plus lentes**, et les permissions d'exécution (`chmod +x`) ne sont pas conservées.
+:::
+
+## La bonne pratique : travaillez dans votre espace personnel Linux
+
+Toutes vos activités de cours, projets, clones Git et bibliothèques doivent résider dans votre dossier personnel Ubuntu (`/home/<votre_nom>/`, abrégé par le tilde `~`) :
+
+```bash
+# Se placer dans son répertoire personnel Linux
+cd ~
+
+# Créer un dossier pour l'UE et y entrer
+mkdir -p dev_logiciel
+cd dev_logiciel
+
+# Vérifier son emplacement absolu
+pwd
+# La sortie doit afficher : /home/<votre_nom>/dev_logiciel
+```
+
+---
+
+# Étape 3 : Coder avec une interface graphique moderne (VS Code)
+
+Travailler sous Linux ne signifie pas devoir éditer son code en ligne de commande avec `nano` ou `vim`. Vous disposez de l'interface graphique complète de **Visual Studio Code** connectée de manière transparente à Ubuntu.
+
+## Procédure de configuration
+
+1. Installez **Visual Studio Code** sous Windows depuis le site officiel : [https://code.visualstudio.com/](https://code.visualstudio.com/).
+2. Ouvrez VS Code sous Windows, rendez-vous dans l'onglet des extensions (`Ctrl + Maj + X`) et installez l'extension officielle :
+   * **WSL** (éditée par Microsoft).
+3. Ouvrez votre terminal **Ubuntu** (accessible depuis le menu Démarrer de Windows).
+4. Déplacez-vous dans votre dossier de travail et lancez VS Code directement depuis Linux :
+   ```bash
+   cd ~/dev_logiciel
+   code .
+   ```
+
+5. Au premier lancement, un petit serveur VS Code s'installe dans Ubuntu. La fenêtre s'ouvre alors sous Windows :
+   * En bas à gauche, une étiquette bleue affiche : **`WSL: Ubuntu`**.
+   * L'interface graphique, la souris, les onglets et les thèmes tournent sous Windows.
+   * Le terminal intégré (`Ctrl + ~`), Git, Python et les extensions tournent nativement sous Linux à pleine vitesse.
+
+::: {.callout-tip}
+### Accéder visuellement aux fichiers depuis Windows
+Si vous avez besoin d'ouvrir votre dossier Linux dans l'explorateur de fichiers Windows (pour glisser une image ou visualiser un document), tapez simplement dans votre terminal Ubuntu :
+```bash
+explorer.exe .
+```
+Windows ouvrira une fenêtre pointant sur le chemin réseau sécurisé `\\wsl$\Ubuntu\home\...`.
+:::
+
+---
+
+# Étape 4 : Préparation de l'outillage Python dans Ubuntu
+
+Une fois votre terminal Ubuntu ouvert, initialisez les outils nécessaires pour le semestre en exécutant les commandes suivantes :
+
+```bash
+# 1. Mise à jour des dépôts logiciels
+sudo apt update && sudo apt upgrade -y
+
+# 2. Installation de Git, Python 3, de l'outil d'environnements virtuels et de pip
+sudo apt install -y git python3 python3-venv python3-pip
+
+# 3. Vérification des versions installées
+python3 --version
+git --version
+```
+
+---
+
+# Résumé des commandes de lancement quotidien
+
+Pour reprendre votre travail lors de chaque séance :
+
+1. Ouvrez le terminal **Ubuntu** depuis le menu Démarrer.
+2. Allez dans votre dossier de projet :
+   ```bash
+   cd ~/dev_logiciel/pyarena
+   ```
+3. Lancez VS Code connecté à l'environnement :
+   ```bash
+   code .
+   ```
+   
+4. Utilisez le terminal intégré de VS Code (`Ctrl + ~`) pour exécuter vos commandes Linux, lancer vos tests `pytest` et vos applications `streamlit`.

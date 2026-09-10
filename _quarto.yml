@@ -1,0 +1,32 @@
+project:
+  type: website
+  output-dir: docs
+  resources:
+    - "**/*.tar.gz"       # Autorise Quarto à copier les archives téléchargeables dans docs/
+  render:
+    - index.qmd
+    - Projet2026/cahier_des_charges.qmd
+    - TP_bash/enonce_bash.qmd
+    - installation_wsl.qmd
+    # Les fichiers de correction ne sont pas mentionnés ici
+
+website:
+  title: "HAX712X — Dev Logiciel"
+  navbar:
+    left:
+      - href: index.qmd
+        text: "Accueil"
+      - href: Projet2026/cahier_des_charges.qmd
+        text: "Projet 2026-2027"
+      - text: "TPs"
+        menu:
+          - href: TP_bash/enonce_bash.qmd
+            text: "TP 1 : Linux & Bash"
+      - href: installation_wsl.qmd
+        text: "Guide WSL"
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-copy: true
