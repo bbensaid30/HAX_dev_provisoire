@@ -429,19 +429,24 @@ Chemins Absolus vs Chemins Relatifs
 </section>
 <section id="préparation-de-lenvironnement-de-tp" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="préparation-de-lenvironnement-de-tp"><span class="header-section-number">3.3</span> Préparation de l’environnement de TP</h2>
-<p>Pour dérouler les exercices suivants, téléchargez l’archive du TP. Vous pouvez télécharger l’archive du TP directement : * En cliquant sur ce lien : <a href="tp1_linux.tar.gz">Télécharger tp1_linux.tar.gz</a> * Ou directement dans votre terminal avec la commande <code>wget</code> : ```bash wget <a href="https://bbensaid30.github.io/HAX_dev_provisoire/TP_bash/tp1_linux.tar.gz">https://bbensaid30.github.io/HAX_dev_provisoire/TP_bash/tp1_linux.tar.gz</a></p>
+<p>Pour dérouler les exercices suivants, téléchargez l’archive du TP. Vous pouvez télécharger l’archive du TP directement :</p>
+<ul>
+<li><p>En cliquant sur ce lien : <a href="tp1_linux.tar.gz">Télécharger tp1_linux.tar.gz</a></p></li>
+<li><p>Ou directement dans votre terminal avec la commande <code>wget</code> :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wget</span> https://bbensaid30.github.io/HAX_dev_provisoire/TP_bash/tp1_linux.tar.gz</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul>
 <p>Puis décompressez-la:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Téléchargement et extraction de l'archive</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> tp1_linux.tar.gz</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> tp1_linux</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Téléchargement et extraction de l'archive</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tar</span> <span class="at">-xzvf</span> tp1_linux.tar.gz</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> tp1_linux</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <hr>
 </section>
 <section id="exercice-2-rangement-automatisé" class="level2" data-number="3.4">
 <h2 data-number="3.4" class="anchored" data-anchor-id="exercice-2-rangement-automatisé"><span class="header-section-number">3.4</span> Exercice 2 : Rangement automatisé</h2>
 <p>Entrez dans le dossier <code>exercice_1/</code> :</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> exercice_1</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> vrac/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> exercice_1</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> vrac/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Le sous-dossier <code>vrac/</code> contient un mélange désordonné de fichiers (<code>.png</code>, <code>.txt</code>, <code>.py</code>, <code>.csv</code>).</p>
 <ol type="1">
 <li>Déplacez <strong>en une seule commande</strong> tous les fichiers <code>.png</code> vers le dossier existant <code>documents/images/</code>.</li>
@@ -483,11 +488,11 @@ Chemins Absolus vs Chemins Relatifs
 <section id="exercice-3-déblocage-de-script-et-sécurisation-de-données" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="exercice-3-déblocage-de-script-et-sécurisation-de-données"><span class="header-section-number">4.2</span> Exercice 3 : Déblocage de script et sécurisation de données</h2>
 <p>Revenez au dossier parent et entrez dans <code>exercice_2/</code> :</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../exercice_2</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> scripts/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../exercice_2</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> scripts/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol type="1">
 <li><p>Tentez d’exécuter le script de sauvegarde système :</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/backup.sh</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./scripts/backup.sh</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Quel message d’erreur s’affiche ? Pourquoi ?</p></li>
 <li><p>À l’aide de la commande <code>ls -l scripts/backup.sh</code>, identifiez les droits actuels du script.</p></li>
 <li><p>Donnez le droit d’exécution au script en utilisant la notation symbolique. Exécutez-le à nouveau.</p></li>
@@ -535,7 +540,7 @@ Chemins Absolus vs Chemins Relatifs
 <section id="exercice-4-analyse-de-logs-serveur" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="exercice-4-analyse-de-logs-serveur"><span class="header-section-number">5.3</span> Exercice 4 : Analyse de logs serveur</h2>
 <p>Entrez dans le dossier <code>exercice_3/logs/</code> :</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../exercice_3/logs</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../exercice_3/logs</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Le fichier <code>connexions.log</code> trace l’activité d’accès à un serveur de base de données.</p>
 <ol type="1">
 <li>Affichez les 5 premières lignes du fichier pour comprendre sa structure.</li>
@@ -550,7 +555,7 @@ Chemins Absolus vs Chemins Relatifs
 <section id="le-défi-récapitulatif-20-min" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Le Défi Récapitulatif (20 min)</h1>
 <p>Rendez-vous dans le dossier <code>defi/</code> :</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../../defi</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ../../defi</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Trois serveurs (<code>alpha</code>, <code>beta</code>, <code>gamma</code>) contiennent chacun des dizaines de fichiers de logs systèmes <code>proc_*.log</code>.</p>
 <p>Un incident de sécurité critique a laissé une empreinte unique identifiée par la chaîne de caractères <code>INDICE_FINAL</code>.</p>
 <p><strong>Votre mission :</strong><br>

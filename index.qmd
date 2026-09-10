@@ -8,3 +8,5 @@ Bienvenue sur le site du cours de Développement Logiciel.
 * [Cahier des charges du Projet PyArena](Projet2026/cahier_des_charges.qmd)
 * [TP 1 : Prise en main de Linux & Bash](TP_bash/enonce_bash.qmd)
 * [Guide d'installation Windows (WSL 2 & VS Code)](installation_wsl.qmd)
+
+Lien vers l'ancien site du cours (utile pour des ressources complémentaires): [Ancien site](https://bbensaid30.github.io/Course-Software-Development-HAX712X/).

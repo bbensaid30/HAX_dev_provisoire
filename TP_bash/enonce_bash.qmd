@@ -132,10 +132,13 @@ Pour appliquer une action sur un ensemble de fichiers sans les lister un par un 
 ## Préparation de l'environnement de TP
 
 Pour dérouler les exercices suivants, téléchargez l'archive du TP. Vous pouvez télécharger l'archive du TP directement :
+
 * En cliquant sur ce lien : [Télécharger tp1_linux.tar.gz](tp1_linux.tar.gz)
+
 * Ou directement dans votre terminal avec la commande `wget` :
   ```bash
-  wget [https://bbensaid30.github.io/HAX_dev_provisoire/TP_bash/tp1_linux.tar.gz](https://bbensaid30.github.io/HAX_dev_provisoire/TP_bash/tp1_linux.tar.gz)
+  wget https://bbensaid30.github.io/HAX_dev_provisoire/TP_bash/tp1_linux.tar.gz
+  ```
 
 Puis décompressez-la:
 
