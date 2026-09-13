@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Master 1 Sciences des Données (SSD) — Université de Montpellier">
+<meta name="author" content="Bensaid Bilel">
 
 <title>Cahier des Charges — Projet de Développement Logiciel (HAX712X) – HAX712X — Dev Logiciel</title>
 <style>
@@ -189,73 +189,83 @@ window.Quarto = {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Sommaire</h2>
+    <h2 id="toc-title">Sommaire exécutif</h2>
    
   <ul>
-  <li><a href="#présentation-générale-du-projet" id="toc-présentation-générale-du-projet" class="nav-link active" data-scroll-target="#présentation-générale-du-projet"><span class="header-section-number">1</span> Présentation Générale du Projet</a>
+  <li><a href="#présentation-générale-et-organisation" id="toc-présentation-générale-et-organisation" class="nav-link active" data-scroll-target="#présentation-générale-et-organisation">Présentation Générale et Organisation</a>
   <ul class="collapse">
-  <li><a href="#objectifs-pédagogiques" id="toc-objectifs-pédagogiques" class="nav-link" data-scroll-target="#objectifs-pédagogiques"><span class="header-section-number">1.1</span> Objectifs Pédagogiques</a></li>
-  <li><a href="#organisation" id="toc-organisation" class="nav-link" data-scroll-target="#organisation"><span class="header-section-number">1.2</span> Organisation</a></li>
-  </ul></li>
-  <li><a href="#modèle-mathématique-et-règles-métier-du-combat" id="toc-modèle-mathématique-et-règles-métier-du-combat" class="nav-link" data-scroll-target="#modèle-mathématique-et-règles-métier-du-combat"><span class="header-section-number">2</span> Modèle Mathématique et Règles Métier du Combat</a>
+  <li><a href="#objectifs-pédagogiques" id="toc-objectifs-pédagogiques" class="nav-link" data-scroll-target="#objectifs-pédagogiques">Objectifs Pédagogiques</a></li>
+  <li><a href="#modalités-de-constitution-des-équipes-promotion-32-étudiants" id="toc-modalités-de-constitution-des-équipes-promotion-32-étudiants" class="nav-link" data-scroll-target="#modalités-de-constitution-des-équipes-promotion-32-étudiants">Modalités de Constitution des Équipes (Promotion : 32 étudiants)</a>
   <ul class="collapse">
-  <li><a href="#caractéristiques-et-normalisation-des-combattants" id="toc-caractéristiques-et-normalisation-des-combattants" class="nav-link" data-scroll-target="#caractéristiques-et-normalisation-des-combattants"><span class="header-section-number">2.1</span> Caractéristiques et Normalisation des Combattants</a></li>
-  <li><a href="#matrice-des-affinités-élémentaires" id="toc-matrice-des-affinités-élémentaires" class="nav-link" data-scroll-target="#matrice-des-affinités-élémentaires"><span class="header-section-number">2.2</span> Matrice des Affinités Élémentaires</a></li>
-  <li><a href="#algorithme-de-résolution-dun-tour" id="toc-algorithme-de-résolution-dun-tour" class="nav-link" data-scroll-target="#algorithme-de-résolution-dun-tour"><span class="header-section-number">2.3</span> Algorithme de Résolution d’un Tour</a>
-  <ul class="collapse">
-  <li><a href="#détermination-de-linitiative" id="toc-détermination-de-linitiative" class="nav-link" data-scroll-target="#détermination-de-linitiative"><span class="header-section-number">2.3.1</span> 1. Détermination de l’initiative</a></li>
-  <li><a href="#calcul-stochastique-des-dégâts" id="toc-calcul-stochastique-des-dégâts" class="nav-link" data-scroll-target="#calcul-stochastique-des-dégâts"><span class="header-section-number">2.3.2</span> 2. Calcul stochastique des dégâts</a></li>
-  <li><a href="#application-des-dégâts-et-terminaison" id="toc-application-des-dégâts-et-terminaison" class="nav-link" data-scroll-target="#application-des-dégâts-et-terminaison"><span class="header-section-number">2.3.3</span> 3. Application des dégâts et terminaison</a></li>
+  <li><a href="#matrice-contractuelle-dexigences-groupes-de-3-vs-groupes-de-4" id="toc-matrice-contractuelle-dexigences-groupes-de-3-vs-groupes-de-4" class="nav-link" data-scroll-target="#matrice-contractuelle-dexigences-groupes-de-3-vs-groupes-de-4">Matrice Contractuelle d’Exigences : Groupes de 3 vs Groupes de 4</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#architecture-logicielle-et-standards-de-développement" id="toc-architecture-logicielle-et-standards-de-développement" class="nav-link" data-scroll-target="#architecture-logicielle-et-standards-de-développement"><span class="header-section-number">3</span> Architecture Logicielle et Standards de Développement</a>
+  <li><a href="#modèle-mathématique-et-règles-métier-du-combat" id="toc-modèle-mathématique-et-règles-métier-du-combat" class="nav-link" data-scroll-target="#modèle-mathématique-et-règles-métier-du-combat">Modèle Mathématique et Règles Métier du Combat</a>
   <ul class="collapse">
-  <li><a href="#arborescence-imposée-du-dépôt" id="toc-arborescence-imposée-du-dépôt" class="nav-link" data-scroll-target="#arborescence-imposée-du-dépôt"><span class="header-section-number">3.1</span> Arborescence Imposée du Dépôt</a></li>
-  <li><a href="#règles-de-programmation-orientée-objet-poo" id="toc-règles-de-programmation-orientée-objet-poo" class="nav-link" data-scroll-target="#règles-de-programmation-orientée-objet-poo"><span class="header-section-number">3.2</span> Règles de Programmation Orientée Objet (POO)</a></li>
-  <li><a href="#packaging-et-intégration-continue-ci" id="toc-packaging-et-intégration-continue-ci" class="nav-link" data-scroll-target="#packaging-et-intégration-continue-ci"><span class="header-section-number">3.3</span> Packaging et Intégration Continue (CI)</a></li>
-  </ul></li>
-  <li><a href="#pipeline-de-données-cache-local-et-simulation" id="toc-pipeline-de-données-cache-local-et-simulation" class="nav-link" data-scroll-target="#pipeline-de-données-cache-local-et-simulation"><span class="header-section-number">4</span> Pipeline de Données, Cache Local et Simulation</a>
+  <li><a href="#caractéristiques-et-normalisation-des-combattants" id="toc-caractéristiques-et-normalisation-des-combattants" class="nav-link" data-scroll-target="#caractéristiques-et-normalisation-des-combattants">Caractéristiques et Normalisation des Combattants</a></li>
+  <li><a href="#le-système-daffinités-élémentaires" id="toc-le-système-daffinités-élémentaires" class="nav-link" data-scroll-target="#le-système-daffinités-élémentaires">Le Système d’Affinités Élémentaires</a>
   <ul class="collapse">
-  <li><a href="#récupération-api-et-stratégie-de-cache-hors-ligne" id="toc-récupération-api-et-stratégie-de-cache-hors-ligne" class="nav-link" data-scroll-target="#récupération-api-et-stratégie-de-cache-hors-ligne"><span class="header-section-number">4.1</span> Récupération API et Stratégie de Cache Hors-Ligne</a></li>
-  <li><a href="#moteur-de-simulation-monte-carlo-parallélisé" id="toc-moteur-de-simulation-monte-carlo-parallélisé" class="nav-link" data-scroll-target="#moteur-de-simulation-monte-carlo-parallélisé"><span class="header-section-number">4.2</span> Moteur de Simulation Monte-Carlo Parallélisé</a></li>
+  <li><a href="#le-modèle-simplifié-le-tournoi-à-5-types-groupes-de-3" id="toc-le-modèle-simplifié-le-tournoi-à-5-types-groupes-de-3" class="nav-link" data-scroll-target="#le-modèle-simplifié-le-tournoi-à-5-types-groupes-de-3">Le Modèle Simplifié : Le Tournoi à 5 Types (Groupes de 3)</a></li>
+  <li><a href="#le-modèle-complet-18-types-et-doubles-types-groupes-de-4-bonus" id="toc-le-modèle-complet-18-types-et-doubles-types-groupes-de-4-bonus" class="nav-link" data-scroll-target="#le-modèle-complet-18-types-et-doubles-types-groupes-de-4-bonus">Le Modèle Complet : 18 Types et Doubles Types (Groupes de 4 / Bonus)</a></li>
   </ul></li>
-  <li><a href="#spécifications-du-tableau-de-bord-streamlit" id="toc-spécifications-du-tableau-de-bord-streamlit" class="nav-link" data-scroll-target="#spécifications-du-tableau-de-bord-streamlit"><span class="header-section-number">5</span> Spécifications du Tableau de Bord Streamlit</a>
+  <li><a href="#déroulement-déterministe-et-stochastique-dun-tour" id="toc-déroulement-déterministe-et-stochastique-dun-tour" class="nav-link" data-scroll-target="#déroulement-déterministe-et-stochastique-dun-tour">Déroulement Déterministe et Stochastique d’un Tour</a>
   <ul class="collapse">
-  <li><a href="#module-1-simulateur-de-duel-et-télémétrie-en-direct" id="toc-module-1-simulateur-de-duel-et-télémétrie-en-direct" class="nav-link" data-scroll-target="#module-1-simulateur-de-duel-et-télémétrie-en-direct"><span class="header-section-number">5.1</span> Module 1 : Simulateur de Duel et Télémétrie en Direct</a></li>
-  <li><a href="#module-2-catalogue-et-analyse-exploratoire-des-données" id="toc-module-2-catalogue-et-analyse-exploratoire-des-données" class="nav-link" data-scroll-target="#module-2-catalogue-et-analyse-exploratoire-des-données"><span class="header-section-number">5.2</span> Module 2 : Catalogue et Analyse Exploratoire des Données</a></li>
-  <li><a href="#module-3-cartographie-géospatiale-des-arènes-doccitanie" id="toc-module-3-cartographie-géospatiale-des-arènes-doccitanie" class="nav-link" data-scroll-target="#module-3-cartographie-géospatiale-des-arènes-doccitanie"><span class="header-section-number">5.3</span> Module 3 : Cartographie Géospatiale des Arènes d’Occitanie</a></li>
+  <li><a href="#phase-dinitiative" id="toc-phase-dinitiative" class="nav-link" data-scroll-target="#phase-dinitiative">1. Phase d’Initiative</a></li>
+  <li><a href="#phase-de-frappe-de-lattaquant" id="toc-phase-de-frappe-de-lattaquant" class="nav-link" data-scroll-target="#phase-de-frappe-de-lattaquant">2. Phase de Frappe de l’Attaquant</a></li>
+  <li><a href="#phase-de-résolution-et-riposte" id="toc-phase-de-résolution-et-riposte" class="nav-link" data-scroll-target="#phase-de-résolution-et-riposte">3. Phase de Résolution et Riposte</a></li>
   </ul></li>
-  <li><a href="#spécifications-exhaustives-des-10-extensions-thématiques" id="toc-spécifications-exhaustives-des-10-extensions-thématiques" class="nav-link" data-scroll-target="#spécifications-exhaustives-des-10-extensions-thématiques"><span class="header-section-number">6</span> Spécifications Exhaustives des 10 Extensions Thématiques</a></li>
-  <li><a href="#spécifications-exhaustives-des-10-extensions-thématiques-1" id="toc-spécifications-exhaustives-des-10-extensions-thématiques-1" class="nav-link" data-scroll-target="#spécifications-exhaustives-des-10-extensions-thématiques-1"><span class="header-section-number">7</span> Spécifications Exhaustives des 10 Extensions Thématiques</a>
+  </ul></li>
+  <li><a href="#architecture-logicielle-et-standards-de-développement" id="toc-architecture-logicielle-et-standards-de-développement" class="nav-link" data-scroll-target="#architecture-logicielle-et-standards-de-développement">Architecture Logicielle et Standards de Développement</a>
   <ul class="collapse">
-  <li><a href="#extension-1-objets-passifs-et-équipements-stratégiques" id="toc-extension-1-objets-passifs-et-équipements-stratégiques" class="nav-link" data-scroll-target="#extension-1-objets-passifs-et-équipements-stratégiques"><span class="header-section-number">7.0.1</span> Extension 1 : Objets Passifs et Équipements Stratégiques</a></li>
-  <li><a href="#extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" id="toc-extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" class="nav-link" data-scroll-target="#extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team"><span class="header-section-number">7.0.2</span> Extension 2 : Combats d’Équipes 3 contre 3 avec Relais (Tag-Team)</a></li>
-  <li><a href="#extension-3-matrice-complète-de-méta-jeu-en-round-robin" id="toc-extension-3-matrice-complète-de-méta-jeu-en-round-robin" class="nav-link" data-scroll-target="#extension-3-matrice-complète-de-méta-jeu-en-round-robin"><span class="header-section-number">7.0.3</span> Extension 3 : Matrice Complète de Méta-Jeu en Round-Robin</a></li>
-  <li><a href="#extension-4-choix-stratégique-dattaques-précision-vs-puissance" id="toc-extension-4-choix-stratégique-dattaques-précision-vs-puissance" class="nav-link" data-scroll-target="#extension-4-choix-stratégique-dattaques-précision-vs-puissance"><span class="header-section-number">7.0.4</span> Extension 4 : Choix Stratégique d’Attaques (Précision vs Puissance)</a></li>
-  <li><a href="#extension-5-système-stochastique-daltérations-détat" id="toc-extension-5-système-stochastique-daltérations-détat" class="nav-link" data-scroll-target="#extension-5-système-stochastique-daltérations-détat"><span class="header-section-number">7.0.5</span> Extension 5 : Système Stochastique d’Altérations d’État</a></li>
-  <li><a href="#extension-6-gestion-des-points-de-compétence-pp-et-action-lutte" id="toc-extension-6-gestion-des-points-de-compétence-pp-et-action-lutte" class="nav-link" data-scroll-target="#extension-6-gestion-des-points-de-compétence-pp-et-action-lutte"><span class="header-section-number">7.0.6</span> Extension 6 : Gestion des Points de Compétence (PP) et Action Lutte</a></li>
-  <li><a href="#extension-7-accélération-vectorisée-et-profilage-numérique" id="toc-extension-7-accélération-vectorisée-et-profilage-numérique" class="nav-link" data-scroll-target="#extension-7-accélération-vectorisée-et-profilage-numérique"><span class="header-section-number">7.0.7</span> Extension 7 : Accélération Vectorisée et Profilage Numérique</a></li>
-  <li><a href="#extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule" id="toc-extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule" class="nav-link" data-scroll-target="#extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule"><span class="header-section-number">7.0.8</span> Extension 8 : Système Dynamique de Niveaux et Courbe de Bascule</a></li>
-  <li><a href="#extension-9-la-route-des-champions-occitanie---progression-sous-contrainte" id="toc-extension-9-la-route-des-champions-occitanie---progression-sous-contrainte" class="nav-link" data-scroll-target="#extension-9-la-route-des-champions-occitanie---progression-sous-contrainte"><span class="header-section-number">7.0.9</span> Extension 9 : La Route des Champions (Occitanie - Progression sous Contrainte)</a></li>
-  <li><a href="#extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif" id="toc-extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif" class="nav-link" data-scroll-target="#extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif"><span class="header-section-number">7.0.10</span> Extension 10 : Reconstitution Pas-à-Pas et Export de Combat (Replay Interactif)</a></li>
+  <li><a href="#arborescence-normée-du-dépôt-git" id="toc-arborescence-normée-du-dépôt-git" class="nav-link" data-scroll-target="#arborescence-normée-du-dépôt-git">Arborescence Normée du Dépôt Git</a></li>
+  <li><a href="#règles-dor-de-la-programmation-orientée-objet-poo" id="toc-règles-dor-de-la-programmation-orientée-objet-poo" class="nav-link" data-scroll-target="#règles-dor-de-la-programmation-orientée-objet-poo">Règles d’Or de la Programmation Orientée Objet (POO)</a></li>
+  <li><a href="#packaging-et-intégration-continue-github-actions" id="toc-packaging-et-intégration-continue-github-actions" class="nav-link" data-scroll-target="#packaging-et-intégration-continue-github-actions">Packaging et Intégration Continue (GitHub Actions)</a></li>
   </ul></li>
-  <li><a href="#politique-de-bonus-valorisation-du-dépassement-technique" id="toc-politique-de-bonus-valorisation-du-dépassement-technique" class="nav-link" data-scroll-target="#politique-de-bonus-valorisation-du-dépassement-technique"><span class="header-section-number">8</span> Politique de Bonus (Valorisation du Dépassement Technique)</a>
+  <li><a href="#pipeline-de-données-cache-local-et-simulation" id="toc-pipeline-de-données-cache-local-et-simulation" class="nav-link" data-scroll-target="#pipeline-de-données-cache-local-et-simulation">Pipeline de Données, Cache Local et Simulation</a>
   <ul class="collapse">
-  <li><a href="#modalités-dattribution" id="toc-modalités-dattribution" class="nav-link" data-scroll-target="#modalités-dattribution"><span class="header-section-number">8.1</span> Modalités d’Attribution</a></li>
-  <li><a href="#exemples-dinitiatives-reconnues-pour-le-bonus" id="toc-exemples-dinitiatives-reconnues-pour-le-bonus" class="nav-link" data-scroll-target="#exemples-dinitiatives-reconnues-pour-le-bonus"><span class="header-section-number">8.2</span> Exemples d’Initiatives Reconnues pour le Bonus</a></li>
+  <li><a href="#ingestion-pokéapi-et-cache-hors-ligne" id="toc-ingestion-pokéapi-et-cache-hors-ligne" class="nav-link" data-scroll-target="#ingestion-pokéapi-et-cache-hors-ligne">Ingestion PokéAPI et Cache Hors-Ligne</a></li>
+  <li><a href="#moteur-de-simulation-monte-carlo-parallélisé" id="toc-moteur-de-simulation-monte-carlo-parallélisé" class="nav-link" data-scroll-target="#moteur-de-simulation-monte-carlo-parallélisé">Moteur de Simulation Monte-Carlo Parallélisé</a></li>
   </ul></li>
-  <li><a href="#travail-collaboratif-gestion-de-version-et-intégrité" id="toc-travail-collaboratif-gestion-de-version-et-intégrité" class="nav-link" data-scroll-target="#travail-collaboratif-gestion-de-version-et-intégrité"><span class="header-section-number">9</span> Travail Collaboratif, Gestion de Version et Intégrité</a>
+  <li><a href="#spécifications-du-tableau-de-bord-streamlit" id="toc-spécifications-du-tableau-de-bord-streamlit" class="nav-link" data-scroll-target="#spécifications-du-tableau-de-bord-streamlit">Spécifications du Tableau de Bord Streamlit</a>
   <ul class="collapse">
-  <li><a href="#bonnes-pratiques-git-imposées" id="toc-bonnes-pratiques-git-imposées" class="nav-link" data-scroll-target="#bonnes-pratiques-git-imposées"><span class="header-section-number">9.1</span> Bonnes Pratiques Git Imposées</a></li>
-  <li><a href="#document-contractuel-contributions.md" id="toc-document-contractuel-contributions.md" class="nav-link" data-scroll-target="#document-contractuel-contributions.md"><span class="header-section-number">9.2</span> Document Contractuel : <code>CONTRIBUTIONS.md</code></a></li>
-  <li><a href="#contrôle-automatisé-du-plagiat-et-de-lhistorique" id="toc-contrôle-automatisé-du-plagiat-et-de-lhistorique" class="nav-link" data-scroll-target="#contrôle-automatisé-du-plagiat-et-de-lhistorique"><span class="header-section-number">9.3</span> Contrôle Automatisé du Plagiat et de l’Historique</a></li>
+  <li><a href="#module-1-simulateur-de-duel-et-télémétrie-en-direct-commun" id="toc-module-1-simulateur-de-duel-et-télémétrie-en-direct-commun" class="nav-link" data-scroll-target="#module-1-simulateur-de-duel-et-télémétrie-en-direct-commun">Module 1 : Simulateur de Duel et Télémétrie en Direct (Commun)</a></li>
+  <li><a href="#module-2-catalogue-et-analyse-exploratoire-des-données-commun" id="toc-module-2-catalogue-et-analyse-exploratoire-des-données-commun" class="nav-link" data-scroll-target="#module-2-catalogue-et-analyse-exploratoire-des-données-commun">Module 2 : Catalogue et Analyse Exploratoire des Données (Commun)</a></li>
+  <li><a href="#module-3-cartographie-géospatiale-des-arènes-doccitanie-commun" id="toc-module-3-cartographie-géospatiale-des-arènes-doccitanie-commun" class="nav-link" data-scroll-target="#module-3-cartographie-géospatiale-des-arènes-doccitanie-commun">Module 3 : Cartographie Géospatiale des Arènes d’Occitanie (Commun)</a></li>
+  <li><a href="#module-4-analyseur-de-synergie-déquipe-obligatoire-groupes-de-4-bonus-groupes-de-3" id="toc-module-4-analyseur-de-synergie-déquipe-obligatoire-groupes-de-4-bonus-groupes-de-3" class="nav-link" data-scroll-target="#module-4-analyseur-de-synergie-déquipe-obligatoire-groupes-de-4-bonus-groupes-de-3">Module 4 : Analyseur de Synergie d’Équipe (Obligatoire Groupes de 4 / Bonus Groupes de 3)</a></li>
   </ul></li>
-  <li><a href="#modalités-dévaluation-et-grilles-de-notation" id="toc-modalités-dévaluation-et-grilles-de-notation" class="nav-link" data-scroll-target="#modalités-dévaluation-et-grilles-de-notation"><span class="header-section-number">10</span> Modalités d’Évaluation et Grilles de Notation</a>
+  <li><a href="#spécifications-exhaustives-des-10-extensions-thématiques" id="toc-spécifications-exhaustives-des-10-extensions-thématiques" class="nav-link" data-scroll-target="#spécifications-exhaustives-des-10-extensions-thématiques">Spécifications Exhaustives des 10 Extensions Thématiques</a>
   <ul class="collapse">
-  <li><a href="#note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3" id="toc-note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3" class="nav-link" data-scroll-target="#note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3"><span class="header-section-number">10.1</span> Note 1 : Code, Architecture et Produit (/20 — Note de Groupe, Coeff 3)</a></li>
-  <li><a href="#note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2" id="toc-note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2" class="nav-link" data-scroll-target="#note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2"><span class="header-section-number">10.2</span> Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Note Individuelle, Coeff 2)</a></li>
+  <li><a href="#cadre-technique-commun-et-équité" id="toc-cadre-technique-commun-et-équité" class="nav-link" data-scroll-target="#cadre-technique-commun-et-équité">Cadre Technique Commun et Équité</a></li>
+  <li><a href="#extension-1-objets-passifs-et-équipements-stratégiques" id="toc-extension-1-objets-passifs-et-équipements-stratégiques" class="nav-link" data-scroll-target="#extension-1-objets-passifs-et-équipements-stratégiques">Extension 1 : Objets Passifs et Équipements Stratégiques</a></li>
+  <li><a href="#extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" id="toc-extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" class="nav-link" data-scroll-target="#extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team">Extension 2 : Combats d’Équipes 3 contre 3 avec Relais (Tag-Team)</a></li>
+  <li><a href="#extension-3-matrice-complète-de-méta-jeu-et-détection-dintransitivité" id="toc-extension-3-matrice-complète-de-méta-jeu-et-détection-dintransitivité" class="nav-link" data-scroll-target="#extension-3-matrice-complète-de-méta-jeu-et-détection-dintransitivité">Extension 3 : Matrice Complète de Méta-Jeu et Détection d’Intransitivité</a></li>
+  <li><a href="#extension-4-choix-stratégique-dattaques-précision-vs-puissance" id="toc-extension-4-choix-stratégique-dattaques-précision-vs-puissance" class="nav-link" data-scroll-target="#extension-4-choix-stratégique-dattaques-précision-vs-puissance">Extension 4 : Choix Stratégique d’Attaques (Précision vs Puissance)</a></li>
+  <li><a href="#extension-5-système-stochastique-daltérations-détat" id="toc-extension-5-système-stochastique-daltérations-détat" class="nav-link" data-scroll-target="#extension-5-système-stochastique-daltérations-détat">Extension 5 : Système Stochastique d’Altérations d’État</a></li>
+  <li><a href="#extension-6-gestion-des-points-de-puissance-pp-et-action-lutte" id="toc-extension-6-gestion-des-points-de-puissance-pp-et-action-lutte" class="nav-link" data-scroll-target="#extension-6-gestion-des-points-de-puissance-pp-et-action-lutte">Extension 6 : Gestion des Points de Puissance (PP) et Action Lutte</a></li>
+  <li><a href="#extension-7-accélération-vectorisée-et-profilage-numérique-numpy-numba" id="toc-extension-7-accélération-vectorisée-et-profilage-numérique-numpy-numba" class="nav-link" data-scroll-target="#extension-7-accélération-vectorisée-et-profilage-numérique-numpy-numba">Extension 7 : Accélération Vectorisée et Profilage Numérique (NumPy / Numba)</a></li>
+  <li><a href="#extension-8-modélisation-paramétrique-de-niveaux-et-détermination-de-seuil-critique" id="toc-extension-8-modélisation-paramétrique-de-niveaux-et-détermination-de-seuil-critique" class="nav-link" data-scroll-target="#extension-8-modélisation-paramétrique-de-niveaux-et-détermination-de-seuil-critique">Extension 8 : Modélisation Paramétrique de Niveaux et Détermination de Seuil Critique</a></li>
+  <li><a href="#extension-9-la-route-des-champions-occitanie-tsp-sous-contraintes-de-niveau" id="toc-extension-9-la-route-des-champions-occitanie-tsp-sous-contraintes-de-niveau" class="nav-link" data-scroll-target="#extension-9-la-route-des-champions-occitanie-tsp-sous-contraintes-de-niveau">Extension 9 : La Route des Champions (Occitanie — TSP sous Contraintes de Niveau)</a></li>
+  <li><a href="#extension-10-dynamique-météorologique-et-modificateurs-darène-climats" id="toc-extension-10-dynamique-météorologique-et-modificateurs-darène-climats" class="nav-link" data-scroll-target="#extension-10-dynamique-météorologique-et-modificateurs-darène-climats">Extension 10 : Dynamique Météorologique et Modificateurs d’Arène (Climats)</a></li>
   </ul></li>
-  <li><a href="#calendrier-prévisionnel-et-jalons-de-développement" id="toc-calendrier-prévisionnel-et-jalons-de-développement" class="nav-link" data-scroll-target="#calendrier-prévisionnel-et-jalons-de-développement"><span class="header-section-number">11</span> Calendrier Prévisionnel et Jalons de Développement</a></li>
+  <li><a href="#politique-de-valorisation-et-points-de-bonus" id="toc-politique-de-valorisation-et-points-de-bonus" class="nav-link" data-scroll-target="#politique-de-valorisation-et-points-de-bonus">Politique de Valorisation et Points de Bonus</a>
+  <ul class="collapse">
+  <li><a href="#barème-indicatif-des-initiatives-possibles" id="toc-barème-indicatif-des-initiatives-possibles" class="nav-link" data-scroll-target="#barème-indicatif-des-initiatives-possibles">Barème indicatif des initiatives possibles:</a></li>
+  </ul></li>
+  <li><a href="#travail-collaboratif-traçabilité-git-et-intégrité" id="toc-travail-collaboratif-traçabilité-git-et-intégrité" class="nav-link" data-scroll-target="#travail-collaboratif-traçabilité-git-et-intégrité">Travail Collaboratif, Traçabilité Git et Intégrité</a>
+  <ul class="collapse">
+  <li><a href="#standards-git-obligatoires" id="toc-standards-git-obligatoires" class="nav-link" data-scroll-target="#standards-git-obligatoires">Standards Git Obligatoires</a></li>
+  <li><a href="#détection-du-plagiat-et-contrôle-dactivité" id="toc-détection-du-plagiat-et-contrôle-dactivité" class="nav-link" data-scroll-target="#détection-du-plagiat-et-contrôle-dactivité">Détection du Plagiat et Contrôle d’Activité</a></li>
+  </ul></li>
+  <li><a href="#modalités-dévaluation-et-grilles-de-notation" id="toc-modalités-dévaluation-et-grilles-de-notation" class="nav-link" data-scroll-target="#modalités-dévaluation-et-grilles-de-notation">Modalités d’Évaluation et Grilles de Notation</a>
+  <ul class="collapse">
+  <li><a href="#note-1-code-architecture-et-produit-20-mixte-coeff-3" id="toc-note-1-code-architecture-et-produit-20-mixte-coeff-3" class="nav-link" data-scroll-target="#note-1-code-architecture-et-produit-20-mixte-coeff-3">Note 1 : Code, Architecture et Produit (/20 — Mixte, Coeff 3)</a>
+  <ul class="collapse">
+  <li><a href="#a.-socle-produit-collectif-12-points-note-déquipe" id="toc-a.-socle-produit-collectif-12-points-note-déquipe" class="nav-link" data-scroll-target="#a.-socle-produit-collectif-12-points-note-déquipe">A. Socle Produit Collectif (/12 points — Note d’Équipe)</a></li>
+  <li><a href="#b.-contribution-technique-individuelle-8-points-note-individuelle" id="toc-b.-contribution-technique-individuelle-8-points-note-individuelle" class="nav-link" data-scroll-target="#b.-contribution-technique-individuelle-8-points-note-individuelle">B. Contribution Technique Individuelle (/8 points — Note Individuelle)</a></li>
+  </ul></li>
+  <li><a href="#note-2-soutenance-orale-et-maîtrise-individuelle-20-mixte-coeff-2" id="toc-note-2-soutenance-orale-et-maîtrise-individuelle-20-mixte-coeff-2" class="nav-link" data-scroll-target="#note-2-soutenance-orale-et-maîtrise-individuelle-20-mixte-coeff-2">Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Mixte, Coeff 2)</a></li>
+  </ul></li>
+  <li><a href="#calendrier-prévisionnel-et-jalons-de-suivi" id="toc-calendrier-prévisionnel-et-jalons-de-suivi" class="nav-link" data-scroll-target="#calendrier-prévisionnel-et-jalons-de-suivi">Calendrier Prévisionnel et Jalons de Suivi</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Autres formats</h2><ul><li><a href="cahier_des_charges.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
     </div>
@@ -275,14 +285,14 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Auteur·rice</div>
     <div class="quarto-title-meta-contents">
-             <p>Master 1 Sciences des Données (SSD) — Université de Montpellier </p>
+             <p>Bensaid Bilel </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Date de publication</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">11 septembre 2026</p>
+      <p class="date">13 septembre 2026</p>
     </div>
   </div>
   
@@ -294,47 +304,120 @@ window.Quarto = {
 </header>
 
 
-<section id="présentation-générale-du-projet" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Présentation Générale du Projet</h1>
-<p>Le projet de l’UE Développement Logiciel (HAX712X) constitue le fil conducteur pratique du semestre pour la promotion de <strong>Master 1 Sciences des Données (SSD)</strong>.</p>
-<p>L’objectif est de concevoir, développer, tester, documenter et déployer une bibliothèque logicielle complète en Python modélisant une arène de combat au tour par tour (<strong>moteur headless</strong>), couplée à un pipeline d’ingestion de données et à un <strong>tableau de bord analytique interactif (Streamlit)</strong>.</p>
-<section id="objectifs-pédagogiques" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="objectifs-pédagogiques"><span class="header-section-number">1.1</span> Objectifs Pédagogiques</h2>
+<section id="présentation-générale-et-organisation" class="level1">
+<h1>Présentation Générale et Organisation</h1>
+<p>Le projet de l’UE <strong>Développement Logiciel (HAX712X)</strong> constitue le fil conducteur pratique du semestre pour la promotion de <strong>Master 1 Sciences des Données (SSD)</strong>.</p>
+<p>L’objectif est de concevoir, développer, tester unitairement, documenter et déployer une bibliothèque logicielle modulaire en Python simulant une arène de duels au tour par tour (<strong>moteur headless</strong>), articulée avec un pipeline d’ingestion de données web, un moteur de simulation stochastique parallélisé et un <strong>tableau de bord interactif d’aide à la décision (Streamlit)</strong>.</p>
+<section id="objectifs-pédagogiques" class="level2">
+<h2 class="anchored" data-anchor-id="objectifs-pédagogiques">Objectifs Pédagogiques</h2>
 <ol type="1">
-<li><strong>Conception logicielle industrielle :</strong> Programmation orientée objet stricte, modularité, encapsulation, gestion rigoureuse des erreurs et packaging standard (<code>pyproject.toml</code>).</li>
-<li><strong>Assurance qualité :</strong> Tests unitaires automatisés (<code>pytest</code>), mesure de couverture de code et intégration continue (GitHub Actions).</li>
-<li><strong>Calcul intensif et Data Science :</strong> Simulation stochastique de Monte-Carlo, parallélisation multi-coeurs (<code>multiprocessing</code> / <code>joblib</code>), ingestion d’API Web et mise en cache locale.</li>
-<li><strong>Visualisation avancée :</strong> Exploration de données (Plotly), cartographie géographique interactive (Folium / GeoPandas) et déploiement d’une application web décisionnelle.</li>
+<li><strong>Génie logiciel &amp; Qualité de code :</strong> Programmation orientée objet stricte, encapsulation, modularité, hiérarchie d’exceptions typées, packaging standard (<code>pyproject.toml</code>) et documentation.</li>
+<li><strong>Industrialisation &amp; Intégration Continue (CI) :</strong> Écriture de tests unitaires automatisés (<code>pytest</code>), mesure continue de la couverture de code (<code>pytest-cov</code>) et validation des jalons par des workflows GitHub Actions.</li>
+<li><strong>Data Science &amp; Calcul Parallèle :</strong> Modélisation stochastique par simulations de Monte-Carlo, distribution multi-cœurs (<code>multiprocessing</code> / <code>joblib</code>), ingestion d’API REST et mise en cache sur disque.</li>
+<li><strong>Visualisation &amp; Outils Décisionnels :</strong> Visualisations interactives (Plotly), cartographie spatiale régionale (Folium) et ergonomie d’application web décisionnelle (Streamlit).</li>
 </ol>
+<hr>
 </section>
-<section id="organisation" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="organisation"><span class="header-section-number">1.2</span> Organisation</h2>
-<ul>
-<li>Le projet s’effectue obligatoirement en <strong>groupes de 3 étudiants</strong> (exceptionnellement un groupe de 4 en fonction de l’effectif total).</li>
-<li>Le moteur de simulation, l’ingestion API, les tests unitaires et le dashboard constituent un <strong>socle commun obligatoire</strong>.</li>
-<li>Chaque groupe choisit <strong>une extension thématique exclusive</strong> parmi les 10 proposées afin d’approfondir un volet algorithmique ou fonctionnel précis.</li>
-</ul>
+<section id="modalités-de-constitution-des-équipes-promotion-32-étudiants" class="level2">
+<h2 class="anchored" data-anchor-id="modalités-de-constitution-des-équipes-promotion-32-étudiants">Modalités de Constitution des Équipes (Promotion : 32 étudiants)</h2>
+<p>Par contrainte d’effectif global (32 inscrits), la promotion est obligatoirement structurée en : <span class="math display">\[\mathbf{32 \text{ étudiants}} = (8 \times 3) + (2 \times 4) \implies \mathbf{10 \text{ équipes au total}}\]</span></p>
+<p>Cette configuration garantit une bijection parfaite avec le catalogue des <strong>10 extensions thématiques exclusives</strong> : chaque groupe de la promotion développera une extension distincte, sans aucun doublon.</p>
+<section id="matrice-contractuelle-dexigences-groupes-de-3-vs-groupes-de-4" class="level3">
+<h3 class="anchored" data-anchor-id="matrice-contractuelle-dexigences-groupes-de-3-vs-groupes-de-4">Matrice Contractuelle d’Exigences : Groupes de 3 vs Groupes de 4</h3>
+<p>Afin de préserver une équité absolue dans l’évaluation face au volume de travail disponible, le tableau suivant consigne les exigences minimales fermes selon la taille de l’équipe :</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dimension d’Évaluation</th>
+<th style="text-align: left;">Équipe de 3 étudiants (Le Standard)</th>
+<th style="text-align: left;">Équipe de 4 étudiants (Périmètre Renforcé)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Catalogue de données</strong></td>
+<td style="text-align: left;">1ʳᵉ Génération (<span class="math inline">\(\text{id} \in [\![1, 151]\!]\)</span>)</td>
+<td style="text-align: left;"><strong>Générations 1 et 2 complètes</strong> (<span class="math inline">\(\text{id} \in [\![1, 251]\!]\)</span>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Système des types</strong></td>
+<td style="text-align: left;"><strong>Tournoi Élémentaire à 5 types</strong> (matrice fixe fournie)</td>
+<td style="text-align: left;"><strong>18 types complets &amp; Doubles types</strong> (ingestion API)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Couverture <code>pytest</code></strong></td>
+<td style="text-align: left;">Seuil minimal ferme de <strong><span class="math inline">\(\ge 70\%\)</span></strong></td>
+<td style="text-align: left;">Seuil minimal renforcé de <strong><span class="math inline">\(\ge 85\%\)</span></strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Modules Streamlit</strong></td>
+<td style="text-align: left;">3 modules (Duel, Catalogue/EDA, Carte Occitanie)</td>
+<td style="text-align: left;"><strong>4 modules</strong> (+ Module Analyseur de Synergie d’Équipe)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Extension Métier</strong></td>
+<td style="text-align: left;">1 extension attribuée parmi les 10</td>
+<td style="text-align: left;">1 extension attribuée parmi les 10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Audit Git Individuel</strong></td>
+<td style="text-align: left;"><span class="math inline">\(\ge 2\)</span> Pull Requests par membre</td>
+<td style="text-align: left;"><span class="math inline">\(\ge 2\)</span> PRs créées <strong>ET</strong> <span class="math inline">\(\ge 2\)</span> PRs revues (<em>Approval</em>) par membre</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Égalité de Traitement sur les Extensions
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Les règles algorithmiques de chaque extension thématique sont <strong>strictement identiques</strong> pour un groupe de 3 ou un groupe de 4. La différence réside exclusivement dans le périmètre sur lequel l’extension s’exécute (151 créatures et 5 types pour les trinômes contre 251 créatures, 18 types et doubles types pour les quatuors).</p>
+</div>
+</div>
 <hr>
 </section>
 </section>
-<section id="modèle-mathématique-et-règles-métier-du-combat" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Modèle Mathématique et Règles Métier du Combat</h1>
-<p>Le système dynamique modélisé est un duel discret au tour par tour entre deux entités. Le modèle est entièrement formel et autosuffisant : <strong>aucune connaissance préalable de jeux vidéo (Pokemon) n’est requise</strong>.</p>
-<section id="caractéristiques-et-normalisation-des-combattants" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="caractéristiques-et-normalisation-des-combattants"><span class="header-section-number">2.1</span> Caractéristiques et Normalisation des Combattants</h2>
-<p>Chaque combattant <span class="math inline">\(C\)</span> est modélisé par un vecteur d’état à sept dimensions : <span class="math display">\[C = \langle \text{id}, \text{nom}, T, \text{PV}_{\max}, \text{PV}, A, D, V \rangle\]</span></p>
-<ul>
-<li><span class="math inline">\(\text{id} \in [\![1, 151]\!]\)</span> : identifiant officiel dans la PokéAPI (première génération).</li>
-<li><span class="math inline">\(\text{nom} \in \mathbb{S}\)</span> : identifiant textuel unique (ex. : <code>"Pikachu"</code>, <code>"Charizard"</code>).</li>
-<li><span class="math inline">\(T \in \mathcal{T}\)</span> : type élémentaire appartenant à <span class="math inline">\(\mathcal{T} = \{\text{Normal}, \text{Feu}, \text{Eau}, \text{Plante}, \text{Électrik}, ...\}\)</span>.</li>
-<li>Les caractéristiques opérationnelles sont normalisées au <strong>Niveau 50 standard</strong> à partir des statistiques de base brutes (<span class="math inline">\(\text{Stat}_{\text{base}}\)</span>) récupérées sur l’API : <span class="math display">\[\text{PV}_{\max} = \text{PV}_{\text{base}} + 60\]</span> <span class="math display">\[A = A_{\text{base}} + 5, \quad D = D_{\text{base}} + 5, \quad V = V_{\text{base}} + 5\]</span></li>
-<li><span class="math inline">\(\text{PV} \in [\![0, \text{PV}_{\max}]\!]\)</span> : points de vie courants du combattant.</li>
-</ul>
-<p>Si <span class="math inline">\(\text{PV} = 0\)</span>, l’entité est déclarée <strong>K.-O.</strong> (<em>fainted</em>) et ne peut plus réaliser aucune action.</p>
 </section>
-<section id="matrice-des-affinités-élémentaires" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="matrice-des-affinités-élémentaires"><span class="header-section-number">2.2</span> Matrice des Affinités Élémentaires</h2>
-<p>Le coefficient multiplicateur <span class="math inline">\(M(T_{\text{att}}, T_{\text{déf}}) \in \{0.5, 1.0, 2.0\}\)</span> modélise l’avantage ou le désavantage élémentaire :</p>
+<section id="modèle-mathématique-et-règles-métier-du-combat" class="level1">
+<h1>Modèle Mathématique et Règles Métier du Combat</h1>
+<p>Le système dynamique modélisé est un duel discret au tour par tour opposant deux combattants. Le modèle est rigoureusement formel et autosuffisant : <strong>aucune connaissance préalable de jeux vidéo n’est requise</strong>.</p>
+<section id="caractéristiques-et-normalisation-des-combattants" class="level2">
+<h2 class="anchored" data-anchor-id="caractéristiques-et-normalisation-des-combattants">Caractéristiques et Normalisation des Combattants</h2>
+<p>Chaque combattant <span class="math inline">\(C\)</span> est modélisé par un vecteur d’état à huit composantes : <span class="math display">\[C = \langle \text{id}, \text{nom}, T_1, T_2, \text{PV}_{\max}, \text{PV}, A, D, V \rangle\]</span></p>
+<ul>
+<li><p><span class="math inline">\(\text{id} \in \mathbb{N}^*\)</span> : identifiant officiel PokéAPI (<span class="math inline">\([\![1, 151]\!]\)</span> pour les trinômes ; <span class="math inline">\([\![1, 251]\!]\)</span> pour les quatuors).</p></li>
+<li><p><span class="math inline">\(\text{nom} \in \mathbb{S}\)</span> : chaîne de caractères désignant le combattant (champ <code>name</code> de l’API).</p></li>
+<li><p><span class="math inline">\(T_1 \in \mathcal{T}\)</span> : type élémentaire principal, extrait de l’objet de la liste <code>types</code> dont la clé <code>slot</code> vaut 1.</p></li>
+<li><p><span class="math inline">\(T_2 \in \mathcal{T} \cup \{\emptyset\}\)</span> : second type élémentaire éventuel (<code>slot == 2</code>) ou <span class="math inline">\(\emptyset\)</span> si la créature est mono-type.</p></li>
+<li><p>Les statistiques brutes de base (<span class="math inline">\(\text{Stat}_{\text{base}}\)</span>) proviennent de la liste <code>stats</code> du JSON API :</p>
+<ul>
+<li><span class="math inline">\(\text{PV}_{\text{base}}\)</span> correspond à l’entrée <code>stat.name == "hp"</code></li>
+<li><span class="math inline">\(A_{\text{base}}\)</span> correspond à l’entrée <code>stat.name == "attack"</code></li>
+<li><span class="math inline">\(D_{\text{base}}\)</span> correspond à l’entrée <code>stat.name == "defense"</code></li>
+<li><span class="math inline">\(V_{\text{base}}\)</span> correspond à l’entrée <code>stat.name == "speed"</code></li>
+</ul></li>
+<li><p>Ces caractéristiques sont normalisées au <strong>Niveau 50 standard</strong> par les formules d’échelonnement :</p>
+<p><span class="math display">\[\text{PV}_{\max} = \text{PV}_{\text{base}} + 60\]</span> <span class="math display">\[A = A_{\text{base}} + 5, \quad D = D_{\text{base}} + 5, \quad V = V_{\text{base}} + 5\]</span></p></li>
+<li><p><span class="math inline">\(\text{PV} \in [\![0, \text{PV}_{\max}]\!]\)</span> : points de vie courants du combattant.</p></li>
+</ul>
+<p>Dès que <span class="math inline">\(\text{PV} = 0\)</span>, l’entité est déclarée <strong>K.-O.</strong> (<em>fainted</em>) et cesse immédiatement toute action.</p>
+<hr>
+</section>
+<section id="le-système-daffinités-élémentaires" class="level2">
+<h2 class="anchored" data-anchor-id="le-système-daffinités-élémentaires">Le Système d’Affinités Élémentaires</h2>
+<section id="le-modèle-simplifié-le-tournoi-à-5-types-groupes-de-3" class="level3">
+<h3 class="anchored" data-anchor-id="le-modèle-simplifié-le-tournoi-à-5-types-groupes-de-3">Le Modèle Simplifié : Le Tournoi à 5 Types (Groupes de 3)</h3>
+<p>Pour les groupes de 3, l’arène restreint la participation aux créatures dont le type principal <span class="math inline">\(T_1\)</span> appartient à l’ensemble <span class="math inline">\(\mathcal{T}_5 = \{\text{Normal}, \text{Feu}, \text{Eau}, \text{Plante}, \text{Électrik}\}\)</span>. Le coefficient multiplicateur <span class="math inline">\(M(T_{\text{att}}, T_{\text{déf}}) \in \{0.5, 1.0, 2.0\}\)</span> est lu directement dans la matrice fixe suivante :</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 13%">
@@ -397,529 +480,765 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Un fichier <code>data/types.csv</code> est fourni pour charger cette matrice de manière automatisée dans le package.</p>
+<p><em>(Note d’implémentation : le client de données télécharge l’ensemble des 151 créatures sur disque, mais le sélecteur de l’arène filtre le catalogue pour ne retenir que les combattants dont <span class="math inline">\(T_1 \in \mathcal{T}_5\)</span>, soit environ 80 créatures éligibles).</em></p>
+<hr>
 </section>
-<section id="algorithme-de-résolution-dun-tour" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="algorithme-de-résolution-dun-tour"><span class="header-section-number">2.3</span> Algorithme de Résolution d’un Tour</h2>
-<p>Soient deux combattants <span class="math inline">\(C_1\)</span> et <span class="math inline">\(C_2\)</span>. Le duel se décompose en tours séquentiels successifs :</p>
-<section id="détermination-de-linitiative" class="level3" data-number="2.3.1">
-<h3 data-number="2.3.1" class="anchored" data-anchor-id="détermination-de-linitiative"><span class="header-section-number">2.3.1</span> 1. Détermination de l’initiative</h3>
+<section id="le-modèle-complet-18-types-et-doubles-types-groupes-de-4-bonus" class="level3">
+<h3 class="anchored" data-anchor-id="le-modèle-complet-18-types-et-doubles-types-groupes-de-4-bonus">Le Modèle Complet : 18 Types et Doubles Types (Groupes de 4 / Bonus)</h3>
+<p>Pour les groupes de 4, le moteur ingère la table complète des 18 types via l’API (<code>https://pokeapi.co/api/v2/type/{id}</code>).</p>
+<p>Lorsqu’une attaque de type <span class="math inline">\(T_{\text{att}}\)</span> frappe un combattant possédant deux types défensifs <span class="math inline">\((T_{\text{déf}, 1}, T_{\text{déf}, 2})\)</span>, le multiplicateur global <span class="math inline">\(M_{\text{total}}\)</span> est le <strong>produit algébrique</strong> des affinités élémentaires individuelles : <span class="math display">\[M_{\text{total}}\big(T_{\text{att}}, (T_{\text{déf}, 1}, T_{\text{déf}, 2})\big) = M(T_{\text{att}}, T_{\text{déf}, 1}) \times M(T_{\text{att}}, T_{\text{déf}, 2})\]</span></p>
+<p>Ce produit croisé engendre quatre situations sans exception :</p>
+<ul>
+<li><strong>Double vulnérabilité :</strong> <span class="math inline">\(2{,}0 \times 2{,}0 = \mathbf{4{,}0}\)</span> (dégâts quadruplés).</li>
+<li><strong>Compensation neutre :</strong> <span class="math inline">\(2{,}0 \times 0{,}5 = \mathbf{1{,}0}\)</span> (dégâts neutres).</li>
+<li><strong>Double résistance :</strong> <span class="math inline">\(0{,}5 \times 0{,}5 = \mathbf{0{,}25}\)</span> (dégâts divisés par 4).</li>
+<li><strong>Immunité stricte :</strong> Si <span class="math inline">\(M(T_{\text{att}}, T_{\text{déf}, 1}) = 0{,}0\)</span>, alors <span class="math inline">\(M_{\text{total}} = \mathbf{0{,}0}\)</span> (dégâts nuls, l’attaque échoue).</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="déroulement-déterministe-et-stochastique-dun-tour" class="level2">
+<h2 class="anchored" data-anchor-id="déroulement-déterministe-et-stochastique-dun-tour">Déroulement Déterministe et Stochastique d’un Tour</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Règle Fondamentale de l’Attaque dans le Socle Commun
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Dans le socle commun obligatoire, <strong>les combattants ne choisissent pas leur attaque</strong>. Chaque combattant porte une attaque standard unique dont le type élémentaire est <strong>strictement son type principal</strong> (<span class="math inline">\(T_{\text{att}} = T_1\)</span>) et dont la précision est garantie à <span class="math inline">\(100\%\)</span>. Seules les extensions 4 (Choix tactique) et 6 (Gestion des PP) modifient cette règle.</p>
+</div>
+</div>
+<p>Soient deux combattants actifs <span class="math inline">\(C_1\)</span> et <span class="math inline">\(C_2\)</span>. La résolution d’un tour de jeu suit la séquence chronologique ordonnée :</p>
+<section id="phase-dinitiative" class="level3">
+<h3 class="anchored" data-anchor-id="phase-dinitiative">1. Phase d’Initiative</h3>
 <ul>
 <li>Le combattant possédant la vitesse <span class="math inline">\(V\)</span> la plus élevée frappe en premier.</li>
-<li>En cas d’égalité stricte (<span class="math inline">\(V_1 = V_2\)</span>), le premier attaquant est désigné par un tirage de Bernoulli <span class="math inline">\(B \sim \mathcal{B}(0.5)\)</span>.</li>
+<li>En cas d’égalité stricte (<span class="math inline">\(V_1 = V_2\)</span>), le premier attaquant est désigné par un tirage de Bernoulli symétrique : <span class="math display">\[B \sim \mathcal{B}(0.5)\]</span></li>
 </ul>
 </section>
-<section id="calcul-stochastique-des-dégâts" class="level3" data-number="2.3.2">
-<h3 data-number="2.3.2" class="anchored" data-anchor-id="calcul-stochastique-des-dégâts"><span class="header-section-number">2.3.2</span> 2. Calcul stochastique des dégâts</h3>
-<p>L’attaquant actif assène une attaque standard de puissance nominale <span class="math inline">\(P = 50\)</span>.</p>
-<p>La formule fermée des dégâts réels infligés est : <span class="math display">\[\text{Dégâts} = \max\left(1, \left\lfloor \left( \frac{22 \times P \times \frac{A_{\text{att}}}{D_{\text{déf}}}}{50} + 2 \right) \times M(T_{\text{att}}, T_{\text{déf}}) \times U \times K \right\rfloor\right)\]</span></p>
-<p>avec : * <span class="math inline">\(\lfloor x \rfloor\)</span> : partie entière inférieure. * <span class="math inline">\(M(T_{\text{att}}, T_{\text{déf}})\)</span> : multiplicateur issu de la matrice des types. * <span class="math inline">\(U\)</span> : variable aléatoire modélisant la variabilité du coup, <span class="math inline">\(U \sim \mathcal{U}([0.85, 1.00])\)</span>. * <span class="math inline">\(K\)</span> : multiplicateur de coup critique gouverné par une variable de Bernoulli <span class="math inline">\(X_{\text{crit}} \sim \mathcal{B}(0.10)\)</span> : <span class="math display">\[K = \begin{cases} 1.5 &amp; \text{si } X_{\text{crit}} = 1 \text{ (probabilité } 10\%) \\ 1.0 &amp; \text{sinon} \end{cases}\]</span></p>
+<section id="phase-de-frappe-de-lattaquant" class="level3">
+<h3 class="anchored" data-anchor-id="phase-de-frappe-de-lattaquant">2. Phase de Frappe de l’Attaquant</h3>
+<p>L’attaquant actif assène son attaque de base (puissance nominale fixée à <span class="math inline">\(P = 50\)</span>).</p>
+<p>La formule mathématique fermée des dégâts réels infligés est : <span class="math display">\[\text{Dégâts} = \max\left(1, \left\lfloor \left( \frac{22 \times P \times \frac{A_{\text{att}}}{D_{\text{déf}}}}{50} + 2 \right) \times M_{\text{total}} \times U \times K \right\rfloor\right)\]</span></p>
+<p>avec :</p>
+<ul>
+<li><span class="math inline">\(\lfloor x \rfloor\)</span> : opérateur partie entière inférieure.</li>
+<li><span class="math inline">\(M_{\text{total}}\)</span> : multiplicateur d’affinité élémentaire (<span class="math inline">\(M(T_1, T_{\text{déf}})\)</span> pour mono-type, produit croisé pour double type). Si <span class="math inline">\(M_{\text{total}} = 0{,}0\)</span>, alors <span class="math inline">\(\text{Dégâts} = 0\)</span>.</li>
+<li><span class="math inline">\(U\)</span> : facteur d’aléa d’impact, <span class="math inline">\(U \sim \mathcal{U}([0.85, 1.00])\)</span>.</li>
+<li><span class="math inline">\(K\)</span> : multiplicateur de coup critique gouverné par une variable de Bernoulli <span class="math inline">\(X_{\text{crit}} \sim \mathcal{B}(0.10)\)</span> : <span class="math display">\[K = \begin{cases} 1.5 &amp; \text{si } X_{\text{crit}} = 1 \text{ (probabilité } 10\%) \\ 1.0 &amp; \text{sinon} \end{cases}\]</span></li>
+</ul>
 </section>
-<section id="application-des-dégâts-et-terminaison" class="level3" data-number="2.3.3">
-<h3 data-number="2.3.3" class="anchored" data-anchor-id="application-des-dégâts-et-terminaison"><span class="header-section-number">2.3.3</span> 3. Application des dégâts et terminaison</h3>
+<section id="phase-de-résolution-et-riposte" class="level3">
+<h3 class="anchored" data-anchor-id="phase-de-résolution-et-riposte">3. Phase de Résolution et Riposte</h3>
 <p><span class="math display">\[\text{PV}_{\text{déf}} \leftarrow \max(0, \text{PV}_{\text{déf}} - \text{Dégâts})\]</span></p>
 <ul>
-<li>Si <span class="math inline">\(\text{PV}_{\text{déf}} = 0\)</span> : le défenseur est K.-O., le combat prend fin <strong>immédiatement</strong>. Le défenseur ne riposte pas.</li>
-<li>Si <span class="math inline">\(\text{PV}_{\text{déf}} &gt; 0\)</span> : le défenseur devient attaquant et exécute à son tour les étapes 2 et 3.</li>
+<li><strong>Cas K.-O. :</strong> Si <span class="math inline">\(\text{PV}_{\text{déf}} = 0\)</span>, le défenseur s’effondre. Le match prend fin <strong>instantanément</strong>. Le défenseur ne riposte pas.</li>
+<li><strong>Cas Survie :</strong> Si <span class="math inline">\(\text{PV}_{\text{déf}} &gt; 0\)</span>, les rôles s’inversent : le défenseur devient attaquant et exécute à son tour les étapes 2 et 3.</li>
 </ul>
 <hr>
 </section>
 </section>
 </section>
-<section id="architecture-logicielle-et-standards-de-développement" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Architecture Logicielle et Standards de Développement</h1>
-<section id="arborescence-imposée-du-dépôt" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="arborescence-imposée-du-dépôt"><span class="header-section-number">3.1</span> Arborescence Imposée du Dépôt</h2>
-<p>L’organisation des répertoires doit impérativement respecter le schéma suivant :</p>
+<section id="architecture-logicielle-et-standards-de-développement" class="level1">
+<h1>Architecture Logicielle et Standards de Développement</h1>
+<section id="arborescence-normée-du-dépôt-git" class="level2">
+<h2 class="anchored" data-anchor-id="arborescence-normée-du-dépôt-git">Arborescence Normée du Dépôt Git</h2>
+<p>L’arborescence du projet doit respecter rigoureusement la structure suivante :</p>
 <pre class="text"><code>pyarena/
-├── pyproject.toml              # Configuration du package, pytest, linters et dépendances
-├── README.md                   # Instructions d'installation et de reproduction
-├── CONTRIBUTIONS.md            # Tableau contractuel de contribution individuelle
+├── pyproject.toml              # Configuration du package, dépendances, pytest et linters
+├── README.md                   # Documentation technique et guide d'installation
+├── CONTRIBUTIONS.md            # Tableau contractuel des contributions individuelles
 ├── data/
-│   ├── types.csv               # Matrice des coefficients élémentaires
+│   ├── types.csv               # Matrice des coefficients élémentaires (5 types)
 │   ├── arenes_occitanie.geojson# Données spatiales régionales
-│   └── cache/                  # Fichiers JSON locaux de l'API (ignorés par Git)
+│   └── cache/                  # Fichiers JSON de l'API (ignorés par Git via .gitignore)
 ├── src/
 │   └── pyarena/
-│       ├── __init__.py         # Export des classes et fonctions publiques
+│       ├── __init__.py         # Exports publics du package
 │       ├── core/
 │       │   ├── __init__.py
-│       │   ├── exceptions.py   # Classes d'erreurs maison
-│       │   ├── models.py       # Classes Fighter, Team, BattleResult
-│       │   └── engine.py       # Moteur d'exécution des tours et du combat
+│       │   ├── exceptions.py   # Hiérarchie des exceptions maison (PyArenaException, etc.)
+│       │   ├── models.py       # Classes Fighter, BaseFighter, BattleResult
+│       │   └── engine.py       # Moteur déterministe d'exécution des duels tour par tour
 │       ├── io/
 │       │   ├── __init__.py
-│       │   ├── fetcher.py      # Client HTTP PokéAPI avec stratégie de cache
-│       │   └── loader.py       # Parsers CSV et GeoJSON
+│       │   ├── fetcher.py      # Client HTTP PokéAPI avec mise en cache disque
+│       │   └── loader.py       # Parsers de fichiers CSV et GeoJSON
 │       ├── simulation/
 │       │   ├── __init__.py
-│       │   └── monte_carlo.py  # Moteur Monte-Carlo parallélisé (joblib/multiprocessing)
-│       └── extensions/         # Emplacement unique du code de l'extension choisie
+│       │   └── monte_carlo.py  # Simulateur Monte-Carlo distribué (multiprocessing/joblib)
+│       └── extensions/         # Code source exclusif de l'extension attribuée
 │           └── __init__.py
 ├── tests/
 │   ├── __init__.py
-│   ├── test_models.py          # Tests unitaires des entités et de l'encapsulation
-│   ├── test_engine.py          # Tests déterministes du calcul des dégâts
-│   ├── test_simulation.py      # Tests de reproductibilité et de parallélisation
-│   └── test_extension.py       # Tests unitaires spécifiques à l'extension
+│   ├── test_models.py          # Tests des entités, du typage et des propriétés
+│   ├── test_engine.py          # Tests unitaires du calcul de dégâts et du cycle de tour
+│   ├── test_simulation.py      # Tests de reproductibilité (seed) et de parallélisation
+│   └── test_extension.py       # Tests unitaires exhaustifs de l'extension choisie
 └── app/
     ├── main.py                 # Point d'entrée de l'application Streamlit
-    ├── pages/                  # Pages multipages Streamlit
-    └── utils.py                # Fonctions d'affichage graphique Plotly/Folium</code></pre>
+    ├── pages/                  # Pages multipages de l'interface
+    └── utils.py                # Fonctions d'affichage graphique (Plotly, Folium)</code></pre>
+<hr>
 </section>
-<section id="règles-de-programmation-orientée-objet-poo" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="règles-de-programmation-orientée-objet-poo"><span class="header-section-number">3.2</span> Règles de Programmation Orientée Objet (POO)</h2>
+<section id="règles-dor-de-la-programmation-orientée-objet-poo" class="level2">
+<h2 class="anchored" data-anchor-id="règles-dor-de-la-programmation-orientée-objet-poo">Règles d’Or de la Programmation Orientée Objet (POO)</h2>
 <ol type="1">
-<li><strong>Abstraction :</strong>
+<li><p><strong>Rôle précis des classes du socle commun (<code>core/models.py</code>) :</strong></p>
 <ul>
-<li>Présence obligatoire d’une classe abstraite <code>BaseFighter</code> héritant de <code>abc.ABC</code>.</li>
-<li>Définition explicite des méthodes abstraites via <code>@abstractmethod</code> :
-<ul>
-<li><code>take_damage(self, amount: int) -&gt; None</code></li>
-<li><code>is_alive(self) -&gt; bool</code></li>
-<li><code>reset_stats(self) -&gt; None</code></li>
+<li><code>BaseFighter</code> (classe abstraite héritant de <code>abc.ABC</code>) : déclare l’interface contractuelle avec <code>@abstractmethod</code> : <code>take_damage(amount)</code>, <code>is_alive()</code>, <code>reset_stats()</code>.</li>
+<li><code>Fighter</code> (classe concrète héritant de <code>BaseFighter</code>) : implémente un combattant individuel avec ses attributs encapsulés et validés par <code>@property</code>.</li>
+<li><code>BattleResult</code> (dataclass ou classe immuable) : structure de retour standardisée d’un duel consignant le vainqueur, le perdant, le nombre de tours et l’état des PV restants.</li>
 </ul></li>
+<li><p><strong>Encapsulation stricte :</strong></p>
+<ul>
+<li>L’attribut de santé <code>_hp</code> est strictement privé ou protégé.</li>
+<li>Le setter <code>@hp.setter</code> interdit formellement toute valeur incohérente : une valeur négative est ramenée à 0, et un dépassement de <span class="math inline">\(\text{PV}_{\max}\)</span> est borné.</li>
 </ul></li>
-<li><strong>Encapsulation stricte :</strong>
+<li><p><strong>Méthodes Spéciales (<em>Dunder methods</em>) :</strong></p>
 <ul>
-<li>Les attributs critiques (dont les points de vie) doivent être privés ou protégés et exposés via des propriétés <code>@property</code>.</li>
-<li>Le setter associé à la santé doit empêcher toute affectation d’une valeur négative ou supérieure à <span class="math inline">\(\text{PV}_{\max}\)</span>.</li>
+<li>Implémenter obligatoirement <code>__repr__</code> (signature technique non ambiguë), <code>__str__</code> (affichage lisible) et <code>__eq__</code> (égalité structurelle basée sur <code>id</code>).</li>
 </ul></li>
-<li><strong>Méthodes spéciales (dunder methods) :</strong>
+<li><p><strong>Gestion Robuste des Exceptions (<code>core/exceptions.py</code>) :</strong></p>
 <ul>
-<li>Implémenter obligatoirement <code>__repr__</code> (représentation technique complète), <code>__str__</code> (affichage convivial) et <code>__eq__</code> (égalité structurelle basée sur l’identifiant).</li>
-</ul></li>
-<li><strong>Hiérarchie d’exceptions maison :</strong>
+<li>Classe racine : <code>PyArenaException(Exception)</code>.</li>
+<li>Classes dérivées obligatoires :
 <ul>
-<li>Définir une exception de base <code>PyArenaException(Exception)</code> dans <code>exceptions.py</code>.</li>
-<li>Implémenter au minimum :
-<ul>
-<li><code>FighterFaintedError</code> : levée lorsqu’un combattant K.-O. tente d’agir.</li>
-<li><code>InvalidStatError</code> : levée si une statistique d’entrée est hors des bornes autorisées.</li>
-<li><code>DataFetchError</code> : levée si l’API est injoignable et qu’aucun cache local n’existe.</li>
+<li><code>FighterFaintedError</code> : levée lorsqu’une entité à <span class="math inline">\(\text{PV} = 0\)</span> tente d’agir.</li>
+<li><code>InvalidStatError</code> : levée si une statistique extraite est négative ou nulle.</li>
+<li><code>DataFetchError</code> : levée si l’API est injoignable et qu’aucun cache local n’existe sur le disque.</li>
 </ul></li>
 </ul></li>
 </ol>
+<hr>
 </section>
-<section id="packaging-et-intégration-continue-ci" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="packaging-et-intégration-continue-ci"><span class="header-section-number">3.3</span> Packaging et Intégration Continue (CI)</h2>
+<section id="packaging-et-intégration-continue-github-actions" class="level2">
+<h2 class="anchored" data-anchor-id="packaging-et-intégration-continue-github-actions">Packaging et Intégration Continue (GitHub Actions)</h2>
 <ul>
-<li><p>Le paquet doit être installable en mode développement à la racine du dépôt :</p>
+<li><p>Le dépôt doit être installable en mode éditable à la racine :</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> .</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Un workflow GitHub Actions (<code>.github/workflows/ci.yml</code>) doit s’exécuter à chaque commit poussé sur <code>main</code> et à chaque Pull Request :</p>
+<li><p>Le workflow <code>.github/workflows/ci.yml</code> s’exécute à chaque commit sur <code>main</code> et à chaque Pull Request :</p>
 <ol type="1">
-<li>Vérification du formatage et du style avec <code>ruff check</code> ou <code>flake8</code>.</li>
-<li>Exécution de l’intégralité des tests avec <code>pytest</code>.</li>
-<li>Vérification du seuil de couverture de code : <strong>la couverture mesurée par <code>pytest-cov</code> sur le package <code>pyarena</code> doit être supérieure ou égale à 70 %</strong>.</li>
+<li>Contrôle du style et du formatage avec <code>ruff check</code>.</li>
+<li>Exécution de la suite de tests avec <code>pytest</code>.</li>
+<li>Mesure de couverture avec <code>pytest-cov</code> :
+<ul>
+<li><strong>Équipes de 3 :</strong> Échec immédiat si couverture globale <span class="math inline">\(&lt; 70\%\)</span>.</li>
+<li><strong>Équipes de 4 :</strong> Échec immédiat si couverture globale <span class="math inline">\(&lt; 85\%\)</span>.</li>
+</ul></li>
 </ol></li>
 </ul>
 <hr>
 </section>
 </section>
-<section id="pipeline-de-données-cache-local-et-simulation" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Pipeline de Données, Cache Local et Simulation</h1>
-<section id="récupération-api-et-stratégie-de-cache-hors-ligne" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="récupération-api-et-stratégie-de-cache-hors-ligne"><span class="header-section-number">4.1</span> Récupération API et Stratégie de Cache Hors-Ligne</h2>
+<section id="pipeline-de-données-cache-local-et-simulation" class="level1">
+<h1>Pipeline de Données, Cache Local et Simulation</h1>
+<section id="ingestion-pokéapi-et-cache-hors-ligne" class="level2">
+<h2 class="anchored" data-anchor-id="ingestion-pokéapi-et-cache-hors-ligne">Ingestion PokéAPI et Cache Hors-Ligne</h2>
 <ul>
-<li>Le module <code>fetcher.py</code> doit implémenter une classe <code>DataFetcher</code> interrogeant l’API publique ouverte <code>[https://pokeapi.co/api/v2/pokemon/](https://pokeapi.co/api/v2/pokemon/){id}</code> pour les 151 premières créatures (<span class="math inline">\(\text{id} \in [\![1, 151]\!]\)</span>).</li>
-<li><strong>Mise en cache locale obligatoire :</strong> Tout appel réseau réussi enregistre immédiatement le fichier JSON sous <code>data/cache/{id}.json</code>.</li>
-<li>Lors d’une demande ultérieure, le système charge directement le fichier local sans déclencher de requête HTTP.</li>
-<li>Le dossier <code>data/cache/</code> doit figurer dans le fichier <code>.gitignore</code> : les données brutes ne doivent pas être versionnées sur Git.</li>
+<li>Le module <code>io/fetcher.py</code> implémente <code>DataFetcher</code> requêtant l’API ouverte <code>https://pokeapi.co/api/v2/pokemon/{id}</code>.</li>
+<li><strong>Politique de cache disque :</strong> Tout fichier JSON reçu est sérialisé sous <code>data/cache/{id}.json</code>.</li>
+<li>Toute exécution ultérieure lit prioritairement le fichier local sans solliciter le réseau.</li>
+<li>Le dossier <code>data/cache/</code> doit figurer dans le fichier <code>.gitignore</code> : <strong>interdiction absolue de pousser les fichiers JSON sur GitHub</strong>.</li>
 </ul>
+<hr>
 </section>
-<section id="moteur-de-simulation-monte-carlo-parallélisé" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="moteur-de-simulation-monte-carlo-parallélisé"><span class="header-section-number">4.2</span> Moteur de Simulation Monte-Carlo Parallélisé</h2>
+<section id="moteur-de-simulation-monte-carlo-parallélisé" class="level2">
+<h2 class="anchored" data-anchor-id="moteur-de-simulation-monte-carlo-parallélisé">Moteur de Simulation Monte-Carlo Parallélisé</h2>
 <ul>
-<li><p>La fonction de combat élémentaire <code>simulate_battle(f1, f2, seed=None)</code> doit permettre l’injection d’une graine aléatoire (<code>seed</code>) pour garantir la reproductibilité parfaite d’une confrontation.</p></li>
-<li><p>Le module <code>monte_carlo.py</code> doit proposer une fonction :</p>
+<li><p>La fonction fondamentale <code>simulate_battle(f1, f2, seed=None)</code> permet l’injection d’une graine aléatoire pour reproduire un affrontement à l’identique.</p></li>
+<li><p>Le module <code>simulation/monte_carlo.py</code> expose la fonction :</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_monte_carlo(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    f1: BaseFighter, </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    f2: BaseFighter, </span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    n_simulations: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5000</span>, </span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    n_jobs: <span class="bu">int</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p><strong>Parallélisation :</strong> L’exécution des <span class="math inline">\(n_{\text{simulations}}\)</span> duels doit être distribuée sur l’ensemble des cœurs CPU de la machine hôte (<code>multiprocessing.Pool</code> ou <code>joblib.Parallel</code>).</p></li>
-<li><p><strong>Mesures retournées :</strong></p>
+<li><p><strong>Distribution multi-cœurs :</strong> Les <span class="math inline">\(n_{\text{simulations}}\)</span> duels doivent être distribués via <code>multiprocessing.Pool</code> ou <code>joblib.Parallel</code>.</p></li>
+<li><p><strong>Indicateurs retournés dans le dictionnaire de synthèse :</strong></p>
 <ol type="1">
-<li>Probabilité de victoire estimée de <span class="math inline">\(C_1\)</span> : <span class="math display">\[\hat{p} = \frac{\text{Nombre de victoires de } C_1}{n_{\text{simulations}}}\]</span></li>
+<li>Winrate ponctuel de <span class="math inline">\(C_1\)</span> : <span class="math display">\[\hat{p} = \frac{N_{\text{victoires de } C_1}}{n_{\text{simulations}}}\]</span></li>
 <li>Intervalle de confiance asymptotique à 95 % : <span class="math display">\[\mathrm{IC}_{0.95}(\hat{p}) = \left[ \hat{p} - 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}}, \; \hat{p} + 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}} \right]\]</span></li>
-<li>Distribution du nombre de tours jusqu’au terme du combat (moyenne, médiane, écart-type).</li>
+<li>Statistique descriptive de la durée du match (nombre de tours jusqu’au K.-O.) : moyenne, médiane, écart-type.</li>
 </ol></li>
 </ul>
 <hr>
 </section>
 </section>
-<section id="spécifications-du-tableau-de-bord-streamlit" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> Spécifications du Tableau de Bord Streamlit</h1>
-<p>L’application Streamlit (<code>app/main.py</code>) est un outil décisionnel interactif comprenant obligatoirement les trois modules suivants :</p>
-<section id="module-1-simulateur-de-duel-et-télémétrie-en-direct" class="level2" data-number="5.1">
-<h2 data-number="5.1" class="anchored" data-anchor-id="module-1-simulateur-de-duel-et-télémétrie-en-direct"><span class="header-section-number">5.1</span> Module 1 : Simulateur de Duel et Télémétrie en Direct</h2>
+<section id="spécifications-du-tableau-de-bord-streamlit" class="level1">
+<h1>Spécifications du Tableau de Bord Streamlit</h1>
+<p>L’application Streamlit (<code>app/main.py</code>) constitue le livrable visuel décisionnel.</p>
+<section id="module-1-simulateur-de-duel-et-télémétrie-en-direct-commun" class="level2">
+<h2 class="anchored" data-anchor-id="module-1-simulateur-de-duel-et-télémétrie-en-direct-commun">Module 1 : Simulateur de Duel et Télémétrie en Direct (Commun)</h2>
 <ul>
-<li>Deux listes déroulantes permettent de sélectionner les combattants <span class="math inline">\(A\)</span> et <span class="math inline">\(B\)</span> parmi les 151 disponibles.</li>
-<li>Affichage immédiat des sprites officiels (PNG transparents issus du cache ou de l’URL) et de leurs statistiques de niveau 50.</li>
-<li>Curseur interactif pour régler le nombre de simulations (<span class="math inline">\(100 \le N \le 10\,000\)</span>).</li>
-<li>Restitution post-calcul :
-<ul>
-<li>Winrates comparés avec barres de progression.</li>
-<li>Intervalle de confiance à 95 % affiché numériquement.</li>
-<li>Histogramme Plotly interactif de la distribution du nombre de tours.</li>
-<li>Journal textuel pas-à-pas (<em>log</em>) d’un match témoin généré avec graine fixée.</li>
-</ul></li>
+<li>Listes déroulantes pour sélectionner les combattants <span class="math inline">\(A\)</span> et <span class="math inline">\(B\)</span>.</li>
+<li>Affichage immédiat des sprites officiels (champ <code>sprites.front_default</code> de l’API) et des statistiques normalisées.</li>
+<li>Curseur dynamique réglant le nombre de duels (<span class="math inline">\(100 \le N \le 10\,000\)</span>).</li>
+<li>Restitution post-calcul : jauges de winrate, intervalle de confiance à 95 %, histogramme Plotly de la durée des combats et journal textuel d’un match témoin généré avec graine fixée.</li>
 </ul>
 </section>
-<section id="module-2-catalogue-et-analyse-exploratoire-des-données" class="level2" data-number="5.2">
-<h2 data-number="5.2" class="anchored" data-anchor-id="module-2-catalogue-et-analyse-exploratoire-des-données"><span class="header-section-number">5.2</span> Module 2 : Catalogue et Analyse Exploratoire des Données</h2>
+<section id="module-2-catalogue-et-analyse-exploratoire-des-données-commun" class="level2">
+<h2 class="anchored" data-anchor-id="module-2-catalogue-et-analyse-exploratoire-des-données-commun">Module 2 : Catalogue et Analyse Exploratoire des Données (Commun)</h2>
 <ul>
-<li>Tableau de données interactif avec pagination et filtres dynamiques (par type, par plage de PV ou d’attaque).</li>
-<li>Graphique de dispersion interactif Plotly : <em>Attaque</em> en abscisse, <em>Défense</em> en ordonnée, taille des marqueurs proportionnelle aux <em>PV</em>, couleur assignée selon le <em>Type</em>.</li>
-<li>Boîtes à moustaches (<em>boxplots</em>) comparant la distribution de la vitesse entre les 5 familles élémentaires.</li>
+<li>Tableau interactif filtrable par type et caractéristiques.</li>
+<li>Nuage de points Plotly : <em>Attaque</em> vs <em>Défense</em>, taille proportionnelle aux <em>PV</em>, couleur selon le type principal.</li>
+<li>Boîtes à moustaches (<em>boxplots</em>) comparant la distribution de la vitesse entre les types.</li>
 </ul>
 </section>
-<section id="module-3-cartographie-géospatiale-des-arènes-doccitanie" class="level2" data-number="5.3">
-<h2 data-number="5.3" class="anchored" data-anchor-id="module-3-cartographie-géospatiale-des-arènes-doccitanie"><span class="header-section-number">5.3</span> Module 3 : Cartographie Géospatiale des Arènes d’Occitanie</h2>
+<section id="module-3-cartographie-géospatiale-des-arènes-doccitanie-commun" class="level2">
+<h2 class="anchored" data-anchor-id="module-3-cartographie-géospatiale-des-arènes-doccitanie-commun">Module 3 : Cartographie Géospatiale des Arènes d’Occitanie (Commun)</h2>
 <ul>
-<li>Exploitation du fichier <code>data/arenes_occitanie.geojson</code> regroupant 30 sites régionaux (Montpellier, Sète, Nîmes, Toulouse, Perpignan…).</li>
-<li>Affichage de la carte dynamique via <code>streamlit-folium</code>.</li>
-<li>Marqueurs géoréférencés colorés selon le type élémentaire de l’arène.</li>
-<li>Clic sur un marqueur : ouverture d’un pop-up affichant le nom de l’arène, son champion, son sprite officiel et ses statistiques.</li>
+<li>Exploitation de <code>data/arenes_occitanie.geojson</code> recensant 30 arènes régionales (Montpellier, Béziers, Nîmes, Toulouse…).</li>
+<li>Carte dynamique via <code>streamlit-folium</code> avec marqueurs colorés selon le type de l’arène.</li>
+<li>Clic sur un marqueur : pop-up détaillant le champion local, son sprite et ses statistiques.</li>
 </ul>
-<hr>
 </section>
-</section>
-<section id="spécifications-exhaustives-des-10-extensions-thématiques" class="level1" data-number="6">
-<h1 data-number="6"><span class="header-section-number">6</span> Spécifications Exhaustives des 10 Extensions Thématiques</h1>
-<p>Chaque groupe développe <strong>une seule</strong> extension. L’extension doit obligatoirement comporter : 1. Un module dédié dans <code>src/pyarena/extensions/</code>. 2. Une suite de tests unitaires dédiée dans <code>tests/test_extension.py</code>. 3. Un onglet ou composant dédié dans l’application Streamlit.</p>
-<hr>
-</section>
-<section id="spécifications-exhaustives-des-10-extensions-thématiques-1" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> Spécifications Exhaustives des 10 Extensions Thématiques</h1>
-<p>Chaque groupe développe <strong>une seule</strong> extension parmi la liste ci-dessous. Toutes les extensions sont calibrées pour représenter un volume de travail équivalent (environ 100 à 150 lignes de code métier, une suite de tests unitaires dédiée et un composant interactif dans Streamlit).</p>
-<p>Aucune extension ne requiert d’algorithme complexe hors programme : elles s’appuient exclusivement sur la modélisation orientée objet, des calculs de probabilités élémentaires, des boucles de balayage ou des manipulations de données tabulaires/spatiales.</p>
-<hr>
-<section id="extension-1-objets-passifs-et-équipements-stratégiques" class="level3" data-number="7.0.1">
-<h3 data-number="7.0.1" class="anchored" data-anchor-id="extension-1-objets-passifs-et-équipements-stratégiques"><span class="header-section-number">7.0.1</span> Extension 1 : Objets Passifs et Équipements Stratégiques</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Évaluer comment l’attribution d’un objet passif peut compenser un déficit initial de statistiques ou modifier radicalement l’issue d’un duel.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Créer une classe de base abstraite <code>BaseItem</code> dans <code>src/pyarena/extensions/items.py</code> avec les méthodes :
-<ul>
-<li><code>apply_passive(self, fighter: BaseFighter) -&gt; None</code> (ajustement de statistiques au début du match)</li>
-<li><code>on_damage_received(self, incoming_damage: int, current_hp: int) -&gt; int</code> (altération des dégâts subis)</li>
-<li><code>on_turn_end(self, fighter: BaseFighter) -&gt; None</code> (effets de régénération en fin de tour)</li>
-</ul></li>
-<li>Implémenter obligatoirement 4 objets concrets :
+<section id="module-4-analyseur-de-synergie-déquipe-obligatoire-groupes-de-4-bonus-groupes-de-3" class="level2">
+<h2 class="anchored" data-anchor-id="module-4-analyseur-de-synergie-déquipe-obligatoire-groupes-de-4-bonus-groupes-de-3">Module 4 : Analyseur de Synergie d’Équipe (Obligatoire Groupes de 4 / Bonus Groupes de 3)</h2>
+<p>Outil décisionnel analysant un trio de combattants <span class="math inline">\(E = \{C_1, C_2, C_3\}\)</span> :</p>
 <ol type="1">
-<li><em>Ceinture Force</em> : si <span class="math inline">\(\text{PV} = \text{PV}_{\max}\)</span> et que les dégâts entrants sont mortels, laisse le combattant à <span class="math inline">\(\text{PV} = 1\)</span> (usage unique par match).</li>
-<li><em>Baie Sitrus</em> : dès que <span class="math inline">\(\text{PV} \le 0{,}5 \times \text{PV}_{\max}\)</span>, rend immédiatement <span class="math inline">\(\lfloor 0{,}25 \times \text{PV}_{\max} \rfloor\)</span> PV (consommable, usage unique).</li>
-<li><em>Orbe Vie</em> : augmente les dégâts infligés par le porteur de 30 %, mais lui retire <span class="math inline">\(\lfloor 0{,}10 \times \text{PV}_{\max} \rfloor\)</span> PV après chaque frappe assénée.</li>
-<li><em>Restes</em> : régénère <span class="math inline">\(\lfloor \frac{\text{PV}_{\max}}{16} \rfloor\)</span> PV à la fin de chaque tour.</li>
-</ol></li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Vérifier que la Ceinture Force s’active bien sur une frappe létale si les PV sont pleins, mais pas si le combattant a déjà subi des dégâts préalables.</li>
-<li>Vérifier que la Baie Sitrus ne s’active pas au-dessus du seuil de 50 % de PV.</li>
-<li>Contrôler le bon calcul des dégâts de contrecoup de l’Orbe Vie.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Menus déroulants permettant d’équiper un objet sur le combattant <span class="math inline">\(A\)</span> et/ou <span class="math inline">\(B\)</span>, et affichage du delta de winrate (+X %) induit par chaque objet.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" class="level3" data-number="7.0.2">
-<h3 data-number="7.0.2" class="anchored" data-anchor-id="extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team"><span class="header-section-number">7.0.2</span> Extension 2 : Combats d’Équipes 3 contre 3 avec Relais (Tag-Team)</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Modéliser un format de match en relais et déterminer si l’ordre d’entrée en piste (<em>lead</em>) influence statistiquement la victoire finale.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Créer une classe <code>Team</code> dans <code>src/pyarena/extensions/teams.py</code> gérant une file ordonnée de 3 combattants.</li>
-<li>Créer une classe <code>TeamBattle</code> : les premiers combattants de chaque équipe s’affrontent. Dès qu’un combattant tombe K.-O., le suivant dans la file entre immédiatement dans l’arène. Le combattant adverse conserve ses PV entamés (pas de régénération entre les duels).</li>
-<li>Condition de fin : la confrontation s’arrête dès que les 3 membres d’une équipe sont tous K.-O.</li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Vérifier le passage automatique au combattant numéro 2 lors du premier K.-O.</li>
-<li>Vérifier que le combattant restant conserve exactement ses PV résiduels à l’entrée du combattant adverse suivant.</li>
-<li>Valider l’arrêt de la partie au troisième K.-O.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Sélecteur de 3 combattants par équipe, affichage dynamique des 6 jauges de santé et comparaison graphique du winrate selon que l’on inverse l’ordre d’apparition des membres d’une équipe.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-3-matrice-complète-de-méta-jeu-en-round-robin" class="level3" data-number="7.0.3">
-<h3 data-number="7.0.3" class="anchored" data-anchor-id="extension-3-matrice-complète-de-méta-jeu-en-round-robin"><span class="header-section-number">7.0.3</span> Extension 3 : Matrice Complète de Méta-Jeu en Round-Robin</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Identifier si un panel de combattants présente des relations circulaires intransitives (type « Pierre-Feuille-Ciseaux ») ou s’il existe une créature dominante dans tous les cas de figure.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Créer un module <code>src/pyarena/extensions/round_robin.py</code>.</li>
-<li>Isoler une sélection fixe de 10 combattants représentatifs aux types élémentaires variés.</li>
-<li>Automatiser le calcul des duels croisés : <span class="math inline">\(\frac{10 \times 9}{2} = 45\)</span> confrontations distinctes, chacune simulée sur <span class="math inline">\(N = 1\,500\)</span> itérations parallélisées.</li>
-<li>Construire la matrice d’adjacence <span class="math inline">\(10 \times 10\)</span> où la cellule <span class="math inline">\((i, j)\)</span> consigne l’estimation ponctuelle <span class="math inline">\(\hat{p}(C_i \text{ bat } C_j)\)</span>.</li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Vérifier les propriétés de cohérence de la matrice : <span class="math inline">\(M_{i,i} = 0{,}5\)</span> et pour tout <span class="math inline">\(i \neq j\)</span>, <span class="math inline">\(M_{i,j} + M_{j,i} = 1{,}0\)</span> (à tolérance machine près).</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Heatmap interactive Plotly de la matrice <span class="math inline">\(10 \times 10\)</span>, accompagnée du tableau récapitulatif classant les 10 combattants selon leur score moyen cumulé.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-4-choix-stratégique-dattaques-précision-vs-puissance" class="level3" data-number="7.0.4">
-<h3 data-number="7.0.4" class="anchored" data-anchor-id="extension-4-choix-stratégique-dattaques-précision-vs-puissance"><span class="header-section-number">7.0.4</span> Extension 4 : Choix Stratégique d’Attaques (Précision vs Puissance)</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Comparer la fiabilité d’une stratégie de jeu prudente (dégâts modérés constants) face à une stratégie agressive reposant sur des attaques puissantes mais imprécises.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Modifier la classe <code>Fighter</code> dans <code>src/pyarena/extensions/moves.py</code> pour lui conférer deux capacités :
-<ol type="1">
-<li><em>Frappe Sûre</em> : Puissance <span class="math inline">\(P = 40\)</span>, Précision <span class="math inline">\(\alpha = 1{,}00\)</span> (réussite garantie).</li>
-<li><em>Frappe Risquée</em> : Puissance <span class="math inline">\(P = 85\)</span>, Précision <span class="math inline">\(\alpha = 0{,}65\)</span> (35 % de chances d’échouer complètement et de n’infliger aucun dégât).</li>
-</ol></li>
-<li>Implémenter 3 règles de décision sélectionnables pour l’attaquant :
-<ul>
-<li><em>Stratégie Prudente</em> : utilise systématiquement la Frappe Sûre.</li>
-<li><em>Stratégie Agressive</em> : utilise systématiquement la Frappe Risquée.</li>
-<li><em>Stratégie Gloutonne (Espérance)</em> : calcule à chaque tour les dégâts moyens espérés de chaque coup <span class="math inline">\(\mathbb{E}[\text{Dégâts}] = \alpha \times \text{Dégâts}\)</span> et choisit la frappe qui maximise ce gain immédiat.</li>
-</ul></li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Valider sur 10 000 lancers simulés que la fréquence d’échec de la Frappe Risquée est bien conforme à <span class="math inline">\(0{,}35 \pm 0{,}015\)</span>.</li>
-<li>Vérifier qu’une attaque ratée n’inflige aucun dégât et ne déclenche aucun coup critique.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Interface permettant d’assigner une stratégie à chaque joueur et affichage superposé des distributions de victoires obtenues.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-5-système-stochastique-daltérations-détat" class="level3" data-number="7.0.5">
-<h3 data-number="7.0.5" class="anchored" data-anchor-id="extension-5-système-stochastique-daltérations-détat"><span class="header-section-number">7.0.5</span> Extension 5 : Système Stochastique d’Altérations d’État</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Mesurer à quel point des altérations de statut infligées aléatoirement peuvent déstabiliser un duel et prolonger la durée des matchs.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Définir une énumération <code>Status(Enum)</code> dans <code>src/pyarena/extensions/statuses.py</code> : <code>NONE</code>, <code>PARALYSIS</code>, <code>BURN</code>.</li>
-<li>Chaque coup porté a une probabilité <span class="math inline">\(p = 0{,}15\)</span> d’induire une altération d’état sur la cible (si elle est indemne) :
-<ul>
-<li><em>Paralysie</em> : divise définitivement la statistique de vitesse par deux (<span class="math inline">\(V \leftarrow \lfloor V / 2 \rfloor\)</span>). De plus, au début de chaque tour, le combattant a 25 % de chances d’être tétanisé et d’annuler son attaque.</li>
-<li><em>Brûlure</em> : divise l’Attaque par deux (<span class="math inline">\(A \leftarrow \lfloor A / 2 \rfloor\)</span>). À la fin de chaque tour, le porteur perd <span class="math inline">\(\lfloor \frac{\text{PV}_{\max}}{16} \rfloor\)</span> PV résiduels.</li>
-</ul></li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Vérifier que la vitesse ou l’attaque est effectivement divisée par deux lors de l’application du statut.</li>
-<li>Valider la non-cumulabilité des statuts majeurs : une entité déjà paralysée ne peut pas être brûlée.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Visualisation par histogrammes Plotly comparant l’espérance et la variance du nombre de tours jusqu’au K.-O. avec et sans altérations de statut.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-6-gestion-des-points-de-compétence-pp-et-action-lutte" class="level3" data-number="7.0.6">
-<h3 data-number="7.0.6" class="anchored" data-anchor-id="extension-6-gestion-des-points-de-compétence-pp-et-action-lutte"><span class="header-section-number">7.0.6</span> Extension 6 : Gestion des Points de Compétence (PP) et Action Lutte</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Introduire la gestion des ressources en combat d’usure en limitant le nombre de frappes puissantes disponibles avant le recours à l’action de secours.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Créer une classe <code>Move</code> dans <code>src/pyarena/extensions/skills.py</code> associant une puissance, un type et un capital de Points de Puissance (PP).</li>
-<li>Doter chaque combattant de deux capacités :
-<ol type="1">
-<li><em>Capacité Majeure</em> : Puissance <span class="math inline">\(P = 75\)</span>, mais limitée à <span class="math inline">\(\text{PP}_{\max} = 5\)</span> utilisations.</li>
-<li><em>Capacité Standard</em> : Puissance <span class="math inline">\(P = 45\)</span>, dotée de <span class="math inline">\(\text{PP}_{\max} = 15\)</span> utilisations.</li>
-</ol></li>
-<li>Le combattant consomme en priorité sa capacité majeure, puis sa capacité standard lorsque les PP sont épuisés.</li>
-<li>Dès que le stock total de PP tombe à 0, le combattant est contraint d’utiliser l’action par défaut <em>Lutte</em> : puissance fixe <span class="math inline">\(P = 50\)</span>, et subit en contrecoup immédiat une perte de PV égale à <span class="math inline">\(\lfloor 0{,}25 \times \text{Dégâts infligés} \rfloor\)</span>.</li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Vérifier la décrémentation stricte des compteurs de PP à chaque utilisation.</li>
-<li>Valider le basculement forcé vers l’action Lutte dès que l’ensemble des PP est épuisé.</li>
-<li>Contrôler le calcul arithmétique de la perte de points de vie par contrecoup.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Jauges visuelles d’épuisement des réserves de PP en temps réel et suivi statistique de la fréquence d’apparition du mode Lutte lors des matchs longs.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-7-accélération-vectorisée-et-profilage-numérique" class="level3" data-number="7.0.7">
-<h3 data-number="7.0.7" class="anchored" data-anchor-id="extension-7-accélération-vectorisée-et-profilage-numérique"><span class="header-section-number">7.0.7</span> Extension 7 : Accélération Vectorisée et Profilage Numérique</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Identifier les goulots d’étranglement de l’implémentation objet en temps d’exécution et proposer une réécriture mathématique vectorisée pour traiter de très gros volumes de simulations.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Profiler l’exécution de 10 000 combats en Python objet standard avec le module <code>cProfile</code> pour chiffrer le temps passé dans chaque méthode.</li>
-<li>Concevoir dans <code>src/pyarena/extensions/fast_sim.py</code> une version optimisée de la boucle de combat :
-<ul>
-<li>Les entités sont représentées par de simples tableaux NumPy 1D d’entiers et de flottants au lieu d’instances de classes complexes.</li>
-<li>Utilisation de générateurs de nombres aléatoires vectorisés (<code>numpy.random.default_rng</code>) ou de fonctions compilées avec le décorateur <code>@njit</code> de <strong>Numba</strong>.</li>
-</ul></li>
-<li>Construire un banc d’essai comparant rigoureusement le temps d’exécution sur des tailles d’échantillons <span class="math inline">\(N \in [10^2, 10^5]\)</span>.</li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Test de conformité statistique validant que la fonction rapide et la version orientée objet produisent des winrates identiques à tolérance d’échantillonnage près.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Graphique interactif du facteur d’accélération (<em>speedup</em> = <span class="math inline">\(\frac{T_{\text{objet}}}{T_{\text{optimisé}}}\)</span>) affiché sur le dashboard en fonction du volume de simulations <span class="math inline">\(N\)</span>.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule" class="level3" data-number="7.0.8">
-<h3 data-number="7.0.8" class="anchored" data-anchor-id="extension-8-système-dynamique-de-niveaux-et-courbe-de-bascule"><span class="header-section-number">7.0.8</span> Extension 8 : Système Dynamique de Niveaux et Courbe de Bascule</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Déterminer précisément à partir de quel différentiel de niveau un combattant intrinsèquement défavorisé (statistiques faibles ou type élémentaire désavantageux) parvient à renverser les probabilités face à un adversaire supérieur.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Créer un module <code>src/pyarena/extensions/levels.py</code> permettant d’instancier un combattant à un niveau arbitraire <span class="math inline">\(L \in [\![1, 100]\!]\)</span>.</li>
-<li>Implémenter le recalcul dynamique des caractéristiques selon les formules officielles : <span class="math display">\[\text{PV}(L) = \left\lfloor \frac{2 \times \text{PV}_{\text{base}} \times L}{100} \right\rfloor + L + 10\]</span> <span class="math display">\[\text{Stat}(L) = \left\lfloor \frac{2 \times \text{Stat}_{\text{base}} \times L}{100} \right\rfloor + 5 \quad (\text{pour } A, D, V)\]</span></li>
-<li>Implémenter une fonction de balayage <code>find_turnover_level(f1, f2_lvl50, step=5)</code> qui évalue le winrate de <span class="math inline">\(C_1\)</span> pour des niveaux progressifs <span class="math inline">\(L \in \{5, 10, 15, \dots, 100\}\)</span> face à un adversaire fixé au niveau 50.</li>
-<li>Déterminer le <em>Niveau Critique</em> <span class="math inline">\(L^*\)</span> correspondant au premier niveau où <span class="math inline">\(\hat{p}(L^*) \ge 0{,}50\)</span>.</li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Valider l’exactitude numérique des statistiques calculées aux niveaux bornes <span class="math inline">\(L=1\)</span>, <span class="math inline">\(L=50\)</span> et <span class="math inline">\(L=100\)</span> à partir de valeurs de test vérifiées.</li>
-<li>Vérifier que les statistiques sont des fonctions strictement croissantes du niveau <span class="math inline">\(L\)</span>.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Curseur de niveau dynamique et courbe Plotly de la fonction de winrate <span class="math inline">\(L \mapsto \hat{p}(L)\)</span> avec mise en évidence du seuil de bascule <span class="math inline">\(L^*\)</span>.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-9-la-route-des-champions-occitanie---progression-sous-contrainte" class="level3" data-number="7.0.9">
-<h3 data-number="7.0.9" class="anchored" data-anchor-id="extension-9-la-route-des-champions-occitanie---progression-sous-contrainte"><span class="header-section-number">7.0.9</span> Extension 9 : La Route des Champions (Occitanie - Progression sous Contrainte)</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Modéliser la tournée géographique d’un dresseur devant défier les arènes régionales dans un ordre de difficulté croissant, et mesurer le surcoût kilométrique imposé par cette progression par rapport à un itinéraire géographiquement direct.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Exploiter le fichier <code>data/arenes_occitanie.geojson</code> contenant les coordonnées géographiques et les niveaux de difficulté des arènes régionales (échelonnés du niveau 15 au niveau 60).</li>
-<li>Dans <code>src/pyarena/extensions/routing.py</code>, implémenter le calcul de la distance géodésique de Haversine entre deux coordonnées <span class="math inline">\((\text{lat}, \text{lon})\)</span> : <span class="math display">\[d = 2 R \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta \varphi}{2}\right) + \cos(\varphi_1)\cos(\varphi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)}\right) \quad \text{avec } R = 6\,371\text{ km}\]</span></li>
-<li>Calculer et comparer deux itinéraires partant de Montpellier :
-<ol type="1">
-<li><em>L’Itinéraire des Champions</em> : visite obligatoire des arènes triées par ordre de niveau croissant.</li>
-<li><em>L’Itinéraire Naïf le Plus Proche</em> : visite séquentielle selon la règle gloutonne du point géographiquement le plus proche sans tenir compte du niveau.</li>
-</ol></li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Vérifier que la distance de Haversine entre deux points identiques est nulle, et conforme aux distances réelles interurbaines connues (ex. Montpellier–Nîmes <span class="math inline">\(\approx 45-55\)</span> km à vol d’oiseau).</li>
-<li>Valider que chaque ville de la sélection est visitée exactement une fois dans les deux parcours.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong> Tracé comparatif des deux tracés sur la carte interactive Folium (<code>folium.PolyLine</code> de couleurs distinctes) et affichage métrique de l’écart kilométrique induit par la contrainte de niveau.</li>
-</ul>
-<hr>
-</section>
-<section id="extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif" class="level3" data-number="7.0.10">
-<h3 data-number="7.0.10" class="anchored" data-anchor-id="extension-10-reconstitution-pas-à-pas-et-export-de-combat-replay-interactif"><span class="header-section-number">7.0.10</span> Extension 10 : Reconstitution Pas-à-Pas et Export de Combat (Replay Interactif)</h3>
-<ul>
-<li><strong>Problématique jeu :</strong> Permettre l’enregistrement, l’exportation et le visionnage interactif tour par tour d’un match stochastique remarquable sans recalculer la simulation.</li>
-<li><strong>Spécifications logicielles :</strong>
-<ul>
-<li>Concevoir dans <code>src/pyarena/extensions/replayer.py</code> une structure d’enregistrement capturant l’ensemble des événements du match dans une structure tabulaire ou une liste de dictionnaires : <code>{"tour": i, "attaquant": str, "cible": str, "degats": int, "critique": bool, "pv_restants_cible": int}</code>.</li>
-<li>Implémenter deux fonctions d’entrée/sortie :
-<ul>
-<li><code>export_match_json(battle_log, filepath: str) -&gt; None</code> : sauvegarde du journal au format JSON.</li>
-<li><code>load_match_json(filepath: str) -&gt; list[dict]</code> : chargement et validation du schéma d’un journal sauvegardé.</li>
-</ul></li>
-</ul></li>
-<li><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong>
-<ul>
-<li>Vérifier que l’export puis le rechargement d’un match redonnent exactement la même séquence de valeurs (test d’aller-retour / sérialisation).</li>
-<li>Vérifier que le journal consigne bien une décroissance monotone des PV de la cible et s’arrête exactement au tour où une entité atteint 0 PV.</li>
-</ul></li>
-<li><strong>Intégration Streamlit :</strong>
-<ul>
-<li>Composant de téléversement (<code>st.file_uploader</code>) permettant de charger un match sauvegardé au format JSON.</li>
-<li>Lecteur interactif avec curseur temporel et boutons de navigation (<em>« Tour Précédent »</em> / <em>« Tour Suivant »</em>).</li>
-<li>Barres de santé animées changeant de couleur selon l’état du combattant (vert <span class="math inline">\(&gt;50\%\)</span>, orange <span class="math inline">\(20-50\%\)</span>, rouge <span class="math inline">\(&lt;20\%\)</span>) et boîte de dialogue commentant l’action du tour sélectionné.</li>
-</ul></li>
-</ul>
-<hr>
-</section>
-</section>
-<section id="politique-de-bonus-valorisation-du-dépassement-technique" class="level1" data-number="8">
-<h1 data-number="8"><span class="header-section-number">8</span> Politique de Bonus (Valorisation du Dépassement Technique)</h1>
-<p>Afin d’encourager la curiosité, l’approfondissement algorithmique et les initiatives personnelles, un système de <strong>points de bonus</strong> est prévu.</p>
-<section id="modalités-dattribution" class="level2" data-number="8.1">
-<h2 data-number="8.1" class="anchored" data-anchor-id="modalités-dattribution"><span class="header-section-number">8.1</span> Modalités d’Attribution</h2>
-<ul>
-<li><strong>Plafond strict :</strong> Les bonus peuvent rapporter jusqu’à <strong>+2 points</strong> sur la Note Technique de Code (la note finale restant plafonnée à 20/20).</li>
-<li><strong>Condition impérative d’éligibilité :</strong> Les points de bonus ne sont comptabilisés que si le <strong>socle commun obligatoire</strong> (POO, packaging, tests unitaires avec couverture <span class="math inline">\(\ge 70\%\)</span>, intégration continue GitHub Actions et dashboard) et <strong>l’extension attribuée</strong> sont intégralement fonctionnels et exempts de régression le jour du rendu.</li>
-<li><strong>Documentation obligatoire :</strong> Tout ajout faisant l’objet d’une demande de bonus doit être explicitement répertorié dans une section dédiée du fichier <code>README.md</code> intitulée <code>## Fonctionnalités Bonus Implémentées</code>.</li>
-</ul>
-</section>
-<section id="exemples-dinitiatives-reconnues-pour-le-bonus" class="level2" data-number="8.2">
-<h2 data-number="8.2" class="anchored" data-anchor-id="exemples-dinitiatives-reconnues-pour-le-bonus"><span class="header-section-number">8.2</span> Exemples d’Initiatives Reconnues pour le Bonus</h2>
-<ol type="1">
-<li><strong>Prise en compte du double type élémentaire (+0,75 pt) :</strong> Intégrer le fait que certaines créatures possèdent deux types combinés (ex. Feu/Vol ou Eau/Sol). Adapter le calcul de dégâts pour multiplier les coefficients d’affinité élémentaire issus des deux types, autorisant des multiplicateurs de dégâts cumulés de <span class="math inline">\(\times 4\)</span> ou de <span class="math inline">\(\times 0{,}25\)</span>.</li>
-<li><strong>Matrice officielle complète des 18 types (+0,5 pt) :</strong> Remplacer la matrice simplifiée des éléments par l’ingestion et la gestion rigoureuse de la table officielle complète des 18 types (incluant Spectre, Dragon, Acier, Fée…), avec gestion des immunités strictes (multiplicateur <span class="math inline">\(\times 0{,}0\)</span>).</li>
-<li><strong>Arbre de décision tactique (Minimax élémentaire à 2 tours) (+1 pt) :</strong> Pour les extensions impliquant des choix d’actions multiples (Extensions 2 ou 4), concevoir un agent évaluant l’arbre des états possibles à horizon 2 tours afin de sélectionner l’action minimisant la perte maximale de PV face au contre adverse.</li>
-<li><strong>Intégration multimédia officielle (Audio &amp; Thèmes) (+0,5 pt) :</strong> Exploiter les champs audio disponibles sur l’API pour jouer les cris officiels des combattants (format OGG/MP3 via <code>st.audio</code>) lors du K.-O. ou de l’entrée dans l’arène, et habiller l’application Streamlit d’une charte graphique soignée.</li>
-<li><strong>Déploiement public sur le Cloud (+0,5 pt) :</strong> Déployer l’application Streamlit sur l’infrastructure gratuite <em>Streamlit Community Cloud</em> et fournir l’URL publique active directement dans l’en-tête du fichier <code>README.md</code>.</li>
+<li><strong>Bilan des Vulnérabilités Défensives :</strong><br>
+Pour chacun des 18 types <span class="math inline">\(t \in \mathcal{T}\)</span>, calcule combien de membres subissent des dégâts critiques (<span class="math inline">\(M_{\text{total}} \ge 2{,}0\)</span>). Alerte visuelle rouge si <span class="math inline">\(\ge 2\)</span> membres partagent la même faiblesse.</li>
+<li><strong>Couverture Offensive Globale :</strong><br>
+Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span class="math inline">\(M &gt; 1{,}0\)</span>) par au moins un membre : <span class="math display">\[\text{Taux de Couverture} = \frac{\sum_{t \in \mathcal{T}} \mathbb{I}_{\{\exists C \in E \,:\, M(T_1(C), t) &gt; 1{,}0\}}}{18} \times 100\]</span> Visualisation sous forme de diagramme radar Plotly.</li>
 </ol>
 <hr>
 </section>
 </section>
-<section id="travail-collaboratif-gestion-de-version-et-intégrité" class="level1" data-number="9">
-<h1 data-number="9"><span class="header-section-number">9</span> Travail Collaboratif, Gestion de Version et Intégrité</h1>
-<section id="bonnes-pratiques-git-imposées" class="level2" data-number="9.1">
-<h2 data-number="9.1" class="anchored" data-anchor-id="bonnes-pratiques-git-imposées"><span class="header-section-number">9.1</span> Bonnes Pratiques Git Imposées</h2>
-<ol type="1">
-<li><strong>Protection absolue de la branche <code>main</code> :</strong> Aucun push direct n’est toléré sur <code>main</code>.</li>
-<li><strong>Workflow par branches et Pull Requests :</strong> Toute nouvelle brique ou correction d’anomalie fait l’objet d’une branche distincte (ex. : <code>feat/models-validation</code>, <code>fix/crit-calc</code>), soumise à validation par une Pull Request relue par un autre membre du groupe.</li>
-<li><strong>Atomicité des commits :</strong> Les commits doivent être ciblés et porter un message explicite respectant la convention standard (<code>feat: ...</code>, <code>fix: ...</code>, <code>test: ...</code>).</li>
-</ol>
+<section id="spécifications-exhaustives-des-10-extensions-thématiques" class="level1">
+<h1>Spécifications Exhaustives des 10 Extensions Thématiques</h1>
+<p>Chaque équipe de projet implémente <strong>une seule extension exclusive</strong> parmi les dix présentées ci-après.</p>
+<section id="cadre-technique-commun-et-équité" class="level3">
+<h3 class="anchored" data-anchor-id="cadre-technique-commun-et-équité">Cadre Technique Commun et Équité</h3>
+<p>Toutes les extensions ont été calibrées pour mobiliser une charge de travail strictement homogène:</p>
+<ul>
+<li><strong>Développement métier :</strong> Lignes de code Python réparties dans un module dédié sous <code>src/pyarena/extensions/</code>.</li>
+<li><strong>Assurance qualité :</strong> Une suite de tests unitaires stricts dans <code>tests/test_extension.py</code> couvrant les propriétés nominales, les cas aux limites et les propriétés algébriques ou statistiques.</li>
+<li><strong>Restitution décisionnelle :</strong> Un volet dédié dans Streamlit articulant une <strong>Vue Macro</strong> (agrégation statistique sur <span class="math inline">\(N = 5\,000\)</span> duels) ou/et une <strong>Vue Micro</strong> (télémétrie d’un combat singulier avec graine fixée).</li>
+</ul>
+<hr>
 </section>
-<section id="document-contractuel-contributions.md" class="level2" data-number="9.2">
-<h2 data-number="9.2" class="anchored" data-anchor-id="document-contractuel-contributions.md"><span class="header-section-number">9.2</span> Document Contractuel : <code>CONTRIBUTIONS.md</code></h2>
-<p>À la racine du dépôt, le fichier <code>CONTRIBUTIONS.md</code> doit consigner précisément l’investissement effectif de chaque membre selon le tableau type :</p>
+<section id="extension-1-objets-passifs-et-équipements-stratégiques" class="level3">
+<h3 class="anchored" data-anchor-id="extension-1-objets-passifs-et-équipements-stratégiques">Extension 1 : Objets Passifs et Équipements Stratégiques</h3>
+<ul>
+<li><p><strong>Fichier source :</strong> <code>src/pyarena/extensions/items.py</code></p></li>
+<li><p><strong>Problématique décisionnelle :</strong> Modéliser l’impact d’équipements passifs sur le rééquilibrage de duels asymétriques et quantifier leur capacité à neutraliser un désavantage de statistiques ou d’affinité élémentaire.</p></li>
+<li><p><strong>Spécifications logicielles et POO :</strong></p>
+<ul>
+<li><p>Concevoir une classe abstraite <code>BaseItem(ABC)</code> dotée par exemple de trois méthodes polymorphiques:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaseItem(ABC):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> apply_passive(<span class="va">self</span>, fighter: BaseFighter) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Ajuste les attributs initiaux du combattant en début de duel."""</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_damage_received(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>, incoming_damage: <span class="bu">int</span>, current_hp: <span class="bu">int</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Intercepte et modifie les dégâts subis avant leur déduction."""</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_turn_end(<span class="va">self</span>, fighter: BaseFighter) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Exécute les effets séquentiels en clôture de tour (soin, contrecoup)."""</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Implémenter obligatoirement au moins quatre classes concrètes d’objets:</p>
+<ol type="1">
+<li><code>FocusSash</code> (<em>Ceinture Force</em>) : Si <span class="math inline">\(\text{PV} = \text{PV}_{\max}\)</span> et que <span class="math inline">\(\text{Dégâts} \ge \text{PV}\)</span>, les dégâts entrants sont plafonnés à <span class="math inline">\(\text{PV}_{\max} - 1\)</span>, laissant le porteur à <span class="math inline">\(\text{PV} = 1\)</span>. Possède un attribut d’état <code>is_consumed: bool = False</code> qui bascule à <code>True</code> dès l’activation. L’objet devient inopérant pour le reste du match.</li>
+<li><code>SitrusBerry</code> (<em>Baie Sitrus</em>) : Possède l’attribut <code>is_consumed: bool = False</code>. Dès que <span class="math inline">\(\text{PV} \le \lfloor 0{,}50 \times \text{PV}_{\max} \rfloor\)</span>, restitue immédiatement <span class="math inline">\(\lfloor 0{,}25 \times \text{PV}_{\max} \rfloor\)</span> PV. Le soin est plafonné à <span class="math inline">\(\text{PV}_{\max}\)</span>. L’objet bascule à <code>is_consumed = True</code> et ne peut plus se déclencher.</li>
+<li><code>LifeOrb</code> (<em>Orbe Vie</em>) : Applique un multiplicateur fixe de <span class="math inline">\(\times 1{,}30\)</span> sur l’ensemble des dégâts physiques infligés par le porteur. En contrepartie, après chaque frappe assénée, le porteur subit un contrecoup de <span class="math inline">\(\lfloor 0{,}10 \times \text{PV}_{\max} \rfloor\)</span> PV. Ce recul peut conduire au K.-O. du lanceur.</li>
+<li><code>Leftovers</code> (<em>Restes</em>) : Dans la méthode <code>on_turn_end</code>, régénère <span class="math inline">\(\lfloor \frac{\text{PV}_{\max}}{16} \rfloor\)</span> PV à la clôture de chaque tour, plafonné à <span class="math inline">\(\text{PV}_{\max}\)</span>.</li>
+</ol></li>
+</ul></li>
+<li><p><strong>Cas aux limites et règles de gestion :</strong></p>
+<ul>
+<li>Si un combattant équipé de la <em>Ceinture Force</em> subit une attaque fatale alors qu’il a déjà perdu au moins 1 PV (<span class="math inline">\(\text{PV} &lt; \text{PV}_{\max}\)</span>), la protection échoue et l’entité tombe K.-O.</li>
+<li>Si l’activation de l’<em>Orbe Vie</em> met le défenseur et l’attaquant à 0 PV sur le même tour, l’attaquant est déclaré vainqueur (les dégâts sont appliqués avant le contrecoup).</li>
+</ul></li>
+<li><p><strong>Tests unitaires obligatoires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li><code>test_focus_sash_full_hp</code> : Valider la survie à 1 PV lors d’une attaque mortelle à PV pleins[cite: 1].</li>
+<li><code>test_focus_sash_damaged</code> : Valider l’inactivité de la Ceinture Force si <span class="math inline">\(\text{PV}_{\text{initial}} = \text{PV}_{\max} - 1\)</span>.</li>
+<li><code>test_sitrus_berry_threshold_and_consumption</code> : Vérifier que le soin ne s’active pas à <span class="math inline">\(51\%\)</span> de PV, se déclenche à <span class="math inline">\(50\%\)</span>, et ne se répète jamais une seconde fois.</li>
+<li><code>test_life_orb_recoil_ko</code> : Vérifier la majoration arithmétique de <span class="math inline">\(30\%\)</span> des dégâts et la possibilité de mourir du contrecoup.</li>
+<li><code>test_leftovers_cap</code> : Vérifier que les Restes ne permettent aucun dépassement de <span class="math inline">\(\text{PV}_{\max}\)</span>.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Macro :</em> Heatmap Plotly <span class="math inline">\(5 \times 5\)</span> affichant la matrice du delta de winrate <span class="math inline">\(\Delta \hat{p} = \hat{p}_{\text{équipé}} - \hat{p}_{\text{sans}}\)</span> pour chaque combinaison d’objets sur un duel de référence.</li>
+<li><em>Vue Micro :</em> Télémétrie d’un match témoin avec mise en avant graphique des activations d’objets (pastilles vertes de régénération, bouclier doré pour la Ceinture Force).</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team" class="level3">
+<h3 class="anchored" data-anchor-id="extension-2-combats-déquipes-3-contre-3-avec-relais-tag-team">Extension 2 : Combats d’Équipes 3 contre 3 avec Relais (Tag-Team)</h3>
+<ul>
+<li><p><strong>Fichier source :</strong> <code>src/pyarena/extensions/teams.py</code></p></li>
+<li><p><strong>Problématique décisionnelle :</strong> Modéliser une confrontation séquentielle par équipes et déterminer l’ordonnancement d’alignement optimal (<em>matchup sequencing</em>) face à une composition adverse donnée.</p></li>
+<li><p><strong>Spécifications logicielles et POO :</strong></p>
+<ul>
+<li><p>Concevoir une classe <code>Team</code> encapsulant une file (FIFO) de trois instances concrètes de <code>BaseFighter</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Team:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, fighters: <span class="bu">list</span>[BaseFighter]):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(fighters) <span class="op">!=</span> <span class="dv">3</span>:</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Une équipe doit comporter exactement 3 combattants."</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._queue: <span class="bu">list</span>[BaseFighter] <span class="op">=</span> <span class="bu">list</span>(fighters)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_active(<span class="va">self</span>) <span class="op">-&gt;</span> BaseFighter:</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._queue[<span class="dv">0</span>]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> pop_defeated(<span class="va">self</span>) <span class="op">-&gt;</span> BaseFighter:</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._queue.pop(<span class="dv">0</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> is_defeated(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>._queue) <span class="op">==</span> <span class="dv">0</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Concevoir une classe <code>TeamBattle</code> orchestrant la rencontre:</p>
+<ul>
+<li>Les combattants en tête de file débutent le combat.</li>
+<li>Dès qu’un combattant actif est K.-O., il est retiré de la file. Le combattant suivant entre immédiatement dans l’arène avec ses PV pleins face à l’adversaire survivant.</li>
+<li>Le combattant survivant conserve scrupuleusement ses points de vie résiduels (aucune réinitialisation entre les duels).</li>
+<li>Condition de victoire : l’affrontement cesse dès que l’une des deux équipes a ses 3 membres K.-O.</li>
+</ul></li>
+<li><p>Fonction d’optimisation d’ordre d’alignement :</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_team_order(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    my_team: <span class="bu">list</span>[BaseFighter],</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    opponent_team: <span class="bu">list</span>[BaseFighter],</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    n_simulations: <span class="bu">int</span> <span class="op">=</span> <span class="dv">1000</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">dict</span>[<span class="bu">tuple</span>, <span class="bu">float</span>]:</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Évalue les 3! = 6 permutations d'alignement de my_team face à l'adversaire."""</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul></li>
+<li><p><strong>Cas aux limites et règles de gestion :</strong></p>
+<ul>
+<li>L’initiative (qui frappe en premier) est recalculée à chaque entrée d’un nouveau combattant selon la comparaison stricte des vitesses <span class="math inline">\(V\)</span>.</li>
+<li>Les statistiques modifiées en cours de duel ne se transmettent pas au combattant suivant de la file.</li>
+</ul></li>
+<li><p><strong>Tests unitaires obligatoires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li><code>test_relay_transition</code> : Vérifier que le combattant n°2 prend le relais au tour exact suivant le K.-O. du combattant n°1.</li>
+<li><code>test_hp_persistence_between_rounds</code> : Contrôler que le vainqueur d’un duel intermédiaire conserve rigoureusement ses PV entamés face au nouvel arrivant.</li>
+<li><code>test_battle_termination_at_three_ko</code> : Valider la clôture stricte du match après trois K.-O. dans la même équipe.</li>
+<li><code>test_optimization_permutations</code> : Valider que <code>optimize_team_order</code> évalue bien les 6 permutations et renvoie des probabilités comprises dans <span class="math inline">\([0, 1]\)</span>.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Macro :</em> Diagramme en barres Plotly classant les 6 permutations d’alignement possibles par winrate décroissant, mettant en valeur l’alignement optimal <span class="math inline">\(\sigma^*\)</span> et le différentiel de victoires par rapport à la pire permutation.</li>
+<li><em>Vue Micro :</em> Suivi graphique en direct des 6 jauges de santé qui diminuent de façon synchrone au fil des relais d’un match témoin.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-3-matrice-complète-de-méta-jeu-et-détection-dintransitivité" class="level3">
+<h3 class="anchored" data-anchor-id="extension-3-matrice-complète-de-méta-jeu-et-détection-dintransitivité">Extension 3 : Matrice Complète de Méta-Jeu et Détection d’Intransitivité</h3>
+<ul>
+<li><p><strong>Fichier source :</strong> <code>src/pyarena/extensions/round_robin.py</code></p></li>
+<li><p><strong>Problématique décisionnelle :</strong> Identifier l’existence de cycles d’intransitivité généralisés (équilibres de type « Pierre-Feuille-Ciseaux ») au sein d’un panel de combattants et formaliser la structure topologique du méta-jeu.</p></li>
+<li><p><strong>Spécifications logicielles et Algorithmes :</strong></p>
+<ul>
+<li><p>Isoler une liste fixe de 10 combattants représentatifs aux profils de types et de statistiques diversifiés.</p></li>
+<li><p>Orchestrer un tournoi toutes rondes (<em>Round-Robin</em>) : simuler l’ensemble des <span class="math inline">\(\frac{10 \times 9}{2} = 45\)</span> duels non redondants via le moteur Monte-Carlo (<span class="math inline">\(N = 1\,500\)</span> simulations par cellule).</p></li>
+<li><p>Construire la matrice d’adjacence stochastique <span class="math inline">\(M \in \mathbb{R}^{10 \times 10}\)</span> où <span class="math inline">\(M_{i,j} = \hat{p}(C_i \text{ bat } C_j)\)</span>.</p></li>
+<li><p><strong>Détection formelle des cycles d’intransitivité :</strong></p>
+<ul>
+<li>Soit la relation de dominance empirique : <span class="math display">\[C_i \succ C_j \iff M_{i,j} &gt; 0{,}50\]</span></li>
+<li>Parcourir l’ensemble des <span class="math inline">\(\binom{10}{3} = 120\)</span> combinaisons non ordonnées de triplets <span class="math inline">\(\{C_i, C_j, C_k\}\)</span> pour extraire la totalité des 3-cycles orientés vérifiant : <span class="math display">\[C_i \succ C_j \quad \text{et} \quad C_j \succ C_k \quad \text{et} \quad C_k \succ C_i\]</span></li>
+<li>Renvoyer les cycles détectés sous forme d’une liste de tuples de noms <code>[(str, str, str)]</code>.</li>
+</ul></li>
+</ul></li>
+<li><p><strong>Cas aux limites et règles de gestion :</strong></p>
+<ul>
+<li>Si <span class="math inline">\(M_{i,j} = 0{,}50\)</span> (égalité stochastique stricte), la relation de dominance n’est pas établie et la paire ne peut participer à aucun cycle.</li>
+</ul></li>
+<li><p><strong>Tests unitaires obligatoires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li><code>test_matrix_symmetry_properties</code> : Vérifier que <span class="math inline">\(M_{i,i} = 0{,}50\)</span> et que pour tout <span class="math inline">\(i \neq j\)</span>, <span class="math inline">\(|(M_{i,j} + M_{j,i}) - 1{,}0| &lt; 10^{-4}\)</span>.</li>
+<li><code>test_cycle_detection_synthetic</code> : Injecter une matrice <span class="math inline">\(3 \times 3\)</span> d’intransitivité pure (<span class="math inline">\(A\)</span> bat <span class="math inline">\(B\)</span> à 70 %, <span class="math inline">\(B\)</span> bat <span class="math inline">\(C\)</span> à 70 %, <span class="math inline">\(C\)</span> bat <span class="math inline">\(A\)</span> à 70 %) et valider que l’algorithme extrait exactement le cycle <span class="math inline">\((A, B, C)\)</span>.</li>
+<li><code>test_no_cycle_in_linear_hierarchy</code> : Valider que sur une matrice représentant une hiérarchie stricte (<span class="math inline">\(A \succ B \succ C\)</span> avec <span class="math inline">\(A \succ C\)</span>), aucun cycle n’est renvoyé.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Heatmap Plotly :</em> Représentation <span class="math inline">\(10 \times 10\)</span> munie d’une échelle de couleurs divergente centrée sur <span class="math inline">\(0{,}50\)</span>.</li>
+<li><em>Graphe Orienté Circulaire :</em> Affichage des 10 nœuds disposés en cercle. Pour préserver la lisibilité, le graphe n’affiche par défaut que les arêtes de forte dominance (<span class="math inline">\(\hat{p} \ge 0{,}60\)</span>).</li>
+<li><em>Sélecteur de Cycles :</em> Composant <code>st.selectbox</code> énumérant les cycles d’intransitivité détectés. Sélectionner un cycle efface les autres arêtes du graphe et illumine en rouge vif les 3 flèches du cycle avec 3 colonnes <code>st.metric</code> associées.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-4-choix-stratégique-dattaques-précision-vs-puissance" class="level3">
+<h3 class="anchored" data-anchor-id="extension-4-choix-stratégique-dattaques-précision-vs-puissance">Extension 4 : Choix Stratégique d’Attaques (Précision vs Puissance)</h3>
+<ul>
+<li><p><strong>Fichier source :</strong> <code>src/pyarena/extensions/moves.py</code></p></li>
+<li><p><strong>Problématique décisionnelle :</strong> Modéliser la prise de décision séquentielle en univers incertain en arbitrant entre rendement espéré maximal et minimisation du risque de défaillance immédiate.</p></li>
+<li><p><strong>Spécifications logicielles et Algorithmes :</strong></p>
+<ul>
+<li><p>Doter chaque combattant de deux capacités alignées sur son type principal <span class="math inline">\(T_1\)</span> :</p>
+<ol type="1">
+<li><em>Frappe Sûre</em> : Puissance <span class="math inline">\(P = 40\)</span>, Précision <span class="math inline">\(\alpha = 1{,}00\)</span> (succès garanti).</li>
+<li><em>Frappe Risquée</em> : Puissance <span class="math inline">\(P = 85\)</span>, Précision <span class="math inline">\(\alpha = 0{,}65\)</span> (35 % de chances d’échec total, infligeant 0 dégât).</li>
+</ol></li>
+<li><p>Définir trois agents décisionnels sélectionnables :</p>
+<ul>
+<li><p><code>ConservativeAgent</code> : Sélectionne systématiquement la Frappe Sûre.</p></li>
+<li><p><code>AggressiveAgent</code> : Sélectionne systématiquement la Frappe Risquée.</p></li>
+<li><p><code>OptimalExpectationAgent</code> : Calcule à chaque tour les dégâts théoriques moyens des deux options en intégrant les statistiques du défenseur et les multiplicateurs <span class="math inline">\(M_{\text{total}}\)</span>:</p>
+<p><span class="math display">\[\mathbb{E}[\text{Dégâts}_{\text{sûre}}] = 1{,}00 \times \text{Dégâts}(P=40, M_{\text{total}})\]</span> <span class="math display">\[\mathbb{E}[\text{Dégâts}_{\text{risquée}}] = 0{,}65 \times \text{Dégâts}(P=85, M_{\text{total}})\]</span> <em>Règle du Coup de Grâce :</em> Si <span class="math inline">\(\text{Dégâts}(P=40, M_{\text{total}}) \ge \text{PV}_{\text{cible}}\)</span>, l’agent choisit <strong>obligatoirement</strong> la Frappe Sûre (garantie de K.-O. à 100 % au lieu de s’exposer à 35 % d’échec). Sinon, il choisit l’option d’espérance maximale.</p></li>
+</ul></li>
+</ul></li>
+<li><p><strong>Cas aux limites et règles de gestion :</strong></p>
+<ul>
+<li>En cas d’échec d’une Frappe Risquée, aucun dégât n’est infligé, le coup critique ne peut pas être calculé et le tour de l’attaquant est consommé.</li>
+</ul></li>
+<li><p><strong>Tests unitaires obligatoires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li><code>test_risky_move_failure_rate</code> : Vérifier sur <span class="math inline">\(10\,000\)</span> itérations que le taux d’échec empirique converge vers <span class="math inline">\(0{,}35 \pm 0{,}015\)</span>.</li>
+<li><code>test_risky_move_zero_damage</code> : Valider qu’une attaque échouée maintient les PV de la cible strictement inchangés.</li>
+<li><code>test_coup_de_grace_override</code> : Vérifier formellement que l’agent par espérance bascule sur la Frappe Sûre dès que la cible est à portée de frappe certaine, même si <span class="math inline">\(\mathbb{E}[\text{Dégâts}_{\text{risquée}}] &gt; \mathbb{E}[\text{Dégâts}_{\text{sûre}}]\)</span>.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Macro :</em> Histogrammes superposés Plotly de la distribution de la durée des matchs (nombre de tours jusqu’au K.-O.) comparant les confrontations Conservateur vs Conservateur, Agressif vs Agressif et Espérance vs Agressif.</li>
+<li><em>Vue Micro :</em> Télémétrie pas-à-pas consignant la décision prise par l’agent décisionnel et la justification mathématique de son arbitrage tour par tour.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-5-système-stochastique-daltérations-détat" class="level3">
+<h3 class="anchored" data-anchor-id="extension-5-système-stochastique-daltérations-détat">Extension 5 : Système Stochastique d’Altérations d’État</h3>
+<ul>
+<li><p><strong>Problématique décisionnelle :</strong> Modéliser des “chaînes de Markov” avec états absorbants pour quantifier comment des pénalités d’état aléatoires déstabilisent l’avantage initial de vitesse et d’attaque.</p></li>
+<li><p><strong>Spécifications logicielles :</strong></p>
+<ul>
+<li><p>Définir l’énumération <code>Status(Enum)</code> dans <code>src/pyarena/extensions/statuses.py</code> : <code>NONE</code>, <code>BURN</code>, <code>PARALYSIS</code>, <code>POISON</code>.</p></li>
+<li><p>Chaque attaque réussie a <span class="math inline">\(p = 0{,}15\)</span> de chances d’induire une altération sur une cible saine, dictée par le type principal <span class="math inline">\(T_1\)</span> de l’attaquant :</p>
+<ul>
+<li><strong>Feu <span class="math inline">\(\rightarrow\)</span> Brûlure (<code>BURN</code>) :</strong> L’attaque du porteur est divisée par deux de façon permanente (<span class="math inline">\(A \leftarrow \lfloor A / 2 \rfloor\)</span>). En clôture de chaque tour, il perd <span class="math inline">\(\lfloor \text{PV}_{\max} / 16 \rfloor\)</span> PV.</li>
+<li><strong>Électrik <span class="math inline">\(\rightarrow\)</span> Paralysie (<code>PARALYSIS</code>) :</strong> La vitesse du porteur est divisée par deux de façon permanente (<span class="math inline">\(V \leftarrow \lfloor V / 2 \rfloor\)</span>). Au début de chaque tour, le porteur subit un tirage de Bernoulli <span class="math inline">\(B \sim \mathcal{B}(0{,}25)\)</span> : si <span class="math inline">\(B = 1\)</span>, le combattant est tétanisé et son tour est annulé.</li>
+<li><strong>Plante ou Poison <span class="math inline">\(\rightarrow\)</span> Poison (<code>POISON</code>) :</strong> En fin de chaque tour, le porteur perd passivement <span class="math inline">\(\lfloor \text{PV}_{\max} / 8 \rfloor\)</span> PV.</li>
+</ul></li>
+<li><p><strong>Règles d’exclusivité et de rémanence :</strong> Un combattant ne peut cumuler plusieurs statuts simultanément. Une altération persiste jusqu’au terme du duel (aucune guérison spontanée). Les combattants d’autres types n’infligent aucun statut mais peuvent les subir.</p></li>
+</ul></li>
+<li><p><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li>Vérifier la division exacte par deux de <span class="math inline">\(A\)</span> et <span class="math inline">\(V\)</span> dès l’application respective de la Brûlure et de la Paralysie.</li>
+<li>Vérifier l’immunité aux autres statuts d’un combattant déjà altéré.</li>
+<li>Valider que les dégâts de fin de tour décrémentent fidèlement les points de vie et peuvent provoquer un K.-O.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Macro :</em> Histogramme Plotly superposant la distribution de la durée des duels (nombre de tours) avec et sans statuts activés, complété par trois cartes <code>st.metric</code> affichant la probabilité de victoire globale <span class="math inline">\(\hat{p}(\text{Victoire})\)</span> et la probabilité conditionnelle <span class="math inline">\(\hat{p}(\text{Victoire} \mid \text{Statut appliqué dans les 3 premiers tours})\)</span>.</li>
+<li><em>Vue Micro :</em> Badges de statut colorés au-dessus des sprites des combattants et affichage explicite dans le journal textuel des tours annulés pour cause de paralysie.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-6-gestion-des-points-de-puissance-pp-et-action-lutte" class="level3">
+<h3 class="anchored" data-anchor-id="extension-6-gestion-des-points-de-puissance-pp-et-action-lutte">Extension 6 : Gestion des Points de Puissance (PP) et Action Lutte</h3>
+<ul>
+<li><p><strong>Problématique décisionnelle :</strong> Modéliser la dégradation des performances offensives induite par la raréfaction des ressources et analyser la dynamique de survie en combat d’usure.</p></li>
+<li><p><strong>Spécifications logicielles :</strong></p>
+<ul>
+<li><p>Concevoir une classe <code>Move</code> dans <code>src/pyarena/extensions/skills.py</code> encapsulant nom, puissance et capital de Points de Puissance (<code>pp_max</code>, <code>pp_current</code>).</p></li>
+<li><p>Doter chaque combattant de deux capacités alignées sur son type principal <span class="math inline">\(T_1\)</span> :</p>
+<ol type="1">
+<li><em>Capacité Majeure</em> : Puissance <span class="math inline">\(P = 75\)</span>, <span class="math inline">\(\text{PP}_{\max} = 5\)</span> utilisations.</li>
+<li><em>Capacité Standard</em> : Puissance <span class="math inline">\(P = 45\)</span>, <span class="math inline">\(\text{PP}_{\max} = 15\)</span> utilisations.</li>
+</ol></li>
+<li><p>Ordonnancement automatique : Le combattant consomme sa Capacité Majeure tant que <span class="math inline">\(\text{PP} \ge 1\)</span>, puis bascule sur sa Capacité Standard jusqu’à épuisement.</p></li>
+<li><p><strong>Action par défaut (<em>Lutte</em>) :</strong> Dès que le total cumulé des PP tombe à 0, le combattant exécute obligatoirement l’action <em>Lutte</em> :</p>
+<ul>
+<li>Puissance nominale <span class="math inline">\(P = 50\)</span>.</li>
+<li>Type strictement <strong>neutre</strong> : applique systématiquement <span class="math inline">\(M_{\text{total}} = 1{,}0\)</span> face à n’importe quel adversaire, ignorant faiblesses et immunités.</li>
+<li>Contrecoup immédiat : l’attaquant subit une perte de <span class="math inline">\(\lfloor 0{,}25 \times \text{Dégâts réels infligés à la cible} \rfloor\)</span> PV.</li>
+</ul></li>
+<li><p><em>Règle du double K.-O. :</em> Si Lutte met le défenseur à 0 PV mais que le contrecoup met aussi l’attaquant à 0 PV, l’attaquant est déclaré vainqueur (la cible est tombée en premier sous l’impact).</p></li>
+</ul></li>
+<li><p><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li>Vérifier la décrémentation des PP et la bascule exacte de la Capacité Majeure vers la Standard au tour 6.</li>
+<li>Valider le basculement forcé vers Lutte dès le 21ᵉ tour d’attaque du combattant.</li>
+<li>Vérifier la neutralité élémentaire stricte de Lutte face à des types présentant des immunités ou des doubles résistances.</li>
+<li>Valider que le recul retiré au lanceur correspond rigoureusement à <span class="math inline">\(25\%\)</span> des dégâts infligés.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Macro :</em> Diagramme en barres Plotly comparant le taux d’activation du mode Lutte (en %) sur un panel de 5 confrontations types (duels rapides offensifs vs duels d’usure défensifs), et graphique circulaire montrant la répartition des dégâts cumulés (Capacité Majeure vs Capacité Standard vs Recul subi).</li>
+<li><em>Vue Micro :</em> Deux jauges de progression interactives (<code>st.progress</code>) retraçant la consommation des stocks de PP pour un match témoin sélectionné.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-7-accélération-vectorisée-et-profilage-numérique-numpy-numba" class="level3">
+<h3 class="anchored" data-anchor-id="extension-7-accélération-vectorisée-et-profilage-numérique-numpy-numba">Extension 7 : Accélération Vectorisée et Profilage Numérique (NumPy / Numba)</h3>
+<ul>
+<li><p><strong>Fichier source :</strong> <code>src/pyarena/extensions/fast_sim.py</code></p></li>
+<li><p><strong>Problématique d’ingénierie logicielle :</strong> Mettre en œuvre le patron d’architecture <em>Bridge/Kernel</em> pour dépasser les verrous de performance de la POO et simuler des millions de combats à l’échelle industrielle.</p></li>
+<li><p><strong>Spécifications logicielles et Compilation JIT :</strong></p>
+<ul>
+<li><p>Profiler l’exécution de <span class="math inline">\(10\,000\)</span> combats objets standard à l’aide de <code>cProfile</code> pour quantifier le coût d’accès aux attributs et de la POO Python.</p></li>
+<li><p>Concevoir un moteur bas niveau sans objet compilé à la volée avec Numba :</p>
+<ul>
+<li><p>Projeter chaque combattant dans un tableau NumPy 1D contigu (<code>np.float64</code>): <span class="math display">\[\text{state} = [\text{PV}_{\max}, \text{PV}, A, D, V, \text{type\_id}]\]</span></p></li>
+<li><p>Encoder la table des multiplicateurs élémentaires sous forme d’une matrice NumPy 2D contiguë <code>type_matrix</code> de dimensions <span class="math inline">\(5 \times 5\)</span> (ou <span class="math inline">\(18 \times 18\)</span>).</p></li>
+<li><p>Réécrire la boucle complète de combat au sein d’une fonction numérique pure :</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(fastmath<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_battle_numba(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    s1: np.ndarray, s2: np.ndarray, type_matrix: np.ndarray, seed: <span class="bu">int</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Retourne 1 si le combattant 1 gagne, 0 sinon."""</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Écrire la fonction de simulation par lots :</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(fastmath<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_monte_carlo_numba(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    s1: np.ndarray,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    s2: np.ndarray,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    type_matrix: np.ndarray,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    n_sims: <span class="bu">int</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    base_seed: <span class="bu">int</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Exécute n_sims duels en code machine compilé et renvoie le winrate."""</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul></li>
+<li><p>Mesurer le facteur d’accélération pour des tailles d’échantillons <span class="math inline">\(N \in [10^2, 10^6]\)</span>: <span class="math display">\[\text{Speedup}(N) = \frac{T_{\text{objet}}(N)}{T_{\text{numba}}(N)}\]</span></p></li>
+</ul></li>
+<li><p><strong>Cas aux limites et règles de gestion :</strong></p>
+<ul>
+<li>La fonction Numba ne doit contenir aucun appel à des structures Python dynamiques (pas de dictionnaires, pas d’objets, pas de chaînes de caractères), sous peine d’échouer à la compilation <code>nopython mode</code>.</li>
+</ul></li>
+<li><p><strong>Tests unitaires obligatoires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li><code>test_numba_compilation_success</code> : Vérifier que la fonction compilée s’exécute sans lever de <code>TypingError</code>.</li>
+<li><code>test_statistical_equivalence</code> : Valider sur <span class="math inline">\(5\,000\)</span> itérations avec graine fixée que l’estimation du winrate produit par Numba est identique à celle du moteur objet à <span class="math inline">\(\pm 1{,}5\%\)</span> près.</li>
+<li><code>test_deterministic_behavior</code> : Vérifier que deux exécutions Numba avec la même graine renvoient le même nombre de victoires.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Performance :</em> Graphique interactif Plotly en échelle semi-logarithmique affichant les courbes de temps de calcul absolu et le facteur d’accélération résultant en fonction de <span class="math inline">\(N\)</span>.</li>
+<li><em>Vue Profilage :</em> Tableau de synthèse des métriques <code>cProfile</code> isolant le coût des allocations d’objets.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-8-modélisation-paramétrique-de-niveaux-et-détermination-de-seuil-critique" class="level3">
+<h3 class="anchored" data-anchor-id="extension-8-modélisation-paramétrique-de-niveaux-et-détermination-de-seuil-critique">Extension 8 : Modélisation Paramétrique de Niveaux et Détermination de Seuil Critique</h3>
+<ul>
+<li><p><strong>Fichier source :</strong> <code>src/pyarena/extensions/levels.py</code></p></li>
+<li><p><strong>Problématique décisionnelle :</strong> Modéliser la dynamique paramétrique des attributs et concevoir un algorithme de recherche discrète convergeant vers le point de bascule stochastique face à des profils types.</p></li>
+<li><p><strong>Spécifications logicielles et Modélisation :</strong></p>
+<ul>
+<li><p>Implémenter le recalcul des caractéristiques pour tout niveau <span class="math inline">\(L \in [\![1, 100]\!]\)</span> selon les équations officielles de Game Freak: <span class="math display">\[\text{PV}(L) = \left\lfloor \frac{2 \times \text{PV}_{\text{base}} \times L}{100} \right\rfloor + L + 10\]</span> <span class="math display">\[\text{Stat}(L) = \left\lfloor \frac{2 \times \text{Stat}_{\text{base}} \times L}{100} \right\rfloor + 5 \quad (\text{pour } A, D, V)\]</span></p></li>
+<li><p><strong>Optimisation de la recherche de racine stochastique :</strong> Soit la fonction de winrate <span class="math inline">\(L \mapsto \hat{p}(L)\)</span>, monotone croissante d’allure sigmoïde, mesurant la performance d’un combattant <span class="math inline">\(C_1(L)\)</span> face à un adversaire fixé au niveau 50 standard.<br>
+Concevoir un algorithme de recherche dichotomique discrète convergeant vers le <strong>Niveau Critique</strong> <span class="math inline">\(L^*\)</span> : <span class="math display">\[L^* = \min \{ L \in [\![1, 100]\!] \mid \hat{p}(L) \ge 0{,}50 \}\]</span> L’algorithme doit opérer en un nombre d’étapes limité au lieu de balayer séquentiellement les 100 niveaux.</p></li>
+<li><p><strong>Benchmark multi-profils :</strong> L’évaluation doit confronter <span class="math inline">\(C_1(L)\)</span> à quatre archétypes d’adversaires de niveau 50 :</p>
+<ol type="1">
+<li><em>Archétype Équilibré</em> (statistiques moyennes, type neutre).</li>
+<li><em>Archétype Tank Défensif</em> (<span class="math inline">\(\text{PV}\)</span> et <span class="math inline">\(D\)</span> très élevés).</li>
+<li><em>Archétype Attaquant Rapide</em> (<span class="math inline">\(A\)</span> et <span class="math inline">\(V\)</span> dominants).</li>
+<li><em>Archétype Défavorable</em> (adversaire bénéficiant d’un multiplicateur élémentaire <span class="math inline">\(\times 2{,}0\)</span>).</li>
+</ol></li>
+</ul></li>
+<li><p><strong>Cas aux limites et règles de gestion :</strong></p>
+<ul>
+<li>Si même au niveau <span class="math inline">\(L = 100\)</span>, le winrate reste strictement inférieur à <span class="math inline">\(0{,}50\)</span>, l’algorithme renvoie <span class="math inline">\(L^* = \text{None}\)</span> (dominance impossible).</li>
+</ul></li>
+<li><p><strong>Tests unitaires obligatoires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li><code>test_stat_scaling_exact_values</code> : Valider la conformité des statistiques calculées aux niveaux <span class="math inline">\(L=1\)</span>, <span class="math inline">\(L=50\)</span> et <span class="math inline">\(L=100\)</span> par rapport à des valeurs de contrôle calculées à la main.</li>
+<li><code>test_strict_monotonicity</code> : Vérifier que <span class="math inline">\(\text{PV}(L+1) \ge \text{PV}(L)\)</span> et <span class="math inline">\(\text{Stat}(L+1) \ge \text{Stat}(L)\)</span> pour tout <span class="math inline">\(L \in [\![1, 99]\!]\)</span>.</li>
+<li><code>test_binary_search_convergence</code> : Vérifier que la recherche dichotomique renvoie bien un seuil vérifiant <span class="math inline">\(\hat{p}(L^*) \ge 0{,}50\)</span> et <span class="math inline">\(\hat{p}(L^* - 1) &lt; 0{,}50\)</span> sur un duel témoin.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Synthèse :</em> Superposition graphique Plotly des 4 courbes sigmoïdes <span class="math inline">\(L \mapsto \hat{p}(L)\)</span> évaluées par pas de 5 (<span class="math inline">\(L \in \{5, 10, \dots, 100\}\)</span>) pour les 4 archétypes.</li>
+<li><em>Vue Métrique :</em> Ligne verticale marquant le seuil <span class="math inline">\(L^*\)</span> et son intervalle de confiance à 95 %.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-9-la-route-des-champions-occitanie-tsp-sous-contraintes-de-niveau" class="level3">
+<h3 class="anchored" data-anchor-id="extension-9-la-route-des-champions-occitanie-tsp-sous-contraintes-de-niveau">Extension 9 : La Route des Champions (Occitanie — TSP sous Contraintes de Niveau)</h3>
+<ul>
+<li><p><strong>Problématique d’optimisation :</strong> Modéliser et résoudre le problème du voyageur de commerce (TSP) sous contraintes d’ordre partiel sur les 30 arènes régionales d’Occitanie, et quantifier le surcoût kilométrique imposé par une progression ordonnée par niveau de difficulté.</p></li>
+<li><p><strong>Spécifications logicielles :</strong></p>
+<ul>
+<li><p>Exploiter le fichier spatial <code>data/arenes_occitanie.geojson</code> contenant les coordonnées géographiques <span class="math inline">\((\text{lat}_i, \text{lon}_i)\)</span>, le nom et le niveau de difficulté (échelonné de 15 à 60) des 30 arènes régionales.</p></li>
+<li><p>Implémenter le calcul de la distance orthodromique de Haversine <span class="math inline">\(d(u, v)\)</span> en kilomètres entre deux coordonnées : <span class="math display">\[\Delta \varphi = \varphi_2 - \varphi_1, \quad \Delta \lambda = \lambda_2 - \lambda_1\]</span> <span class="math display">\[a = \sin^2\left(\frac{\Delta \varphi}{2}\right) + \cos(\varphi_1)\cos(\varphi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)\]</span> <span class="math display">\[d = 2 R \arcsin\left(\sqrt{a}\right) \quad \text{avec } R = 6\,371\text{ km}\]</span></p></li>
+<li><p>Implémenter et comparer trois algorithmes de circuit fermé (départ et retour fixés à Montpellier) :</p>
+<ol type="1">
+<li><em>Algo 1 — Heuristique Gloutonne Libre (Plus Proche Voisin) :</em> Construit un cycle initial <span class="math inline">\(T_{\text{glouton}}\)</span> en visitant itérativement le sommet non visité le plus proche géographiquement, sans considération de niveau.</li>
+<li>*Algo 2 — Amélioration Locale 2-opt (Optimisation Libre) L’heuristique gloutonne du plus proche voisin produit une tournée initiale <span class="math inline">\(T = (v_0, v_1, \dots, v_{n-1}, v_0)\)</span> sous-optimale présentant de nombreux croisements d’arêtes sur le plan géographique. L’algorithme <strong>2-opt</strong> est une méthode de recherche locale qui élimine itérativement ces croisements en inversant des sous-parcours.</li>
+</ol>
+<ul>
+<li><p><strong>Principe géométrique d’inversion :</strong> Soient deux arêtes non consécutives du cycle : <span class="math inline">\((v_i, v_{i+1})\)</span> et <span class="math inline">\((v_j, v_{j+1})\)</span> avec <span class="math inline">\(0 \le i &lt; j - 1 &lt; n\)</span>.<br>
+Si l’on supprime ces deux arêtes pour reconnecter <span class="math inline">\(v_i\)</span> à <span class="math inline">\(v_j\)</span> et <span class="math inline">\(v_{i+1}\)</span> à <span class="math inline">\(v_{j+1}\)</span>, le sous-parcours intermédiaire <span class="math inline">\((v_{i+1}, \dots, v_j)\)</span> doit nécessairement être parcouru en sens inverse pour préserver un cycle fermé valide : <span class="math display">\[T_{\text{nouveau}} = (v_0, \dots, v_i, \underbrace{v_j, v_{j-1}, \dots, v_{i+1}}_{\text{sous-parcours inversé}}, v_{j+1}, \dots, v_{n-1}, v_0)\]</span></p></li>
+<li><p><strong>Critère de décroisement (Gain kilométrique) :</strong> Pour toute paire d’arêtes <span class="math inline">\((v_i, v_{i+1})\)</span> et <span class="math inline">\((v_j, v_{j+1})\)</span>, on calcule le différentiel de distance induit : <span class="math display">\[\Delta d = \Big( d(v_i, v_j) + d(v_{i+1}, v_{j+1}) \Big) - \Big( d(v_i, v_{i+1}) + d(v_j, v_{j+1}) \Big)\]</span></p>
+<ul>
+<li>Si <span class="math inline">\(\Delta d &lt; 0\)</span> : le remplacement raccourcit le trajet. L’inversion est validée immédiatement sur la liste en Python : <code>route[i+1 : j+1] = reversed(route[i+1 : j+1])</code></li>
+<li>Si <span class="math inline">\(\Delta d \ge 0\)</span> : les arêtes d’origine sont conservées.</li>
+</ul></li>
+<li><p><strong>Condition d’arrêt :</strong> On répète le balayage de toutes les paires d’indices <span class="math inline">\((i, j)\)</span> tant qu’au moins une inversion améliorant la distance totale est détectée (<code>amelioration = True</code>). L’algorithme s’arrête lorsqu’un balayage complet n’apporte plus aucun gain (<span class="math inline">\(\Delta d \ge 0\)</span> pour toutes les paires), garantissant la convergence vers un minimum local sans aucun croisement d’arêtes sur la carte. La longueur totale du cycle obtenu constitue la référence minimale libre <strong><span class="math inline">\(d_{\text{libre}}\)</span></strong>.</p></li>
+</ul>
+<ol start="3" type="1">
+<li><em>Algo 3 — Tournée des Champions (Contrainte d’Ordre par Paliers) :</em> Partitionne les arènes en 4 paliers ordonnés : <span class="math inline">\(P_1 = [15, 25]\)</span>, <span class="math inline">\(P_2 = [26, 35]\)</span>, <span class="math inline">\(P_3 = [36, 45]\)</span>, <span class="math inline">\(P_4 = [46, 60]\)</span>.<br>
+<em>Règle métier :</em> Il est interdit de visiter une arène du palier <span class="math inline">\(P_{k+1}\)</span> avant d’avoir vaincu l’ensemble des arènes du palier <span class="math inline">\(P_k\)</span>. Le parcours optimise l’enchaînement intra-palier via 2-opt et relie séquentiellement <span class="math inline">\(P_1 \to P_2 \to P_3 \to P_4 \to \text{Montpellier}\)</span>, produisant une tournée de longueur <strong><span class="math inline">\(d_{\text{champions}}\)</span></strong>.</li>
+</ol></li>
+<li><p>Calculer l’indicateur d’impact de la contrainte : <span class="math display">\[\text{Surcoût Kilométrique} = \frac{d_{\text{champions}} - d_{\text{libre}}}{d_{\text{libre}}} \times 100\]</span></p></li>
+</ul></li>
+<li><p><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li>Propriétés métriques de la distance de Haversine : positivité, symétrie stricte, nullité de la distance à soi-même et conformité sur une distance réelle connue (Montpellier–Nîmes <span class="math inline">\(\approx 45-55\)</span> km).</li>
+<li>Vérifier que l’algorithme 2-opt garantit une longueur strictement inférieure ou égale à l’heuristique gloutonne : <span class="math inline">\(d_{\text{libre}} \le d_{\text{glouton}}\)</span>.</li>
+<li>Contrôler que la séquence des villes de <span class="math inline">\(T_{\text{champions}}\)</span> respecte scrupuleusement l’ordre des 4 paliers de niveau.</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Carte Folium :</em> Tracé interactif des deux tournées superposées (<code>folium.PolyLine</code> avec code couleur distinct : bleu pour la tournée libre optimale, rouge pour la tournée des champions).</li>
+<li><em>Tableau de bord métrique :</em> Comparaison des kilométrages cumulés et affichage chiffré du surcoût kilométrique imposé par la progression de niveau.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="extension-10-dynamique-météorologique-et-modificateurs-darène-climats" class="level3">
+<h3 class="anchored" data-anchor-id="extension-10-dynamique-météorologique-et-modificateurs-darène-climats">Extension 10 : Dynamique Météorologique et Modificateurs d’Arène (Climats)</h3>
+<ul>
+<li><p><strong>Problématique décisionnelle :</strong> Modéliser l’impact de conditions environnementales globales (climats) qui altèrent simultanément les formules de dégâts, appliquent des dégâts d’érosion passifs et favorisent certains types élémentaires au détriment d’autres.</p></li>
+<li><p><strong>Spécifications logicielles :</strong></p>
+<ul>
+<li><p>Définir une énumération <code>Weather(Enum)</code> dans <code>src/pyarena/extensions/weather.py</code> : <code>CLEAR</code> (Météo claire / neutre), <code>RAIN</code> (Pluie battante), <code>SUN</code> (Soleil zénithal), <code>SANDSTORM</code> (Tempête de sable).</p></li>
+<li><p>L’environnement de l’arène est instancié avec un climat actif, doté d’une durée finie <span class="math inline">\(T_{\text{climat}} = 5\)</span> tours (après quoi il revient à <code>CLEAR</code>), ou permanent pour le match.</p></li>
+<li><p><strong>Règles métier des altérations climatiques :</strong></p>
+<ol type="1">
+<li><em>Pluie battante (<code>RAIN</code>) :</em>
+<ul>
+<li>Majore les dégâts des attaques de type <strong>Eau</strong> de <span class="math inline">\(+50\%\)</span> (multiplicateur climatique <span class="math inline">\(\times 1{,}5\)</span>).</li>
+<li>Réduit les dégâts des attaques de type <strong>Feu</strong> de <span class="math inline">\(-50\%\)</span> (multiplicateur climatique <span class="math inline">\(\times 0{,}5\)</span>).</li>
+</ul></li>
+<li><em>Soleil zénithal (<code>SUN</code>) :</em>
+<ul>
+<li>Majore les dégâts des attaques de type <strong>Feu</strong> de <span class="math inline">\(+50\%\)</span> (<span class="math inline">\(\times 1{,}5\)</span>).</li>
+<li>Réduit les dégâts des attaques de type <strong>Eau</strong> de <span class="math inline">\(-50\%\)</span> (<span class="math inline">\(\times 0{,}5\)</span>).</li>
+</ul></li>
+<li><em>Tempête de sable (<code>SANDSTORM</code>) :</em>
+<ul>
+<li>En clôture de chaque tour, inflige une perte passive de <span class="math inline">\(\lfloor \text{PV}_{\max} / 16 \rfloor\)</span> PV à toute créature qui n’appartient <strong>pas</strong> aux types immunisés (les types <em>Roche</em>, <em>Sol</em> et <em>Acier</em> sont immunisés contre l’érosion du sable).</li>
+<li>Confère un bonus passif de <span class="math inline">\(+50\%\)</span> en Défense (<span class="math inline">\(D \leftarrow \lfloor 1{,}5 \times D \rfloor\)</span>) aux combattants de type <em>Roche</em>.</li>
+</ul></li>
+</ol></li>
+<li><p><strong>Formule des dégâts ajustée :</strong> Le multiplicateur climatique <span class="math inline">\(W \in \{0{,}5, 1{,}0, 1{,}5\}\)</span> s’insère directement dans la formule de frappe du socle commun : <span class="math display">\[\text{Dégâts} = \max\left(1, \left\lfloor \left( \frac{22 \times P \times \frac{A_{\text{att}}}{D_{\text{déf}}}}{50} + 2 \right) \times M_{\text{total}} \times W \times U \times K \right\rfloor\right)\]</span></p></li>
+</ul></li>
+<li><p><strong>Tests unitaires (<code>tests/test_extension.py</code>) :</strong></p>
+<ul>
+<li><code>test_rain_damage_modifiers</code> : Vérifier qu’une frappe Eau voit ses dégâts multipliés par 1,5 et qu’une frappe Feu voit ses dégâts divisés par deux sous la pluie.</li>
+<li><code>test_sandstorm_immunity</code> : Valider que les créatures de type Roche ou Sol ne perdent aucun PV en fin de tour sous la tempête de sable, contrairement aux autres types.</li>
+<li><code>test_weather_expiration</code> : Contrôler que le climat repasse bien à <code>CLEAR</code> après 5 tours et que les multiplicateurs redeviennent strictement neutres (<span class="math inline">\(W = 1{,}0\)</span>).</li>
+</ul></li>
+<li><p><strong>Composant Streamlit :</strong></p>
+<ul>
+<li><em>Vue Macro :</em> Heatmap Plotly comparant l’évolution du winrate d’un panel de 5 duels types sous les 4 conditions météo possibles (montrant par exemple comment un type Eau bat un type Électrik si la pluie compense sa faiblesse).</li>
+<li><em>Vue Micro :</em> Télémétrie avec fond d’arène ou badge visuel changeant selon le climat actif (icônes gouttes de pluie, soleil ardent, nuage de sable) et suivi des dégâts d’érosion tour par tour.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="politique-de-valorisation-et-points-de-bonus" class="level1">
+<h1>Politique de Valorisation et Points de Bonus</h1>
+<p>Un mécanisme de <strong>points de bonus</strong> récompense l’approfondissement technique et les initiatives remarquables :</p>
+<ul>
+<li><strong>Plafond strict :</strong> Les bonus permettent d’obtenir jusqu’à <strong>+2 points</strong> sur la Note Technique de Code (la note globale restant bornée à 20/20).</li>
+<li><strong>Condition impérative d’éligibilité :</strong> Les points de bonus ne sont examinés que si le socle commun et l’extension attribuée sont intégralement validés par la CI GitHub Actions.</li>
+<li><strong>Inventaire obligatoire :</strong> Chaque fonctionnalité bonus doit être répertoriée dans la section <code>## Fonctionnalités Bonus Implémentées</code> du fichier <code>README.md</code>.</li>
+</ul>
+<section id="barème-indicatif-des-initiatives-possibles" class="level3">
+<h3 class="anchored" data-anchor-id="barème-indicatif-des-initiatives-possibles">Barème indicatif des initiatives possibles:</h3>
+<ol type="1">
+<li><strong>Implémentation d’un agent tactique Minimax (profondeur 2 tours) (+1 pt) :</strong><br>
+Pour les extensions 2 ou 4, concevoir un algorithme arborescent évaluant l’arbre des répliques adverses possibles pour maximiser l’espérance de survie.</li>
+<li><strong>Déploiement public sur le Cloud (+0,5 pt) :</strong><br>
+Héberger l’application sur <em>Streamlit Community Cloud</em> avec URL publique documentée dès l’en-tête du README.</li>
+<li><strong>Double type &amp; 18 types pour les trinômes (+0,75 pt) :</strong><br>
+Prise en compte volontaire par un groupe de 3 du modèle complet à 18 types et doubles types croisés.</li>
+<li><strong>Intégration multimédia audio officielle (+0,5 pt) :</strong><br>
+Lecture dynamique des cris audio officiels (<code>st.audio</code>) via l’API lors des entrées en arène et des K.-O.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="travail-collaboratif-traçabilité-git-et-intégrité" class="level1">
+<h1>Travail Collaboratif, Traçabilité Git et Intégrité</h1>
+<section id="standards-git-obligatoires" class="level2">
+<h2 class="anchored" data-anchor-id="standards-git-obligatoires">Standards Git Obligatoires</h2>
+<ol type="1">
+<li><strong>Branche <code>main</code> protégée :</strong> Interdiction stricte de pousser directement sur <code>main</code>.</li>
+<li><strong>Workflow par branches et Pull Requests :</strong> Tout travail transite par une branche dédiée (<code>feat/...</code>, <code>fix/...</code>) et fait l’objet d’une Pull Request formelle relue par un pair.</li>
+<li><strong>Audit contractuel : <code>CONTRIBUTIONS.md</code> :</strong><br>
+Chaque membre doit documenter précisément ses livrables et la liste des PRs dont il est l’auteur et le relecteur :</li>
+</ol>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 22%">
-<col style="width: 27%">
-<col style="width: 22%">
-<col style="width: 27%">
+<col style="width: 17%">
+<col style="width: 21%">
+<col style="width: 17%">
+<col style="width: 21%">
+<col style="width: 21%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Membre</th>
 <th style="text-align: center;">Identifiant GitHub</th>
-<th style="text-align: left;">Rôle et Modules Développés</th>
-<th style="text-align: center;">Numéros des PRs Soumises et Revues</th>
+<th style="text-align: left;">Modules Développés</th>
+<th style="text-align: center;">PRs Soumises</th>
+<th style="text-align: center;">PRs Relues (<em>Approvals</em>)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Étudiant 1</td>
 <td style="text-align: center;"><code>@login1</code></td>
-<td style="text-align: left;">Conception du module <code>core/</code>, tests <code>pytest</code></td>
-<td style="text-align: center;">PRs #1, #4 (Revues : #2, #5)</td>
+<td style="text-align: left;">Core POO, Tests unitaires</td>
+<td style="text-align: center;">#1, #4</td>
+<td style="text-align: center;">#2, #5</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Étudiant 2</td>
 <td style="text-align: center;"><code>@login2</code></td>
-<td style="text-align: left;">Client API <code>io/fetcher.py</code>, Dashboard Streamlit</td>
-<td style="text-align: center;">PRs #2, #5 (Revues : #3)</td>
+<td style="text-align: left;">Client API, Streamlit</td>
+<td style="text-align: center;">#2, #5</td>
+<td style="text-align: center;">#3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Étudiant 3</td>
 <td style="text-align: center;"><code>@login3</code></td>
-<td style="text-align: left;">Parallélisation <code>simulation/</code>, Extension choisie</td>
-<td style="text-align: center;">PRs #3, #6 (Revues : #1, #4)</td>
+<td style="text-align: left;">Simulation, Extension</td>
+<td style="text-align: center;">#3, #6</td>
+<td style="text-align: center;">#1, #4</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="contrôle-automatisé-du-plagiat-et-de-lhistorique" class="level2" data-number="9.3">
-<h2 data-number="9.3" class="anchored" data-anchor-id="contrôle-automatisé-du-plagiat-et-de-lhistorique"><span class="header-section-number">9.3</span> Contrôle Automatisé du Plagiat et de l’Historique</h2>
+<section id="détection-du-plagiat-et-contrôle-dactivité" class="level2">
+<h2 class="anchored" data-anchor-id="détection-du-plagiat-et-contrôle-dactivité">Détection du Plagiat et Contrôle d’Activité</h2>
 <ul>
-<li><strong>Analyse de régularité :</strong> La distribution temporelle des commits sera examinée sur GitHub. Tout « commit massif » (injection soudaine de plusieurs centaines de lignes de code en fin de projet) sans historique incrémental fera l’objet d’une pénalité individuelle.</li>
-<li><strong>Analyse syntaxique structurelle (<code>copydetect</code>) :</strong> L’ensemble des répertoires <code>src/</code> rendus sera soumis à un contrôle automatisé comparant les arbres syntaxiques abstraits (AST) via l’outil <code>copydetect</code>. Les dépôts présentant une similarité non fortuite seront pénalisés.</li>
+<li><strong>Régularité temporelle :</strong> Les dépôts révélant une injection massive de code en fin de semestre sans commits incrémentaux réguliers seront pénalisés individuellement.</li>
+<li><strong>Analyse de similarité AST (<code>copydetect</code>) :</strong> L’intégralité du code source rendu fera l’objet d’un contrôle de similarité structurelle automatisé.</li>
 </ul>
 <hr>
 </section>
 </section>
-<section id="modalités-dévaluation-et-grilles-de-notation" class="level1" data-number="10">
-<h1 data-number="10"><span class="header-section-number">10</span> Modalités d’Évaluation et Grilles de Notation</h1>
-<p>L’évaluation donne lieu à deux notes sur 20 indépendantes : la <strong>Note Technique de Code (coefficient 3)</strong> et la <strong>Note Individuelle de Soutenance (coefficient 2)</strong>.</p>
+<section id="modalités-dévaluation-et-grilles-de-notation" class="level1">
+<h1>Modalités d’Évaluation et Grilles de Notation</h1>
+<p>La note finale est une moyenne pondérée associant la qualité de l’ingénierie logicielle livrée et la maîtrise individuelle démontrée lors de la soutenance :</p>
 <p><span class="math display">\[\text{Note Finale} = \frac{3 \times \text{Note Code} + 2 \times \text{Note Soutenance}}{5}\]</span></p>
-<section id="note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3" class="level2" data-number="10.1">
-<h2 data-number="10.1" class="anchored" data-anchor-id="note-1-code-architecture-et-produit-20-note-de-groupe-coeff-3"><span class="header-section-number">10.1</span> Note 1 : Code, Architecture et Produit (/20 — Note de Groupe, Coeff 3)</h2>
+<p>Afin de garantir une stricte équité et de neutraliser tout effet de passager clandestin, <strong>la Note de Code et la Note de Soutenance intègrent chacune une composante individuelle déterminante</strong>. Plus de <span class="math inline">\(50\%\)</span> du barème global dépend directement de l’investissement propre de chaque étudiant.</p>
+<hr>
+<section id="note-1-code-architecture-et-produit-20-mixte-coeff-3" class="level2">
+<h2 class="anchored" data-anchor-id="note-1-code-architecture-et-produit-20-mixte-coeff-3">Note 1 : Code, Architecture et Produit (/20 — Mixte, Coeff 3)</h2>
+<p>La note de code se décompose en un <strong>Socle Produit Collectif (/12)</strong> et une note d’<strong>Investissement Technique Individuel (/8)</strong>.</p>
+<section id="a.-socle-produit-collectif-12-points-note-déquipe" class="level3">
+<h3 class="anchored" data-anchor-id="a.-socle-produit-collectif-12-points-note-déquipe">A. Socle Produit Collectif (/12 points — Note d’Équipe)</h3>
+<p>Évalue la conformité du livrable logiciel déposé sur la branche <code>main</code> le jour du gel :</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 30%">
@@ -928,48 +1247,43 @@ window.Quarto = {
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Critère</th>
+<th style="text-align: left;">Critère Collectif</th>
 <th style="text-align: center;">Barème</th>
-<th style="text-align: left;">Éléments évalués concrètement</th>
+<th style="text-align: left;">Critères d’évaluation objectifs</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;"><strong>Architecture Orientée Objet</strong></td>
-<td style="text-align: center;"><strong>/ 4</strong></td>
-<td style="text-align: left;">Respect des classes abstraites, encapsulation (<code>@property</code>), gestion des exceptions maison, typage strict.</td>
+<td style="text-align: left;"><strong>Architecture POO &amp; Core</strong></td>
+<td style="text-align: center;"><strong>/ 3</strong></td>
+<td style="text-align: left;">Abstraction stricte (<code>BaseFighter</code>), encapsulation (<code>@property</code>), exceptions personnalisées.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>Packaging &amp; Propreté</strong></td>
+<td style="text-align: left;"><strong>Packaging &amp; CI GitHub Actions</strong></td>
 <td style="text-align: center;"><strong>/ 2</strong></td>
-<td style="text-align: left;">Fichier <code>pyproject.toml</code> fonctionnel, installation immédiate via <code>pip install -e .</code>, arborescence scrupuleusement respectée.</td>
+<td style="text-align: left;"><code>pyproject.toml</code> fonctionnel, workflow de CI au vert (si rouge le jour du rendu : -2 pts).</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>Tests &amp; Intégration Continue</strong></td>
-<td style="text-align: center;"><strong>/ 4</strong></td>
-<td style="text-align: left;">Couverture mesurée par <code>pytest-cov</code> <span class="math inline">\(\ge 70\%\)</span>, pertinence des tests aux limites, workflow GitHub Actions au vert (si rouge : -2 points d’office).</td>
+<td style="text-align: left;"><strong>Pipeline Données &amp; Parallélisme</strong></td>
+<td style="text-align: center;"><strong>/ 2</strong></td>
+<td style="text-align: left;">Stratégie de cache disque opérationnelle, parallélisation Monte-Carlo effective.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>Données &amp; Parallélisme</strong></td>
+<td style="text-align: left;"><strong>Application Streamlit</strong></td>
 <td style="text-align: center;"><strong>/ 3</strong></td>
-<td style="text-align: left;">Système de cache local opérationnel (mode déconnecté), exécution distribuée de Monte-Carlo (<code>joblib</code>/<code>multiprocessing</code>), intervalles de confiance corrects.</td>
+<td style="text-align: left;">Réactivité de l’application, présence des modules exigés, visualisations interactives Plotly/Folium.</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>Dashboard Streamlit</strong></td>
-<td style="text-align: center;"><strong>/ 4</strong></td>
-<td style="text-align: left;">Réactivité de l’application, présence des sprites officiels, visualisations Plotly pertinentes, carte Folium fonctionnelle.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>Réalisation de l’Extension</strong></td>
-<td style="text-align: center;"><strong>/ 3</strong></td>
-<td style="text-align: left;">Respect rigoureux du cahier des charges spécifique à l’extension attribuée et couverture par ses tests unitaires.</td>
+<td style="text-align: left;"><strong>Conformité de l’Extension</strong></td>
+<td style="text-align: center;"><strong>/ 2</strong></td>
+<td style="text-align: left;">Respect strict du cahier des charges métier de l’extension attribuée.</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2" class="level2" data-number="10.2">
-<h2 data-number="10.2" class="anchored" data-anchor-id="note-2-soutenance-orale-et-maîtrise-individuelle-20-note-individuelle-coeff-2"><span class="header-section-number">10.2</span> Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Note Individuelle, Coeff 2)</h2>
-<p>Chaque groupe dispose de <strong>20 minutes d’évaluation</strong> décomposées en : * 10 minutes d’exposé et de démonstration applicative en direct. * 10 minutes de questions techniques individuelles.</p>
+<section id="b.-contribution-technique-individuelle-8-points-note-individuelle" class="level3">
+<h3 class="anchored" data-anchor-id="b.-contribution-technique-individuelle-8-points-note-individuelle">B. Contribution Technique Individuelle (/8 points — Note Individuelle)</h3>
+<p>Évalue l’implication effective et vérifiable de chaque membre dans la construction du code source, mesurée par l’audit Git et la traçabilité des Pull Requests :</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 30%">
@@ -978,76 +1292,95 @@ window.Quarto = {
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Critère</th>
+<th style="text-align: left;">Critère Individuel</th>
 <th style="text-align: center;">Barème</th>
-<th style="text-align: left;">Éléments évalués concrètement</th>
+<th style="text-align: left;">Modalités d’évaluation objectives</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;"><strong>Qualité des supports visuels</strong></td>
+<td style="text-align: left;"><strong>Volume et consistance des PRs</strong></td>
 <td style="text-align: center;"><strong>/ 3</strong></td>
-<td style="text-align: left;">Diapositives claires et professionnelles, schémas d’architecture soignés, absence de blocs de code illisibles.</td>
+<td style="text-align: left;">L’étudiant est l’auteur d’au moins 2 Pull Requests substantielles (code métier ou interface) ayant été fusionnées sur <code>main</code>.</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>Démonstration technique live</strong></td>
-<td style="text-align: center;"><strong>/ 4</strong></td>
-<td style="text-align: left;">Démonstration fluide de l’application Streamlit sans plantage imprévu, exécution en direct de la suite de tests <code>pytest</code>.</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><strong>Maîtrise individuelle du code</strong></td>
-<td style="text-align: center;"><strong>/ 8</strong></td>
-<td style="text-align: left;">Aptitude de chaque étudiant à naviguer dans le code, à expliquer précisément la logique d’une fonction et à justifier ses choix algorithmiques.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>Compréhension des concepts</strong></td>
+<td style="text-align: left;"><strong>Prise en charge des tests unitaires</strong></td>
 <td style="text-align: center;"><strong>/ 3</strong></td>
-<td style="text-align: left;">Maîtrise rigoureuse du vocabulaire : polymorphisme, complexité temporelle, stochasticité, décorateurs, conditions de concurrence.</td>
+<td style="text-align: left;">L’étudiant est l’auteur de tests unitaires formels (<code>tests/</code>) validant les fonctionnalités qu’il a développées (vérifié via <code>git blame</code> / historique des commits).</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>Investissement Git vérifiable</strong></td>
+<td style="text-align: left;"><strong>Régularité et revues de code</strong></td>
 <td style="text-align: center;"><strong>/ 2</strong></td>
-<td style="text-align: left;">Cohérence vérifiée entre les déclarations du fichier <code>CONTRIBUTIONS.md</code> et les métriques réelles d’activité GitHub (commits, PRs créées et revues).</td>
+<td style="text-align: left;">Commits incrémentaux réguliers tout au long du semestre (absence de « dump » massif en fin de projet) et participation formelle aux revues de code de ses pairs (<em>Approvals</em>).</td>
 </tr>
 </tbody>
 </table>
 <hr>
 </section>
 </section>
-<section id="calendrier-prévisionnel-et-jalons-de-développement" class="level1" data-number="11">
-<h1 data-number="11"><span class="header-section-number">11</span> Calendrier Prévisionnel et Jalons de Développement</h1>
-<p>Le calendrier est articulé autour de jalons structurants afin d’assurer une progression continue :</p>
+<section id="note-2-soutenance-orale-et-maîtrise-individuelle-20-mixte-coeff-2" class="level2">
+<h2 class="anchored" data-anchor-id="note-2-soutenance-orale-et-maîtrise-individuelle-20-mixte-coeff-2">Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Mixte, Coeff 2)</h2>
+<p>L’épreuve orale dure <strong>15 minutes par équipe</strong> (8 minutes d’exposé et démo live, 5-7 minutes de questions techniques individuelles, 2 minutes de transition).</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 29%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Composante</th>
+<th style="text-align: left;">Critère</th>
+<th style="text-align: center;">Barème</th>
+<th style="text-align: left;">Éléments évalués concrètement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Collectif</strong> (6 pts)</td>
+<td style="text-align: left;"><strong>Démonstration logicielle live</strong></td>
+<td style="text-align: center;"><strong>/ 3</strong></td>
+<td style="text-align: left;">Fluidité de la démonstration Streamlit sans plantage.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>Supports visuels &amp; Synthèse</strong></td>
+<td style="text-align: center;"><strong>/ 3</strong></td>
+<td style="text-align: left;">Diapositives claires et professionnelles, schémas d’architecture soignés, respect strict des 8 minutes de présentation.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Individuel</strong> (14 pts)</td>
+<td style="text-align: left;"><strong>Intervention orale préparée</strong></td>
+<td style="text-align: center;"><strong>/ 4</strong></td>
+<td style="text-align: left;">Aisance de l’étudiant lors de son temps de parole dédié, clarté du propos et rigueur du vocabulaire employé.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>Questions techniques individuelles</strong></td>
+<td style="text-align: center;"><strong>/ 5</strong></td>
+<td style="text-align: left;">Aptitude à justifier à chaud ses choix de code, à expliciter une méthode précise et à commenter ses tests unitaires.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;"><strong>Adéquation avec <code>CONTRIBUTIONS.md</code></strong></td>
+<td style="text-align: center;"><strong>/ 5</strong></td>
+<td style="text-align: left;">Concordance rigoureuse entre les responsabilités déclarées dans le tableau contractuel et la maîtrise technique démontrée.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="calendrier-prévisionnel-et-jalons-de-suivi" class="level1">
+<h1>Calendrier Prévisionnel et Jalons de Suivi</h1>
 <ul>
-<li><strong>Fin Septembre (Séance 2) :</strong>
-<ul>
-<li>Constitution définitive des trinômes.</li>
-<li>Inscription sur le tableur partagé pour l’attribution de l’extension thématique (règle du premier arrivé, premier servi).</li>
-</ul></li>
-<li><strong>Mi-Octobre (Jalon 1) :</strong>
-<ul>
-<li>Initialisation du dépôt GitHub à partir du template officiel.</li>
-<li>Mise en place de la protection de branche sur <code>main</code> et vérification de la CI GitHub Actions.</li>
-</ul></li>
-<li><strong>Fin Octobre (Jalon 2) :</strong>
-<ul>
-<li>Finalisation du cœur orienté objet dans <code>src/pyarena/core/</code> (<code>BaseFighter</code>, <code>Fighter</code>, <code>engine.py</code>).</li>
-<li>Implémentation des premières exceptions personnalisées et validation des tests unitaires <code>pytest</code> sur les règles de combat de base.</li>
-</ul></li>
-<li><strong>Mi-Novembre (Jalon 3) :</strong>
-<ul>
-<li>Client PokéAPI opérationnel avec politique de mise en cache locale sur disque (<code>data/cache/</code>).</li>
-<li>Moteur de simulation Monte-Carlo parallélisé fonctionnel avec calcul des intervalles de confiance asymptotiques.</li>
-</ul></li>
-<li><strong>Début Décembre (Jalon 4) :</strong>
-<ul>
-<li>Implémentation et tests unitaires de l’extension thématique finalisés.</li>
-<li>Dashboard Streamlit achevé (simulateur live, catalogue et cartographie Folium des arènes régionales).</li>
-</ul></li>
-<li><strong>Mi-Décembre :</strong>
-<ul>
-<li>Gel définitif des dépôts GitHub sur la branche <code>main</code>.</li>
-<li>Soutenances orales de fin de semestre.</li>
-</ul></li>
+<li><strong>Fin Septembre (Séance 2) :</strong> Constitution des équipes et attribution définitive de l’extension thématique sur le tableur partagé.</li>
+<li><strong>Mi-Octobre (Jalon 1) :</strong> Initialisation du dépôt GitHub, activation de la protection de branche et pipeline CI validé.</li>
+<li><strong>Fin Octobre (Jalon 2) :</strong> Cœur POO achevé (<code>core/models.py</code>, <code>core/engine.py</code>), exceptions maison et premiers tests au vert.</li>
+<li><strong>Mi-Novembre (Jalon 3) :</strong> Client API avec cache disque opérationnel, moteur Monte-Carlo parallélisé fonctionnel.</li>
+<li><strong>Début Décembre (Jalon 4) :</strong> Extension thématique testée et intégrée dans le dashboard Streamlit.</li>
+<li><strong>Mi-Décembre :</strong> Gel définitif des dépôts (<code>main</code>) et soutenances orales de fin de semestre.</li>
 </ul>
 
 

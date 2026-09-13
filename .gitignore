@@ -1,6 +1,7 @@
 # Fichiers de correction (sources et éventuels rendus locaux)
 *correction*
 *_prof*
+*.txt*
 
 # Fichiers internes et caches de Quarto
 /.quarto/
