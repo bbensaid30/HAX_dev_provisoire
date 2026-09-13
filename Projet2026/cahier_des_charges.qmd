@@ -1,21 +1,22 @@
 ---
 title: "Cahier des Charges — Projet de Développement Logiciel (HAX712X)"
 subtitle: "PyArena : Simulateur Stochastique, Génie Logiciel et Dashboard Décisionnel"
-author: "Master 1 Sciences des Données (SSD) — Université de Montpellier"
-date: "11 Septembre 2026"
+author: "Bensaid Bilel"
+date: "13 Septembre 2026"
 lang: fr
 format:
   html:
     toc: true
     toc-depth: 3
-    toc-title: "Sommaire"
-    number-sections: true
+    toc-title: "Sommaire exécutif"
+    number-sections: false
     theme: cosmo
+    code-copy: true
     code-fold: false
   pdf:
     toc: true
     toc-depth: 3
-    number-sections: true
+    number-sections: false
     geometry:
       - top=20mm
       - bottom=20mm
@@ -23,47 +24,81 @@ format:
       - right=20mm
 ---
 
-# Présentation Générale du Projet
+# Présentation Générale et Organisation
 
-Le projet de l'UE Développement Logiciel (HAX712X) constitue le fil conducteur pratique du semestre pour la promotion de **Master 1 Sciences des Données (SSD)**.
+Le projet de l'UE **Développement Logiciel (HAX712X)** constitue le fil conducteur pratique du semestre pour la promotion de **Master 1 Sciences des Données (SSD)**.
 
-L'objectif est de concevoir, développer, tester, documenter et déployer une bibliothèque logicielle complète en Python modélisant une arène de combat au tour par tour (**moteur headless**), couplée à un pipeline d'ingestion de données et à un **tableau de bord analytique interactif (Streamlit)**.
+L'objectif est de concevoir, développer, tester unitairement, documenter et déployer une bibliothèque logicielle modulaire en Python simulant une arène de duels au tour par tour (**moteur headless**), articulée avec un pipeline d'ingestion de données web, un moteur de simulation stochastique parallélisé et un **tableau de bord interactif d'aide à la décision (Streamlit)**.
 
 ## Objectifs Pédagogiques
-1. **Conception logicielle industrielle :** Programmation orientée objet stricte, modularité, encapsulation, gestion rigoureuse des erreurs et packaging standard (`pyproject.toml`).
-2. **Assurance qualité :** Tests unitaires automatisés (`pytest`), mesure de couverture de code et intégration continue (GitHub Actions).
-3. **Calcul intensif et Data Science :** Simulation stochastique de Monte-Carlo, parallélisation multi-coeurs (`multiprocessing` / `joblib`), ingestion d'API Web et mise en cache locale.
-4. **Visualisation avancée :** Exploration de données (Plotly), cartographie géographique interactive (Folium / GeoPandas) et déploiement d'une application web décisionnelle.
 
-## Organisation
-* Le projet s'effectue obligatoirement en **groupes de 3 étudiants** (exceptionnellement un groupe de 4 en fonction de l'effectif total).
-* Le moteur de simulation, l'ingestion API, les tests unitaires et le dashboard constituent un **socle commun obligatoire**.
-* Chaque groupe choisit **une extension thématique exclusive** parmi les 10 proposées afin d'approfondir un volet algorithmique ou fonctionnel précis.
+1. **Génie logiciel & Qualité de code :** Programmation orientée objet stricte, encapsulation, modularité, hiérarchie d'exceptions typées, packaging standard (`pyproject.toml`) et documentation.
+2. **Industrialisation & Intégration Continue (CI) :** Écriture de tests unitaires automatisés (`pytest`), mesure continue de la couverture de code (`pytest-cov`) et validation des jalons par des workflows GitHub Actions.
+3. **Data Science & Calcul Parallèle :** Modélisation stochastique par simulations de Monte-Carlo, distribution multi-cœurs (`multiprocessing` / `joblib`), ingestion d'API REST et mise en cache sur disque.
+4. **Visualisation & Outils Décisionnels :** Visualisations interactives (Plotly), cartographie spatiale régionale (Folium) et ergonomie d'application web décisionnelle (Streamlit).
+
+---
+
+## Modalités de Constitution des Équipes (Promotion : 32 étudiants)
+
+Par contrainte d'effectif global (32 inscrits), la promotion est obligatoirement structurée en :
+$$\mathbf{32 \text{ étudiants}} = (8 \times 3) + (2 \times 4) \implies \mathbf{10 \text{ équipes au total}}$$
+
+Cette configuration garantit une bijection parfaite avec le catalogue des **10 extensions thématiques exclusives** : chaque groupe de la promotion développera une extension distincte, sans aucun doublon.
+
+### Matrice Contractuelle d'Exigences : Groupes de 3 vs Groupes de 4
+
+Afin de préserver une équité absolue dans l'évaluation face au volume de travail disponible, le tableau suivant consigne les exigences minimales fermes selon la taille de l'équipe :
+
+| Dimension d'Évaluation | Équipe de 3 étudiants (Le Standard) | Équipe de 4 étudiants (Périmètre Renforcé) |
+| :--- | :--- | :--- |
+| **Catalogue de données** | 1ʳᵉ Génération ($\text{id} \in [\![1, 151]\!]$) | **Générations 1 et 2 complètes** ($\text{id} \in [\![1, 251]\!]$) |
+| **Système des types** | **Tournoi Élémentaire à 5 types** (matrice fixe fournie) | **18 types complets & Doubles types** (ingestion API) |
+| **Couverture `pytest`** | Seuil minimal ferme de **$\ge 70\%$** | Seuil minimal renforcé de **$\ge 85\%$** |
+| **Modules Streamlit** | 3 modules (Duel, Catalogue/EDA, Carte Occitanie) | **4 modules** (+ Module Analyseur de Synergie d'Équipe) |
+| **Extension Métier** | 1 extension attribuée parmi les 10 | 1 extension attribuée parmi les 10 |
+| **Audit Git Individuel** | $\ge 2$ Pull Requests par membre | $\ge 2$ PRs créées **ET** $\ge 2$ PRs revues (*Approval*) par membre |
+
+::: {.callout-important}
+### Égalité de Traitement sur les Extensions
+Les règles algorithmiques de chaque extension thématique sont **strictement identiques** pour un groupe de 3 ou un groupe de 4. La différence réside exclusivement dans le périmètre sur lequel l'extension s'exécute (151 créatures et 5 types pour les trinômes contre 251 créatures, 18 types et doubles types pour les quatuors).
+:::
 
 ---
 
 # Modèle Mathématique et Règles Métier du Combat
 
-Le système dynamique modélisé est un duel discret au tour par tour entre deux entités. Le modèle est entièrement formel et autosuffisant : **aucune connaissance préalable de jeux vidéo (Pokemon) n'est requise**.
+Le système dynamique modélisé est un duel discret au tour par tour opposant deux combattants. Le modèle est rigoureusement formel et autosuffisant : **aucune connaissance préalable de jeux vidéo n'est requise**.
 
 ## Caractéristiques et Normalisation des Combattants
 
-Chaque combattant $C$ est modélisé par un vecteur d'état à sept dimensions :
-$$C = \langle \text{id}, \text{nom}, T, \text{PV}_{\max}, \text{PV}, A, D, V \rangle$$
+Chaque combattant $C$ est modélisé par un vecteur d'état à huit composantes :
+$$C = \langle \text{id}, \text{nom}, T_1, T_2, \text{PV}_{\max}, \text{PV}, A, D, V \rangle$$
 
-* $\text{id} \in [\![1, 151]\!]$ : identifiant officiel dans la PokéAPI (première génération).
-* $\text{nom} \in \mathbb{S}$ : identifiant textuel unique (ex. : `"Pikachu"`, `"Charizard"`).
-* $T \in \mathcal{T}$ : type élémentaire appartenant à $\mathcal{T} = \{\text{Normal}, \text{Feu}, \text{Eau}, \text{Plante}, \text{Électrik}, ...\}$.
-* Les caractéristiques opérationnelles sont normalisées au **Niveau 50 standard** à partir des statistiques de base brutes ($\text{Stat}_{\text{base}}$) récupérées sur l'API :
+* $\text{id} \in \mathbb{N}^*$ : identifiant officiel PokéAPI ($[\![1, 151]\!]$ pour les trinômes ; $[\![1, 251]\!]$ pour les quatuors).
+* $\text{nom} \in \mathbb{S}$ : chaîne de caractères désignant le combattant (champ `name` de l'API).
+* $T_1 \in \mathcal{T}$ : type élémentaire principal, extrait de l'objet de la liste `types` dont la clé `slot` vaut 1.
+* $T_2 \in \mathcal{T} \cup \{\emptyset\}$ : second type élémentaire éventuel (`slot == 2`) ou $\emptyset$ si la créature est mono-type.
+* Les statistiques brutes de base ($\text{Stat}_{\text{base}}$) proviennent de la liste `stats` du JSON API :
+
+  * $\text{PV}_{\text{base}}$ correspond à l'entrée `stat.name == "hp"`
+  * $A_{\text{base}}$ correspond à l'entrée `stat.name == "attack"`
+  * $D_{\text{base}}$ correspond à l'entrée `stat.name == "defense"`
+  * $V_{\text{base}}$ correspond à l'entrée `stat.name == "speed"`
+* Ces caractéristiques sont normalisées au **Niveau 50 standard** par les formules d'échelonnement :
+
   $$\text{PV}_{\max} = \text{PV}_{\text{base}} + 60$$
   $$A = A_{\text{base}} + 5, \quad D = D_{\text{base}} + 5, \quad V = V_{\text{base}} + 5$$
 * $\text{PV} \in [\![0, \text{PV}_{\max}]\!]$ : points de vie courants du combattant.
 
-Si $\text{PV} = 0$, l'entité est déclarée **K.-O.** (*fainted*) et ne peut plus réaliser aucune action.
+Dès que $\text{PV} = 0$, l'entité est déclarée **K.-O.** (*fainted*) et cesse immédiatement toute action.
 
-## Matrice des Affinités Élémentaires
+---
 
-Le coefficient multiplicateur $M(T_{\text{att}}, T_{\text{déf}}) \in \{0.5, 1.0, 2.0\}$ modélise l'avantage ou le désavantage élémentaire :
+## Le Système d'Affinités Élémentaires
+
+### Le Modèle Simplifié : Le Tournoi à 5 Types (Groupes de 3)
+Pour les groupes de 3, l'arène restreint la participation aux créatures dont le type principal $T_1$ appartient à l'ensemble $\mathcal{T}_5 = \{\text{Normal}, \text{Feu}, \text{Eau}, \text{Plante}, \text{Électrik}\}$. Le coefficient multiplicateur $M(T_{\text{att}}, T_{\text{déf}}) \in \{0.5, 1.0, 2.0\}$ est lu directement dans la matrice fixe suivante :
 
 | Type Attaquant ($T_{\text{att}}$) \ Type Défenseur ($T_{\text{déf}}$) | Normal | Feu | Eau | Plante | Électrik |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -73,127 +108,162 @@ Le coefficient multiplicateur $M(T_{\text{att}}, T_{\text{déf}}) \in \{0.5, 1.0
 | **Plante** | 1.0 | 0.5 | 2.0 | 0.5 | 1.0 |
 | **Électrik** | 1.0 | 1.0 | 2.0 | 0.5 | 0.5 |
 
-Un fichier `data/types.csv` est fourni pour charger cette matrice de manière automatisée dans le package.
+*(Note d'implémentation : le client de données télécharge l'ensemble des 151 créatures sur disque, mais le sélecteur de l'arène filtre le catalogue pour ne retenir que les combattants dont $T_1 \in \mathcal{T}_5$, soit environ 80 créatures éligibles).*
 
-## Algorithme de Résolution d'un Tour
+---
 
-Soient deux combattants $C_1$ et $C_2$. Le duel se décompose en tours séquentiels successifs :
+### Le Modèle Complet : 18 Types et Doubles Types (Groupes de 4 / Bonus)
+Pour les groupes de 4, le moteur ingère la table complète des 18 types via l'API (`https://pokeapi.co/api/v2/type/{id}`).
 
-### 1. Détermination de l'initiative
+Lorsqu'une attaque de type $T_{\text{att}}$ frappe un combattant possédant deux types défensifs $(T_{\text{déf}, 1}, T_{\text{déf}, 2})$, le multiplicateur global $M_{\text{total}}$ est le **produit algébrique** des affinités élémentaires individuelles :
+$$M_{\text{total}}\big(T_{\text{att}}, (T_{\text{déf}, 1}, T_{\text{déf}, 2})\big) = M(T_{\text{att}}, T_{\text{déf}, 1}) \times M(T_{\text{att}}, T_{\text{déf}, 2})$$
+
+Ce produit croisé engendre quatre situations sans exception :
+
+* **Double vulnérabilité :** $2{,}0 \times 2{,}0 = \mathbf{4{,}0}$ (dégâts quadruplés).
+* **Compensation neutre :** $2{,}0 \times 0{,}5 = \mathbf{1{,}0}$ (dégâts neutres).
+* **Double résistance :** $0{,}5 \times 0{,}5 = \mathbf{0{,}25}$ (dégâts divisés par 4).
+* **Immunité stricte :** Si $M(T_{\text{att}}, T_{\text{déf}, 1}) = 0{,}0$, alors $M_{\text{total}} = \mathbf{0{,}0}$ (dégâts nuls, l'attaque échoue).
+
+---
+
+## Déroulement Déterministe et Stochastique d'un Tour
+
+::: {.callout-note}
+### Règle Fondamentale de l'Attaque dans le Socle Commun
+Dans le socle commun obligatoire, **les combattants ne choisissent pas leur attaque**. Chaque combattant porte une attaque standard unique dont le type élémentaire est **strictement son type principal** ($T_{\text{att}} = T_1$) et dont la précision est garantie à $100\%$. Seules les extensions 4 (Choix tactique) et 6 (Gestion des PP) modifient cette règle.
+:::
+
+Soient deux combattants actifs $C_1$ et $C_2$. La résolution d'un tour de jeu suit la séquence chronologique ordonnée :
+
+### 1. Phase d'Initiative
+
 * Le combattant possédant la vitesse $V$ la plus élevée frappe en premier.
-* En cas d'égalité stricte ($V_1 = V_2$), le premier attaquant est désigné par un tirage de Bernoulli $B \sim \mathcal{B}(0.5)$.
+* En cas d'égalité stricte ($V_1 = V_2$), le premier attaquant est désigné par un tirage de Bernoulli symétrique :
+  $$B \sim \mathcal{B}(0.5)$$
 
-### 2. Calcul stochastique des dégâts
-L'attaquant actif assène une attaque standard de puissance nominale $P = 50$. 
+### 2. Phase de Frappe de l'Attaquant
+L'attaquant actif assène son attaque de base (puissance nominale fixée à $P = 50$).
 
-La formule fermée des dégâts réels infligés est :
-$$\text{Dégâts} = \max\left(1, \left\lfloor \left( \frac{22 \times P \times \frac{A_{\text{att}}}{D_{\text{déf}}}}{50} + 2 \right) \times M(T_{\text{att}}, T_{\text{déf}}) \times U \times K \right\rfloor\right)$$
+La formule mathématique fermée des dégâts réels infligés est :
+$$\text{Dégâts} = \max\left(1, \left\lfloor \left( \frac{22 \times P \times \frac{A_{\text{att}}}{D_{\text{déf}}}}{50} + 2 \right) \times M_{\text{total}} \times U \times K \right\rfloor\right)$$
 
 avec :
-* $\lfloor x \rfloor$ : partie entière inférieure.
-* $M(T_{\text{att}}, T_{\text{déf}})$ : multiplicateur issu de la matrice des types.
-* $U$ : variable aléatoire modélisant la variabilité du coup, $U \sim \mathcal{U}([0.85, 1.00])$.
+
+* $\lfloor x \rfloor$ : opérateur partie entière inférieure.
+* $M_{\text{total}}$ : multiplicateur d'affinité élémentaire ($M(T_1, T_{\text{déf}})$ pour mono-type, produit croisé pour double type). Si $M_{\text{total}} = 0{,}0$, alors $\text{Dégâts} = 0$.
+* $U$ : facteur d'aléa d'impact, $U \sim \mathcal{U}([0.85, 1.00])$.
 * $K$ : multiplicateur de coup critique gouverné par une variable de Bernoulli $X_{\text{crit}} \sim \mathcal{B}(0.10)$ :
   $$K = \begin{cases} 1.5 & \text{si } X_{\text{crit}} = 1 \text{ (probabilité } 10\%) \\ 1.0 & \text{sinon} \end{cases}$$
 
-### 3. Application des dégâts et terminaison
+### 3. Phase de Résolution et Riposte
 $$\text{PV}_{\text{déf}} \leftarrow \max(0, \text{PV}_{\text{déf}} - \text{Dégâts})$$
 
-* Si $\text{PV}_{\text{déf}} = 0$ : le défenseur est K.-O., le combat prend fin **immédiatement**. Le défenseur ne riposte pas.
-* Si $\text{PV}_{\text{déf}} > 0$ : le défenseur devient attaquant et exécute à son tour les étapes 2 et 3.
+* **Cas K.-O. :** Si $\text{PV}_{\text{déf}} = 0$, le défenseur s'effondre. Le match prend fin **instantanément**. Le défenseur ne riposte pas.
+* **Cas Survie :** Si $\text{PV}_{\text{déf}} > 0$, les rôles s'inversent : le défenseur devient attaquant et exécute à son tour les étapes 2 et 3.
 
 ---
 
 # Architecture Logicielle et Standards de Développement
 
-## Arborescence Imposée du Dépôt
+## Arborescence Normée du Dépôt Git
 
-L'organisation des répertoires doit impérativement respecter le schéma suivant :
+L'arborescence du projet doit respecter rigoureusement la structure suivante :
 
 ```text
 pyarena/
-├── pyproject.toml              # Configuration du package, pytest, linters et dépendances
-├── README.md                   # Instructions d'installation et de reproduction
-├── CONTRIBUTIONS.md            # Tableau contractuel de contribution individuelle
+├── pyproject.toml              # Configuration du package, dépendances, pytest et linters
+├── README.md                   # Documentation technique et guide d'installation
+├── CONTRIBUTIONS.md            # Tableau contractuel des contributions individuelles
 ├── data/
-│   ├── types.csv               # Matrice des coefficients élémentaires
+│   ├── types.csv               # Matrice des coefficients élémentaires (5 types)
 │   ├── arenes_occitanie.geojson# Données spatiales régionales
-│   └── cache/                  # Fichiers JSON locaux de l'API (ignorés par Git)
+│   └── cache/                  # Fichiers JSON de l'API (ignorés par Git via .gitignore)
 ├── src/
 │   └── pyarena/
-│       ├── __init__.py         # Export des classes et fonctions publiques
+│       ├── __init__.py         # Exports publics du package
 │       ├── core/
 │       │   ├── __init__.py
-│       │   ├── exceptions.py   # Classes d'erreurs maison
-│       │   ├── models.py       # Classes Fighter, Team, BattleResult
-│       │   └── engine.py       # Moteur d'exécution des tours et du combat
+│       │   ├── exceptions.py   # Hiérarchie des exceptions maison (PyArenaException, etc.)
+│       │   ├── models.py       # Classes Fighter, BaseFighter, BattleResult
+│       │   └── engine.py       # Moteur déterministe d'exécution des duels tour par tour
 │       ├── io/
 │       │   ├── __init__.py
-│       │   ├── fetcher.py      # Client HTTP PokéAPI avec stratégie de cache
-│       │   └── loader.py       # Parsers CSV et GeoJSON
+│       │   ├── fetcher.py      # Client HTTP PokéAPI avec mise en cache disque
+│       │   └── loader.py       # Parsers de fichiers CSV et GeoJSON
 │       ├── simulation/
 │       │   ├── __init__.py
-│       │   └── monte_carlo.py  # Moteur Monte-Carlo parallélisé (joblib/multiprocessing)
-│       └── extensions/         # Emplacement unique du code de l'extension choisie
+│       │   └── monte_carlo.py  # Simulateur Monte-Carlo distribué (multiprocessing/joblib)
+│       └── extensions/         # Code source exclusif de l'extension attribuée
 │           └── __init__.py
 ├── tests/
 │   ├── __init__.py
-│   ├── test_models.py          # Tests unitaires des entités et de l'encapsulation
-│   ├── test_engine.py          # Tests déterministes du calcul des dégâts
-│   ├── test_simulation.py      # Tests de reproductibilité et de parallélisation
-│   └── test_extension.py       # Tests unitaires spécifiques à l'extension
+│   ├── test_models.py          # Tests des entités, du typage et des propriétés
+│   ├── test_engine.py          # Tests unitaires du calcul de dégâts et du cycle de tour
+│   ├── test_simulation.py      # Tests de reproductibilité (seed) et de parallélisation
+│   └── test_extension.py       # Tests unitaires exhaustifs de l'extension choisie
 └── app/
     ├── main.py                 # Point d'entrée de l'application Streamlit
-    ├── pages/                  # Pages multipages Streamlit
-    └── utils.py                # Fonctions d'affichage graphique Plotly/Folium
+    ├── pages/                  # Pages multipages de l'interface
+    └── utils.py                # Fonctions d'affichage graphique (Plotly, Folium)
 ```
 
-## Règles de Programmation Orientée Objet (POO)
+---
 
-1. **Abstraction :**
-   * Présence obligatoire d'une classe abstraite `BaseFighter` héritant de `abc.ABC`.
-   * Définition explicite des méthodes abstraites via `@abstractmethod` :
-     * `take_damage(self, amount: int) -> None`
-     * `is_alive(self) -> bool`
-     * `reset_stats(self) -> None`
+## Règles d'Or de la Programmation Orientée Objet (POO)
+
+1. **Rôle précis des classes du socle commun (`core/models.py`) :**
+
+   * `BaseFighter` (classe abstraite héritant de `abc.ABC`) : déclare l'interface contractuelle avec `@abstractmethod` : `take_damage(amount)`, `is_alive()`, `reset_stats()`.
+   * `Fighter` (classe concrète héritant de `BaseFighter`) : implémente un combattant individuel avec ses attributs encapsulés et validés par `@property`.
+   * `BattleResult` (dataclass ou classe immuable) : structure de retour standardisée d'un duel consignant le vainqueur, le perdant, le nombre de tours et l'état des PV restants.
+
 2. **Encapsulation stricte :**
-   * Les attributs critiques (dont les points de vie) doivent être privés ou protégés et exposés via des propriétés `@property`.
-   * Le setter associé à la santé doit empêcher toute affectation d'une valeur négative ou supérieure à $\text{PV}_{\max}$.
-3. **Méthodes spéciales (dunder methods) :**
-   * Implémenter obligatoirement `__repr__` (représentation technique complète), `__str__` (affichage convivial) et `__eq__` (égalité structurelle basée sur l'identifiant).
-4. **Hiérarchie d'exceptions maison :**
-   * Définir une exception de base `PyArenaException(Exception)` dans `exceptions.py`.
-   * Implémenter au minimum :
-     * `FighterFaintedError` : levée lorsqu'un combattant K.-O. tente d'agir.
-     * `InvalidStatError` : levée si une statistique d'entrée est hors des bornes autorisées.
-     * `DataFetchError` : levée si l'API est injoignable et qu'aucun cache local n'existe.
+   * L'attribut de santé `_hp` est strictement privé ou protégé.
+   * Le setter `@hp.setter` interdit formellement toute valeur incohérente : une valeur négative est ramenée à 0, et un dépassement de $\text{PV}_{\max}$ est borné.
+3. **Méthodes Spéciales (*Dunder methods*) :**
+   * Implémenter obligatoirement `__repr__` (signature technique non ambiguë), `__str__` (affichage lisible) et `__eq__` (égalité structurelle basée sur `id`).
+4. **Gestion Robuste des Exceptions (`core/exceptions.py`) :**
 
-## Packaging et Intégration Continue (CI)
+   * Classe racine : `PyArenaException(Exception)`.
+   * Classes dérivées obligatoires :
+     * `FighterFaintedError` : levée lorsqu'une entité à $\text{PV} = 0$ tente d'agir.
+     * `InvalidStatError` : levée si une statistique extraite est négative ou nulle.
+     * `DataFetchError` : levée si l'API est injoignable et qu'aucun cache local n'existe sur le disque.
 
-* Le paquet doit être installable en mode développement à la racine du dépôt :
+---
+
+## Packaging et Intégration Continue (GitHub Actions)
+
+* Le dépôt doit être installable en mode éditable à la racine :
   ```bash
   pip install -e .
   ```
-* Un workflow GitHub Actions (`.github/workflows/ci.yml`) doit s'exécuter à chaque commit poussé sur `main` et à chaque Pull Request :
-  1. Vérification du formatage et du style avec `ruff check` ou `flake8`.
-  2. Exécution de l'intégralité des tests avec `pytest`.
-  3. Vérification du seuil de couverture de code : **la couverture mesurée par `pytest-cov` sur le package `pyarena` doit être supérieure ou égale à 70 %**.
+* Le workflow `.github/workflows/ci.yml` s'exécute à chaque commit sur `main` et à chaque Pull Request :
+
+  1. Contrôle du style et du formatage avec `ruff check`.
+  2. Exécution de la suite de tests avec `pytest`.
+  3. Mesure de couverture avec `pytest-cov` :
+     * **Équipes de 3 :** Échec immédiat si couverture globale $< 70\%$.
+     * **Équipes de 4 :** Échec immédiat si couverture globale $< 85\%$.
 
 ---
 
 # Pipeline de Données, Cache Local et Simulation
 
-## Récupération API et Stratégie de Cache Hors-Ligne
+## Ingestion PokéAPI et Cache Hors-Ligne
 
-* Le module `fetcher.py` doit implémenter une classe `DataFetcher` interrogeant l'API publique ouverte `[https://pokeapi.co/api/v2/pokemon/](https://pokeapi.co/api/v2/pokemon/){id}` pour les 151 premières créatures ($\text{id} \in [\![1, 151]\!]$).
-* **Mise en cache locale obligatoire :** Tout appel réseau réussi enregistre immédiatement le fichier JSON sous `data/cache/{id}.json`.
-* Lors d'une demande ultérieure, le système charge directement le fichier local sans déclencher de requête HTTP.
-* Le dossier `data/cache/` doit figurer dans le fichier `.gitignore` : les données brutes ne doivent pas être versionnées sur Git.
+* Le module `io/fetcher.py` implémente `DataFetcher` requêtant l'API ouverte `https://pokeapi.co/api/v2/pokemon/{id}`.
+* **Politique de cache disque :** Tout fichier JSON reçu est sérialisé sous `data/cache/{id}.json`.
+* Toute exécution ultérieure lit prioritairement le fichier local sans solliciter le réseau.
+* Le dossier `data/cache/` doit figurer dans le fichier `.gitignore` : **interdiction absolue de pousser les fichiers JSON sur GitHub**.
+
+---
 
 ## Moteur de Simulation Monte-Carlo Parallélisé
 
-* La fonction de combat élémentaire `simulate_battle(f1, f2, seed=None)` doit permettre l'injection d'une graine aléatoire (`seed`) pour garantir la reproductibilité parfaite d'une confrontation.
-* Le module `monte_carlo.py` doit proposer une fonction :
+* La fonction fondamentale `simulate_battle(f1, f2, seed=None)` permet l'injection d'une graine aléatoire pour reproduire un affrontement à l'identique.
+* Le module `simulation/monte_carlo.py` expose la fonction :
   ```python
   def run_monte_carlo(
       f1: BaseFighter, 
@@ -202,317 +272,583 @@ pyarena/
       n_jobs: int = -1
   ) -> dict:
   ```
-* **Parallélisation :** L'exécution des $n_{\text{simulations}}$ duels doit être distribuée sur l'ensemble des cœurs CPU de la machine hôte (`multiprocessing.Pool` ou `joblib.Parallel`).
-* **Mesures retournées :**
-  1. Probabilité de victoire estimée de $C_1$ :
-     $$\hat{p} = \frac{\text{Nombre de victoires de } C_1}{n_{\text{simulations}}}$$
+* **Distribution multi-cœurs :** Les $n_{\text{simulations}}$ duels doivent être distribués via `multiprocessing.Pool` ou `joblib.Parallel`.
+* **Indicateurs retournés dans le dictionnaire de synthèse :**
+
+  1. Winrate ponctuel de $C_1$ :
+     $$\hat{p} = \frac{N_{\text{victoires de } C_1}}{n_{\text{simulations}}}$$
   2. Intervalle de confiance asymptotique à 95 % :
      $$\mathrm{IC}_{0.95}(\hat{p}) = \left[ \hat{p} - 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}}, \; \hat{p} + 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}} \right]$$
-  3. Distribution du nombre de tours jusqu'au terme du combat (moyenne, médiane, écart-type).
+  3. Statistique descriptive de la durée du match (nombre de tours jusqu'au K.-O.) : moyenne, médiane, écart-type.
 
 ---
 
 # Spécifications du Tableau de Bord Streamlit
 
-L'application Streamlit (`app/main.py`) est un outil décisionnel interactif comprenant obligatoirement les trois modules suivants :
+L'application Streamlit (`app/main.py`) constitue le livrable visuel décisionnel.
 
-## Module 1 : Simulateur de Duel et Télémétrie en Direct
-* Deux listes déroulantes permettent de sélectionner les combattants $A$ et $B$ parmi les 151 disponibles.
-* Affichage immédiat des sprites officiels (PNG transparents issus du cache ou de l'URL) et de leurs statistiques de niveau 50.
-* Curseur interactif pour régler le nombre de simulations ($100 \le N \le 10\,000$).
-* Restitution post-calcul :
-  * Winrates comparés avec barres de progression.
-  * Intervalle de confiance à 95 % affiché numériquement.
-  * Histogramme Plotly interactif de la distribution du nombre de tours.
-  * Journal textuel pas-à-pas (*log*) d'un match témoin généré avec graine fixée.
+## Module 1 : Simulateur de Duel et Télémétrie en Direct (Commun)
 
-## Module 2 : Catalogue et Analyse Exploratoire des Données
-* Tableau de données interactif avec pagination et filtres dynamiques (par type, par plage de PV ou d'attaque).
-* Graphique de dispersion interactif Plotly : *Attaque* en abscisse, *Défense* en ordonnée, taille des marqueurs proportionnelle aux *PV*, couleur assignée selon le *Type*.
-* Boîtes à moustaches (*boxplots*) comparant la distribution de la vitesse entre les 5 familles élémentaires.
+* Listes déroulantes pour sélectionner les combattants $A$ et $B$.
+* Affichage immédiat des sprites officiels (champ `sprites.front_default` de l'API) et des statistiques normalisées.
+* Curseur dynamique réglant le nombre de duels ($100 \le N \le 10\,000$).
+* Restitution post-calcul : jauges de winrate, intervalle de confiance à 95 %, histogramme Plotly de la durée des combats et journal textuel d'un match témoin généré avec graine fixée.
 
-## Module 3 : Cartographie Géospatiale des Arènes d'Occitanie
-* Exploitation du fichier `data/arenes_occitanie.geojson` regroupant 30 sites régionaux (Montpellier, Sète, Nîmes, Toulouse, Perpignan...).
-* Affichage de la carte dynamique via `streamlit-folium`.
-* Marqueurs géoréférencés colorés selon le type élémentaire de l'arène.
-* Clic sur un marqueur : ouverture d'un pop-up affichant le nom de l'arène, son champion, son sprite officiel et ses statistiques.
+## Module 2 : Catalogue et Analyse Exploratoire des Données (Commun)
+
+* Tableau interactif filtrable par type et caractéristiques.
+* Nuage de points Plotly : *Attaque* vs *Défense*, taille proportionnelle aux *PV*, couleur selon le type principal.
+* Boîtes à moustaches (*boxplots*) comparant la distribution de la vitesse entre les types.
+
+## Module 3 : Cartographie Géospatiale des Arènes d'Occitanie (Commun)
+
+* Exploitation de `data/arenes_occitanie.geojson` recensant 30 arènes régionales (Montpellier, Béziers, Nîmes, Toulouse...).
+* Carte dynamique via `streamlit-folium` avec marqueurs colorés selon le type de l'arène.
+* Clic sur un marqueur : pop-up détaillant le champion local, son sprite et ses statistiques.
+
+## Module 4 : Analyseur de Synergie d'Équipe (Obligatoire Groupes de 4 / Bonus Groupes de 3)
+Outil décisionnel analysant un trio de combattants $E = \{C_1, C_2, C_3\}$ :
+
+1. **Bilan des Vulnérabilités Défensives :**  
+   Pour chacun des 18 types $t \in \mathcal{T}$, calcule combien de membres subissent des dégâts critiques ($M_{\text{total}} \ge 2{,}0$). Alerte visuelle rouge si $\ge 2$ membres partagent la même faiblesse.
+2. **Couverture Offensive Globale :**  
+   Calcule le pourcentage des 18 types adverses frappés avec un avantage ($M > 1{,}0$) par au moins un membre :
+   $$\text{Taux de Couverture} = \frac{\sum_{t \in \mathcal{T}} \mathbb{I}_{\{\exists C \in E \,:\, M(T_1(C), t) > 1{,}0\}}}{18} \times 100$$
+   Visualisation sous forme de diagramme radar Plotly.
 
 ---
 
 # Spécifications Exhaustives des 10 Extensions Thématiques
 
-Chaque groupe développe **une seule** extension. L'extension doit obligatoirement comporter :
-1. Un module dédié dans `src/pyarena/extensions/`.
-2. Une suite de tests unitaires dédiée dans `tests/test_extension.py`.
-3. Un onglet ou composant dédié dans l'application Streamlit.
+Chaque équipe de projet implémente **une seule extension exclusive** parmi les dix présentées ci-après.
 
----
+### Cadre Technique Commun et Équité
+Toutes les extensions ont été calibrées pour mobiliser une charge de travail strictement homogène:
 
-# Spécifications Exhaustives des 10 Extensions Thématiques
-
-Chaque groupe développe **une seule** extension parmi la liste ci-dessous. Toutes les extensions sont calibrées pour représenter un volume de travail équivalent (environ 100 à 150 lignes de code métier, une suite de tests unitaires dédiée et un composant interactif dans Streamlit).
-
-Aucune extension ne requiert d'algorithme complexe hors programme : elles s'appuient exclusivement sur la modélisation orientée objet, des calculs de probabilités élémentaires, des boucles de balayage ou des manipulations de données tabulaires/spatiales.
+* **Développement métier :** Lignes de code Python réparties dans un module dédié sous `src/pyarena/extensions/`.
+* **Assurance qualité :** Une suite de tests unitaires stricts dans `tests/test_extension.py` couvrant les propriétés nominales, les cas aux limites et les propriétés algébriques ou statistiques.
+* **Restitution décisionnelle :** Un volet dédié dans Streamlit articulant une **Vue Macro** (agrégation statistique sur $N = 5\,000$ duels) ou/et une **Vue Micro** (télémétrie d'un combat singulier avec graine fixée).
 
 ---
 
 ### Extension 1 : Objets Passifs et Équipements Stratégiques
-* **Problématique jeu :** Évaluer comment l'attribution d'un objet passif peut compenser un déficit initial de statistiques ou modifier radicalement l'issue d'un duel.
-* **Spécifications logicielles :**
-  * Créer une classe de base abstraite `BaseItem` dans `src/pyarena/extensions/items.py` avec les méthodes :
-    * `apply_passive(self, fighter: BaseFighter) -> None` (ajustement de statistiques au début du match)
-    * `on_damage_received(self, incoming_damage: int, current_hp: int) -> int` (altération des dégâts subis)
-    * `on_turn_end(self, fighter: BaseFighter) -> None` (effets de régénération en fin de tour)
-  * Implémenter obligatoirement 4 objets concrets :
-    1. *Ceinture Force* : si $\text{PV} = \text{PV}_{\max}$ et que les dégâts entrants sont mortels, laisse le combattant à $\text{PV} = 1$ (usage unique par match).
-    2. *Baie Sitrus* : dès que $\text{PV} \le 0{,}5 \times \text{PV}_{\max}$, rend immédiatement $\lfloor 0{,}25 \times \text{PV}_{\max} \rfloor$ PV (consommable, usage unique).
-    3. *Orbe Vie* : augmente les dégâts infligés par le porteur de 30 %, mais lui retire $\lfloor 0{,}10 \times \text{PV}_{\max} \rfloor$ PV après chaque frappe assénée.
-    4. *Restes* : régénère $\lfloor \frac{\text{PV}_{\max}}{16} \rfloor$ PV à la fin de chaque tour.
-* **Tests unitaires (`tests/test_extension.py`) :**
-  * Vérifier que la Ceinture Force s'active bien sur une frappe létale si les PV sont pleins, mais pas si le combattant a déjà subi des dégâts préalables.
-  * Vérifier que la Baie Sitrus ne s'active pas au-dessus du seuil de 50 % de PV.
-  * Contrôler le bon calcul des dégâts de contrecoup de l'Orbe Vie.
-* **Intégration Streamlit :** Menus déroulants permettant d'équiper un objet sur le combattant $A$ et/ou $B$, et affichage du delta de winrate (+X %) induit par chaque objet.
+
+* **Fichier source :** `src/pyarena/extensions/items.py`
+* **Problématique décisionnelle :** Modéliser l'impact d'équipements passifs sur le rééquilibrage de duels asymétriques et quantifier leur capacité à neutraliser un désavantage de statistiques ou d'affinité élémentaire.
+* **Spécifications logicielles et POO :**
+
+  * Concevoir une classe abstraite `BaseItem(ABC)` dotée par exemple de trois méthodes polymorphiques:
+    ```python
+    class BaseItem(ABC):
+        @abstractmethod
+        def apply_passive(self, fighter: BaseFighter) -> None:
+            """Ajuste les attributs initiaux du combattant en début de duel."""
+            pass
+
+        @abstractmethod
+        def on_damage_received(
+            self, incoming_damage: int, current_hp: int
+        ) -> int:
+            """Intercepte et modifie les dégâts subis avant leur déduction."""
+            pass
+
+        @abstractmethod
+        def on_turn_end(self, fighter: BaseFighter) -> None:
+            """Exécute les effets séquentiels en clôture de tour (soin, contrecoup)."""
+            pass
+```
+
+  * Implémenter obligatoirement au moins quatre classes concrètes d'objets:
+
+    1. `FocusSash` (*Ceinture Force*) : Si $\text{PV} = \text{PV}_{\max}$ et que $\text{Dégâts} \ge \text{PV}$, les dégâts entrants sont plafonnés à $\text{PV}_{\max} - 1$, laissant le porteur à $\text{PV} = 1$. Possède un attribut d'état `is_consumed: bool = False` qui bascule à `True` dès l'activation. L'objet devient inopérant pour le reste du match.
+    2. `SitrusBerry` (*Baie Sitrus*) : Possède l'attribut `is_consumed: bool = False`. Dès que $\text{PV} \le \lfloor 0{,}50 \times \text{PV}_{\max} \rfloor$, restitue immédiatement $\lfloor 0{,}25 \times \text{PV}_{\max} \rfloor$ PV. Le soin est plafonné à $\text{PV}_{\max}$. L'objet bascule à `is_consumed = True` et ne peut plus se déclencher.
+    3. `LifeOrb` (*Orbe Vie*) : Applique un multiplicateur fixe de $\times 1{,}30$ sur l'ensemble des dégâts physiques infligés par le porteur. En contrepartie, après chaque frappe assénée, le porteur subit un contrecoup de $\lfloor 0{,}10 \times \text{PV}_{\max} \rfloor$ PV. Ce recul peut conduire au K.-O. du lanceur.
+    4. `Leftovers` (*Restes*) : Dans la méthode `on_turn_end`, régénère $\lfloor \frac{\text{PV}_{\max}}{16} \rfloor$ PV à la clôture de chaque tour, plafonné à $\text{PV}_{\max}$.
+
+* **Cas aux limites et règles de gestion :**
+
+  * Si un combattant équipé de la *Ceinture Force* subit une attaque fatale alors qu'il a déjà perdu au moins 1 PV ($\text{PV} < \text{PV}_{\max}$), la protection échoue et l'entité tombe K.-O.
+  * Si l'activation de l'*Orbe Vie* met le défenseur et l'attaquant à 0 PV sur le même tour, l'attaquant est déclaré vainqueur (les dégâts sont appliqués avant le contrecoup).
+
+* **Tests unitaires obligatoires (`tests/test_extension.py`) :**
+
+  * `test_focus_sash_full_hp` : Valider la survie à 1 PV lors d'une attaque mortelle à PV pleins[cite: 1].
+  * `test_focus_sash_damaged` : Valider l'inactivité de la Ceinture Force si $\text{PV}_{\text{initial}} = \text{PV}_{\max} - 1$.
+  * `test_sitrus_berry_threshold_and_consumption` : Vérifier que le soin ne s'active pas à $51\%$ de PV, se déclenche à $50\%$, et ne se répète jamais une seconde fois.
+  * `test_life_orb_recoil_ko` : Vérifier la majoration arithmétique de $30\%$ des dégâts et la possibilité de mourir du contrecoup.
+  * `test_leftovers_cap` : Vérifier que les Restes ne permettent aucun dépassement de $\text{PV}_{\max}$.
+
+* **Composant Streamlit :**
+
+  * *Vue Macro :* Heatmap Plotly $5 \times 5$ affichant la matrice du delta de winrate $\Delta \hat{p} = \hat{p}_{\text{équipé}} - \hat{p}_{\text{sans}}$ pour chaque combinaison d'objets sur un duel de référence.
+  * *Vue Micro :* Télémétrie d'un match témoin avec mise en avant graphique des activations d'objets (pastilles vertes de régénération, bouclier doré pour la Ceinture Force).
 
 ---
 
 ### Extension 2 : Combats d'Équipes 3 contre 3 avec Relais (Tag-Team)
-* **Problématique jeu :** Modéliser un format de match en relais et déterminer si l'ordre d'entrée en piste (*lead*) influence statistiquement la victoire finale.
-* **Spécifications logicielles :**
-  * Créer une classe `Team` dans `src/pyarena/extensions/teams.py` gérant une file ordonnée de 3 combattants.
-  * Créer une classe `TeamBattle` : les premiers combattants de chaque équipe s'affrontent. Dès qu'un combattant tombe K.-O., le suivant dans la file entre immédiatement dans l'arène. Le combattant adverse conserve ses PV entamés (pas de régénération entre les duels).
-  * Condition de fin : la confrontation s'arrête dès que les 3 membres d'une équipe sont tous K.-O.
-* **Tests unitaires (`tests/test_extension.py`) :**
-  * Vérifier le passage automatique au combattant numéro 2 lors du premier K.-O.
-  * Vérifier que le combattant restant conserve exactement ses PV résiduels à l'entrée du combattant adverse suivant.
-  * Valider l'arrêt de la partie au troisième K.-O.
-* **Intégration Streamlit :** Sélecteur de 3 combattants par équipe, affichage dynamique des 6 jauges de santé et comparaison graphique du winrate selon que l'on inverse l'ordre d'apparition des membres d'une équipe.
+
+* **Fichier source :** `src/pyarena/extensions/teams.py`
+* **Problématique décisionnelle :** Modéliser une confrontation séquentielle par équipes et déterminer l'ordonnancement d'alignement optimal (*matchup sequencing*) face à une composition adverse donnée.
+* **Spécifications logicielles et POO :**
+
+  * Concevoir une classe `Team` encapsulant une file (FIFO) de trois instances concrètes de `BaseFighter`:
+
+    ```python
+    class Team:
+        def __init__(self, fighters: list[BaseFighter]):
+            if len(fighters) != 3:
+                raise ValueError("Une équipe doit comporter exactement 3 combattants.")
+            self._queue: list[BaseFighter] = list(fighters)
+
+        def get_active(self) -> BaseFighter:
+            return self._queue[0]
+
+        def pop_defeated(self) -> BaseFighter:
+            return self._queue.pop(0)
+
+        def is_defeated(self) -> bool:
+            return len(self._queue) == 0
+  ```
+
+  * Concevoir une classe `TeamBattle` orchestrant la rencontre:
+
+    * Les combattants en tête de file débutent le combat.
+    * Dès qu'un combattant actif est K.-O., il est retiré de la file. Le combattant suivant entre immédiatement dans l'arène avec ses PV pleins face à l'adversaire survivant.
+    * Le combattant survivant conserve scrupuleusement ses points de vie résiduels (aucune réinitialisation entre les duels).
+    * Condition de victoire : l'affrontement cesse dès que l'une des deux équipes a ses 3 membres K.-O.
+  * Fonction d'optimisation d'ordre d'alignement :
+    ```python
+    def optimize_team_order(
+        my_team: list[BaseFighter],
+        opponent_team: list[BaseFighter],
+        n_simulations: int = 1000,
+    ) -> dict[tuple, float]:
+        """Évalue les 3! = 6 permutations d'alignement de my_team face à l'adversaire."""
+```
+
+* **Cas aux limites et règles de gestion :**
+
+  * L'initiative (qui frappe en premier) est recalculée à chaque entrée d'un nouveau combattant selon la comparaison stricte des vitesses $V$.
+  * Les statistiques modifiées en cours de duel ne se transmettent pas au combattant suivant de la file.
+
+* **Tests unitaires obligatoires (`tests/test_extension.py`) :**
+
+  * `test_relay_transition` : Vérifier que le combattant n°2 prend le relais au tour exact suivant le K.-O. du combattant n°1.
+  * `test_hp_persistence_between_rounds` : Contrôler que le vainqueur d'un duel intermédiaire conserve rigoureusement ses PV entamés face au nouvel arrivant.
+  * `test_battle_termination_at_three_ko` : Valider la clôture stricte du match après trois K.-O. dans la même équipe.
+  * `test_optimization_permutations` : Valider que `optimize_team_order` évalue bien les 6 permutations et renvoie des probabilités comprises dans $[0, 1]$.
+* **Composant Streamlit :**
+
+  * *Vue Macro :* Diagramme en barres Plotly classant les 6 permutations d'alignement possibles par winrate décroissant, mettant en valeur l'alignement optimal $\sigma^*$ et le différentiel de victoires par rapport à la pire permutation.
+  * *Vue Micro :* Suivi graphique en direct des 6 jauges de santé qui diminuent de façon synchrone au fil des relais d'un match témoin.
 
 ---
 
-### Extension 3 : Matrice Complète de Méta-Jeu en Round-Robin
-* **Problématique jeu :** Identifier si un panel de combattants présente des relations circulaires intransitives (type « Pierre-Feuille-Ciseaux ») ou s'il existe une créature dominante dans tous les cas de figure.
-* **Spécifications logicielles :**
-  * Créer un module `src/pyarena/extensions/round_robin.py`.
-  * Isoler une sélection fixe de 10 combattants représentatifs aux types élémentaires variés.
-  * Automatiser le calcul des duels croisés : $\frac{10 \times 9}{2} = 45$ confrontations distinctes, chacune simulée sur $N = 1\,500$ itérations parallélisées.
-  * Construire la matrice d'adjacence $10 \times 10$ où la cellule $(i, j)$ consigne l'estimation ponctuelle $\hat{p}(C_i \text{ bat } C_j)$.
-* **Tests unitaires (`tests/test_extension.py`) :**
-  * Vérifier les propriétés de cohérence de la matrice : $M_{i,i} = 0{,}5$ et pour tout $i \neq j$, $M_{i,j} + M_{j,i} = 1{,}0$ (à tolérance machine près).
-* **Intégration Streamlit :** Heatmap interactive Plotly de la matrice $10 \times 10$, accompagnée du tableau récapitulatif classant les 10 combattants selon leur score moyen cumulé.
+### Extension 3 : Matrice Complète de Méta-Jeu et Détection d'Intransitivité
+
+* **Fichier source :** `src/pyarena/extensions/round_robin.py`
+* **Problématique décisionnelle :** Identifier l'existence de cycles d'intransitivité généralisés (équilibres de type « Pierre-Feuille-Ciseaux ») au sein d'un panel de combattants et formaliser la structure topologique du méta-jeu.
+* **Spécifications logicielles et Algorithmes :**
+
+  * Isoler une liste fixe de 10 combattants représentatifs aux profils de types et de statistiques diversifiés.
+  * Orchestrer un tournoi toutes rondes (*Round-Robin*) : simuler l'ensemble des $\frac{10 \times 9}{2} = 45$ duels non redondants via le moteur Monte-Carlo ($N = 1\,500$ simulations par cellule).
+  * Construire la matrice d'adjacence stochastique $M \in \mathbb{R}^{10 \times 10}$ où $M_{i,j} = \hat{p}(C_i \text{ bat } C_j)$.
+  * **Détection formelle des cycles d'intransitivité :**
+
+    * Soit la relation de dominance empirique :
+      $$C_i \succ C_j \iff M_{i,j} > 0{,}50$$
+    * Parcourir l'ensemble des $\binom{10}{3} = 120$ combinaisons non ordonnées de triplets $\{C_i, C_j, C_k\}$ pour extraire la totalité des 3-cycles orientés vérifiant :
+      $$C_i \succ C_j \quad \text{et} \quad C_j \succ C_k \quad \text{et} \quad C_k \succ C_i$$
+    * Renvoyer les cycles détectés sous forme d'une liste de tuples de noms `[(str, str, str)]`.
+
+* **Cas aux limites et règles de gestion :**
+  * Si $M_{i,j} = 0{,}50$ (égalité stochastique stricte), la relation de dominance n'est pas établie et la paire ne peut participer à aucun cycle.
+* **Tests unitaires obligatoires (`tests/test_extension.py`) :**
+
+  * `test_matrix_symmetry_properties` : Vérifier que $M_{i,i} = 0{,}50$ et que pour tout $i \neq j$, $|(M_{i,j} + M_{j,i}) - 1{,}0| < 10^{-4}$.
+  * `test_cycle_detection_synthetic` : Injecter une matrice $3 \times 3$ d'intransitivité pure ($A$ bat $B$ à 70 %, $B$ bat $C$ à 70 %, $C$ bat $A$ à 70 %) et valider que l'algorithme extrait exactement le cycle $(A, B, C)$.
+  * `test_no_cycle_in_linear_hierarchy` : Valider que sur une matrice représentant une hiérarchie stricte ($A \succ B \succ C$ avec $A \succ C$), aucun cycle n'est renvoyé.
+
+* **Composant Streamlit :**
+
+  * *Heatmap Plotly :* Représentation $10 \times 10$ munie d'une échelle de couleurs divergente centrée sur $0{,}50$.
+  * *Graphe Orienté Circulaire :* Affichage des 10 nœuds disposés en cercle. Pour préserver la lisibilité, le graphe n'affiche par défaut que les arêtes de forte dominance ($\hat{p} \ge 0{,}60$).
+  * *Sélecteur de Cycles :* Composant `st.selectbox` énumérant les cycles d'intransitivité détectés. Sélectionner un cycle efface les autres arêtes du graphe et illumine en rouge vif les 3 flèches du cycle avec 3 colonnes `st.metric` associées.
 
 ---
 
 ### Extension 4 : Choix Stratégique d'Attaques (Précision vs Puissance)
-* **Problématique jeu :** Comparer la fiabilité d'une stratégie de jeu prudente (dégâts modérés constants) face à une stratégie agressive reposant sur des attaques puissantes mais imprécises.
-* **Spécifications logicielles :**
-  * Modifier la classe `Fighter` dans `src/pyarena/extensions/moves.py` pour lui conférer deux capacités :
-    1. *Frappe Sûre* : Puissance $P = 40$, Précision $\alpha = 1{,}00$ (réussite garantie).
-    2. *Frappe Risquée* : Puissance $P = 85$, Précision $\alpha = 0{,}65$ (35 % de chances d'échouer complètement et de n'infliger aucun dégât).
-  * Implémenter 3 règles de décision sélectionnables pour l'attaquant :
-    * *Stratégie Prudente* : utilise systématiquement la Frappe Sûre.
-    * *Stratégie Agressive* : utilise systématiquement la Frappe Risquée.
-    * *Stratégie Gloutonne (Espérance)* : calcule à chaque tour les dégâts moyens espérés de chaque coup $\mathbb{E}[\text{Dégâts}] = \alpha \times \text{Dégâts}$ et choisit la frappe qui maximise ce gain immédiat.
-* **Tests unitaires (`tests/test_extension.py`) :**
-  * Valider sur 10 000 lancers simulés que la fréquence d'échec de la Frappe Risquée est bien conforme à $0{,}35 \pm 0{,}015$.
-  * Vérifier qu'une attaque ratée n'inflige aucun dégât et ne déclenche aucun coup critique.
-* **Intégration Streamlit :** Interface permettant d'assigner une stratégie à chaque joueur et affichage superposé des distributions de victoires obtenues.
+
+* **Fichier source :** `src/pyarena/extensions/moves.py`
+* **Problématique décisionnelle :** Modéliser la prise de décision séquentielle en univers incertain en arbitrant entre rendement espéré maximal et minimisation du risque de défaillance immédiate.
+
+* **Spécifications logicielles et Algorithmes :**
+  * Doter chaque combattant de deux capacités alignées sur son type principal $T_1$ :
+
+    1. *Frappe Sûre* : Puissance $P = 40$, Précision $\alpha = 1{,}00$ (succès garanti).
+    2. *Frappe Risquée* : Puissance $P = 85$, Précision $\alpha = 0{,}65$ (35 % de chances d'échec total, infligeant 0 dégât).
+
+  * Définir trois agents décisionnels sélectionnables :
+
+    * `ConservativeAgent` : Sélectionne systématiquement la Frappe Sûre.
+    * `AggressiveAgent` : Sélectionne systématiquement la Frappe Risquée.
+    * `OptimalExpectationAgent` : Calcule à chaque tour les dégâts théoriques moyens des deux options en intégrant les statistiques du défenseur et les multiplicateurs $M_{\text{total}}$:
+
+      $$\mathbb{E}[\text{Dégâts}_{\text{sûre}}] = 1{,}00 \times \text{Dégâts}(P=40, M_{\text{total}})$$
+      $$\mathbb{E}[\text{Dégâts}_{\text{risquée}}] = 0{,}65 \times \text{Dégâts}(P=85, M_{\text{total}})$$
+      *Règle du Coup de Grâce :* Si $\text{Dégâts}(P=40, M_{\text{total}}) \ge \text{PV}_{\text{cible}}$, l'agent choisit **obligatoirement** la Frappe Sûre (garantie de K.-O. à 100 % au lieu de s'exposer à 35 % d'échec). Sinon, il choisit l'option d'espérance maximale.
+
+* **Cas aux limites et règles de gestion :**
+
+  * En cas d'échec d'une Frappe Risquée, aucun dégât n'est infligé, le coup critique ne peut pas être calculé et le tour de l'attaquant est consommé.
+
+* **Tests unitaires obligatoires (`tests/test_extension.py`) :**
+
+  * `test_risky_move_failure_rate` : Vérifier sur $10\,000$ itérations que le taux d'échec empirique converge vers $0{,}35 \pm 0{,}015$.
+  * `test_risky_move_zero_damage` : Valider qu'une attaque échouée maintient les PV de la cible strictement inchangés.
+  * `test_coup_de_grace_override` : Vérifier formellement que l'agent par espérance bascule sur la Frappe Sûre dès que la cible est à portée de frappe certaine, même si $\mathbb{E}[\text{Dégâts}_{\text{risquée}}] > \mathbb{E}[\text{Dégâts}_{\text{sûre}}]$.
+
+* **Composant Streamlit :**
+
+  * *Vue Macro :* Histogrammes superposés Plotly de la distribution de la durée des matchs (nombre de tours jusqu'au K.-O.) comparant les confrontations Conservateur vs Conservateur, Agressif vs Agressif et Espérance vs Agressif.
+  * *Vue Micro :* Télémétrie pas-à-pas consignant la décision prise par l'agent décisionnel et la justification mathématique de son arbitrage tour par tour.
 
 ---
 
 ### Extension 5 : Système Stochastique d'Altérations d'État
-* **Problématique jeu :** Mesurer à quel point des altérations de statut infligées aléatoirement peuvent déstabiliser un duel et prolonger la durée des matchs.
+
+* **Problématique décisionnelle :** Modéliser des "chaînes de Markov" avec états absorbants pour quantifier comment des pénalités d'état aléatoires déstabilisent l'avantage initial de vitesse et d'attaque.
 * **Spécifications logicielles :**
-  * Définir une énumération `Status(Enum)` dans `src/pyarena/extensions/statuses.py` : `NONE`, `PARALYSIS`, `BURN`.
-  * Chaque coup porté a une probabilité $p = 0{,}15$ d'induire une altération d'état sur la cible (si elle est indemne) :
-    * *Paralysie* : divise définitivement la statistique de vitesse par deux ($V \leftarrow \lfloor V / 2 \rfloor$). De plus, au début de chaque tour, le combattant a 25 % de chances d'être tétanisé et d'annuler son attaque.
-    * *Brûlure* : divise l'Attaque par deux ($A \leftarrow \lfloor A / 2 \rfloor$). À la fin de chaque tour, le porteur perd $\lfloor \frac{\text{PV}_{\max}}{16} \rfloor$ PV résiduels.
+
+  * Définir l'énumération `Status(Enum)` dans `src/pyarena/extensions/statuses.py` : `NONE`, `BURN`, `PARALYSIS`, `POISON`.
+  * Chaque attaque réussie a $p = 0{,}15$ de chances d'induire une altération sur une cible saine, dictée par le type principal $T_1$ de l'attaquant :
+
+    * **Feu $\rightarrow$ Brûlure (`BURN`) :** L'attaque du porteur est divisée par deux de façon permanente ($A \leftarrow \lfloor A / 2 \rfloor$). En clôture de chaque tour, il perd $\lfloor \text{PV}_{\max} / 16 \rfloor$ PV.
+    * **Électrik $\rightarrow$ Paralysie (`PARALYSIS`) :** La vitesse du porteur est divisée par deux de façon permanente ($V \leftarrow \lfloor V / 2 \rfloor$). Au début de chaque tour, le porteur subit un tirage de Bernoulli $B \sim \mathcal{B}(0{,}25)$ : si $B = 1$, le combattant est tétanisé et son tour est annulé.
+    * **Plante ou Poison $\rightarrow$ Poison (`POISON`) :** En fin de chaque tour, le porteur perd passivement $\lfloor \text{PV}_{\max} / 8 \rfloor$ PV.
+
+  * **Règles d'exclusivité et de rémanence :** Un combattant ne peut cumuler plusieurs statuts simultanément. Une altération persiste jusqu'au terme du duel (aucune guérison spontanée). Les combattants d'autres types n'infligent aucun statut mais peuvent les subir.
+
 * **Tests unitaires (`tests/test_extension.py`) :**
-  * Vérifier que la vitesse ou l'attaque est effectivement divisée par deux lors de l'application du statut.
-  * Valider la non-cumulabilité des statuts majeurs : une entité déjà paralysée ne peut pas être brûlée.
-* **Intégration Streamlit :** Visualisation par histogrammes Plotly comparant l'espérance et la variance du nombre de tours jusqu'au K.-O. avec et sans altérations de statut.
+
+  * Vérifier la division exacte par deux de $A$ et $V$ dès l'application respective de la Brûlure et de la Paralysie.
+  * Vérifier l'immunité aux autres statuts d'un combattant déjà altéré.
+  * Valider que les dégâts de fin de tour décrémentent fidèlement les points de vie et peuvent provoquer un K.-O.
+
+* **Composant Streamlit :**
+
+  * *Vue Macro :* Histogramme Plotly superposant la distribution de la durée des duels (nombre de tours) avec et sans statuts activés, complété par trois cartes `st.metric` affichant la probabilité de victoire globale $\hat{p}(\text{Victoire})$ et la probabilité conditionnelle $\hat{p}(\text{Victoire} \mid \text{Statut appliqué dans les 3 premiers tours})$.
+  * *Vue Micro :* Badges de statut colorés au-dessus des sprites des combattants et affichage explicite dans le journal textuel des tours annulés pour cause de paralysie.
 
 ---
 
-### Extension 6 : Gestion des Points de Compétence (PP) et Action Lutte
-* **Problématique jeu :** Introduire la gestion des ressources en combat d'usure en limitant le nombre de frappes puissantes disponibles avant le recours à l'action de secours.
+### Extension 6 : Gestion des Points de Puissance (PP) et Action Lutte
+
+* **Problématique décisionnelle :** Modéliser la dégradation des performances offensives induite par la raréfaction des ressources et analyser la dynamique de survie en combat d'usure.
 * **Spécifications logicielles :**
-  * Créer une classe `Move` dans `src/pyarena/extensions/skills.py` associant une puissance, un type et un capital de Points de Puissance (PP).
-  * Doter chaque combattant de deux capacités :
-    1. *Capacité Majeure* : Puissance $P = 75$, mais limitée à $\text{PP}_{\max} = 5$ utilisations.
-    2. *Capacité Standard* : Puissance $P = 45$, dotée de $\text{PP}_{\max} = 15$ utilisations.
-  * Le combattant consomme en priorité sa capacité majeure, puis sa capacité standard lorsque les PP sont épuisés.
-  * Dès que le stock total de PP tombe à 0, le combattant est contraint d'utiliser l'action par défaut *Lutte* : puissance fixe $P = 50$, et subit en contrecoup immédiat une perte de PV égale à $\lfloor 0{,}25 \times \text{Dégâts infligés} \rfloor$.
+
+  * Concevoir une classe `Move` dans `src/pyarena/extensions/skills.py` encapsulant nom, puissance et capital de Points de Puissance (`pp_max`, `pp_current`).
+  * Doter chaque combattant de deux capacités alignées sur son type principal $T_1$ :
+
+    1. *Capacité Majeure* : Puissance $P = 75$, $\text{PP}_{\max} = 5$ utilisations.
+    2. *Capacité Standard* : Puissance $P = 45$, $\text{PP}_{\max} = 15$ utilisations.
+
+  * Ordonnancement automatique : Le combattant consomme sa Capacité Majeure tant que $\text{PP} \ge 1$, puis bascule sur sa Capacité Standard jusqu'à épuisement.
+  * **Action par défaut (*Lutte*) :** Dès que le total cumulé des PP tombe à 0, le combattant exécute obligatoirement l'action *Lutte* :
+
+    * Puissance nominale $P = 50$.
+    * Type strictement **neutre** : applique systématiquement $M_{\text{total}} = 1{,}0$ face à n'importe quel adversaire, ignorant faiblesses et immunités.
+    * Contrecoup immédiat : l'attaquant subit une perte de $\lfloor 0{,}25 \times \text{Dégâts réels infligés à la cible} \rfloor$ PV.
+
+  * *Règle du double K.-O. :* Si Lutte met le défenseur à 0 PV mais que le contrecoup met aussi l'attaquant à 0 PV, l'attaquant est déclaré vainqueur (la cible est tombée en premier sous l'impact).
+
 * **Tests unitaires (`tests/test_extension.py`) :**
-  * Vérifier la décrémentation stricte des compteurs de PP à chaque utilisation.
-  * Valider le basculement forcé vers l'action Lutte dès que l'ensemble des PP est épuisé.
-  * Contrôler le calcul arithmétique de la perte de points de vie par contrecoup.
-* **Intégration Streamlit :** Jauges visuelles d'épuisement des réserves de PP en temps réel et suivi statistique de la fréquence d'apparition du mode Lutte lors des matchs longs.
+
+  * Vérifier la décrémentation des PP et la bascule exacte de la Capacité Majeure vers la Standard au tour 6.
+  * Valider le basculement forcé vers Lutte dès le 21ᵉ tour d'attaque du combattant.
+  * Vérifier la neutralité élémentaire stricte de Lutte face à des types présentant des immunités ou des doubles résistances.
+  * Valider que le recul retiré au lanceur correspond rigoureusement à $25\%$ des dégâts infligés.
+
+* **Composant Streamlit :**
+
+  * *Vue Macro :* Diagramme en barres Plotly comparant le taux d'activation du mode Lutte (en %) sur un panel de 5 confrontations types (duels rapides offensifs vs duels d'usure défensifs), et graphique circulaire montrant la répartition des dégâts cumulés (Capacité Majeure vs Capacité Standard vs Recul subi).
+  * *Vue Micro :* Deux jauges de progression interactives (`st.progress`) retraçant la consommation des stocks de PP pour un match témoin sélectionné.
 
 ---
 
-### Extension 7 : Accélération Vectorisée et Profilage Numérique
-* **Problématique jeu :** Identifier les goulots d'étranglement de l'implémentation objet en temps d'exécution et proposer une réécriture mathématique vectorisée pour traiter de très gros volumes de simulations.
-* **Spécifications logicielles :**
-  * Profiler l'exécution de 10 000 combats en Python objet standard avec le module `cProfile` pour chiffrer le temps passé dans chaque méthode.
-  * Concevoir dans `src/pyarena/extensions/fast_sim.py` une version optimisée de la boucle de combat :
-    * Les entités sont représentées par de simples tableaux NumPy 1D d'entiers et de flottants au lieu d'instances de classes complexes.
-    * Utilisation de générateurs de nombres aléatoires vectorisés (`numpy.random.default_rng`) ou de fonctions compilées avec le décorateur `@njit` de **Numba**.
-  * Construire un banc d'essai comparant rigoureusement le temps d'exécution sur des tailles d'échantillons $N \in [10^2, 10^5]$.
-* **Tests unitaires (`tests/test_extension.py`) :**
-  * Test de conformité statistique validant que la fonction rapide et la version orientée objet produisent des winrates identiques à tolérance d'échantillonnage près.
-* **Intégration Streamlit :** Graphique interactif du facteur d'accélération (*speedup* = $\frac{T_{\text{objet}}}{T_{\text{optimisé}}}$) affiché sur le dashboard en fonction du volume de simulations $N$.
+### Extension 7 : Accélération Vectorisée et Profilage Numérique (NumPy / Numba)
+
+* **Fichier source :** `src/pyarena/extensions/fast_sim.py`
+* **Problématique d'ingénierie logicielle :** Mettre en œuvre le patron d'architecture *Bridge/Kernel* pour dépasser les verrous de performance de la POO et simuler des millions de combats à l'échelle industrielle.
+* **Spécifications logicielles et Compilation JIT :**
+
+  * Profiler l'exécution de $10\,000$ combats objets standard à l'aide de `cProfile` pour quantifier le coût d'accès aux attributs et de la POO Python.
+  * Concevoir un moteur bas niveau sans objet compilé à la volée avec Numba :
+
+    * Projeter chaque combattant dans un tableau NumPy 1D contigu (`np.float64`):
+      $$\text{state} = [\text{PV}_{\max}, \text{PV}, A, D, V, \text{type\_id}]$$
+    * Encoder la table des multiplicateurs élémentaires sous forme d'une matrice NumPy 2D contiguë `type_matrix` de dimensions $5 \times 5$ (ou $18 \times 18$).
+    * Réécrire la boucle complète de combat au sein d'une fonction numérique pure :
+
+      ```python
+      @njit(fastmath=True)
+      def simulate_battle_numba(
+          s1: np.ndarray, s2: np.ndarray, type_matrix: np.ndarray, seed: int
+      ) -> int:
+          """Retourne 1 si le combattant 1 gagne, 0 sinon."""
+```
+    * Écrire la fonction de simulation par lots :
+      ```python
+      @njit(fastmath=True)
+      def run_monte_carlo_numba(
+          s1: np.ndarray,
+          s2: np.ndarray,
+          type_matrix: np.ndarray,
+          n_sims: int,
+          base_seed: int,
+      ) -> float:
+          """Exécute n_sims duels en code machine compilé et renvoie le winrate."""
+```
+
+  * Mesurer le facteur d'accélération pour des tailles d'échantillons $N \in [10^2, 10^6]$:
+    $$\text{Speedup}(N) = \frac{T_{\text{objet}}(N)}{T_{\text{numba}}(N)}$$
+
+* **Cas aux limites et règles de gestion :**
+
+  * La fonction Numba ne doit contenir aucun appel à des structures Python dynamiques (pas de dictionnaires, pas d'objets, pas de chaînes de caractères), sous peine d'échouer à la compilation `nopython mode`.
+* **Tests unitaires obligatoires (`tests/test_extension.py`) :**
+
+  * `test_numba_compilation_success` : Vérifier que la fonction compilée s'exécute sans lever de `TypingError`.
+  * `test_statistical_equivalence` : Valider sur $5\,000$ itérations avec graine fixée que l'estimation du winrate produit par Numba est identique à celle du moteur objet à $\pm 1{,}5\%$ près.
+  * `test_deterministic_behavior` : Vérifier que deux exécutions Numba avec la même graine renvoient le même nombre de victoires.
+
+* **Composant Streamlit :**
+
+  * *Vue Performance :* Graphique interactif Plotly en échelle semi-logarithmique affichant les courbes de temps de calcul absolu et le facteur d'accélération résultant en fonction de $N$.
+  * *Vue Profilage :* Tableau de synthèse des métriques `cProfile` isolant le coût des allocations d'objets.
 
 ---
 
-### Extension 8 : Système Dynamique de Niveaux et Courbe de Bascule
-* **Problématique jeu :** Déterminer précisément à partir de quel différentiel de niveau un combattant intrinsèquement défavorisé (statistiques faibles ou type élémentaire désavantageux) parvient à renverser les probabilités face à un adversaire supérieur.
-* **Spécifications logicielles :**
-  * Créer un module `src/pyarena/extensions/levels.py` permettant d'instancier un combattant à un niveau arbitraire $L \in [\![1, 100]\!]$.
-  * Implémenter le recalcul dynamique des caractéristiques selon les formules officielles :
+### Extension 8 : Modélisation Paramétrique de Niveaux et Détermination de Seuil Critique
+
+* **Fichier source :** `src/pyarena/extensions/levels.py`
+* **Problématique décisionnelle :** Modéliser la dynamique paramétrique des attributs et concevoir un algorithme de recherche discrète convergeant vers le point de bascule stochastique face à des profils types.
+* **Spécifications logicielles et Modélisation :**
+
+  * Implémenter le recalcul des caractéristiques pour tout niveau $L \in [\![1, 100]\!]$ selon les équations officielles de Game Freak:
     $$\text{PV}(L) = \left\lfloor \frac{2 \times \text{PV}_{\text{base}} \times L}{100} \right\rfloor + L + 10$$
     $$\text{Stat}(L) = \left\lfloor \frac{2 \times \text{Stat}_{\text{base}} \times L}{100} \right\rfloor + 5 \quad (\text{pour } A, D, V)$$
-  * Implémenter une fonction de balayage `find_turnover_level(f1, f2_lvl50, step=5)` qui évalue le winrate de $C_1$ pour des niveaux progressifs $L \in \{5, 10, 15, \dots, 100\}$ face à un adversaire fixé au niveau 50.
-  * Déterminer le *Niveau Critique* $L^*$ correspondant au premier niveau où $\hat{p}(L^*) \ge 0{,}50$.
-* **Tests unitaires (`tests/test_extension.py`) :**
-  * Valider l'exactitude numérique des statistiques calculées aux niveaux bornes $L=1$, $L=50$ et $L=100$ à partir de valeurs de test vérifiées.
-  * Vérifier que les statistiques sont des fonctions strictement croissantes du niveau $L$.
-* **Intégration Streamlit :** Curseur de niveau dynamique et courbe Plotly de la fonction de winrate $L \mapsto \hat{p}(L)$ avec mise en évidence du seuil de bascule $L^*$.
+  * **Optimisation de la recherche de racine stochastique :**
+    Soit la fonction de winrate $L \mapsto \hat{p}(L)$, monotone croissante d'allure sigmoïde, mesurant la performance d'un combattant $C_1(L)$ face à un adversaire fixé au niveau 50 standard.  
+    Concevoir un algorithme de recherche dichotomique discrète convergeant vers le **Niveau Critique** $L^*$ :
+    $$L^* = \min \{ L \in [\![1, 100]\!] \mid \hat{p}(L) \ge 0{,}50 \}$$
+    L'algorithme doit opérer en un nombre d'étapes limité au lieu de balayer séquentiellement les 100 niveaux.
+
+  * **Benchmark multi-profils :**
+    L'évaluation doit confronter $C_1(L)$ à quatre archétypes d'adversaires de niveau 50 :
+
+    1. *Archétype Équilibré* (statistiques moyennes, type neutre).
+    2. *Archétype Tank Défensif* ($\text{PV}$ et $D$ très élevés).
+    3. *Archétype Attaquant Rapide* ($A$ et $V$ dominants).
+    4. *Archétype Défavorable* (adversaire bénéficiant d'un multiplicateur élémentaire $\times 2{,}0$).
+
+* **Cas aux limites et règles de gestion :**
+  * Si même au niveau $L = 100$, le winrate reste strictement inférieur à $0{,}50$, l'algorithme renvoie $L^* = \text{None}$ (dominance impossible).
+
+* **Tests unitaires obligatoires (`tests/test_extension.py`) :**
+  * `test_stat_scaling_exact_values` : Valider la conformité des statistiques calculées aux niveaux $L=1$, $L=50$ et $L=100$ par rapport à des valeurs de contrôle calculées à la main.
+  * `test_strict_monotonicity` : Vérifier que $\text{PV}(L+1) \ge \text{PV}(L)$ et $\text{Stat}(L+1) \ge \text{Stat}(L)$ pour tout $L \in [\![1, 99]\!]$.
+  * `test_binary_search_convergence` : Vérifier que la recherche dichotomique renvoie bien un seuil vérifiant $\hat{p}(L^*) \ge 0{,}50$ et $\hat{p}(L^* - 1) < 0{,}50$ sur un duel témoin.
+
+* **Composant Streamlit :**
+  * *Vue Synthèse :* Superposition graphique Plotly des 4 courbes sigmoïdes $L \mapsto \hat{p}(L)$ évaluées par pas de 5 ($L \in \{5, 10, \dots, 100\}$) pour les 4 archétypes.
+  * *Vue Métrique :* Ligne verticale marquant le seuil $L^*$ et son intervalle de confiance à 95 %.
 
 ---
 
-### Extension 9 : La Route des Champions (Occitanie - Progression sous Contrainte)
-* **Problématique jeu :** Modéliser la tournée géographique d'un dresseur devant défier les arènes régionales dans un ordre de difficulté croissant, et mesurer le surcoût kilométrique imposé par cette progression par rapport à un itinéraire géographiquement direct.
+### Extension 9 : La Route des Champions (Occitanie — TSP sous Contraintes de Niveau)
+
+* **Problématique d'optimisation :** Modéliser et résoudre le problème du voyageur de commerce (TSP) sous contraintes d'ordre partiel sur les 30 arènes régionales d'Occitanie, et quantifier le surcoût kilométrique imposé par une progression ordonnée par niveau de difficulté.
 * **Spécifications logicielles :**
-  * Exploiter le fichier `data/arenes_occitanie.geojson` contenant les coordonnées géographiques et les niveaux de difficulté des arènes régionales (échelonnés du niveau 15 au niveau 60).
-  * Dans `src/pyarena/extensions/routing.py`, implémenter le calcul de la distance géodésique de Haversine entre deux coordonnées $(\text{lat}, \text{lon})$ :
-    $$d = 2 R \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta \varphi}{2}\right) + \cos(\varphi_1)\cos(\varphi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)}\right) \quad \text{avec } R = 6\,371\text{ km}$$
-  * Calculer et comparer deux itinéraires partant de Montpellier :
-    1. *L'Itinéraire des Champions* : visite obligatoire des arènes triées par ordre de niveau croissant.
-    2. *L'Itinéraire Naïf le Plus Proche* : visite séquentielle selon la règle gloutonne du point géographiquement le plus proche sans tenir compte du niveau.
+
+  * Exploiter le fichier spatial `data/arenes_occitanie.geojson` contenant les coordonnées géographiques $(\text{lat}_i, \text{lon}_i)$, le nom et le niveau de difficulté (échelonné de 15 à 60) des 30 arènes régionales.
+  * Implémenter le calcul de la distance orthodromique de Haversine $d(u, v)$ en kilomètres entre deux coordonnées :
+    $$\Delta \varphi = \varphi_2 - \varphi_1, \quad \Delta \lambda = \lambda_2 - \lambda_1$$
+    $$a = \sin^2\left(\frac{\Delta \varphi}{2}\right) + \cos(\varphi_1)\cos(\varphi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)$$
+    $$d = 2 R \arcsin\left(\sqrt{a}\right) \quad \text{avec } R = 6\,371\text{ km}$$
+
+  * Implémenter et comparer trois algorithmes de circuit fermé (départ et retour fixés à Montpellier) :
+
+    1. *Algo 1 — Heuristique Gloutonne Libre (Plus Proche Voisin) :* Construit un cycle initial $T_{\text{glouton}}$ en visitant itérativement le sommet non visité le plus proche géographiquement, sans considération de niveau.
+    2. *Algo 2 — Amélioration Locale 2-opt (Optimisation Libre) L'heuristique gloutonne du plus proche voisin produit une tournée initiale $T = (v_0, v_1, \dots, v_{n-1}, v_0)$ sous-optimale présentant de nombreux croisements d'arêtes sur le plan géographique. L'algorithme **2-opt** est une méthode de recherche locale qui élimine itérativement ces croisements en inversant des sous-parcours.
+
+      * **Principe géométrique d'inversion :**
+        Soient deux arêtes non consécutives du cycle : $(v_i, v_{i+1})$ et $(v_j, v_{j+1})$ avec $0 \le i < j - 1 < n$.  
+        Si l'on supprime ces deux arêtes pour reconnecter $v_i$ à $v_j$ et $v_{i+1}$ à $v_{j+1}$, le sous-parcours intermédiaire $(v_{i+1}, \dots, v_j)$ doit nécessairement être parcouru en sens inverse pour préserver un cycle fermé valide :
+        $$T_{\text{nouveau}} = (v_0, \dots, v_i, \underbrace{v_j, v_{j-1}, \dots, v_{i+1}}_{\text{sous-parcours inversé}}, v_{j+1}, \dots, v_{n-1}, v_0)$$
+
+      * **Critère de décroisement (Gain kilométrique) :**
+        Pour toute paire d'arêtes $(v_i, v_{i+1})$ et $(v_j, v_{j+1})$, on calcule le différentiel de distance induit :
+        $$\Delta d = \Big( d(v_i, v_j) + d(v_{i+1}, v_{j+1}) \Big) - \Big( d(v_i, v_{i+1}) + d(v_j, v_{j+1}) \Big)$$
+        * Si $\Delta d < 0$ : le remplacement raccourcit le trajet. L'inversion est validée immédiatement sur la liste en Python :
+          `route[i+1 : j+1] = reversed(route[i+1 : j+1])`
+        * Si $\Delta d \ge 0$ : les arêtes d'origine sont conservées.
+
+      * **Condition d'arrêt :**
+        On répète le balayage de toutes les paires d'indices $(i, j)$ tant qu'au moins une inversion améliorant la distance totale est détectée (`amelioration = True`). L'algorithme s'arrête lorsqu'un balayage complet n'apporte plus aucun gain ($\Delta d \ge 0$ pour toutes les paires), garantissant la convergence vers un minimum local sans aucun croisement d'arêtes sur la carte. La longueur totale du cycle obtenu constitue la référence minimale libre **$d_{\text{libre}}$**.
+        
+    3. *Algo 3 — Tournée des Champions (Contrainte d'Ordre par Paliers) :* Partitionne les arènes en 4 paliers ordonnés : $P_1 = [15, 25]$, $P_2 = [26, 35]$, $P_3 = [36, 45]$, $P_4 = [46, 60]$.  
+       *Règle métier :* Il est interdit de visiter une arène du palier $P_{k+1}$ avant d'avoir vaincu l'ensemble des arènes du palier $P_k$. Le parcours optimise l'enchaînement intra-palier via 2-opt et relie séquentiellement $P_1 \to P_2 \to P_3 \to P_4 \to \text{Montpellier}$, produisant une tournée de longueur **$d_{\text{champions}}$**.
+
+  * Calculer l'indicateur d'impact de la contrainte :
+    $$\text{Surcoût Kilométrique} = \frac{d_{\text{champions}} - d_{\text{libre}}}{d_{\text{libre}}} \times 100$$
+
 * **Tests unitaires (`tests/test_extension.py`) :**
-  * Vérifier que la distance de Haversine entre deux points identiques est nulle, et conforme aux distances réelles interurbaines connues (ex. Montpellier–Nîmes $\approx 45-55$ km à vol d'oiseau).
-  * Valider que chaque ville de la sélection est visitée exactement une fois dans les deux parcours.
-* **Intégration Streamlit :** Tracé comparatif des deux tracés sur la carte interactive Folium (`folium.PolyLine` de couleurs distinctes) et affichage métrique de l'écart kilométrique induit par la contrainte de niveau.
+
+  * Propriétés métriques de la distance de Haversine : positivité, symétrie stricte, nullité de la distance à soi-même et conformité sur une distance réelle connue (Montpellier–Nîmes $\approx 45-55$ km).
+  * Vérifier que l'algorithme 2-opt garantit une longueur strictement inférieure ou égale à l'heuristique gloutonne : $d_{\text{libre}} \le d_{\text{glouton}}$.
+  * Contrôler que la séquence des villes de $T_{\text{champions}}$ respecte scrupuleusement l'ordre des 4 paliers de niveau.
+
+* **Composant Streamlit :**
+
+  * *Carte Folium :* Tracé interactif des deux tournées superposées (`folium.PolyLine` avec code couleur distinct : bleu pour la tournée libre optimale, rouge pour la tournée des champions).
+  * *Tableau de bord métrique :* Comparaison des kilométrages cumulés et affichage chiffré du surcoût kilométrique imposé par la progression de niveau.
 
 ---
 
-### Extension 10 : Reconstitution Pas-à-Pas et Export de Combat (Replay Interactif)
-* **Problématique jeu :** Permettre l'enregistrement, l'exportation et le visionnage interactif tour par tour d'un match stochastique remarquable sans recalculer la simulation.
+### Extension 10 : Dynamique Météorologique et Modificateurs d'Arène (Climats)
+
+* **Problématique décisionnelle :** Modéliser l'impact de conditions environnementales globales (climats) qui altèrent simultanément les formules de dégâts, appliquent des dégâts d'érosion passifs et favorisent certains types élémentaires au détriment d'autres.
 * **Spécifications logicielles :**
-  * Concevoir dans `src/pyarena/extensions/replayer.py` une structure d'enregistrement capturant l'ensemble des événements du match dans une structure tabulaire ou une liste de dictionnaires :
-    `{"tour": i, "attaquant": str, "cible": str, "degats": int, "critique": bool, "pv_restants_cible": int}`.
-  * Implémenter deux fonctions d'entrée/sortie :
-    * `export_match_json(battle_log, filepath: str) -> None` : sauvegarde du journal au format JSON.
-    * `load_match_json(filepath: str) -> list[dict]` : chargement et validation du schéma d'un journal sauvegardé.
+
+  * Définir une énumération `Weather(Enum)` dans `src/pyarena/extensions/weather.py` : `CLEAR` (Météo claire / neutre), `RAIN` (Pluie battante), `SUN` (Soleil zénithal), `SANDSTORM` (Tempête de sable).
+  * L'environnement de l'arène est instancié avec un climat actif, doté d'une durée finie $T_{\text{climat}} = 5$ tours (après quoi il revient à `CLEAR`), ou permanent pour le match.
+  * **Règles métier des altérations climatiques :**
+
+    1. *Pluie battante (`RAIN`) :*
+       * Majore les dégâts des attaques de type **Eau** de $+50\%$ (multiplicateur climatique $\times 1{,}5$).
+       * Réduit les dégâts des attaques de type **Feu** de $-50\%$ (multiplicateur climatique $\times 0{,}5$).
+    2. *Soleil zénithal (`SUN`) :*
+       * Majore les dégâts des attaques de type **Feu** de $+50\%$ ($\times 1{,}5$).
+       * Réduit les dégâts des attaques de type **Eau** de $-50\%$ ($\times 0{,}5$).
+    3. *Tempête de sable (`SANDSTORM`) :*
+       * En clôture de chaque tour, inflige une perte passive de $\lfloor \text{PV}_{\max} / 16 \rfloor$ PV à toute créature qui n'appartient **pas** aux types immunisés (les types *Roche*, *Sol* et *Acier* sont immunisés contre l'érosion du sable).
+       * Confère un bonus passif de $+50\%$ en Défense ($D \leftarrow \lfloor 1{,}5 \times D \rfloor$) aux combattants de type *Roche*.
+
+  * **Formule des dégâts ajustée :** Le multiplicateur climatique $W \in \{0{,}5, 1{,}0, 1{,}5\}$ s'insère directement dans la formule de frappe du socle commun :
+    $$\text{Dégâts} = \max\left(1, \left\lfloor \left( \frac{22 \times P \times \frac{A_{\text{att}}}{D_{\text{déf}}}}{50} + 2 \right) \times M_{\text{total}} \times W \times U \times K \right\rfloor\right)$$
+
 * **Tests unitaires (`tests/test_extension.py`) :**
-  * Vérifier que l'export puis le rechargement d'un match redonnent exactement la même séquence de valeurs (test d'aller-retour / sérialisation).
-  * Vérifier que le journal consigne bien une décroissance monotone des PV de la cible et s'arrête exactement au tour où une entité atteint 0 PV.
-* **Intégration Streamlit :**
-  * Composant de téléversement (`st.file_uploader`) permettant de charger un match sauvegardé au format JSON.
-  * Lecteur interactif avec curseur temporel et boutons de navigation (*« Tour Précédent »* / *« Tour Suivant »*).
-  * Barres de santé animées changeant de couleur selon l'état du combattant (vert $>50\%$, orange $20-50\%$, rouge $<20\%$) et boîte de dialogue commentant l'action du tour sélectionné.
+
+  * `test_rain_damage_modifiers` : Vérifier qu'une frappe Eau voit ses dégâts multipliés par 1,5 et qu'une frappe Feu voit ses dégâts divisés par deux sous la pluie.
+  * `test_sandstorm_immunity` : Valider que les créatures de type Roche ou Sol ne perdent aucun PV en fin de tour sous la tempête de sable, contrairement aux autres types.
+  * `test_weather_expiration` : Contrôler que le climat repasse bien à `CLEAR` après 5 tours et que les multiplicateurs redeviennent strictement neutres ($W = 1{,}0$).
+
+* **Composant Streamlit :**
+
+  * *Vue Macro :* Heatmap Plotly comparant l'évolution du winrate d'un panel de 5 duels types sous les 4 conditions météo possibles (montrant par exemple comment un type Eau bat un type Électrik si la pluie compense sa faiblesse).
+  * *Vue Micro :* Télémétrie avec fond d'arène ou badge visuel changeant selon le climat actif (icônes gouttes de pluie, soleil ardent, nuage de sable) et suivi des dégâts d'érosion tour par tour.
 
 ---
 
-# Politique de Bonus (Valorisation du Dépassement Technique)
+# Politique de Valorisation et Points de Bonus
 
-Afin d'encourager la curiosité, l'approfondissement algorithmique et les initiatives personnelles, un système de **points de bonus** est prévu.
+Un mécanisme de **points de bonus** récompense l'approfondissement technique et les initiatives remarquables :
 
-## Modalités d'Attribution
-* **Plafond strict :** Les bonus peuvent rapporter jusqu'à **+2 points** sur la Note Technique de Code (la note finale restant plafonnée à 20/20).
-* **Condition impérative d'éligibilité :** Les points de bonus ne sont comptabilisés que si le **socle commun obligatoire** (POO, packaging, tests unitaires avec couverture $\ge 70\%$, intégration continue GitHub Actions et dashboard) et **l'extension attribuée** sont intégralement fonctionnels et exempts de régression le jour du rendu.
-* **Documentation obligatoire :** Tout ajout faisant l'objet d'une demande de bonus doit être explicitement répertorié dans une section dédiée du fichier `README.md` intitulée `## Fonctionnalités Bonus Implémentées`.
+* **Plafond strict :** Les bonus permettent d'obtenir jusqu'à **+2 points** sur la Note Technique de Code (la note globale restant bornée à 20/20).
+* **Condition impérative d'éligibilité :** Les points de bonus ne sont examinés que si le socle commun et l'extension attribuée sont intégralement validés par la CI GitHub Actions.
+* **Inventaire obligatoire :** Chaque fonctionnalité bonus doit être répertoriée dans la section `## Fonctionnalités Bonus Implémentées` du fichier `README.md`.
 
-## Exemples d'Initiatives Reconnues pour le Bonus
+### Barème indicatif des initiatives possibles:
 
-1. **Prise en compte du double type élémentaire (+0,75 pt) :**
-   Intégrer le fait que certaines créatures possèdent deux types combinés (ex. Feu/Vol ou Eau/Sol). Adapter le calcul de dégâts pour multiplier les coefficients d'affinité élémentaire issus des deux types, autorisant des multiplicateurs de dégâts cumulés de $\times 4$ ou de $\times 0{,}25$.
-2. **Matrice officielle complète des 18 types (+0,5 pt) :**
-   Remplacer la matrice simplifiée des éléments par l'ingestion et la gestion rigoureuse de la table officielle complète des 18 types (incluant Spectre, Dragon, Acier, Fée...), avec gestion des immunités strictes (multiplicateur $\times 0{,}0$).
-3. **Arbre de décision tactique (Minimax élémentaire à 2 tours) (+1 pt) :**
-   Pour les extensions impliquant des choix d'actions multiples (Extensions 2 ou 4), concevoir un agent évaluant l'arbre des états possibles à horizon 2 tours afin de sélectionner l'action minimisant la perte maximale de PV face au contre adverse.
-4. **Intégration multimédia officielle (Audio & Thèmes) (+0,5 pt) :**
-   Exploiter les champs audio disponibles sur l'API pour jouer les cris officiels des combattants (format OGG/MP3 via `st.audio`) lors du K.-O. ou de l'entrée dans l'arène, et habiller l'application Streamlit d'une charte graphique soignée.
-5. **Déploiement public sur le Cloud (+0,5 pt) :**
-   Déployer l'application Streamlit sur l'infrastructure gratuite *Streamlit Community Cloud* et fournir l'URL publique active directement dans l'en-tête du fichier `README.md`.
+1. **Implémentation d'un agent tactique Minimax (profondeur 2 tours) (+1 pt) :**  
+   Pour les extensions 2 ou 4, concevoir un algorithme arborescent évaluant l'arbre des répliques adverses possibles pour maximiser l'espérance de survie.
+2. **Déploiement public sur le Cloud (+0,5 pt) :**  
+   Héberger l'application sur *Streamlit Community Cloud* avec URL publique documentée dès l'en-tête du README.
+3. **Double type & 18 types pour les trinômes (+0,75 pt) :**  
+   Prise en compte volontaire par un groupe de 3 du modèle complet à 18 types et doubles types croisés.
+4. **Intégration multimédia audio officielle (+0,5 pt) :**  
+   Lecture dynamique des cris audio officiels (`st.audio`) via l'API lors des entrées en arène et des K.-O.
 
 ---
 
-# Travail Collaboratif, Gestion de Version et Intégrité
+# Travail Collaboratif, Traçabilité Git et Intégrité
 
-## Bonnes Pratiques Git Imposées
-1. **Protection absolue de la branche `main` :** Aucun push direct n'est toléré sur `main`.
-2. **Workflow par branches et Pull Requests :** Toute nouvelle brique ou correction d'anomalie fait l'objet d'une branche distincte (ex. : `feat/models-validation`, `fix/crit-calc`), soumise à validation par une Pull Request relue par un autre membre du groupe.
-3. **Atomicité des commits :** Les commits doivent être ciblés et porter un message explicite respectant la convention standard (`feat: ...`, `fix: ...`, `test: ...`).
+## Standards Git Obligatoires
 
-## Document Contractuel : `CONTRIBUTIONS.md`
-À la racine du dépôt, le fichier `CONTRIBUTIONS.md` doit consigner précisément l'investissement effectif de chaque membre selon le tableau type :
+1. **Branche `main` protégée :** Interdiction stricte de pousser directement sur `main`.
+2. **Workflow par branches et Pull Requests :** Tout travail transite par une branche dédiée (`feat/...`, `fix/...`) et fait l'objet d'une Pull Request formelle relue par un pair.
+3. **Audit contractuel : `CONTRIBUTIONS.md` :**  
+   Chaque membre doit documenter précisément ses livrables et la liste des PRs dont il est l'auteur et le relecteur :
 
-| Membre | Identifiant GitHub | Rôle et Modules Développés | Numéros des PRs Soumises et Revues |
-| :--- | :---: | :--- | :---: |
-| Étudiant 1 | `@login1` | Conception du module `core/`, tests `pytest` | PRs #1, #4 (Revues : #2, #5) |
-| Étudiant 2 | `@login2` | Client API `io/fetcher.py`, Dashboard Streamlit | PRs #2, #5 (Revues : #3) |
-| Étudiant 3 | `@login3` | Parallélisation `simulation/`, Extension choisie | PRs #3, #6 (Revues : #1, #4) |
+| Membre | Identifiant GitHub | Modules Développés | PRs Soumises | PRs Relues (*Approvals*) |
+| :--- | :---: | :--- | :---: | :---: |
+| Étudiant 1 | `@login1` | Core POO, Tests unitaires | #1, #4 | #2, #5 |
+| Étudiant 2 | `@login2` | Client API, Streamlit | #2, #5 | #3 |
+| Étudiant 3 | `@login3` | Simulation, Extension | #3, #6 | #1, #4 |
 
-## Contrôle Automatisé du Plagiat et de l'Historique
-* **Analyse de régularité :** La distribution temporelle des commits sera examinée sur GitHub. Tout « commit massif » (injection soudaine de plusieurs centaines de lignes de code en fin de projet) sans historique incrémental fera l'objet d'une pénalité individuelle.
-* **Analyse syntaxique structurelle (`copydetect`) :** L'ensemble des répertoires `src/` rendus sera soumis à un contrôle automatisé comparant les arbres syntaxiques abstraits (AST) via l'outil `copydetect`. Les dépôts présentant une similarité non fortuite seront pénalisés.
+## Détection du Plagiat et Contrôle d'Activité
+
+* **Régularité temporelle :** Les dépôts révélant une injection massive de code en fin de semestre sans commits incrémentaux réguliers seront pénalisés individuellement.
+* **Analyse de similarité AST (`copydetect`) :** L'intégralité du code source rendu fera l'objet d'un contrôle de similarité structurelle automatisé.
 
 ---
 
 # Modalités d'Évaluation et Grilles de Notation
 
-L'évaluation donne lieu à deux notes sur 20 indépendantes : la **Note Technique de Code (coefficient 3)** et la **Note Individuelle de Soutenance (coefficient 2)**.
+La note finale est une moyenne pondérée associant la qualité de l'ingénierie logicielle livrée et la maîtrise individuelle démontrée lors de la soutenance :
 
 $$\text{Note Finale} = \frac{3 \times \text{Note Code} + 2 \times \text{Note Soutenance}}{5}$$
 
-## Note 1 : Code, Architecture et Produit (/20 — Note de Groupe, Coeff 3)
-
-| Critère | Barème | Éléments évalués concrètement |
-| :--- | :---: | :--- |
-| **Architecture Orientée Objet** | **/ 4** | Respect des classes abstraites, encapsulation (`@property`), gestion des exceptions maison, typage strict. |
-| **Packaging & Propreté** | **/ 2** | Fichier `pyproject.toml` fonctionnel, installation immédiate via `pip install -e .`, arborescence scrupuleusement respectée. |
-| **Tests & Intégration Continue** | **/ 4** | Couverture mesurée par `pytest-cov` $\ge 70\%$, pertinence des tests aux limites, workflow GitHub Actions au vert (si rouge : -2 points d'office). |
-| **Données & Parallélisme** | **/ 3** | Système de cache local opérationnel (mode déconnecté), exécution distribuée de Monte-Carlo (`joblib`/`multiprocessing`), intervalles de confiance corrects. |
-| **Dashboard Streamlit** | **/ 4** | Réactivité de l'application, présence des sprites officiels, visualisations Plotly pertinentes, carte Folium fonctionnelle. |
-| **Réalisation de l'Extension** | **/ 3** | Respect rigoureux du cahier des charges spécifique à l'extension attribuée et couverture par ses tests unitaires. |
-
-## Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Note Individuelle, Coeff 2)
-
-Chaque groupe dispose de **20 minutes d'évaluation** décomposées en :
-* 10 minutes d'exposé et de démonstration applicative en direct.
-* 10 minutes de questions techniques individuelles.
-
-| Critère | Barème | Éléments évalués concrètement |
-| :--- | :---: | :--- |
-| **Qualité des supports visuels** | **/ 3** | Diapositives claires et professionnelles, schémas d'architecture soignés, absence de blocs de code illisibles. |
-| **Démonstration technique live** | **/ 4** | Démonstration fluide de l'application Streamlit sans plantage imprévu, exécution en direct de la suite de tests `pytest`. |
-| **Maîtrise individuelle du code** | **/ 8** | Aptitude de chaque étudiant à naviguer dans le code, à expliquer précisément la logique d'une fonction et à justifier ses choix algorithmiques. |
-| **Compréhension des concepts** | **/ 3** | Maîtrise rigoureuse du vocabulaire : polymorphisme, complexité temporelle, stochasticité, décorateurs, conditions de concurrence. |
-| **Investissement Git vérifiable** | **/ 2** | Cohérence vérifiée entre les déclarations du fichier `CONTRIBUTIONS.md` et les métriques réelles d'activité GitHub (commits, PRs créées et revues). |
+Afin de garantir une stricte équité et de neutraliser tout effet de passager clandestin, **la Note de Code et la Note de Soutenance intègrent chacune une composante individuelle déterminante**. Plus de $50\%$ du barème global dépend directement de l'investissement propre de chaque étudiant.
 
 ---
 
-# Calendrier Prévisionnel et Jalons de Développement
+## Note 1 : Code, Architecture et Produit (/20 — Mixte, Coeff 3)
 
-Le calendrier est articulé autour de jalons structurants afin d'assurer une progression continue :
+La note de code se décompose en un **Socle Produit Collectif (/12)** et une note d'**Investissement Technique Individuel (/8)**.
 
-* **Fin Septembre (Séance 2) :**
-  * Constitution définitive des trinômes.
-  * Inscription sur le tableur partagé pour l'attribution de l'extension thématique (règle du premier arrivé, premier servi).
-* **Mi-Octobre (Jalon 1) :**
-  * Initialisation du dépôt GitHub à partir du template officiel.
-  * Mise en place de la protection de branche sur `main` et vérification de la CI GitHub Actions.
-* **Fin Octobre (Jalon 2) :**
-  * Finalisation du cœur orienté objet dans `src/pyarena/core/` (`BaseFighter`, `Fighter`, `engine.py`).
-  * Implémentation des premières exceptions personnalisées et validation des tests unitaires `pytest` sur les règles de combat de base.
-* **Mi-Novembre (Jalon 3) :**
-  * Client PokéAPI opérationnel avec politique de mise en cache locale sur disque (`data/cache/`).
-  * Moteur de simulation Monte-Carlo parallélisé fonctionnel avec calcul des intervalles de confiance asymptotiques.
-* **Début Décembre (Jalon 4) :**
-  * Implémentation et tests unitaires de l'extension thématique finalisés.
-  * Dashboard Streamlit achevé (simulateur live, catalogue et cartographie Folium des arènes régionales).
-* **Mi-Décembre :**
-  * Gel définitif des dépôts GitHub sur la branche `main`.
-  * Soutenances orales de fin de semestre.
+### A. Socle Produit Collectif (/12 points — Note d'Équipe)
+Évalue la conformité du livrable logiciel déposé sur la branche `main` le jour du gel :
+
+| Critère Collectif | Barème | Critères d'évaluation objectifs |
+| :--- | :---: | :--- |
+| **Architecture POO & Core** | **/ 3** | Abstraction stricte (`BaseFighter`), encapsulation (`@property`), exceptions personnalisées. |
+| **Packaging & CI GitHub Actions** | **/ 2** | `pyproject.toml` fonctionnel, workflow de CI au vert (si rouge le jour du rendu : -2 pts). |
+| **Pipeline Données & Parallélisme**| **/ 2** | Stratégie de cache disque opérationnelle, parallélisation Monte-Carlo effective. |
+| **Application Streamlit** | **/ 3** | Réactivité de l'application, présence des modules exigés, visualisations interactives Plotly/Folium. |
+| **Conformité de l'Extension** | **/ 2** | Respect strict du cahier des charges métier de l'extension attribuée. |
+
+### B. Contribution Technique Individuelle (/8 points — Note Individuelle)
+Évalue l'implication effective et vérifiable de chaque membre dans la construction du code source, mesurée par l'audit Git et la traçabilité des Pull Requests :
+
+| Critère Individuel | Barème | Modalités d'évaluation objectives |
+| :--- | :---: | :--- |
+| **Volume et consistance des PRs** | **/ 3** | L'étudiant est l'auteur d'au moins 2 Pull Requests substantielles (code métier ou interface) ayant été fusionnées sur `main`. |
+| **Prise en charge des tests unitaires** | **/ 3** | L'étudiant est l'auteur de tests unitaires formels (`tests/`) validant les fonctionnalités qu'il a développées (vérifié via `git blame` / historique des commits). |
+| **Régularité et revues de code** | **/ 2** | Commits incrémentaux réguliers tout au long du semestre (absence de « dump » massif en fin de projet) et participation formelle aux revues de code de ses pairs (*Approvals*). |
+
+---
+
+## Note 2 : Soutenance Orale et Maîtrise Individuelle (/20 — Mixte, Coeff 2)
+
+L'épreuve orale dure **15 minutes par équipe** (8 minutes d'exposé et démo live, 5-7 minutes de questions techniques individuelles, 2 minutes de transition).
+
+| Composante | Critère | Barème | Éléments évalués concrètement |
+| :--- | :--- | :---: | :--- |
+| **Collectif** (6 pts) | **Démonstration logicielle live** | **/ 3** |  Fluidité de la démonstration Streamlit sans plantage. |
+| | **Supports visuels & Synthèse** | **/ 3** | Diapositives claires et professionnelles, schémas d'architecture soignés, respect strict des 8 minutes de présentation. |
+| **Individuel** (14 pts) | **Intervention orale préparée** | **/ 4** | Aisance de l'étudiant lors de son temps de parole dédié, clarté du propos et rigueur du vocabulaire employé. |
+| | **Questions techniques individuelles** | **/ 5** | Aptitude à justifier à chaud ses choix de code, à expliciter une méthode précise et à commenter ses tests unitaires. |
+| | **Adéquation avec `CONTRIBUTIONS.md`** | **/ 5** | Concordance rigoureuse entre les responsabilités déclarées dans le tableau contractuel et la maîtrise technique démontrée. |
+
+---
+
+# Calendrier Prévisionnel et Jalons de Suivi
+
+* **Fin Septembre (Séance 2) :** Constitution des équipes et attribution définitive de l'extension thématique sur le tableur partagé.
+* **Mi-Octobre (Jalon 1) :** Initialisation du dépôt GitHub, activation de la protection de branche et pipeline CI validé.
+* **Fin Octobre (Jalon 2) :** Cœur POO achevé (`core/models.py`, `core/engine.py`), exceptions maison et premiers tests au vert.
+* **Mi-Novembre (Jalon 3) :** Client API avec cache disque opérationnel, moteur Monte-Carlo parallélisé fonctionnel.
+* **Début Décembre (Jalon 4) :** Extension thématique testée et intégrée dans le dashboard Streamlit.
+* **Mi-Décembre :** Gel définitif des dépôts (`main`) et soutenances orales de fin de semestre.
