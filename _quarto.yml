@@ -7,6 +7,7 @@ project:
     - index.qmd
     - Projet2026/cahier_des_charges.qmd
     - TP_bash/enonce_bash.qmd
+    - TP_git/enonce_git.qmd
     - installation_wsl.qmd
     # Les fichiers de correction ne sont pas mentionnés ici
 
@@ -22,6 +23,8 @@ website:
         menu:
           - href: TP_bash/enonce_bash.qmd
             text: "TP 1 : Linux & Bash"
+          - href: TP_git/enonce_git.qmd
+            text: "TP 2 : Git avancé"
       - href: installation_wsl.qmd
         text: "Guide WSL"
 
