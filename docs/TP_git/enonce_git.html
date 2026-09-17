@@ -8,7 +8,7 @@
 
 <meta name="author" content="Bensaid Bilel">
 
-<title>Cours-TP : Ingénierie Logicielle, Git &amp; GitHub Collaboratif</title>
+<title>Cours-TP : Ingénierie Logicielle, Git &amp; GitHub Collaboratif – HAX712X — Dev Logiciel</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -59,17 +59,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="enonce_git_files/libs/clipboard/clipboard.min.js"></script>
-<script src="enonce_git_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="enonce_git_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="enonce_git_files/libs/quarto-html/popper.min.js"></script>
-<script src="enonce_git_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="enonce_git_files/libs/quarto-html/anchor.min.js"></script>
-<link href="enonce_git_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="enonce_git_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="enonce_git_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="enonce_git_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="enonce_git_files/libs/bootstrap/bootstrap-d514875d253cdd9cab89c04d34b023ce.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-825bced5da6ec9a9e85d5340fdc4ca06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -103,11 +136,63 @@ window.Quarto = {
 
 </head>
 
-<body class="quarto-light">
+<body class="nav-fixed quarto-light">
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc" class="toc-active">
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">HAX712X — Dev Logiciel</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Recherche"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Basculer la navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Accueil</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../Projet2026/cahier_des_charges.html"> 
+<span class="menu-text">Projet 2026-2027</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tps" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">TPs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tps">    
+        <li>
+    <a class="dropdown-item" href="../TP_bash/enonce_bash.html">
+ <span class="dropdown-text">TP 1 : Linux &amp; Bash</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_git/enonce_git.html">
+ <span class="dropdown-text">TP 2 : Git avancé</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../installation_wsl.html"> 
+<span class="menu-text">Guide WSL</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Sommaire interactif</h2>
    
   <ul>
@@ -222,11 +307,13 @@ window.Quarto = {
   <li><a href="#pourquoi-git-déteste-les-gros-fichiers-100-mo" id="toc-pourquoi-git-déteste-les-gros-fichiers-100-mo" class="nav-link" data-scroll-target="#pourquoi-git-déteste-les-gros-fichiers-100-mo">Pourquoi Git déteste les gros fichiers (&gt; 100 Mo)</a></li>
   <li><a href="#les-solutions-professionnelles" id="toc-les-solutions-professionnelles" class="nav-link" data-scroll-target="#les-solutions-professionnelles">Les solutions professionnelles :</a></li>
   </ul></li>
-  <li><a href="#a.5-un-fichier-yaml-plus-pro-recommandé" id="toc-a.5-un-fichier-yaml-plus-pro-recommandé" class="nav-link" data-scroll-target="#a.5-un-fichier-yaml-plus-pro-recommandé">A.5 Un fichier Yaml plus pro (recommandé)</a></li>
+  <li><a href="#a.5-protéger-une-branche" id="toc-a.5-protéger-une-branche" class="nav-link" data-scroll-target="#a.5-protéger-une-branche">A.5 Protéger une branche</a></li>
+  <li><a href="#a.6-un-fichier-yaml-plus-pro-recommandé" id="toc-a.6-un-fichier-yaml-plus-pro-recommandé" class="nav-link" data-scroll-target="#a.6-un-fichier-yaml-plus-pro-recommandé">A.6 Un fichier Yaml plus pro (recommandé)</a></li>
   </ul></li>
   </ul>
 </nav>
-</div>
+    </div>
+<!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -1090,7 +1177,7 @@ Ce n’est <strong>pas</strong> une commande Git. C’est un mécanisme web prop
 <li><p><strong>Revue de Code, Tests locaux et Fusion (Étudiant A) :</strong></p>
 <p>Avant d’accepter aveuglément la Pull Request sur GitHub, l’Étudiant A doit impérativement <strong>tester le code en local</strong> sur sa machine.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Option A : Méthode Git classique</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Option B : Méthode moderne (GitHub CLI)</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Option A : Méthode Git classique</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Option B : Méthode moderne (GitHub CLI)</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <p><strong>1. Récupérer et basculer sur la branche de l’Étudiant B :</strong></p>
@@ -1444,8 +1531,12 @@ L’outil standard du Machine Learning. Il fonctionne exactement comme Git, mais
 </ol>
 </section>
 </section>
-<section id="a.5-un-fichier-yaml-plus-pro-recommandé" class="level2">
-<h2 class="anchored" data-anchor-id="a.5-un-fichier-yaml-plus-pro-recommandé">A.5 Un fichier Yaml plus pro (recommandé)</h2>
+<section id="a.5-protéger-une-branche" class="level2">
+<h2 class="anchored" data-anchor-id="a.5-protéger-une-branche">A.5 Protéger une branche</h2>
+<p>Pour éviter de comitter, pusher sur main, l’administrateur du dépôt va dans les paramètres du dépôt sur GitHub (Settings -&gt; Branches -&gt; Add branch protection rule), tape main et coche “Require a pull request before merging”. Dès lors, Git refusera catégoriquement tout git push origin main direct !</p>
+</section>
+<section id="a.6-un-fichier-yaml-plus-pro-recommandé" class="level2">
+<h2 class="anchored" data-anchor-id="a.6-un-fichier-yaml-plus-pro-recommandé">A.6 Un fichier Yaml plus pro (recommandé)</h2>
 <div class="sourceCode" id="cb99"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Verification-CI</span><span class="co">                 # Nom affiché sur GitHub</span></span>
 <span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span><span class="co">                                   # Déclencheurs</span></span>
@@ -1474,11 +1565,12 @@ L’outil standard du Machine Learning. Il fonctionne exactement comme Git, mais
 <span id="cb99-26"><a href="#cb99-26" aria-hidden="true" tabindex="-1"></a>          python -m pip install flake8</span>
 <span id="cb99-27"><a href="#cb99-27" aria-hidden="true" tabindex="-1"></a>          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>On y ajoutera les tests unitaires en temps voulu :): votre initiation (souffrance ?) commence ici jeunes padawans. Le chemin est long, mais n’oubliez pas : c’est dans la friction que le sabre laser s’aiguise.</p>
+
+
 </section>
 </section>
 
-</main>
-<!-- /main column -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
