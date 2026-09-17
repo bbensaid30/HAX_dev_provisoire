@@ -1,0 +1,1281 @@
+---
+title: "Cours-TP : Ingénierie Logicielle, Git & GitHub Collaboratif"
+subtitle: "De l'Environnement Local au Workflow Industriel d'Équipe (4h30)"
+author: "Bensaid Bilel"
+date: "18 Septembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire interactif"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Cadre Pédagogique et Objectifs d'Apprentissage
+
+En science des données et en analyse numérique, le code ne s'écrit jamais de manière isolée. Il s'inscrit au sein d'un écosystème distribué, versionné, revu par les pairs et audité en continu.
+
+### Compétences opérationnelles visées :
+1. **Comprendre le modèle mental de Git :** Les 3 zones locales, les instantanés (*snapshots*), les empreintes cryptographiques SHA-1 et la structure de graphe orienté acyclique (DAG).
+2. **Voyager dans le temps et réparer ses erreurs :** Savoir inspecter le passé en lecture seule (`git switch --detach`), emprunter un fichier d'une version passée (`git restore --source`), et maîtriser les retours en arrière (`git reset`, `git revert`, `git reflog`).
+3. **Arbitrer les stratégies de fusion :** Manipuler et comparer `git merge` (traçabilité historique réelle) et `git rebase` (linéarité propre).
+4. **Travailler selon les standards industriels :** Tickets de travail (*Issues*), branches conventionnelles, Pull Requests (PRs), revues de code croisées et protection de branches.
+5. **Comprendre l'automatisation (CI) :** Lire, écrire et comprendre le fonctionnement d'un workflow GitHub Actions (syntaxe YAML).
+6. **Sécuriser les versions scientifiques :** Poser des tags annotés immuables garantissant la reproductibilité des calculs.
+
+---
+
+## Organisation Temporelle (Séance de 4h30)
+
+| Module | Horaires indicatifs | Thématique abordée | Modalité |
+| :--- | :---: | :--- | :---: |
+| **Partie 0** | 00h00 – 00h35 (35 min) | Installation complète (VS Code, Git, SSH) & Modèle mental | Individuel |
+| **Partie 1** | 00h35 – 01h15 (40 min) | Enregistrement local : Status, Diff, Commits, .gitignore | Individuel |
+| **Partie 2** | 01h15 – 02h05 (50 min) | Branches locales & Les 2 Écoles : `merge` vs `rebase` | Individuel |
+| **Pause** | 02h05 – 02h15 (10 min) | *Pause* | - |
+| **Partie 3** | 02h15 – 02h55 (40 min) | Voyager dans le temps : exploration, `reset`, `revert` & `reflog` | Individuel |
+| **Partie 4** | 02h55 – 03h40 (45 min) | GitHub Collaboratif : Dépôt distant, Issues, PRs, CI & Tags | Binômes|
+| **Partie 5** | 03h40 – 04h30 (50 min) | Le Défi: Conditions réelles | Binômes |
+
+::: {.callout-note}
+### Consigne Spécifique pour les Groupes de 3 (Trinômes)
+Si la promotion comporte un effectif impair, les trinômes appliquent la répartition des rôles suivante :
+
+* **Étudiants 1 et 2 :** Développent chacun leurs branches de fonctionnalités.
+* **Étudiant 3 (*Release Manager*) :** Responsable du dépôt, il crée et assigne les tickets (*Issues*), assure la relecture obligatoire (*Reviewer*) de toutes les Pull Requests, valide les fusions sur `dev` et pose les tags sur `main`.
+* **Rotation :** Les rôles sont inversés entre les exercices pour que chacun manipule l'intégralité du cycle.
+:::
+
+---
+
+# Partie 0 : Environnement & Configuration Complète (35 min)
+
+## 0.1 Système d'Exploitation : Linux, macOS et Windows (WSL 2)
+
+Les serveurs de production, les conteneurs de calcul et les pipelines d'intégration continue s'exécutent sous Linux.
+
+* **Sous Linux (Ubuntu / Debian / Fedora) :** Ouvrez votre terminal natif Bash.
+* **Sous macOS :** Ouvrez votre terminal natif Zsh.
+* **Sous Windows :** **L'utilisation de Git Bash et de l'invite DOS (`cmd.exe`) n'est pas recommandée.**  
+  Vous devez exécuter **WSL 2 (Windows Subsystem for Linux)** sous Ubuntu. Toutes les commandes de ce cours sont tapées dans le terminal Ubuntu de WSL.
+
+---
+
+## 0.2 Installation de Git et Configuration de VS Code
+
+Visual Studio Code est l'environnement officiel du cours.
+
+### Installation des outils
+
+1. **Installer Git :**
+
+   * *Ubuntu / Debian / Windows WSL :*
+     ```bash
+     sudo apt update && sudo apt install -y git
+     ```
+   * *macOS :* Tapez `git --version` dans le terminal et acceptez l'installation des outils Xcode (ou via Homebrew : `brew install git`).
+
+2. **Installer VS Code :** Téléchargez l'application officielle sur [code.visualstudio.com](https://code.visualstudio.com).
+
+### Extensions VS Code indispensables
+Ouvrez VS Code, rendez-vous dans l'onglet des extensions (**Ctrl+Shift+X** ou **Cmd+Shift+X**) et installez :
+
+1. **Python** (par Microsoft) : colorisation et aide à l'exécution.
+2. **Git Graph** (par mhutchie) : **Extension indispensable.** Elle affiche l'arbre complet de vos branches et commits sous forme de plan de métro interactif.
+3. *(Sous Windows uniquement)* : **WSL** (par Microsoft).
+
+### Lier VS Code au Terminal comme éditeur Git officiel
+Lorsqu'un commit manque de message ou qu'un conflit doit être résolu, Git ouvre par défaut un éditeur console (`nano` ou `vim`). Pour éviter de vous retrouver bloqué dans Vim sans savoir comment sauvegarder ou quitter (`:wq`), exécutez dans le terminal :
+```bash
+git config --global core.editor "code --wait"
+```
+*Fonctionnement :* L'option `--wait` indique à Git de suspendre le terminal, d'ouvrir un onglet dans VS Code et d'attendre que vous **sauvegardiez (Ctrl+S)** et **fermiez l'onglet**. Dès la fermeture, le terminal reprend automatiquement son cours.
+
+---
+
+## 0.3 Configuration de l'Identité Globale (Le choix de l'email)
+
+Configurez votre **adresse email personnelle** (celle de votre compte GitHub personnel), et non votre adresse universitaire temporaire qui sera supprimée à la fin de vos études :
+
+```bash
+git config --global user.name "Prénom Nom"
+git config --global user.email "votre_email_personnel@domaine.fr"
+git config --global init.defaultBranch main
+```
+
+*(Astuce : Vous ajouterez ensuite votre email `@etu.umontpellier.fr` comme adresse secondaire sur GitHub dans **Settings > Emails** pour bénéficier gratuitement du GitHub Student Developer Pack tout en conservant vos contributions à vie).*
+
+---
+
+## 0.4 Authentification Sécurisée par Clé SSH
+
+GitHub refuse les mots de passe lors des opérations réseau en ligne de commande. La communication sécurisée utilise une paire de clés cryptographiques asymétriques **Ed25519** :
+
+* Une **clé privée** secrète (sur votre ordinateur).
+* Une **clé publique** (déposée sur le serveur GitHub).
+
+1. **Générer la paire de clés :**
+   Dans le terminal, lancez :
+   ```bash
+   ssh-keygen -t ed25519 -C "votre_email_personnel@domaine.fr"
+   ```
+
+   * Appuyez sur **Entrée** pour accepter le chemin par défaut (`~/.ssh/id_ed25519`).
+   * Appuyez deux fois sur **Entrée** sans mot de passe.
+
+2. **Verrouiller les permissions (sous Linux / WSL / macOS) :**
+   ```bash
+   chmod 600 ~/.ssh/id_ed25519
+   chmod 644 ~/.ssh/id_ed25519.pub
+   ```
+3. **Copier la clé publique :**
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+   Sélectionnez l'intégralité du texte affiché (commençant par `ssh-ed25519` et finissant par votre email) et copiez-le dans le presse-papier.
+4. **Déposer la clé sur GitHub :**
+   * Connectez-vous sur [github.com](https://github.com) $\rightarrow$ Photo de profil en haut à droite $\rightarrow$ **Settings**.
+   * Menu latéral gauche : **SSH and GPG keys** $\rightarrow$ bouton vert **New SSH key**.
+   * Titre : donnez un nom clair (ex. `PC-Portable-M1`) et collez la clé dans le champ **Key**.
+   * Validez avec **Add SSH key**.
+5. **Tester la liaison dans le terminal :**
+   ```bash
+   ssh -T git@github.com
+   ```
+   *(Tapez `yes` si le terminal vous demande de confirmer l'empreinte).*  
+   Message attendu : `Hi <pseudo>! You've successfully authenticated, but GitHub does not provide shell access.`
+
+---
+
+# Partie 1 : Le Cœur de Git en Local (40 min)
+
+## 1.1 Le Modèle Mental des 3 Zones Locales
+
+Git ne stocke pas des listes de modifications de texte, mais des **instantanés complets (snapshots)** de l'ensemble de votre projet. Sur votre machine, les fichiers transitent entre trois espaces :
+
+```text
++-----------------------+     git add      +-----------------------+    git commit     +-----------------------+
+|   Working Directory   | ---------------> |     Staging Area      | --------------->  |   Dépôt Local (.git)  |
+|  (Dossier de travail) |                  |   (Sas d'indexation)  |                   |    (Base immuable)    |
+|   Fichiers en cours   | <--------------- |  Sélection chirurgicale|                   |  Historique complet   |
+|     d'édition         |    git restore   |  du prochain commit   |                   |    Snapshots SHA-1    |
++-----------------------+     --staged     +-----------------------+                   +-----------------------+
+```
+
+### Qu'est-ce que l'indexation (*Staging Area*) ?
+C'est un sas de préparation. Pourquoi ne pas committer directement tous les fichiers modifiés ?  
+Parce que vous pouvez modifier quatre fichiers dans votre journée : deux pour corriger un bug urgent, et deux pour une nouvelle fonctionnalité. L'indexation vous permet d'ajouter chirurgicalement les deux premiers (`git add bug.py`), de faire un commit propre et isolé (`fix: correction du bug`), puis d'indexer les deux autres (`git add feat.py`) pour faire un second commit (`feat: nouvelle option`).
+
+### Qu'est-ce qu'un commit et une empreinte SHA-1 ?
+Un commit est un instantané scellé dans la base `.git/`. Il contient :
+
+* La photo intégrale de l'arborescence des fichiers.
+* Le nom de l'auteur, son email et la date exacte.
+* Un message explicatif rédigé par vos soins.
+* Un pointeur vers le commit parent précédent.
+
+**L'identifiant SHA-1 :**  
+Git calcule une empreinte cryptographique de **40 caractères hexadécimaux** sur l'ensemble de ces informations (ex. `a1b2c3d4e5f6...`). Si un seul espace change dans un fichier ou si la date change d'une seconde, l'empreinte change totalement. Les **7 premiers caractères** suffisent à désigner un commit sans ambiguïté.
+
+---
+
+## 1.2 Inspection : `git status` vs `git diff`
+
+* **`git status` (Vue Macroscopique) :** Indique l'état administratif des fichiers (non suivis, modifiés, prêts pour le commit). Il n'affiche **aucune ligne de code**.
+* **`git diff` (Vue Microscopique) :** Affiche **les lignes exactes** de code modifiées.
+  * `git diff` : Compare le *Working Directory* avec l'index (ce qui a changé mais n'est pas encore indexé).
+  * `git diff --staged` : Compare l'index avec le dernier commit scellé (ce qui entrera dans le prochain commit).
+
+```text
+Lecture d'un diff :
+  --- a/moteur.py   (version précédente)
+  +++ b/moteur.py   (version nouvelle)
+  - print("Erreur") (ligne retirée, rouge)
+  + print("Succes") (ligne ajoutée, vert)
+```
+
+---
+
+## 1.3 Exercice Guidé 1 : Cycle de vie local
+
+1. **Initialiser le dépôt d'entraînement :**
+   ```bash
+   mkdir tp-git-solo
+   cd tp-git-solo
+   git init
+   ```
+2. **Créer un module de jeu procédural (`moteur.py`) :**
+   Dans VS Code (`code .`), créez `moteur.py` :
+   ```python
+   # moteur.py
+   def initialiser_arene(nom: str):
+       return {"nom": nom, "combattants": []}
+
+
+   print("Moteur de jeu charge.")
+```
+3. **Inspecter l'état :**
+   ```bash
+   git status
+   ```
+   Le fichier apparaît en rouge sous `Untracked files`. Git constate sa présence sur le disque mais ne le suit pas.
+4. **Indexer le fichier :**
+   ```bash
+   git add moteur.py
+   git status
+   ```
+   Le fichier passe en vert sous `Changes to be committed`.
+5. **Expérimenter la double réalité d'un fichier :**
+   Ajoutez une ligne à la fin de `moteur.py` :  
+   `print("Systeme pret.")`  
+   Exécutez :
+   ```bash
+   git status
+   git diff
+   git diff --staged
+   ```
+   *Explication :* Le fichier est listé **à la fois** en vert (la version indexée à l'étape 4) et en rouge (la ligne ajoutée non indexée). `git diff` affiche la nouvelle ligne, tandis que `git diff --staged` affiche ce qui attend dans l'index.
+6. **Indexer et committer l'ensemble :**
+   ```bash
+   git add moteur.py
+   git commit -m "feat: initialisation du moteur d'arene"
+   ```
+
+---
+
+## 1.4 L'Hygiène de Projet : Le Fichier `.gitignore`
+
+Un dépôt Git ne doit recevoir **aucun fichier temporaire, log ou cache**. Les committer génère des conflits artificiels et alourdit le dépôt.
+
+1. **Générer des fichiers parasites :**
+   ```bash
+   touch execution.log
+   mkdir __pycache__
+   touch __pycache__/moteur.cpython-311.pyc
+   git status
+   ```
+2. **Créer le fichier d'exclusion `.gitignore` :**
+   Créez le fichier `.gitignore` à la racine :
+   ```text
+   # Fichiers de logs
+   *.log
+
+   # Caches de bytecode Python
+   __pycache__/
+   *.py[cod]
+
+   # Caches de tests
+   .pytest_cache/
+
+   # Fichiers systemes
+   .DS_Store
+   ```
+3. **Vérifier l'assainissement :**
+   ```bash
+   git status
+   ```
+   Les fichiers parasites ont disparu. Seul `.gitignore` est visible.
+4. **Committer :**
+   ```bash
+   git add .gitignore
+   git commit -m "chore: configuration des exclusions de cache et logs"
+   ```
+
+---
+
+## 1.5 Visualiser l'Historique avec `git graph` et l'extension Git Graph
+
+Configurez cet alias dans votre terminal pour tout le semestre :
+```bash
+git config --global alias.graph "log --oneline --graph --all --decorate"
+```
+Tapez `git graph` pour observer l'historique compact.  
+*Dans VS Code :* Cliquez sur **Git Graph** dans la barre d'état tout en bas à gauche pour voir vos commits représentés sous forme de nœuds reliés par des segments colorés.
+
+---
+
+# Partie 2 : Branches Locales & Les Deux Écoles : Merge vs Rebase (50 min)
+
+## 2.1 Qu'est-ce qu'une Branche ?
+Une branche n'est **ni une copie de dossier, ni un répertoire**.  
+Une branche sous Git est simplement un **pointeur mobile de 41 octets** portant un nom (ex. `main`) qui pointe vers l'identifiant SHA-1 du dernier commit d'une lignée. Le pointeur spécial **`HEAD`** indique la branche sur laquelle vous êtes actuellement positionné.
+
+```text
+État initial :
+[Commit 1] <--- [Commit 2]  (main, HEAD)
+
+Création de la branche feat/attaque avec "git switch -c feat/attaque" :
+[Commit 1] <--- [Commit 2]  (main)
+                     ^
+                     +--- (feat/attaque, HEAD)
+```
+
+#### Commandes de manipulation de branches :
+* `git switch -c <nom>` : Crée une branche et bascule dessus (*remplace `git checkout -b`*).
+* `git switch <nom>` : Bascule sur une branche existante.
+* `git branch` : Liste les branches locales.
+* `git branch -d <nom>` : Supprime une branche (uniquement si elle a été fusionnée).
+
+---
+
+## 2.2 Les Deux Écoles d'Intégration : `git merge` vs `git rebase`
+
+Quand deux branches ont divergé, comment les réunir ? Deux philosophies coexistent :
+
+```text
+Arborescence divergente :
+                    +---> [B1] ---> [B2] (feat/attaque)
+                   /
+[C1] <--- [C2] <--+
+                   \
+                    +---> [C3] (main)
+```
+
+### École 1 : La Fusion (`git merge feat/attaque` depuis `main`)
+Git analyse les ancêtres communs et crée un **commit de fusion (*merge commit*)** qui possède deux parents distincts.
+
+```text
+                    +---> [B1] ---> [B2] -------+
+                   /                             \
+[C1] <--- [C2] <--+                               +---> [M1: Merge Commit] (main, HEAD)
+                   \                             /
+                    +---> [C3] -----------------+
+```
+* **Avantage :** Préserve la vérité historique chronologique absolue.
+* **Inconvénient :** L'arbre de commits devient vite difficile à lire en équipe nombreuse.
+
+---
+
+### École 2 : Le Rebase (`git rebase main` depuis `feat/attaque`)
+Git détache les commits `[B1]` et `[B2]`, déplace le point d'ancrage de la branche au sommet de `main` (`[C3]`), puis **rejoue les commits un par un**.
+
+```text
+[C1] <--- [C2] <--- [C3] (main) <--- [B1'] <--- [B2'] (feat/attaque, HEAD)
+```
+* **Avantage :** Historique **parfaitement linéaire**.
+* **Inconvénient :** Réécrit les identifiants SHA-1 des commits rejoués (`B1'` remplace `B1`).
+
+::: {.callout-important}
+### La Règle d'Or Absolue du Rebase
+**On ne rebase JAMAIS une branche publique partagée sur GitHub.**  
+Le rebase est un outil personnel pour nettoyer votre branche locale avant de la proposer aux autres via une Pull Request.
+:::
+
+---
+
+## 2.3 Exercice Guidé 2A : Pratique du Merge et Raccourcis de Conflit
+
+1. **Créer une branche de fonctionnalité :**
+   ```bash
+   git switch -c feat/attaque-charge
+   ```
+2. **Ajouter une fonction dans `moteur.py` :**
+   ```python
+   def attaque_charge():
+       return "Charge inflige 20 degats"
+```
+3. **Committer :**
+   ```bash
+   git add moteur.py
+   git commit -m "feat: ajout de l'attaque Charge"
+   ```
+4. **Revenir sur `main` et faire diverger le code :**
+   ```bash
+   git switch main
+   ```
+   Ajoutez au même endroit dans `moteur.py` :
+   ```python
+   def attaque_griffe():
+       return "Griffe inflige 25 degats"
+```
+5. **Committer sur `main` :**
+   ```bash
+   git add moteur.py
+   git commit -m "feat: ajout de l'attaque Griffe sur main"
+   ```
+6. **Lancer la fusion :**
+   ```bash
+   git merge feat/attaque-charge
+   ```
+   **Conflit signalé !** Git interrompt la fusion.
+
+### Résolution du conflit : Les 2 méthodes
+* **Méthode 1 : Raccourcis en ligne de commande (Astuce Pro)**  
+  Si vous décidez d'écraser le conflit avec votre version locale ou celle de la branche entrante sans ouvrir le fichier :
+  * Garder la version locale (`main`) :  
+    `git restore --ours moteur.py`
+  * Prendre la version entrante (`feat/attaque-charge`) :  
+    `git restore --theirs moteur.py`
+* **Méthode 2 : Arbitrage dans VS Code**  
+  Ouvrez `moteur.py`. Cliquez sur **Accept Both Changes**, conservez les deux fonctions proprement, supprimez les balises (`<<<`, `===`, `>>>`) et sauvegardez.
+7. **Finaliser le merge :**
+   ```bash
+   git add moteur.py
+   git commit -m "merge: conciliation des attaques Charge et Griffe"
+   git graph
+   git branch -d feat/attaque-charge
+   ```
+
+---
+
+## 2.4 Exercice Guidé 2B : Pratique du Rebase
+
+1. **Créer une nouvelle branche :**
+   ```bash
+   git switch -c feat/potion
+   ```
+2. **Ajouter la fonction potion dans `moteur.py` :**
+   ```python
+   def boire_potion(points: int = 30):
+       return f"Soin de {points} PV"
+```
+3. **Committer :**
+   ```bash
+   git add moteur.py
+   git commit -m "feat: ajout de la fonction potion"
+   ```
+4. **Créer un commit indépendant sur `main` :**
+   ```bash
+   git switch main
+   echo "# Documentation du Moteur" > README.md
+   git add README.md
+   git commit -m "docs: ajout du README"
+   ```
+5. **Rebaser la branche sur `main` :**
+   ```bash
+   git switch feat/potion
+   git rebase main
+   ```
+6. **Vérifier la linéarité :**
+   Tapez `git graph`. Constatez que votre commit `feat: ajout de la fonction potion` est désormais placé **directement au-dessus** de `docs: ajout du README`.
+7. **Intégrer sur `main` par avance rapide (Fast-Forward) :**
+   ```bash
+   git switch main
+   git merge feat/potion   # Fast-Forward instantané sans commit de merge !
+   git branch -d feat/potion
+   ```
+
+---
+
+# Partie 3 : Voyager dans le Temps et Réparer ses Erreurs (40 min)
+
+Dans la conduite d'un projet logiciel ou de calcul scientifique, le temps consacré à ajuster, corriger, réordonner ou annuler du travail équivaut souvent à celui passé à écrire du code neuf.  
+Git est fréquemment présenté comme une « machine à remonter le temps ». Cette analogie est féconde, mais trompeuse si l'on ne comprend pas **l'intention métier** qui sous-tend chaque retour en arrière.
+
+Selon que vous souhaitiez **observer** le passé sans y toucher, **emprunter** un fichier d'une version antérieure, **réorganiser** des brouillons locaux ou **annuler** une erreur déjà partagée sur GitHub, la commande et l'espace de stockage impactés sont radicalement différents.
+
+---
+
+## 3.1 La Règle d'Or et la Cartographie Décisionnelle
+
+Avant de toucher à l'historique, posez-vous systématiquement cette question :  
+**« Le commit que je veux modifier ou annuler a-t-il DÉJÀ été envoyé sur GitHub via un `git push` ? »**
+
+```text
+                                Votre commit est-il déjà sur GitHub ?
+                                             │
+                     ┌───────────────────────┴───────────────────────┐
+                     │ OUI                                           │ NON (Local seul)
+                     ▼                                               ▼
+             git revert <sha1>                              Quel est votre objectif ?
+       (Crée un commit d'annulation                                  │
+        qui préserve l'histoire commune)         ┌───────────────────┴───────────────────┐
+                                                 │                                       │
+                                                 ▼                                       ▼
+                                      Corriger le dernier commit              Reculer de plusieurs commits
+                                         git commit --amend                              │
+                                                                       ┌─────────────────┴─────────────────┐
+                                                                       │                                   │
+                                                                 Garder le code                      Tout détruire
+                                                              dans Staging ou WD                   (fausse piste)
+                                                            git reset --soft/mixed                git reset --hard
+```
+
+### Tableau Comparatif : Quelle commande pour quelle situation ?
+
+| Situation vécue en projet | Intention réelle | Commande industrielle | Impact physique sur le disque |
+| :--- | :--- | :--- | :--- |
+| **« Mon code fonctionnait il y a 3 semaines. »** | Explorer le passé en lecture seule | `git switch --detach <sha1>` | Le dossier de travail adopte l'état passé, aucune écriture sur branche. |
+| **« Mon binôme a supprimé une formule vitale il y a 4 commits. »** | Emprunter un fichier passé sans bouger du présent | `git restore --source=<sha1> <f>` | La version passée du fichier écrase la version actuelle dans le dossier de travail. |
+| **« J'ai fait une faute de frappe dans le message de commit. »** | Remplacer le dernier commit local | `git commit --amend -m "..."` | Réécrit le commit actif sans créer de nœud supplémentaire. |
+| **« J'ai cassé mon script, je veux revenir au dernier commit propre. »** | Annuler les modifications non indexées | `git restore <fichier>` | Écrase les modifications locales avec le dernier commit validé. |
+| **« J'ai tapé `git add` sur un fichier qu'il ne fallait pas indexer. »** | Sortir un fichier du sas sans toucher au code | `git restore --staged <fichier>` | Repasse le fichier du vert au rouge dans `git status`. |
+| **« On me demande de changer de branche en urgence alors que mon code est cassé. »** | Ranger temporairement du code inachevé | `git stash` (puis `git stash pop`) | Met le code dans un casier temporaire et nettoie le dossier de travail. |
+| **« J'ai fait un gros commit brouillon à redécouper en commits propres. »** | Annuler le commit mais conserver tout le code | `git reset --mixed HEAD~1` | Le commit disparaît, le code reste intact sur le disque. |
+| **« J'ai poussé un bogue sur GitHub qui bloque toute l'équipe. »** | Annuler publiquement un commit partagé | `git revert <sha1>` | Crée un nouveau commit appliquant l'inverse exact du commit fautif. |
+| **« Catastrophe : j'ai tapé `git reset --hard` par erreur ! »** | Ressusciter du code effacé | `git reflog` + `git reset --hard` | Retrouve le SHA-1 dans le journal d'audit de la machine. |
+
+---
+
+## 3.2 Exercice Guidé 3A : L'Exploration Temporelle et le Vol de Fichier
+
+### Scénario métier :
+Vous travaillez sur votre dépôt local `tp-git-solo`. Vous suspectez qu'une régression s'est glissée dans le moteur de calcul. Vous souhaitez remonter au tout premier commit pour vérifier le code originel, puis emprunter un fichier d'une version antérieure sans abandonner vos développements actuels.
+
+1. **Identifier le passé :**  
+   Affichez l'historique compact :
+   ```bash
+   git graph
+   ```
+   Repérez les 7 premiers caractères de l'empreinte SHA-1 de votre premier commit d'initialisation (ex. `e4f1a2b`).
+
+2. **Voyager dans le temps en lecture seule (`HEAD` détachée) :**
+   ```bash
+   git switch --detach e4f1a2b
+   ```
+   *Ce qui se passe sur votre machine :*  
+   Git affiche : `You are in 'detached HEAD' state`.  
+   Ouvrez `moteur.py` dans VS Code : les fonctions d'attaque et de potion ont disparu. Le fichier est revenu dans l'état exact où il se trouvait lors de sa création. Vous pouvez lancer `python moteur.py` pour tester ce comportement historique.
+
+3. **La règle de sécurité :**  
+   En état de `HEAD` détachée, **il ne faut jamais committer**. Vos commits flotteraient dans le vide sans étiquette de branche et seraient perdus au prochain changement de vue.
+
+4. **Revenir au présent :**  
+   Pour sortir de la capsule temporelle et retrouver votre branche active :
+   ```bash
+   git switch main
+   ```
+   Ouvrez `moteur.py` : tout votre code moderne réapparaît instantanément.
+
+5. **Emprunter un fichier passé sans bouger du présent :**  
+   Supposons que vous ayez besoin de réinjecter la version originelle exacte de `moteur.py` tout en restant sur `main` :
+   ```bash
+   git restore --source=e4f1a2b moteur.py
+   git status
+   git diff
+   ```
+   *Constat :* Vous êtes toujours sur la branche `main`, mais `moteur.py` a été écrasé par sa version historique. `git diff` affiche en rouge toutes les fonctions modernes effacées.  
+   Pour annuler cette manipulation et retrouver votre fichier moderne intact :
+   ```bash
+   git restore moteur.py
+   ```
+
+---
+
+## 3.3 Exercice Guidé 3B : Le Casier Temporaire (`git stash`)
+
+### Scénario métier :
+Vous êtes en train d'écrire une nouvelle mécanique de calcul dans `moteur.py`. Votre code comporte des erreurs de syntaxe non terminées. Votre collègue vous interpelle :  
+*« Il y a une coquille urgente dans le fichier `README.md` de la branche `main`, corrige-la tout de suite ! »*
+
+Si vous tapez `git switch main`, Git refuse : vos fichiers non committés risqueraient d'être écrasés. Faire un commit du type `wip ça marche pas` polluerait inutilement l'historique partagé.
+
+1. **Générer le code inachevé :**  
+   Ajoutez une ligne incomplète à la fin de `moteur.py` :
+   ```python
+   # Calcul en cours de developpement (ne compile pas !)
+   resultat = 12 +
+   ```
+   Tapez `git status` : le fichier est marqué `modified`.
+
+2. **Mettre le travail dans le casier temporaire :**
+   ```bash
+   git stash
+   ```
+   *Ce qui se passe :* Git prend toutes vos modifications non committées, les compresse dans une pile sécurisée hors de vue, et remet votre dossier de travail dans un état **parfaitement propre**.  
+   Tapez `git status` : `nothing to commit, working tree clean`.  
+   Ouvrez `moteur.py` : la ligne inachevée a disparu.
+
+3. **Traiter l'urgence :**  
+   Vous pouvez maintenant corriger le problème urgent et faire un commit propre :
+   ```bash
+   echo "Correction urgente d'une coquille" >> README.md
+   git add README.md
+   git commit -m "docs: correction coquille documentation"
+   ```
+
+4. **Rouvrir le casier et reprendre son travail :**  
+   Une fois l'urgence traitée, reprenez vos modifications là où vous les aviez laissées :
+   ```bash
+   git stash pop
+   ```
+   *Résultat :* Git réapplique vos lignes inachevées dans `moteur.py`.  
+   Nettoyez maintenant votre fichier en retirant la ligne incomplète `resultat = 12 +` et sauvegardez (**Ctrl+S**).
+
+---
+
+## 3.4 Exercice Guidé 3C : Maîtriser `git reset` (Les 3 Degrés d'Annulation)
+
+`git reset` déplace le pointeur de la branche active vers l'arrière dans le temps. C'est l'outil de réorganisation de vos commits **locaux** (non encore envoyés sur GitHub).
+
+```text
+État avant commande :
+[C1] <--- [C2: feat: premier jet] <--- [C3: feat: second jet] (main, HEAD)
+
+Que fait "git reset HEAD~1" ?
+Il force l'étiquette (main, HEAD) à reculer sur [C2].
+La différence entre les 3 modes réside uniquement dans le sort réservé au code contenu dans [C3] :
+```
+
+```text
+                  Sort réservé au contenu du commit annulé [C3] :
+
+Option      Dépôt Local (.git)       Staging Area           Working Directory
+─────────────────────────────────────────────────────────────────────────────
+--soft      Commit effacé            Code CONSERVÉ (vert)   Code CONSERVÉ
+--mixed     Commit effacé            Sas VIDÉ (rouge)       Code CONSERVÉ sur disque
+--hard      Commit effacé            Sas VIDÉ               Code DÉTRUIT DÉFINITIVEMENT
+```
+
+### Cas Pratique 1 : Le mode `--soft` (Le chirurgien)
+*Cas d'usage réel :* Vous avez committé trop vite. Vous avez oublié d'ajouter un fichier ou vous voulez regrouper deux actions dans le même commit.
+
+```bash
+# 1. Créons un commit prématuré :
+echo "PARAMETRE_VITESSE = 10" >> moteur.py
+git add moteur.py
+git commit -m "feat: ajout parametre vitesse"
+
+# 2. Annulons le commit en gardant l'indexation :
+git reset --soft HEAD~1
+
+# 3. Inspection :
+git status
+```
+*Analyse :* Le commit a disparu de l'historique (`git graph`). En revanche, `moteur.py` apparaît **en vert** (`Changes to be committed`). Votre code est resté dans le sas d'indexation. Vous pouvez modifier votre message ou ajouter un autre fichier avant de recommitter.
+
+### Cas Pratique 2 : Le mode `--mixed` (Par défaut — La redistribution)
+*Cas d'usage réel :* Vous avez fait un gros commit brouillon contenant à la fois une nouvelle fonction et une modification de configuration. Vous voulez casser ce commit pour faire deux commits distincts et soignés.
+```bash
+# 1. Recommittons notre paramètre :
+git commit -m "feat: commit brouillon a redecouper"
+
+# 2. Annulons le commit et vidons le sas :
+git reset --mixed HEAD~1
+
+# 3. Inspection :
+git status
+```
+*Analyse :* Le commit a disparu. Cette fois, `moteur.py` apparaît **en rouge** (`Changes not staged for commit`). Le sas a été vidé, mais **votre code n'a pas bougé de votre disque**. Vous êtes libres de faire des `git add` sélectifs.
+
+### Cas Pratique 3 : Le mode `--hard` (La bombe atomique)
+*Cas d'usage réel :* Vous avez codé une tentative d'optimisation qui s'avère être une impasse mathématique complète. Vous voulez tout détruire et retrouver l'état propre du dernier commit validé.
+```bash
+# Annulation destructrice :
+git reset --hard HEAD
+git status
+```
+*Analyse :* Toutes les modifications non committées sont définitivement purgées. Votre dossier de travail est parfaitement aligné sur le dernier commit propre.
+
+---
+
+## 3.5 Exercice Guidé 3D : L'Annulation Publique avec `git revert`
+
+### Scénario métier :
+Vous avez committé un bug critique. Pire encore : **ce commit a déjà été poussé sur GitHub et vos collègues ont basé leur travail dessus**.  
+Si vous utilisez `git reset`, vous réécrivez le passé. Au prochain `git push`, GitHub rejettera votre travail (`non-fast-forward`), et si vous forcez le push (`--force`), vous détruirez l'historique de toute l'équipe.
+
+**La solution industrielle : `git revert`**  
+Au lieu de supprimer le commit passé, Git calcule la différence inverse mathématique et crée un **nouveau commit qui annule les effets du commit défaillant**. L'histoire avance toujours.
+
+```text
+Historique partagé :
+[C1] <--- [C2: feat: calcul stable] <--- [C3: fix: modif toxique poussée !] (main)
+
+Application de "git revert C3" :
+[C1] <--- [C2] <--- [C3] <--- [C4: Revert "fix: modif toxique poussée !"] (main, HEAD)
+```
+
+1. **Injecter une anomalie :**  
+   Ajoutez une variable corrompue dans `moteur.py` :
+   ```python
+   # Bug critique injecté en production
+   TAUX_CRITIQUE_PAR_DEFAUT = -999.0
+   ```
+2. **Sceller le commit :**
+   ```bash
+   git add moteur.py
+   git commit -m "feat: ajout du multiplicateur de critique"
+   git graph
+   ```
+3. **Annuler proprement sans réécrire l'histoire :**
+   ```bash
+   git revert HEAD
+   ```
+   VS Code s'ouvre automatiquement (grâce à `code --wait`) avec un message de commit pré-généré :  
+   `Revert "feat: ajout du multiplicateur de critique"`.  
+   Enregistrez (**Ctrl+S**) et fermez l'onglet.
+4. **Inspecter le résultat :**  
+   Tapez `git graph`. Constatez qu'un nouveau commit est apparu au sommet de l'arbre. Ouvrez `moteur.py` : la variable toxique a été retirée automatiquement.
+
+---
+
+## 3.6 Exercice Guidé 3E : Le Journal de Secours Absolu (`git reflog`)
+
+### Scénario métier :
+C'est la panique classique de fin de journée : un développeur fatigué tape par inadvertance `git reset --hard HEAD~2` au lieu de `git reset --soft`. Les commits de l'après-midi semblent volatilisés.
+
+**Le principe du `reflog` (*Reference Log*) :**  
+Git n'efface presque jamais rien. Tant qu'un commit a été validé une fois sur votre machine, il reste physiquement stocké dans la base interne pendant au moins 30 jours. Le `reflog` est le journal d'audit de la tête de lecture `HEAD` : il consigne **chaque mouvement** provoqué par un commit, un checkout, un merge ou un reset.
+
+1. **Simuler la catastrophe :**  
+   Tapez délibérément :
+   ```bash
+   git reset --hard HEAD~2
+   ```
+   Tapez `git graph` : vos deux derniers commits ont disparu. Le terminal ne les mentionne plus nulle part.
+2. **Consulter la boîte noire :**
+   ```bash
+   git reflog
+   ```
+   Git affiche l'historique complet de vos déplacements :
+   ```text
+   7a1b2c3 HEAD@{0}: reset: moving to HEAD~2
+   9f8e7d6 HEAD@{1}: revert: Revert "feat: ajout du multiplicateur de critique"
+   4c5b6a7 HEAD@{2}: commit: feat: ajout du multiplicateur de critique
+   ```
+3. **Identifier le point de résurrection :**  
+   Repérez la ligne `HEAD@{1}` : c'était l'état exact de votre projet juste avant la commande destructrice.
+4. **Ressusciter le code :**
+   ```bash
+   git reset --hard HEAD@{1}
+   ```
+5. **Constat de victoire :**  
+   Tapez `git graph` : l'intégralité de vos commits et de vos fichiers est revenue à sa place exacte.
+
+---
+
+# Partie 4 : Dépôt Distant, Architecture d'Équipe, CI & Tags (45 min)
+
+*A partir de cette étape, vous travaillez en **binômes réels (Machine A et Machine B)**.*
+
+## 4.1 Pourquoi sanctuariser `main` et créer `dev` ?
+
+**L'analogie du restaurant :**
+
+* **`main` (La salle des clients) :** C'est la vitrine officielle livrée à l'utilisateur. Elle doit être stable, testée et fonctionnelle à chaque instant (la version évaluée en soutenance). Aucun développement en cours n'y est toléré.
+* **`dev` (Le passe-plat de la cuisine) :** C'est la branche d'intégration collective. L'équipe y rassemble les fonctionnalités terminées pour vérifier qu'elles cohabitent sans conflit.
+* **Branches thématiques (`feat/...`, `fix/...`) :** Les postes de travail individuels.
+
+```text
+main  -----------------------------------------------------------------> [Release Officielle v1.0.0]
+                                                                           ^
+dev   -------------------------> [Merge PR 1] -----> [Merge PR 2] --------+
+        \                          ^                  ^
+feat/... \--- [Code Étudiant A] --/                  /
+feat/...  \--- [Code Étudiant B] -------------------/
+```
+
+### Nomenclature conventionnelle des branches (*Conventional Branches*) :
+
+* `feat/<nom>` : Nouvelle fonctionnalité (ex. `feat/calcul-degats`).
+* `fix/<nom>` : Correction de bogue (ex. `fix/division-zero`).
+* `docs/<nom>` : Documentation, README.
+* `test/<nom>` : Écriture de tests unitaires.
+
+---
+
+## 4.2 Les Tickets de Travail (*GitHub Issues*) et les Pull Requests (PR)
+
+* **GitHub Issue :** En ingénierie logicielle, on code rarement sans ticket. L'Issue définit le besoin, le périmètre et désigne le responsable (`#1`, `#2`...).
+* **Qu'est-ce qu'une Pull Request (PR) ?**  
+  Ce n'est **pas** une commande Git. C'est un mécanisme web proposé par GitHub permettant de demander formellement aux responsables du projet d'examiner une branche avant de la fusionner dans `dev` ou `main`. La PR offre un espace de discussion, affiche les différences ligne par ligne et exécute les contrôles automatisés.
+
+---
+
+## 4.3 Mise en Pratique 4A : Setup d'Équipe et Première PR Nominale
+
+1. **L'Étudiant A crée le dépôt sur GitHub :**
+   * Nom : `arene-collaborative`.
+   * Visibilité : **Public**.
+   * Ne cochez **AUCUNE** case (pas de README, pas de licence).
+2. **L'Étudiant A relie son projet local et publie :**
+   ```bash
+   git remote add origin git@github.com:<pseudo-etudiant-A>/arene-collaborative.git
+   git push -u origin main
+   ```
+3. **L'Étudiant A crée la branche `dev` et la publie :**
+   ```bash
+   git switch -c dev
+   git push -u origin dev
+   ```
+4. **L'Étudiant A invite l'Étudiant B :**
+   Sur GitHub : **Settings** $\rightarrow$ **Collaborators** $\rightarrow$ **Add people** $\rightarrow$ Saisir le pseudo de l'Étudiant B.
+5. **L'Étudiant B accepte l'invitation et clone :**
+   ```bash
+   git clone git@github.com:<pseudo-etudiant-A>/arene-collaborative.git
+   cd arene-collaborative
+   git switch dev       # Se positionne immédiatement sur dev
+   ```
+6. **Création d'une Issue sur GitHub (Étudiant A) :**
+   * Onglet **Issues** $\rightarrow$ **New issue**.
+   * Titre : `Calcul de l'initiative selon la vitesse`.
+   * Notez le numéro du ticket généré (ex. `#1`).
+7. **Développement lié à l'Issue (Étudiant B) :**
+   * Crée sa branche nommée d'après le ticket :
+     ```bash
+     git switch dev
+     git pull origin dev
+     git switch -c feat/1-initiative
+     ```
+   * Ajoute dans `moteur.py` :
+     ```python
+     def determiner_initiative(vitesse_a: int, vitesse_b: int) -> str:
+         if vitesse_a >= vitesse_b:
+             return "combattant_a"
+         return "combattant_b"
+```
+   * Committe et pousse :
+     ```bash
+     git add moteur.py
+     git commit -m "feat: calcul d'initiative selon la vitesse"
+     git push -u origin feat/1-initiative
+     ```
+8. **Ouverture de la Pull Request avec liaison automatique (Étudiant B) :**
+   * Sur GitHub, cliquez sur **Compare & pull request**.
+   * **Cible obligatoire :** `base: dev` $\leftarrow$ `compare: feat/1-initiative`.
+   * Description : écrivez **`Closes #1`** *(GitHub fermera le ticket lors de la fusion)*.
+   * Assignez l'Étudiant A sous **Reviewers**.
+9. **Revue de Code, Tests locaux et Fusion (Étudiant A) :**
+
+   Avant d'accepter aveuglément la Pull Request sur GitHub, l'Étudiant A doit impérativement **tester le code en local** sur sa machine. 
+
+   ::: {.panel-tabset}
+   ## Option A : Méthode Git classique
+
+   **1. Récupérer et basculer sur la branche de l'Étudiant B :**
+   
+   Si l'Étudiant A n'a *jamais* téléchargé cette branche :
+   ```bash
+   git fetch origin
+   git switch feat/1-initiative
+   ```
+   
+   Si l'Étudiant A possède *déjà* cette branche en local, il lui suffit de la mettre à jour :
+   ```bash
+   git switch feat/1-initiative
+   git pull origin feat/1-initiative
+   ```
+
+   **2. Exécuter les tests :**
+   L'Étudiant A lance l'application, exécute les tests et vérifie que la fonctionnalité répond au besoin du ticket `#1`.
+
+   **3. Validation finale sur l'interface GitHub :**
+   *Une fois les tests locaux réussis, la fusion se fait sur GitHub pour conserver la traçabilité de la PR :*
+   
+   * Sur GitHub, examinez le code dans l'onglet **Files changed**.
+   * Cliquez sur **Review changes** \(\rightarrow\) **Approve**.
+   * Cliquez sur la flèche du bouton vert \(\rightarrow\) **Squash and merge**.
+   * Constatez que l'Issue `#1` est automatiquement fermée.
+
+   ## Option B : Méthode moderne (GitHub CLI)
+
+   *Cette méthode utilise l'outil officiel `gh` en ligne de commande pour aller beaucoup plus vite.*
+
+   **1. Télécharger et basculer sur la PR en une seule commande :**
+   
+   ```bash
+   gh pr checkout 1
+   ```
+   
+   *(Remplacez `1` par le numéro de la Pull Request affiché sur GitHub. Git s'occupe de tout, que la branche existe déjà en local ou non).*
+
+   **2. Exécuter les tests :**
+   L'Étudiant A valide le fonctionnement du code sur sa machine.
+
+   **3. Validation finale sur l'interface GitHub :**
+   
+   * Examinez le code dans **Files changed**.
+   * Cliquez sur **Review changes** \(\rightarrow\) **Approve**.
+   * Cliquez sur la flèche du bouton vert \(\rightarrow\) **Squash and merge**.
+   * Constatez que l'Issue `#1` est automatiquement fermée.
+   :::
+
+   ::: {.callout-warning}
+   ### Pourquoi fusionner sur GitHub et non en local ?
+   Bien que l'on teste le code sur notre machine, on clique sur le bouton **Squash and merge** sur GitHub. Cela permet de lier proprement la fermeture de la PR à l'historique de l'équipe, de déclencher d'éventuels outils d'automatisation (CI/CD), et de transformer les multiples petits commits de l'étudiant en un seul commit propre sur la branche `dev`.
+   :::
+
+   
+10. **Synchronisation locale générale :**
+
+    ```bash
+    git switch dev
+    git pull origin dev
+    ```
+
+---
+
+## 4.4 Mise en Pratique 4B : Gestion d'un Conflit Distant sur une PR
+
+*Que faire quand GitHub annonce « Can't automatically merge » sur une Pull Request ?*
+
+1. **L'Étudiant A** crée une branche `feat/titre-a` depuis `dev`, modifie la première ligne de `moteur.py` :  
+   `# Moteur Officiel de Montpellier`, committe, pousse et ouvre une PR vers `dev`.
+2. **L'Étudiant B** (sans attendre) crée une branche `feat/titre-b` depuis `dev`, modifie la même première ligne :  
+   `# Moteur de Combat Occitanie`, committe, pousse et ouvre une PR vers `dev`.
+3. **L'Étudiant B** approuve et fusionne la PR de l'Étudiant A.
+4. **Constat sur la PR de l'Étudiant B :** Elle passe immédiatement en conflit (bouton gris bloqué).
+5. **Protocole de résolution (par l'Étudiant B) :** 
+ 
+   *Je Déconseille de résoudre le conflit dans le navigateur sur GitHub.*
+   * Dans son terminal local :
+   
+     ```bash
+     git switch dev
+     git pull origin dev                  # Récupère le merge de A
+     git switch feat/titre-b
+     git merge dev                       # Rapatrie dev dans sa branche de travail
+     ```
+     
+     ```bash
+     git switch dev
+     git pull origin dev                  # Récupère le merge de A
+     
+     git switch feat/titre-b         # Revenir sur la branche de travail
+     git rebase dev                  # Réécrire la branche de l'étudiant PAR-DESSUS dev
+     ```
+     
+   * Git signale le conflit sur `moteur.py`.
+   * L'Étudiant B résout le conflit dans VS Code en concertation avec A (`# Moteur Officiel Occitanie - Montpellier`).
+   * Finalise le merge local et pousse :
+   
+     ```bash
+     git add moteur.py
+     git commit -m "fix: resolution du conflit de titre"
+     git push origin feat/titre-b
+     ```
+     
+     ```bash
+     git add moteur.py
+     git rebase --continue
+     git push origin feat/titre-b --force-with-lease
+     ```
+     
+   * La PR sur GitHub repasse instantanément au vert ! L'Étudiant A approuve et fusionne.
+
+---
+
+## 4.5 Le Robot d'Intégration Continue (CI GitHub Actions)
+
+À chaque Pull Request, GitHub Actions alloue une machine virtuelle dans le cloud (un conteneur Ubuntu) pour contrôler automatiquement la conformité du code.
+
+### Anatomie d'un fichier de workflow (`.github/workflows/ci.yml`) :
+Sur `dev`, créez le fichier `.github/workflows/ci.yml` :
+```yaml
+name: Verification-CI                 # Nom affiché sur GitHub
+
+on:                                   # Déclencheurs
+  pull_request:                       # S'exécute à chaque Pull Request
+    branches: [ dev, main ]           # Ciblant dev ou main
+
+jobs:
+  controle-qualite:                   # Identifiant de la tâche
+    runs-on: ubuntu-latest            # OS alloué dans le Cloud
+
+    steps:                            # Étapes séquentielles
+      - name: Cloner le depot         # 1. Télécharge les fichiers du projet
+        uses: actions/checkout@v4
+
+      - name: Configurer Python       # 2. Installe Python officiel
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verifier la syntaxe     # 3. Contrôle la compilation des scripts
+        run: |
+          python -m py_compile moteur.py
+```
+Commettez et poussez ce fichier sur `dev` :
+```bash
+git add .github/
+git commit -m "ci: ajout du robot de verification automatique"
+git push origin dev
+```
+Désormais, toute nouvelle PR déclenchera automatiquement ce conteneur et apposera un badge vert (succès) ou rouge (échec).
+
+---
+
+## 4.6 Les Jalons et Versions Immuables : Les Tags Git (`git tag`)
+
+Une branche est un pointeur mobile qui avance à chaque commit. Un **Tag** est une étiquette fixe et immuable qui marque une étape clé (une version livrable).
+
+### Pourquoi les tags sont indispensables en Science des Données :
+* **Reproductibilité scientifique :** Garantir qu'un chercheur exécutant `git checkout v1.0.0` obtiendra exactement les mêmes résultats expérimentaux.
+* **Packaging Python :** Permettre l'installation directe via `pip install git+https://.../repo.git@v1.0.0`.
+* **Norme SemVer (`vMAJOR.MINOR.PATCH`) :**  
+  * `MAJOR` : Changements incompatibles.
+  * `MINOR` : Nouvelles fonctionnalités rétrocompatibles.
+  * `PATCH` : Corrections de bogues.
+
+```bash
+# Créer un tag annoté officiel (OBLIGATOIRE EN PROJET) :
+git tag -a v1.0.0 -m "Release initiale stable du moteur"
+
+# Pousser le tag sur GitHub :
+git push origin v1.0.0
+```
+
+---
+
+# Partie 5 : Le Défi en Autonomie (50 min)
+
+*Ce défi place le binôme en autonomie face à un sprint de développement complet simulant les contraintes du projet semestriel.*
+
+```text
+Cahier des Charges du Défi :
+1. Interdiction absolue de committer directement sur main ou dev.
+2. Tout travail démarre par une Issue GitHub et une branche conventionnelle.
+3. Conflit concurrent à résoudre impérativement en local.
+4. Gestion d'un incident bloquant sur la CI GitHub Actions.
+5. Release finale tagguée v1.0.0 sur la branche main.
+```
+
+---
+
+### Étape 1 : Spécification des Tâches Parallèles
+
+Chaque membre crée son ticket (*Issue*) sur GitHub, puis sa branche issue de `dev` à jour :
+
+* **Mission de l'Étudiant A (Issue `#3`, Branche `feat/arene`) :**
+  1. Crée un nouveau fichier `arene.py` contenant :
+     ```python
+     # arene.py
+     def lancer_duel(nom_a: str, nom_b: str):
+         return f"Duel entre {nom_a} et {nom_b}"
+```
+  2. Crée un fichier de configuration `config.py` avec le texte exact :
+     ```python
+     # config.py
+     NOM_ARENE = "Colisee de Montpellier"
+     MAX_TOURS = 10
+```
+  3. Committe son travail (`feat: ajout de arene.py et config`).
+
+* **Mission de l'Étudiant B (Issue `#4`, Branche `feat/rapport`) :**
+  1. Crée un nouveau fichier `rapport.py` contenant :
+     ```python
+     # rapport.py
+     def afficher_score(victoires_a: int, victoires_b: int):
+         return f"Score : {victoires_a} - {victoires_b}"
+```
+  2. **LE CONFLIT CONCURRENT :** L'Étudiant B crée **lui aussi** le fichier `config.py` sur sa branche, mais avec d'autres paramètres :
+     ```python
+     # config.py
+     NOM_ARENE = "Stadium Occitanie"
+     MAX_TOURS = 25
+```
+  3. Committe son travail (`feat: ajout de rapport.py et configuration alternative`).
+
+---
+
+### Étape 2 : Le Chassé-Croisé des Fusions
+
+1. **L'Étudiant A** pousse sa branche, ouvre sa PR vers `dev` en mentionnant `Closes #3`, la fait approuver par B qui effectue le **Squash and merge**.
+2. **L'Étudiant B** pousse sa branche et ouvre sa PR vers `dev` en mentionnant `Closes #4`.  
+   *Résultat :* GitHub affiche un conflit sur `config.py`.
+3. **Résolution par l'Étudiant B :**
+   * Rapatrie `dev` en local et met à jour sa branche personnelle:
+   * Résout le conflit dans VS Code en accord avec A :  
+     `NOM_ARENE = "Colisee d'Occitanie (Montpellier)"` et `MAX_TOURS = 15`.
+   * Finalise le commit et pousse :
+   * La PR repasse au vert, est approuvée par A et mergée sur `dev`.
+
+---
+
+### Étape 3 : L'Incident de Production (Le Crash de la CI)
+
+1. L'Étudiant A enrichit le workflow `.github/workflows/ci.yml` sur `dev` pour vérifier tous les scripts :
+   ```yaml
+         - name: Verifier la syntaxe
+           run: |
+             python -m py_compile moteur.py arene.py rapport.py config.py main.py
+   ```
+   Il committe et pousse sur `dev`.
+2. L'Étudiant B crée une branche `fix/assemblage` pour écrire le point d'entrée `main.py` :
+   ```python
+   # main.py
+   from arene import lancer_duel
+   from config import NOM_ARENE
+
+   print(f"Bienvenue au {NOM_ARENE}")
+   # ERREUR DE SYNTAXE VOLONTAIRE CI-DESSOUS (parenthèse non fermée) :
+   print("Debut du tournoi"
+```
+3. L'Étudiant B pousse et ouvre une PR vers `dev`.
+4. **Constat d'équipe sur GitHub :** La CI échoue (croix rouge) ! L'inspection des logs de l'action révèle l'erreur de compilation syntaxique.
+5. **Correction :** L'Étudiant B corrige la parenthèse fermante en local, committe et repousse. La pastille passe au vert. La PR est approuvée et mergée.
+
+---
+
+### Étape 4 : La Livraison Finale et Pose du Tag (Release v1.0.0)
+
+1. Les deux étudiants se synchronisent sur `dev` et testent l'exécution locale :
+   ```bash
+   git switch dev
+   git pull origin dev
+   python main.py
+   ```
+2. Sur GitHub, l'Étudiant A ouvre la **Pull Request officielle de clôture** :  
+   `base: main` $\leftarrow$ `compare: dev`.  
+   Titre : `Release v1.0.0 - Version Officielle du Moteur d'Arène`.
+3. L'Étudiant B vérifie le diff cumulé et valide la fusion.
+4. **Poser le Tag Officiel :**
+   Dans le terminal sur la branche `main` à jour :
+   ```bash
+   git switch main
+   git pull origin main
+   git tag -a v1.0.0 -m "Release officielle 1.0.0 validee et certifiee par la CI"
+   git push origin v1.0.0
+   ```
+5. Tapez `git graph` (ou ouvrez l'onglet Git Graph dans VS Code) : admirez l'arborescence collaborative complète, linéaire, propre et scellée par son jalon. Vous êtes opérationnels pour le projet du semestre.
+
+---
+
+# Annexe : La Boîte à Outils Avancée pour la Vie Professionnelle
+
+Cette section documente les outils de pointe utilisés quotidiennement dans les équipes de Data Science et d'ingénierie logicielle.
+
+---
+
+## A.1 Le Forking Workflow (Monde Open Source)
+
+Dans votre entreprise ou votre groupe de projet, tous les développeurs ont les droits d'écriture sur le même dépôt. Mais comment contribuer à un grand projet open source comme **NumPy**, **Pandas** ou **Scikit-Learn** sans avoir les droits d'accès au dépôt officiel ?
+
+```text
+DÉPÔT OFFICIEL (upstream) : [github.com/scikit-learn/scikit-learn](https://github.com/scikit-learn/scikit-learn)
+         |
+         | (Bouton Fork sur GitHub)
+         v
+VOTRE COPIE (origin)      : [github.com/](https://github.com/)<votre-pseudo>/scikit-learn
+         |
+         | (git clone)
+         v
+VOTRE MACHINE LOCALE      : Dossier de travail local
+```
+
+1. **Le Fork :** Vous cliquez sur le bouton **Fork** en haut à droite du dépôt officiel sur GitHub. Cela crée une copie complète du projet sur votre propre compte GitHub.
+2. **Le Clone local :** Vous clonez votre fork sur votre machine :
+   ```bash
+   git clone git@github.com:<votre-pseudo>/scikit-learn.git
+   ```
+3. **Lier le dépôt officiel (`upstream`) :** Pour pouvoir récupérer les mises à jour officielles créées par les mainteneurs :
+   ```bash
+   git remote add upstream git@github.com:scikit-learn/scikit-learn.git
+   ```
+4. **La Pull Request inter-dépôts (*Cross-Repository PR*) :** Vous développez votre bug sur une branche locale, vous poussez sur votre fork (`origin`), et vous ouvrez une Pull Request depuis votre fork vers le dépôt officiel `upstream`.
+
+---
+
+## A.2 `git cherry-pick` : Picorer un Commit Isolé
+
+Imaginons que vous ayez développé 5 commits sur une branche expérimentale `feat/recherche-lourde`. Votre collègue a un besoin urgent de votre 3ᵉ commit (qui corrige un bogue critique de calcul), mais ne veut **absolument pas** embarquer les 4 autres commits inachevés.
+
+```text
+feat/recherche  --- [C1] --- [C2] --- [C3: Fix critique] --- [C4]
+                                           |
+                                (git cherry-pick C3)
+                                           v
+dev             -------------------------> [C3'] (HEAD)
+```
+
+1. Repérez l'identifiant du commit souhaité via `git graph` (ex. `7a8b9c0`).
+2. Basculez sur la branche de destination :
+   ```bash
+   git switch dev
+   ```
+3. Appliquez chirurgicalement ce commit :
+   ```bash
+   git cherry-pick 7a8b9c0
+   ```
+Git extrait la modification exacte de ce commit et crée un nouveau commit équivalent au sommet de votre branche active.
+
+---
+
+## A.3 Traçabilité et Débogage d'Élite : `git blame` et `git bisect`
+
+### `git blame` : Qui a écrit cette ligne de code ?
+En ouvrant un script, vous découvrez une ligne aberrante : `POIDS_MAX = -40`. Qui l'a écrite ? Quand ? Dans quel commit ?
+```bash
+git blame moteur.py
+```
+Git affiche le fichier ligne par ligne avec le SHA-1, le nom de l'auteur et l'horodatage exact de chaque ligne.  
+*(Astuce VS Code : l'extension **GitLens** affiche automatiquement cette information en filigrane gris discret à la fin de la ligne où se trouve votre curseur).*
+
+### `git bisect` : La recherche dichotomique de bug
+Votre modèle fonctionnait parfaitement sur le tag `v1.0.0` (il y a 300 commits), mais il plante aujourd'hui sur `main`. Inspecter les 300 commits manuellement prendrait des jours.  
+**`git bisect` utilise l'algorithme de recherche dichotomique pour trouver le commit coupable en seulement $\lceil \log_2(300) \rceil \approx 9$ étapes.**
+
+1. Démarrer la bissection :
+   ```bash
+   git bisect start
+   git bisect bad                 # La version actuelle est défaillante
+   git bisect good v1.0.0         # La version v1.0.0 était saine
+   ```
+2. Git remonte automatiquement dans le temps et charge le commit médian ($150^{\text{e}}$ commit).
+3. Vous testez votre code (`python main.py`) :
+   * Si le test réussit : vous tapez `git bisect good`.
+   * Si le test échoue : vous tapez `git bisect bad`.
+4. Git divise l'intervalle restant par deux et charge le commit suivant.
+5. Au bout de 8 à 9 étapes, Git affiche avec certitude :  
+   `7a8b9c0 is the first bad commit` avec le nom de l'auteur et le message associé !
+6. Terminer la session et revenir au présent :
+   ```bash
+   git bisect reset
+   ```
+
+---
+
+## A.4 Gestion des Gros Fichiers en Data Science : Git LFS et DVC
+
+### Pourquoi Git déteste les gros fichiers (> 100 Mo)
+Git est conçu pour suivre du code textuel léger. Lorsqu'un fichier change, Git sauvegarde l'objet compressé complet.  
+Si vous committez un jeu de données CSV de 500 Mo ou des poids de réseau de neurones `.pt` de 2 Go :
+
+* Chaque modification légère duplique 500 Mo dans la base `.git/`.
+* Chaque membre de l'équipe devra télécharger l'intégralité des 500 Mo à chaque `git clone`.
+* GitHub bloque formellement tout fichier unitaire dépassant **100 Mo** lors du `git push`.
+
+### Les solutions professionnelles :
+
+1. **Git LFS (*Large File Storage*) :**  
+   Remplace les gros fichiers par de minuscules fichiers pointeurs texte de quelques octets dans le dépôt Git. Les vraies données binaires sont stockées sur un serveur de stockage dédié (AWS S3, Azure Blob) et ne sont téléchargées que si nécessaire.
+   ```bash
+   git lfs install
+   git lfs track "*.h5"           # Surveiller les modèles HDF5
+   git add .gitattributes
+   ```
+2. **DVC (*Data Version Control*) :**  
+   L'outil standard du Machine Learning. Il fonctionne exactement comme Git, mais sépare le code source (géré par Git) des jeux de données et modèles volumineux (versionnés par DVC sur un cloud de données).
+
+## A.5 Protéger une branche
+
+Pour éviter de comitter, pusher sur main, l'administrateur du dépôt va dans les paramètres du dépôt sur GitHub (Settings -> Branches -> Add branch protection rule), tape main et coche "Require a pull request before merging". Dès lors, Git refusera catégoriquement tout git push origin main direct !
+   
+## A.6 Un fichier Yaml plus pro (recommandé)
+
+```yaml
+name: Verification-CI                 # Nom affiché sur GitHub
+
+on:                                   # Déclencheurs
+  pull_request:                       # S'exécute à chaque Pull Request
+    branches: [ dev, main ]           # Ciblant dev ou main
+
+jobs:
+  controle-qualite:                   # Identifiant de la tâche
+    runs-on: ubuntu-latest            # OS alloué dans le Cloud
+
+    steps:                            # Étapes séquentielles
+      - name: Cloner le depot         # 1. Télécharge les fichiers du projet
+        uses: actions/checkout@v4
+
+      - name: Configurer Python       # 2. Installe Python officiel
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verifier la syntaxe de TOUT le projet # 3. Contrôle tous les scripts .py
+        run: |
+          python -m compileall .
+
+      - name: Installer et lancer le Linter (Optionnel) # 4. Vérifie le respect du style PEP 8
+        run: |
+          python -m pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+```
+
+On y ajoutera les tests unitaires en temps voulu :): votre initiation (souffrance ?) commence ici jeunes padawans. Le chemin est long, mais n'oubliez pas : c'est dans la friction que le sabre laser s'aiguise.
+
