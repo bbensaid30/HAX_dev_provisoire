@@ -27,7 +27,7 @@ website:
           - href: TP_git/enonce_git.qmd
             text: "TP 2 : Git avancé"
           - href: TP_packaging/enonce_packaging.qmd
-            text: "TP 2 : Module et packaging"
+            text: "TP 3 : Module et packaging"
       - href: installation_wsl.qmd
         text: "Guide WSL"
 
