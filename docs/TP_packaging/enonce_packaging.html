@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Bensaid Bilel">
+
+<title>Cours-TP : Environnements Virtuels, Modularité &amp; Packaging Moderne – HAX712X — Dev Logiciel</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-825bced5da6ec9a9e85d5340fdc4ca06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">HAX712X — Dev Logiciel</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Recherche"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Basculer la navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Accueil</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../Projet2026/cahier_des_charges.html"> 
+<span class="menu-text">Projet 2026-2027</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-cours-tps" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Cours-TPs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-cours-tps">    
+        <li>
+    <a class="dropdown-item" href="../TP_bash/enonce_bash.html">
+ <span class="dropdown-text">TP 1 : Linux &amp; Bash</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_git/enonce_git.html">
+ <span class="dropdown-text">TP 2 : Git avancé</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_packaging/enonce_packaging.html">
+ <span class="dropdown-text">TP 2 : Module et packaging</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../installation_wsl.html"> 
+<span class="menu-text">Guide WSL</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sommaire de la séance</h2>
+   
+  <ul>
+  <li><a href="#objectifs-et-découpage-pédagogique" id="toc-objectifs-et-découpage-pédagogique" class="nav-link active" data-scroll-target="#objectifs-et-découpage-pédagogique">Objectifs et Découpage Pédagogique</a>
+  <ul class="collapse">
+  <li><a href="#compétences-opérationnelles-visées" id="toc-compétences-opérationnelles-visées" class="nav-link" data-scroll-target="#compétences-opérationnelles-visées">Compétences opérationnelles visées :</a></li>
+  <li><a href="#découpage-temporel-3h00" id="toc-découpage-temporel-3h00" class="nav-link" data-scroll-target="#découpage-temporel-3h00">Découpage Temporel (3h00)</a></li>
+  </ul></li>
+  <li><a href="#partie-0-prérequis-système-sous-ubuntu-wsl-10-min" id="toc-partie-0-prérequis-système-sous-ubuntu-wsl-10-min" class="nav-link" data-scroll-target="#partie-0-prérequis-système-sous-ubuntu-wsl-10-min">Partie 0 : Prérequis Système sous Ubuntu / WSL (10 min)</a></li>
+  <li><a href="#partie-1-le-python-système-et-les-environnements-virtuels-35-min" id="toc-partie-1-le-python-système-et-les-environnements-virtuels-35-min" class="nav-link" data-scroll-target="#partie-1-le-python-système-et-les-environnements-virtuels-35-min">Partie 1 : Le Python Système et les Environnements Virtuels (35 min)</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-le-python-système-est-sanctuarisé-pep-668" id="toc-pourquoi-le-python-système-est-sanctuarisé-pep-668" class="nav-link" data-scroll-target="#pourquoi-le-python-système-est-sanctuarisé-pep-668">1.1 Pourquoi le Python système est sanctuarisé (PEP 668)</a>
+  <ul class="collapse">
+  <li><a href="#lerreur-historique-sudo-pip-install-..." id="toc-lerreur-historique-sudo-pip-install-..." class="nav-link" data-scroll-target="#lerreur-historique-sudo-pip-install-...">L’erreur historique : <code>sudo pip install ...</code></a></li>
+  <li><a href="#le-conflit-de-dépendances-entre-projets" id="toc-le-conflit-de-dépendances-entre-projets" class="nav-link" data-scroll-target="#le-conflit-de-dépendances-entre-projets">Le conflit de dépendances entre projets</a></li>
+  </ul></li>
+  <li><a href="#variable-denvironnement-et-variable-path" id="toc-variable-denvironnement-et-variable-path" class="nav-link" data-scroll-target="#variable-denvironnement-et-variable-path">1.2 Variable d’Environnement et Variable <code>$PATH</code></a>
+  <ul class="collapse">
+  <li><a href="#une-variable-denvironnement" id="toc-une-variable-denvironnement" class="nav-link" data-scroll-target="#une-variable-denvironnement">1. Une variable d’environnement</a></li>
+  <li><a href="#le-carnet-dadresses-du-terminal-path" id="toc-le-carnet-dadresses-du-terminal-path" class="nav-link" data-scroll-target="#le-carnet-dadresses-du-terminal-path">2. Le carnet d’adresses du terminal : <code>$PATH</code></a></li>
+  </ul></li>
+  <li><a href="#anatomie-dun-environnement-virtuel-venv" id="toc-anatomie-dun-environnement-virtuel-venv" class="nav-link" data-scroll-target="#anatomie-dun-environnement-virtuel-venv">1.3 Anatomie d’un Environnement Virtuel (<code>venv</code>)</a>
+  <ul class="collapse">
+  <li><a href="#le-rôle-physique-du-script-activate" id="toc-le-rôle-physique-du-script-activate" class="nav-link" data-scroll-target="#le-rôle-physique-du-script-activate">Le rôle physique du script <code>activate</code></a></li>
+  </ul></li>
+  <li><a href="#exercice-guidé-1-création-et-isolation-dun-environnement" id="toc-exercice-guidé-1-création-et-isolation-dun-environnement" class="nav-link" data-scroll-target="#exercice-guidé-1-création-et-isolation-dun-environnement">1.4 Exercice Guidé 1 : Création et Isolation d’un Environnement</a></li>
+  </ul></li>
+  <li><a href="#partie-2-modules-paquets-__init__.py-et-larchitecture-src-45-min" id="toc-partie-2-modules-paquets-__init__.py-et-larchitecture-src-45-min" class="nav-link" data-scroll-target="#partie-2-modules-paquets-__init__.py-et-larchitecture-src-45-min">Partie 2 : Modules, Paquets, <code>__init__.py</code> et l’Architecture <code>src/</code> (45 min)</a>
+  <ul class="collapse">
+  <li><a href="#modules-paquets-et-espaces-de-noms" id="toc-modules-paquets-et-espaces-de-noms" class="nav-link" data-scroll-target="#modules-paquets-et-espaces-de-noms">2.1 Modules, Paquets et Espaces de Noms</a></li>
+  <li><a href="#comment-python-résout-les-imports-la-liste-sys.path" id="toc-comment-python-résout-les-imports-la-liste-sys.path" class="nav-link" data-scroll-target="#comment-python-résout-les-imports-la-liste-sys.path">2.2 Comment Python résout les imports : La liste <code>sys.path</code></a></li>
+  <li><a href="#pourquoi-sys.path.append..-est-une-erreur-de-conception" id="toc-pourquoi-sys.path.append..-est-une-erreur-de-conception" class="nav-link" data-scroll-target="#pourquoi-sys.path.append..-est-une-erreur-de-conception">2.3 Pourquoi <code>sys.path.append("..")</code> est une erreur de conception</a>
+  <ul class="collapse">
+  <li><a href="#analyse-de-léchec-en-conditions-réelles" id="toc-analyse-de-léchec-en-conditions-réelles" class="nav-link" data-scroll-target="#analyse-de-léchec-en-conditions-réelles">Analyse de l’échec en conditions réelles</a></li>
+  </ul></li>
+  <li><a href="#le-rôle-précis-de-__init__.py-vitrine-publique-et-découplage" id="toc-le-rôle-précis-de-__init__.py-vitrine-publique-et-découplage" class="nav-link" data-scroll-target="#le-rôle-précis-de-__init__.py-vitrine-publique-et-découplage">2.4 Le Rôle Précis de <code>__init__.py</code> : Vitrine Publique et Découplage</a>
+  <ul class="collapse">
+  <li><a href="#déclarer-le-paquet" id="toc-déclarer-le-paquet" class="nav-link" data-scroll-target="#déclarer-le-paquet">1. Déclarer le paquet</a></li>
+  <li><a href="#agir-comme-une-vitrine-re-export" id="toc-agir-comme-une-vitrine-re-export" class="nav-link" data-scroll-target="#agir-comme-une-vitrine-re-export">2. Agir comme une vitrine (<em>Re-export</em>)</a></li>
+  <li><a href="#règle-stricte-imports-externes-vs-imports-internes" id="toc-règle-stricte-imports-externes-vs-imports-internes" class="nav-link" data-scroll-target="#règle-stricte-imports-externes-vs-imports-internes">Règle stricte : Imports externes vs Imports internes</a></li>
+  </ul></li>
+  <li><a href="#les-dépendances-croisées-le-piège-de-limport-mutuel" id="toc-les-dépendances-croisées-le-piège-de-limport-mutuel" class="nav-link" data-scroll-target="#les-dépendances-croisées-le-piège-de-limport-mutuel">2.5 Les Dépendances Croisées : Le Piège de l’Import Mutuel</a>
+  <ul class="collapse">
+  <li><a href="#la-règle-dorganisation" id="toc-la-règle-dorganisation" class="nav-link" data-scroll-target="#la-règle-dorganisation">La règle d’organisation :</a></li>
+  </ul></li>
+  <li><a href="#pourquoi-larchitecture-src-src-layout-est-indispensable" id="toc-pourquoi-larchitecture-src-src-layout-est-indispensable" class="nav-link" data-scroll-target="#pourquoi-larchitecture-src-src-layout-est-indispensable">2.6 Pourquoi l’Architecture <code>src/</code> (<em>src-layout</em>) est Indispensable</a>
+  <ul class="collapse">
+  <li><a href="#le-piège-de-la-structure-naïve-lillusion-locale" id="toc-le-piège-de-la-structure-naïve-lillusion-locale" class="nav-link" data-scroll-target="#le-piège-de-la-structure-naïve-lillusion-locale">Le piège de la structure naïve : L’illusion locale</a></li>
+  <li><a href="#la-protection-de-la-structure-src" id="toc-la-protection-de-la-structure-src" class="nav-link" data-scroll-target="#la-protection-de-la-structure-src">La protection de la structure <code>src/</code></a></li>
+  </ul></li>
+  <li><a href="#exercice-guidé-2-constater-léchec-géographique-dimportation" id="toc-exercice-guidé-2-constater-léchec-géographique-dimportation" class="nav-link" data-scroll-target="#exercice-guidé-2-constater-léchec-géographique-dimportation">2.7 Exercice Guidé 2 : Constater l’Échec Géographique d’Importation</a></li>
+  </ul></li>
+  <li><a href="#partie-3-le-format-toml-pyproject.toml-et-linstallation-éditable-40-min" id="toc-partie-3-le-format-toml-pyproject.toml-et-linstallation-éditable-40-min" class="nav-link" data-scroll-target="#partie-3-le-format-toml-pyproject.toml-et-linstallation-éditable-40-min">Partie 3 : Le Format TOML, <code>pyproject.toml</code> et l’Installation Éditable (40 min)</a>
+  <ul class="collapse">
+  <li><a href="#quest-ce-que-le-format-toml" id="toc-quest-ce-que-le-format-toml" class="nav-link" data-scroll-target="#quest-ce-que-le-format-toml">3.1 Qu’est-ce que le Format TOML ?</a></li>
+  <li><a href="#le-rôle-de-pyproject.toml-lacte-de-naissance-du-logiciel" id="toc-le-rôle-de-pyproject.toml-lacte-de-naissance-du-logiciel" class="nav-link" data-scroll-target="#le-rôle-de-pyproject.toml-lacte-de-naissance-du-logiciel">3.2 Le Rôle de <code>pyproject.toml</code> : L’Acte de Naissance du Logiciel</a></li>
+  <li><a href="#décorticage-du-moteur-de-construction-setuptools-et-wheel" id="toc-décorticage-du-moteur-de-construction-setuptools-et-wheel" class="nav-link" data-scroll-target="#décorticage-du-moteur-de-construction-setuptools-et-wheel">3.3 Décorticage du Moteur de Construction : <code>setuptools</code> et <code>wheel</code></a></li>
+  <li><a href="#quest-ce-que-linstallation-éditable-pip-install--e-.dev" id="toc-quest-ce-que-linstallation-éditable-pip-install--e-.dev" class="nav-link" data-scroll-target="#quest-ce-que-linstallation-éditable-pip-install--e-.dev">3.4 Qu’est-ce que l’Installation Éditable (<code>pip install -e ".[dev]"</code>) ?</a>
+  <ul class="collapse">
+  <li><a href="#le-mécanisme-du-drapeau--e-editable" id="toc-le-mécanisme-du-drapeau--e-editable" class="nav-link" data-scroll-target="#le-mécanisme-du-drapeau--e-editable">Le mécanisme du drapeau <code>-e</code> (<em>Editable</em>)</a></li>
+  <li><a href="#décorticage-de-la-commande-pip-install--e-.dev" id="toc-décorticage-de-la-commande-pip-install--e-.dev" class="nav-link" data-scroll-target="#décorticage-de-la-commande-pip-install--e-.dev">Décorticage de la commande <code>pip install -e ".[dev]"</code> :</a></li>
+  <li><a href="#quand-faut-il-réexécuter-pip-install--e-.dev" id="toc-quand-faut-il-réexécuter-pip-install--e-.dev" class="nav-link" data-scroll-target="#quand-faut-il-réexécuter-pip-install--e-.dev">Quand faut-il réexécuter <code>pip install -e ".[dev]"</code> ?</a></li>
+  </ul></li>
+  <li><a href="#exercice-guidé-3-assemblage-et-installation-dun-paquet-minimal" id="toc-exercice-guidé-3-assemblage-et-installation-dun-paquet-minimal" class="nav-link" data-scroll-target="#exercice-guidé-3-assemblage-et-installation-dun-paquet-minimal">3.5 Exercice Guidé 3 : Assemblage et Installation d’un Paquet Minimal</a></li>
+  </ul></li>
+  <li><a href="#partie-4-créer-une-commande-terminal-avec-sys.argv-20-min" id="toc-partie-4-créer-une-commande-terminal-avec-sys.argv-20-min" class="nav-link" data-scroll-target="#partie-4-créer-une-commande-terminal-avec-sys.argv-20-min">Partie 4 : Créer une Commande Terminal avec <code>sys.argv</code> (20 min)</a>
+  <ul class="collapse">
+  <li><a href="#récupérer-les-arguments-utilisateur-sys.argv" id="toc-récupérer-les-arguments-utilisateur-sys.argv" class="nav-link" data-scroll-target="#récupérer-les-arguments-utilisateur-sys.argv">4.1 Récupérer les Arguments Utilisateur : <code>sys.argv</code></a></li>
+  <li><a href="#déclarer-un-point-dentrée-console-dans-pyproject.toml" id="toc-déclarer-un-point-dentrée-console-dans-pyproject.toml" class="nav-link" data-scroll-target="#déclarer-un-point-dentrée-console-dans-pyproject.toml">4.2 Déclarer un Point d’Entrée Console dans <code>pyproject.toml</code></a></li>
+  <li><a href="#exercice-guidé-4-création-de-la-commande-arene-cli" id="toc-exercice-guidé-4-création-de-la-commande-arene-cli" class="nav-link" data-scroll-target="#exercice-guidé-4-création-de-la-commande-arene-cli">4.3 Exercice Guidé 4 : Création de la Commande <code>arene-cli</code></a></li>
+  </ul></li>
+  <li><a href="#partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" id="toc-partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" class="nav-link" data-scroll-target="#partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min">Partie 5 : Exercice de Synthèse — Le Squelette Officiel de <code>PyArena</code> &amp; Publication Git (20 min)</a>
+  <ul class="collapse">
+  <li><a href="#à-quoi-sert-le-fichier-teststest_init.py" id="toc-à-quoi-sert-le-fichier-teststest_init.py" class="nav-link" data-scroll-target="#à-quoi-sert-le-fichier-teststest_init.py">À quoi sert le fichier <code>tests/test_init.py</code> ?</a></li>
+  <li><a href="#étape-1-initialisation-de-lespace-de-travail" id="toc-étape-1-initialisation-de-lespace-de-travail" class="nav-link" data-scroll-target="#étape-1-initialisation-de-lespace-de-travail">Étape 1 : Initialisation de l’Espace de Travail</a></li>
+  <li><a href="#étape-2-implémentation-du-socle-logiciel" id="toc-étape-2-implémentation-du-socle-logiciel" class="nav-link" data-scroll-target="#étape-2-implémentation-du-socle-logiciel">Étape 2 : Implémentation du Socle Logiciel</a></li>
+  <li><a href="#étape-3-installation-et-validation-des-outils" id="toc-étape-3-installation-et-validation-des-outils" class="nav-link" data-scroll-target="#étape-3-installation-et-validation-des-outils">Étape 3 : Installation et Validation des Outils</a></li>
+  <li><a href="#étape-4-scellement-git-tag-et-protocole-de-branches" id="toc-étape-4-scellement-git-tag-et-protocole-de-branches" class="nav-link" data-scroll-target="#étape-4-scellement-git-tag-et-protocole-de-branches">Étape 4 : Scellement Git, Tag et Protocole de Branches</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cours-TP : Environnements Virtuels, Modularité &amp; Packaging Moderne</h1>
+<p class="subtitle lead">De l’Organisation du Code au Standard pyproject.toml (3h00)</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Bensaid Bilel </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">25 septembre 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="objectifs-et-découpage-pédagogique" class="level1">
+<h1>Objectifs et Découpage Pédagogique</h1>
+<p>Dans les projets de calcul scientifique et d’ingénierie logicielle, l’organisation des fichiers conditionne directement la reproductibilité et la robustesse du travail. L’approche artisanale consistant à empiler des scripts dans un dossier unique et à exécuter son code « là où on se trouve » mène rapidement à des erreurs d’importation insolubles (<code>ModuleNotFoundError</code>) et à des conflits d’environnements destructeurs.</p>
+<section id="compétences-opérationnelles-visées" class="level3">
+<h3 class="anchored" data-anchor-id="compétences-opérationnelles-visées">Compétences opérationnelles visées :</h3>
+<ol type="1">
+<li><strong>Comprendre l’isolation système :</strong> Maîtriser le fonctionnement d’un environnement virtuel (<code>venv</code>), le rôle de la variable <code>$PATH</code> et la protection de l’OS.</li>
+<li><strong>Démystifier les imports Python :</strong> Comprendre comment l’interpréteur résout les modules via <code>sys.path</code>, éliminer les manipulations relatives (<code>sys.path.append("..")</code>) et prévenir les blocages d’imports mutuels.</li>
+<li><strong>Structurer les espaces de noms avec <code>__init__.py</code> :</strong> Distinguer l’API publique exposée (la vitrine) des imports internes directs entre modules d’un même paquet.</li>
+<li><strong>Adopter l’architecture industrielle <code>src-layout</code> :</strong> Supprimer les faux positifs liés au répertoire courant et éliminer les risques de masquage de la bibliothèque standard (<em>name shadowing</em>).</li>
+<li><strong>Configurer un paquet selon les standards PEP 517/518/621 :</strong> Rédiger un fichier <code>pyproject.toml</code>, comprendre le rôle du moteur de construction <code>setuptools</code> et des archives <code>wheel</code>.</li>
+<li><strong>Développer en mode éditable (<code>pip install -e ".[dev]"</code>) :</strong> Lier dynamiquement son code à l’environnement pour tester en direct sans réinstallation.</li>
+<li><strong>Créer une interface en ligne de commande (CLI) :</strong> Récupérer des arguments avec <code>sys.argv</code> et déclarer un point d’entrée exécutable dans le terminal.</li>
+<li><strong>Initialiser le socle officiel du projet :</strong> Poser l’arborescence définitive de <code>PyArena</code>, certifier l’installation par un test de validation, configurer Git avec un tag de jalon sur <code>main</code> et basculer sur la branche d’intégration <code>dev</code>.</li>
+</ol>
+<hr>
+</section>
+<section id="découpage-temporel-3h00" class="level2">
+<h2 class="anchored" data-anchor-id="découpage-temporel-3h00">Découpage Temporel (3h00)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 27%">
+<col style="width: 22%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Phase</th>
+<th style="text-align: center;">Durée</th>
+<th style="text-align: left;">Thématique abordée</th>
+<th style="text-align: center;">Modalité</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 0</strong></td>
+<td style="text-align: center;">10 min</td>
+<td style="text-align: left;">Prérequis système sous Ubuntu / WSL</td>
+<td style="text-align: center;">Pratique guidée</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 1</strong></td>
+<td style="text-align: center;">35 min</td>
+<td style="text-align: left;">Isolation d’environnement (<code>venv</code>) &amp; la variable <code>$PATH</code></td>
+<td style="text-align: center;">Cours &amp; Exercice 1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 2</strong></td>
+<td style="text-align: center;">45 min</td>
+<td style="text-align: left;">Modules, <code>sys.path</code>, le rôle de <code>__init__.py</code> &amp; l’architecture <code>src/</code></td>
+<td style="text-align: center;">Cours &amp; Exercice 2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Pause</strong></td>
+<td style="text-align: center;">10 min</td>
+<td style="text-align: left;"><em>Pause pédagogique</em></td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 3</strong></td>
+<td style="text-align: center;">40 min</td>
+<td style="text-align: left;">Le format TOML, <code>pyproject.toml</code> &amp; l’installation éditable (<code>-e</code>)</td>
+<td style="text-align: center;">Cours &amp; Exercice 3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 4</strong></td>
+<td style="text-align: center;">20 min</td>
+<td style="text-align: left;">Points d’entrée console (CLI) &amp; manipulation de <code>sys.argv</code></td>
+<td style="text-align: center;">Cours &amp; Exercice 4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 5</strong></td>
+<td style="text-align: center;">20 min</td>
+<td style="text-align: left;">Synthèse : Socle officiel de <code>PyArena</code>, test de validation et Git</td>
+<td style="text-align: center;">Autonomie</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="partie-0-prérequis-système-sous-ubuntu-wsl-10-min" class="level1">
+<h1>Partie 0 : Prérequis Système sous Ubuntu / WSL (10 min)</h1>
+<p>Sur les distributions Linux récentes (Ubuntu 24.04+, Debian 12+) et dans WSL 2, Python 3 est préinstallé pour les besoins du système d’exploitation. Cependant, les paquets nécessaires à la création d’environnements virtuels et à la gestion de paquets sont dissociés pour éviter les fausses manipulations.</p>
+<p>Ouvrez votre terminal et installez les paquets requis :</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt update</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install <span class="at">-y</span> python3-venv python3-pip</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Vérifiez la disponibilité des outils :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">--version</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv <span class="at">--help</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Si le manuel d’aide du module <code>venv</code> s’affiche sans message d’erreur rouge, votre poste de travail est opérationnel.</p>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Nos outils système sont prêts. Mais pourquoi ne doit-on surtout pas les utiliser pour y installer directement les bibliothèques de nos cours ? C’est ce que nous allons comprendre en ouvrant le capot du système.</em></p>
+</blockquote>
+<hr>
+</section>
+<section id="partie-1-le-python-système-et-les-environnements-virtuels-35-min" class="level1">
+<h1>Partie 1 : Le Python Système et les Environnements Virtuels (35 min)</h1>
+<section id="pourquoi-le-python-système-est-sanctuarisé-pep-668" class="level2">
+<h2 class="anchored" data-anchor-id="pourquoi-le-python-système-est-sanctuarisé-pep-668">1.1 Pourquoi le Python système est sanctuarisé (PEP 668)</h2>
+<p>Sur Linux et macOS, Python est une brique fondamentale du système d’exploitation. Les utilitaires réseau, les gestionnaires de paquets (<code>apt</code>) et les composants graphiques reposent sur des scripts Python système situés dans <code>/usr/lib/python3/</code>.</p>
+<section id="lerreur-historique-sudo-pip-install-..." class="level3">
+<h3 class="anchored" data-anchor-id="lerreur-historique-sudo-pip-install-...">L’erreur historique : <code>sudo pip install ...</code></h3>
+<p>Exécuter la commande suivante est une faute grave :</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># COMMANDE PROSCRITE : NE JAMAIS EXÉCUTER</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pip install numpy</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Cette commande écrase les bibliothèques internes de votre système avec des versions récupérées sur Internet. Les distributions modernes bloquent d’ailleurs cette action via la spécification <strong>PEP 668</strong> en renvoyant : <code>error: externally-managed-environment</code>.</p>
+</section>
+<section id="le-conflit-de-dépendances-entre-projets" class="level3">
+<h3 class="anchored" data-anchor-id="le-conflit-de-dépendances-entre-projets">Le conflit de dépendances entre projets</h3>
+<ul>
+<li>Votre projet d’optimisation numérique exige <code>scipy == 1.10.0</code>.</li>
+<li>Votre projet d’apprentissage automatique exige <code>scipy &gt;= 1.14.0</code>.</li>
+</ul>
+<p>Installer ces outils globalement rend les deux projets mutuellement incompatibles sur votre machine. <strong>Chaque projet doit impérativement disposer de son propre environnement isolé.</strong></p>
+<hr>
+</section>
+</section>
+<section id="variable-denvironnement-et-variable-path" class="level2">
+<h2 class="anchored" data-anchor-id="variable-denvironnement-et-variable-path">1.2 Variable d’Environnement et Variable <code>$PATH</code></h2>
+<p>Pour comprendre l’isolation sans recourir à des abstractions superflues, deux concepts système suffisent :</p>
+<section id="une-variable-denvironnement" class="level3">
+<h3 class="anchored" data-anchor-id="une-variable-denvironnement">1. Une variable d’environnement</h3>
+<p>C’est un <strong>pense-bête textuel</strong> associé à votre session de terminal. Tout programme démarré depuis ce terminal peut lire les valeurs qui y sont inscrites.</p>
+</section>
+<section id="le-carnet-dadresses-du-terminal-path" class="level3">
+<h3 class="anchored" data-anchor-id="le-carnet-dadresses-du-terminal-path">2. Le carnet d’adresses du terminal : <code>$PATH</code></h3>
+<p>Quand vous tapez une commande (<code>ls</code>, <code>git</code> ou <code>python3</code>), le système ne parcourt pas l’intégralité du disque dur. Il consulte la liste ordonnée des dossiers stockée dans la variable d’environnement <strong><code>$PATH</code></strong>.</p>
+<p>Affichez cette variable dans votre console :</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="va">$PATH</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>La sortie est une liste de répertoires séparés par des deux-points (<code>:</code>) :</p>
+<pre class="text"><code>/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</code></pre>
+<p>Quand vous écrivez <code>python3</code>, le système inspecte le premier dossier (<code>/usr/local/sbin</code>). S’il n’y trouve aucun fichier exécutable nommé <code>python3</code>, il interroge le second, puis le troisième. Dès qu’un binaire correspondant est localisé, il est exécuté et la recherche s’interrompt.</p>
+<p>La commande <code>which</code> permet d’identifier précisément le fichier sélectionné :</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span> python3</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Le terminal répond <code>/usr/bin/python3</code> : c’est l’interpréteur Python officiel de la machine hôte.</p>
+<hr>
+</section>
+</section>
+<section id="anatomie-dun-environnement-virtuel-venv" class="level2">
+<h2 class="anchored" data-anchor-id="anatomie-dun-environnement-virtuel-venv">1.3 Anatomie d’un Environnement Virtuel (<code>venv</code>)</h2>
+<p>Un environnement virtuel n’est ni une machine virtuelle, ni un conteneur lourd. C’est simplement <strong>un dossier local contenant des liens symboliques vers Python et un dossier dédié aux bibliothèques</strong> :</p>
+<pre class="text"><code>mon-projet/
+├── .venv/                          &lt;-- Répertoire de l'environnement virtuel
+│   ├── pyvenv.cfg                  &lt;-- Fichier texte de configuration
+│   ├── bin/                        &lt;-- Exécutables locaux
+│   │   ├── python                  &lt;-- Lien symbolique vers /usr/bin/python3
+│   │   ├── pip                     &lt;-- Gestionnaire de paquets dédié
+│   │   └── activate                &lt;-- Script Shell de bascule du $PATH
+│   └── lib/python3.11/
+│       └── site-packages/          &lt;-- Répertoire où s'installent VOS bibliothèques</code></pre>
+<section id="le-rôle-physique-du-script-activate" class="level3">
+<h3 class="anchored" data-anchor-id="le-rôle-physique-du-script-activate">Le rôle physique du script <code>activate</code></h3>
+<p>Quand vous exécutez <code>source .venv/bin/activate</code>, le script ne fait qu’une seule opération :<br>
+<strong>Il insère le chemin absolu du dossier <code>.venv/bin</code> tout au début de la variable <code>$PATH</code>.</strong></p>
+<ul>
+<li><strong>Avant activation :</strong><br>
+<code>$PATH = /usr/local/bin:/usr/bin:/bin</code> <span class="math inline">\(\rightarrow\)</span> Le système exécute <code>/usr/bin/python3</code>.</li>
+<li><strong>Après activation :</strong><br>
+<code>$PATH = /home/user/mon-projet/.venv/bin:/usr/local/bin:/usr/bin:/bin</code> <span class="math inline">\(\rightarrow\)</span> Le système trouve en priorité l’exécutable local <code>.venv/bin/python</code>.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="exercice-guidé-1-création-et-isolation-dun-environnement" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-guidé-1-création-et-isolation-dun-environnement">1.4 Exercice Guidé 1 : Création et Isolation d’un Environnement</h2>
+<ol type="1">
+<li><p><strong>Créer un répertoire de travail pour la séance et s’y positionner :</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/tp-packaging <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> ~/tp-packaging</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Générer l’environnement virtuel local :</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>(Le point initial rend le dossier caché sous Linux, évitant d’encombrer l’explorateur de fichiers).</em></p></li>
+<li><p><strong>Activer l’environnement :</strong></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Constat :</em> L’invite de commande affiche désormais le préfixe <strong><code>(.venv)</code></strong>.</p></li>
+<li><p><strong>Vérifier la priorité dans le carnet d’adresses :</strong></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span> python</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Le terminal indique désormais <code>/home/.../tp-packaging/.venv/bin/python</code>.</p></li>
+<li><p><strong>Inspecter le fichier de configuration interne :</strong></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> .venv/pyvenv.cfg</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Observez la ligne :</em> <code>include-system-site-packages = false</code>. Elle garantit l’étanchéité absolue : aucune bibliothèque installée sur l’OS n’est visible à l’intérieur de cet environnement.</p></li>
+<li><p><strong>Vérifier l’absence de bibliothèques tierces :</strong></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> list</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Seuls les outils d’installation de base (<code>pip</code>) sont présents.</p></li>
+<li><p><strong>Désactiver et réactiver l’environnement :</strong></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">deactivate</span>        <span class="co"># Quitte l'environnement</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span> python3     <span class="co"># Retourne au Python système (/usr/bin/python3)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate <span class="co"># Réactive l'environnement local pour la suite</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Règle d’Hygiène Git Fondamentale
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Le dossier <code>.venv</code> contient des milliers de fichiers générés pour votre machine locale.<br>
+<strong>Il est formellement interdit de versionner <code>.venv</code> dans Git.</strong><br>
+Le motif <code>.venv/</code> doit figurer en première ligne de votre fichier <code>.gitignore</code>.</p>
+</div>
+</div>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Notre bulle étanche est en place et notre terminal sait où chercher Python. Maintenant, quand nous écrivons du code, comment Python fait-il pour trouver et relier nos différents fichiers entre eux ?</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="partie-2-modules-paquets-__init__.py-et-larchitecture-src-45-min" class="level1">
+<h1>Partie 2 : Modules, Paquets, <code>__init__.py</code> et l’Architecture <code>src/</code> (45 min)</h1>
+<section id="modules-paquets-et-espaces-de-noms" class="level2">
+<h2 class="anchored" data-anchor-id="modules-paquets-et-espaces-de-noms">2.1 Modules, Paquets et Espaces de Noms</h2>
+<ul>
+<li><p><strong>Module :</strong> Un fichier texte unique portant l’extension <code>.py</code> contenant du code Python (fonctions, constantes procédurales).</p></li>
+<li><p><strong>Paquet (<em>Package</em>) :</strong> Un répertoire physique contenant un ou plusieurs modules, ainsi qu’un fichier d’initialisation nommé <strong><code>__init__.py</code></strong>.</p></li>
+<li><p><strong>Espace de noms (<em>Namespace</em>) :</strong> Une boîte étiquetée. Si vous disposez d’une fonction <code>calculer()</code> dans <code>attaque.py</code> et d’une fonction <code>calculer()</code> dans <code>soin.py</code>, les paquets permettent de les distinguer sans collision d’identifiants :</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.attaque <span class="im">import</span> calculer</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.soin <span class="im">import</span> calculer</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul>
+<hr>
+</section>
+<section id="comment-python-résout-les-imports-la-liste-sys.path" class="level2">
+<h2 class="anchored" data-anchor-id="comment-python-résout-les-imports-la-liste-sys.path">2.2 Comment Python résout les imports : La liste <code>sys.path</code></h2>
+<p>Quand vous écrivez dans un script <code>import moteur</code>, l’interpréteur consulte séquentiellement une liste interne de dossiers stockée dans la variable <strong><code>sys.path</code></strong> :</p>
+<pre class="text"><code>Ordre d'inspection de sys.path :
+1. Le répertoire contenant le script qui a été lancé au terminal.
+2. Les répertoires de la bibliothèque standard (/usr/lib/python3.11).
+3. Le répertoire des paquets tiers installés : .venv/lib/python3.11/site-packages/.</code></pre>
+<p>Si le module demandé n’est présent dans <strong>aucun</strong> de ces dossiers, l’exécution s’interrompt avec l’erreur :<br>
+<code>ModuleNotFoundError: No module named 'moteur'</code>.</p>
+<hr>
+</section>
+<section id="pourquoi-sys.path.append..-est-une-erreur-de-conception" class="level2">
+<h2 class="anchored" data-anchor-id="pourquoi-sys.path.append..-est-une-erreur-de-conception">2.3 Pourquoi <code>sys.path.append("..")</code> est une erreur de conception</h2>
+<p>Face à une erreur d’importation, une mauvaise pratique fréquente consiste à manipuler manuellement cette liste :</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CODE PROSCRIT : NE JAMAIS UTILISER</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>sys.path.append(<span class="st">".."</span>)  <span class="co"># "Ajoute le dossier parent"</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> moteur</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="analyse-de-léchec-en-conditions-réelles" class="level3">
+<h3 class="anchored" data-anchor-id="analyse-de-léchec-en-conditions-réelles">Analyse de l’échec en conditions réelles</h3>
+<p>Considérons l’arborescence suivante :</p>
+<pre class="text"><code>mon-projet/
+├── moteur.py
+└── analyses/
+    └── run.py        &lt;-- Contient sys.path.append("..")</code></pre>
+<p>Le symbole relatif <code>".."</code> désigne le dossier parent <strong>du répertoire d’exécution courant du terminal</strong> :</p>
+<ul>
+<li>Si vous exécutez <code>cd analyses &amp;&amp; python run.py</code> :<br>
+Le répertoire courant est <code>analyses/</code>. Son parent <code>..</code> correspond à <code>mon-projet/</code>. Le fichier <code>moteur.py</code> est trouvé : le script s’exécute.</li>
+<li>Si vous exécutez <code>python analyses/run.py</code> depuis la racine <code>mon-projet/</code> :<br>
+Le répertoire courant est <code>mon-projet/</code>. Son parent <code>..</code> devient votre dossier personnel <code>~</code> ! Le fichier <code>moteur.py</code> est introuvable : <strong>le code plante avec <code>ModuleNotFoundError</code>.</strong></li>
+</ul>
+<p>Le comportement de votre code dépend de l’endroit exact où se trouvait l’utilisateur avant d’appuyer sur Entrée. C’est un code instable, impossible à intégrer dans un pipeline automatisé.</p>
+<hr>
+</section>
+</section>
+<section id="le-rôle-précis-de-__init__.py-vitrine-publique-et-découplage" class="level2">
+<h2 class="anchored" data-anchor-id="le-rôle-précis-de-__init__.py-vitrine-publique-et-découplage">2.4 Le Rôle Précis de <code>__init__.py</code> : Vitrine Publique et Découplage</h2>
+<p>Le fichier <code>__init__.py</code> s’exécute automatiquement dès que le dossier qui le contient est importé. Il remplit deux fonctions distinctes :</p>
+<section id="déclarer-le-paquet" class="level3">
+<h3 class="anchored" data-anchor-id="déclarer-le-paquet">1. Déclarer le paquet</h3>
+<p>Sa présence indique formellement à Python : <em>« Ce répertoire doit être traité comme un paquet de modules importables »</em>.</p>
+</section>
+<section id="agir-comme-une-vitrine-re-export" class="level3">
+<h3 class="anchored" data-anchor-id="agir-comme-une-vitrine-re-export">2. Agir comme une vitrine (<em>Re-export</em>)</h3>
+<p>Considérons une arborescence procédurale avec plusieurs sous-dossiers :</p>
+<pre class="text"><code>src/pyarena/
+├── __init__.py               &lt;-- Vitrine générale du logiciel
+├── core/                     &lt;-- Sous-paquet des règles
+│   ├── __init__.py           &lt;-- Vitrine locale du dossier core/
+│   ├── combat.py             &lt;-- Contient def calculer_degats(...)
+│   └── regles.py             &lt;-- Contient def verifier_statut(...)</code></pre>
+<p>Sans vitrine, un script externe doit spécifier l’arborescence complète :</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.combat <span class="im">import</span> calculer_degats</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.regles <span class="im">import</span> verifier_statut</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Grâce à <code>src/pyarena/core/__init__.py</code>, le sous-paquet expose directement ses outils majeurs :</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/pyarena/core/__init__.py</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.combat <span class="im">import</span> calculer_degats</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.regles <span class="im">import</span> verifier_statut</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="va">__all__</span> <span class="op">=</span> [<span class="st">"calculer_degats"</span>, <span class="st">"verifier_statut"</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Le fichier racine <code>src/pyarena/__init__.py</code> peut alors consolider l’API publique du logiciel :</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/pyarena/__init__.py</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core <span class="im">import</span> calculer_degats, verifier_statut</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="va">__all__</span> <span class="op">=</span> [<span class="st">"calculer_degats"</span>, <span class="st">"verifier_statut"</span>, <span class="st">"__version__"</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Un utilisateur externe (script de simulation, notebook, test) importe alors les fonctions directement depuis la racine :</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena <span class="im">import</span> calculer_degats, verifier_statut</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="règle-stricte-imports-externes-vs-imports-internes" class="level3">
+<h3 class="anchored" data-anchor-id="règle-stricte-imports-externes-vs-imports-internes">Règle stricte : Imports externes vs Imports internes</h3>
+<ul>
+<li><p><strong>Depuis l’extérieur du paquet :</strong> On importe depuis la vitrine (<code>from pyarena import calculer_degats</code>).</p></li>
+<li><p><strong>À l’intérieur des modules du paquet :</strong> Dans <code>combat.py</code>, on importe <strong>toujours directement depuis le module source voisin</strong> :</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dans src/pyarena/core/combat.py</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.regles <span class="im">import</span> verifier_statut  <span class="co"># BONNE PRATIQUE</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>On n’écrit jamais <code>from pyarena import verifier_statut</code> au sein de <code>combat.py</code>, car cela forcerait Python à initialiser la racine du paquet alors que ses composants sont en cours de chargement.</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="les-dépendances-croisées-le-piège-de-limport-mutuel" class="level2">
+<h2 class="anchored" data-anchor-id="les-dépendances-croisées-le-piège-de-limport-mutuel">2.5 Les Dépendances Croisées : Le Piège de l’Import Mutuel</h2>
+<p>Un import circulaire survient quand deux fichiers se demandent mutuellement leur définition dès la première ligne :</p>
+<ul>
+<li><code>fichier_a.py</code> commence par <code>import fichier_b</code></li>
+<li><code>fichier_b.py</code> commence par <code>import fichier_a</code></li>
+</ul>
+<p>Au chargement, Python suspend la lecture de <code>fichier_a</code> pour ouvrir <code>fichier_b</code>, qui lui-même tente de lire <code>fichier_a</code> encore incomplet. Le programme s’interrompt avec l’erreur :<br>
+<code>ImportError: cannot import name ... from partially initialized module</code>.</p>
+<section id="la-règle-dorganisation" class="level3">
+<h3 class="anchored" data-anchor-id="la-règle-dorganisation">La règle d’organisation :</h3>
+<p>Dans un paquet bien conçu, les dépendances vont toujours dans le même sens : quarto * Un module de calcul ou de règles ne doit <strong>jamais</strong> importer le script qui l’appelle ou qui orchestre la partie. * Les fonctions utilitaires et les formules de base doivent être autonomes : elles reçoivent leurs données par des arguments en paramètres, sans aller piocher dans le reste du projet.</p>
+<hr>
+</section>
+</section>
+<section id="pourquoi-larchitecture-src-src-layout-est-indispensable" class="level2">
+<h2 class="anchored" data-anchor-id="pourquoi-larchitecture-src-src-layout-est-indispensable">2.6 Pourquoi l’Architecture <code>src/</code> (<em>src-layout</em>) est Indispensable</h2>
+<p>Considérons ces deux manières d’organiser un projet sur le disque :</p>
+<pre class="text"><code>STRUCTURE NAÏVE ("Flat Layout")       STRUCTURE INDUSTRIELLE ("src-layout")
+(À PROSCRIRE)                         (OBLIGATOIRE EN PROJET)
+
+mon-projet/                           mon-projet/
+├── pyarena/                          ├── src/
+│   ├── __init__.py                   │   └── pyarena/
+│   └── combat.py                     │       ├── __init__.py
+└── scripts/                          │       └── combat.py
+    └── run.py                        └── scripts/
+                                          └── run.py</code></pre>
+<section id="le-piège-de-la-structure-naïve-lillusion-locale" class="level3">
+<h3 class="anchored" data-anchor-id="le-piège-de-la-structure-naïve-lillusion-locale">Le piège de la structure naïve : L’illusion locale</h3>
+<p>Dans la structure naïve de gauche, le dossier <code>pyarena/</code> est situé directement à la racine du projet.<br>
+Si vous ouvrez votre terminal dans <code>mon-projet/</code> et lancez un script Python :</p>
+<ol type="1">
+<li>Python insère automatiquement le dossier courant (<code>mon-projet/</code>) en tête de <code>sys.path</code>.</li>
+<li>Il localise immédiatement le dossier <code>pyarena/</code> posé à côté de lui.</li>
+<li>L’instruction <code>import pyarena</code> réussit par pur opportunisme géographique.</li>
+</ol>
+<p><strong>Les deux défaillances majeures du Flat Layout :</strong></p>
+<ul>
+<li><strong>Échec dès qu’on change de répertoire :</strong> Si un script est placé dans un sous-dossier <code>scripts/run.py</code> et qu’un utilisateur tape <code>cd scripts &amp;&amp; python run.py</code>, le dossier courant devient <code>scripts/</code>. Le dossier <code>pyarena</code> n’est plus visible sous ses yeux : le code plante immédiatement.</li>
+<li><strong>Le risque critique de masquage (<em>Name Shadowing</em>) :</strong> Si vous créez à la racine de votre projet un fichier nommé <code>random.py</code>, <code>math.py</code>, <code>test.py</code> ou un dossier nommé <code>types/</code>, Python chargera votre fichier local au lieu du module officiel du langage. Les bibliothèques tierces comme NumPy ou Requests s’effondrent alors mystérieusement avec des erreurs de type <code>AttributeError</code>.</li>
+</ul>
+</section>
+<section id="la-protection-de-la-structure-src" class="level3">
+<h3 class="anchored" data-anchor-id="la-protection-de-la-structure-src">La protection de la structure <code>src/</code></h3>
+<p>Dans la structure de droite, le code est encapsulé dans <code>src/pyarena/</code>.<br>
+À la racine de <code>mon-projet/</code>, le dossier <code>pyarena</code> n’existe pas directement sous les yeux de Python.<br>
+Tant que le projet n’est pas formellement installé dans l’environnement virtuel, toute tentative d’importation échoue. <strong>La structure <code>src/</code> garantit qu’un code qui fonctionne sur votre poste fonctionnera de manière identique sur n’importe quel autre ordinateur.</strong></p>
+<hr>
+</section>
+</section>
+<section id="exercice-guidé-2-constater-léchec-géographique-dimportation" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-guidé-2-constater-léchec-géographique-dimportation">2.7 Exercice Guidé 2 : Constater l’Échec Géographique d’Importation</h2>
+<p>Reproduisons le piège d’un import dépendant de l’emplacement du terminal.</p>
+<pre class="text"><code>tp-packaging/                         &lt;-- Votre terminal se trouve ICI
+└── test_import/
+    ├── service/
+    │   └── algebre.py                &lt;-- Contient def carre(x)
+    └── execution/
+        └── lancer.py                 &lt;-- Tente d'importer algebre.py</code></pre>
+<ol type="1">
+<li><p><strong>Créer l’arborescence témoin :</strong></p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> test_import/service test_import/execution</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Créer le module de calcul dans <code>test_import/service/algebre.py</code> :</strong></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># test_import/service/algebre.py</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> carre(valeur: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> valeur <span class="op">**</span> <span class="dv">2</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Créer le script dans <code>test_import/execution/lancer.py</code> :</strong></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># test_import/execution/lancer.py</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> service.algebre <span class="im">import</span> carre</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Résultat :"</span>, carre(<span class="dv">6</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Exécuter le script depuis la racine du TP :</strong></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> test_import/execution/lancer.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Sortie :</strong></p>
+<pre class="text"><code>ModuleNotFoundError: No module named 'service'</code></pre>
+<p><em>Explication :</em> Python a inspecté <code>test_import/execution/</code> (l’emplacement du script <code>lancer.py</code>). N’y trouvant aucun sous-dossier <code>service</code>, il a levé une exception.</p></li>
+<li><p><strong>Supprimer le dossier de test :</strong></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> test_import</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Nous avons constaté qu’un dossier de code isolé ne peut pas fonctionner de manière stable par de simples chemins relatifs. Pour que nos fichiers communiquent quel que soit l’endroit où se trouve le terminal, nous devons déclarer officiellement notre projet auprès de notre environnement virtuel via un fichier de configuration standardisé.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="partie-3-le-format-toml-pyproject.toml-et-linstallation-éditable-40-min" class="level1">
+<h1>Partie 3 : Le Format TOML, <code>pyproject.toml</code> et l’Installation Éditable (40 min)</h1>
+<section id="quest-ce-que-le-format-toml" class="level2">
+<h2 class="anchored" data-anchor-id="quest-ce-que-le-format-toml">3.1 Qu’est-ce que le Format TOML ?</h2>
+<p><strong>TOML</strong> (<em>Tom’s Obvious, Minimal Language</em>) est un format de configuration textuel conçu pour être parfaitement lisible par un être humain et parsé sans ambiguïté par une machine.</p>
+<p>Sa syntaxe repose sur trois éléments :</p>
+<ul>
+<li>Des paires clé-valeur : <code>nom = "pyarena"</code></li>
+<li>Des listes délimitées par des crochets : <code>outils = ["numpy", "scipy"]</code></li>
+<li>Des tables (sections) délimitées par des en-têtes : <code>[nom-de-section]</code></li>
+</ul>
+<hr>
+</section>
+<section id="le-rôle-de-pyproject.toml-lacte-de-naissance-du-logiciel" class="level2">
+<h2 class="anchored" data-anchor-id="le-rôle-de-pyproject.toml-lacte-de-naissance-du-logiciel">3.2 Le Rôle de <code>pyproject.toml</code> : L’Acte de Naissance du Logiciel</h2>
+<p>Un répertoire contenant des fichiers <code>.py</code> n’est qu’un ensemble de textes sur un disque.<br>
+Le fichier <strong><code>pyproject.toml</code></strong> (normes PEP 517 / 518 / 621) constitue <strong>l’acte de naissance officiel et le cahier des charges</strong> de votre paquet.</p>
+<p>Il répond de manière déclarative et statique à trois questions :</p>
+<ol type="1">
+<li><strong>Qui est ce logiciel ?</strong> (Nom, version, auteurs, licence).</li>
+<li><strong>De quoi a-t-il besoin pour s’exécuter ?</strong> (Dépendances obligatoires et optionnelles).</li>
+<li><strong>Comment doit-on assembler le paquet ?</strong> (Le moteur de construction).</li>
+</ol>
+<hr>
+</section>
+<section id="décorticage-du-moteur-de-construction-setuptools-et-wheel" class="level2">
+<h2 class="anchored" data-anchor-id="décorticage-du-moteur-de-construction-setuptools-et-wheel">3.3 Décorticage du Moteur de Construction : <code>setuptools</code> et <code>wheel</code></h2>
+<p>Dans tout fichier <code>pyproject.toml</code>, la première section déclare le moteur d’assemblage :</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">"setuptools&gt;=68.0"</span><span class="op">,</span> <span class="st">"wheel"</span><span class="op">]</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">"setuptools.build_meta"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Ces termes correspondent aux rôles suivants :</p>
+<ul>
+<li><strong><code>setuptools</code> (L’assembleur / Le chef cuisinier) :</strong> C’est le programme Python chargé d’analyser le dossier <code>src/</code>, de recenser les modules, de vérifier les dépendances et de construire le paquet final.</li>
+<li><strong><code>wheel</code> (Le carton d’emballage standardisé) :</strong> En Python, un logiciel n’est pas distribué sous la forme d’un dossier en vrac. Il est conditionné sous la forme d’une archive compressée portant l’extension <code>.whl</code> (<em>wheel</em> signifie « roue », en référence au logo de Python).</li>
+<li><strong><code>build-backend</code> :</strong> Indique à <code>pip</code> quel sous-module interne de <code>setuptools</code> doit être sollicité pour fabriquer l’archive.</li>
+</ul>
+<hr>
+</section>
+<section id="quest-ce-que-linstallation-éditable-pip-install--e-.dev" class="level2">
+<h2 class="anchored" data-anchor-id="quest-ce-que-linstallation-éditable-pip-install--e-.dev">3.4 Qu’est-ce que l’Installation Éditable (<code>pip install -e ".[dev]"</code>) ?</h2>
+<p>Quand vous installez une bibliothèque externe avec <code>pip install numpy</code>, <code>pip</code> télécharge les fichiers et les copie physiquement dans le dossier <code>.venv/lib/python3.11/site-packages/</code>.</p>
+<p>Si vous appliquiez ce procédé à votre propre code avec <code>pip install .</code>, à chaque correction d’une ligne dans VS Code, il faudrait relancer <code>pip install .</code> pour que la modification soit répercutée.</p>
+<section id="le-mécanisme-du-drapeau--e-editable" class="level3">
+<h3 class="anchored" data-anchor-id="le-mécanisme-du-drapeau--e-editable">Le mécanisme du drapeau <code>-e</code> (<em>Editable</em>)</h3>
+<p>Lorsque vous vous placez à la racine de votre projet et que vous exécutez :</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>pip</code> ne copie <strong>aucun fichier de code</strong>.<br>
+Il crée dans votre dossier <code>site-packages</code> un fichier de liaison (un fichier <code>.pth</code>) qui enregistre le chemin absolu vers votre dossier <code>src/</code>. Il indique à l’environnement :<br>
+&gt; <em>« Dès qu’un import concerne ce paquet, charge directement les fichiers situés dans <code>/home/.../mon-projet/src</code> ! »</em></p>
+</section>
+<section id="décorticage-de-la-commande-pip-install--e-.dev" class="level3">
+<h3 class="anchored" data-anchor-id="décorticage-de-la-commande-pip-install--e-.dev">Décorticage de la commande <code>pip install -e ".[dev]"</code> :</h3>
+<ul>
+<li><strong>Le point <code>.</code></strong> : désigne le répertoire courant contenant <code>pyproject.toml</code>.</li>
+<li><strong>L’option <code>-e</code></strong> : active le mode éditable (modifications prises en compte en direct sans réinstallation).</li>
+<li><strong>Le sélecteur <code>[dev]</code></strong> : ordonne à <code>pip</code> d’installer les dépendances optionnelles de développement (<code>pytest</code>, <code>ruff</code>) déclarées dans la section <code>[project.optional-dependencies]</code>. Sans ce sélecteur, seuls les outils de base du logiciel (<code>numpy</code>, <code>requests</code>) sont installés.</li>
+<li><strong>Les guillemets <code>".[dev]"</code></strong> : indispensables sous certains shells (notamment Zsh) pour éviter que les crochets ne soient interprétés comme des motifs d’expressions régulières.</li>
+</ul>
+</section>
+<section id="quand-faut-il-réexécuter-pip-install--e-.dev" class="level3">
+<h3 class="anchored" data-anchor-id="quand-faut-il-réexécuter-pip-install--e-.dev">Quand faut-il réexécuter <code>pip install -e ".[dev]"</code> ?</h3>
+<ul>
+<li><strong>Modification du code Python (<code>.py</code> ou <code>__init__.py</code>) :</strong> Jamais. Les modifications sont actives instantanément.</li>
+<li><strong>Modification de <code>pyproject.toml</code> :</strong> Toujours. Si vous ajoutez une dépendance ou si vous déclarez une nouvelle commande console, vous devez relancer l’installation.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="exercice-guidé-3-assemblage-et-installation-dun-paquet-minimal" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-guidé-3-assemblage-et-installation-dun-paquet-minimal">3.5 Exercice Guidé 3 : Assemblage et Installation d’un Paquet Minimal</h2>
+<p>Construisons un paquet propre sous l’architecture <code>src-layout</code> :</p>
+<pre class="text"><code>tp-packaging/                         &lt;-- Racine du projet
+├── pyproject.toml                    &lt;-- Acte de naissance du paquet
+├── README.md                         &lt;-- Documentation minimale
+└── src/
+    └── mini_moteur/                  &lt;-- Dossier du paquet
+        ├── __init__.py               &lt;-- Vitrine du paquet
+        └── duel.py                   &lt;-- Logique métier procédurale</code></pre>
+<ol type="1">
+<li><p><strong>Créer l’arborescence professionnelle :</strong></p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> src/mini_moteur</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Créer le fichier de présentation <code>README.md</code> :</strong></p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"# Démonstrateur de Packaging Moderne"</span> <span class="op">&gt;</span> README.md</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Créer le module de calcul dans <code>src/mini_moteur/duel.py</code> :</strong></p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/mini_moteur/duel.py</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> resoudre_frappe(attaque: <span class="bu">int</span>, armure: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Calcule les dégâts infligés avec atténuation par l'armure."""</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>(<span class="dv">1</span>, attaque <span class="op">-</span> (armure <span class="op">//</span> <span class="dv">2</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Créer la vitrine dans <code>src/mini_moteur/__init__.py</code> :</strong></p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/mini_moteur/__init__.py</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mini_moteur.duel <span class="im">import</span> resoudre_frappe</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="va">__all__</span> <span class="op">=</span> [<span class="st">"resoudre_frappe"</span>, <span class="st">"__version__"</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Rédiger le fichier <code>pyproject.toml</code> à la racine :</strong></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">"setuptools&gt;=68.0"</span><span class="op">,</span> <span class="st">"wheel"</span><span class="op">]</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">"setuptools.build_meta"</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[project]</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"mini-moteur"</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">"Module de calcul de duel pour l'arène"</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">"README.md"</span></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">"&gt;=3.10"</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.optional-dependencies]</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest&gt;=7.4.0"</span><span class="op">,</span></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.setuptools.packages.find]</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a><span class="dt">where</span> <span class="op">=</span> <span class="op">[</span><span class="st">"src"</span><span class="op">]</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Lancer l’installation éditable dans le terminal :</strong> Vérifiez que votre invite affiche <code>(.venv)</code> et lancez :</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Sortie attendue :</em> <code>Successfully installed mini-moteur-0.1.0</code>.</p></li>
+<li><p><strong>Preuve de l’importation universelle :</strong> Déplacez-vous dans votre dossier personnel (<code>cd ~</code>), hors du projet, et lancez :</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"import mini_moteur; print('Version active :', mini_moteur.__version__)"</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"from mini_moteur import resoudre_frappe; print('Dégâts calculés :', resoudre_frappe(40, 10))"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Résultat :</em> Le calcul s’exécute et affiche <code>Dégâts calculés : 35</code> ! Le paquet est universellement résolu par Python.</p></li>
+<li><p><strong>Preuve de la modification :</strong> Revenez dans votre dossier de travail :</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/tp-packaging</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Éditez <code>src/mini_moteur/duel.py</code> dans VS Code pour modifier le calcul :</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> resoudre_frappe(attaque: <span class="bu">int</span>, armure: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"&gt;&gt;&gt; Calcul de combat en cours..."</span>)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>(<span class="dv">1</span>, attaque <span class="op">-</span> (armure <span class="op">//</span> <span class="dv">2</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Enregistrez (<strong>Ctrl+S</strong>) et relancez immédiatement dans la console :</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-c</span> <span class="st">"from mini_moteur import resoudre_frappe; resoudre_frappe(20, 4)"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Le message s’affiche instantanément sans aucune réinstallation.</p></li>
+</ol>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Notre bibliothèque fonctionne et s’importe de n’importe où. Mais comment permettre à un utilisateur d’interagir avec notre logiciel directement depuis son terminal, sans avoir à écrire une ligne de code Python ?</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="partie-4-créer-une-commande-terminal-avec-sys.argv-20-min" class="level1">
+<h1>Partie 4 : Créer une Commande Terminal avec <code>sys.argv</code> (20 min)</h1>
+<section id="récupérer-les-arguments-utilisateur-sys.argv" class="level2">
+<h2 class="anchored" data-anchor-id="récupérer-les-arguments-utilisateur-sys.argv">4.1 Récupérer les Arguments Utilisateur : <code>sys.argv</code></h2>
+<p>Quand vous lancez une commande dans votre terminal en écrivant :</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> combat.py 50 15</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Comment le programme peut-il récupérer les valeurs <code>50</code> et <code>15</code> ?</p>
+<p>L’interpréteur Python découpe la ligne de commande au niveau des espaces et stocke chaque terme dans une <strong>liste de chaînes de caractères</strong> accessible via le module standard <code>sys</code> : la variable <strong><code>sys.argv</code></strong> (<em>argument vector</em>) :</p>
+<pre class="text"><code>Commande tapée : python combat.py 50 15
+
+Contenu de la liste interne :
+sys.argv = [ "combat.py" ,  "50"   ,  "15"   ]
+                Index 0      Index 1   Index 2</code></pre>
+<ul>
+<li><code>sys.argv[0]</code> contient toujours le nom du script appelé.</li>
+<li><code>sys.argv[1]</code> contient le premier argument fourni par l’utilisateur (sous forme de texte <code>str</code>).</li>
+<li><code>sys.argv[2]</code> contient le second argument.</li>
+</ul>
+<p><em>Règle d’arithmétique :</em> Pour utiliser ces valeurs dans des calculs, vous devez impérativement convertir les chaînes de caractères en entiers via <code>int(sys.argv[1])</code>.</p>
+<hr>
+</section>
+<section id="déclarer-un-point-dentrée-console-dans-pyproject.toml" class="level2">
+<h2 class="anchored" data-anchor-id="déclarer-un-point-dentrée-console-dans-pyproject.toml">4.2 Déclarer un Point d’Entrée Console dans <code>pyproject.toml</code></h2>
+<p>Pour qu’une fonction Python devienne une commande utilisable directement dans le terminal (comme <code>git</code> ou <code>pip</code>), on déclare une section <strong><code>[project.scripts]</code></strong> dans <code>pyproject.toml</code> :</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.scripts]</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="dt">nom_de_la_commande</span> <span class="op">=</span> <span class="st">"nom_du_paquet.nom_du_module:nom_de_la_fonction"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Lors de l’installation, <code>pip</code> lit cette instruction et crée un mini-exécutable binaire dans <code>.venv/bin/nom_de_la_commande</code>. Puisque <code>.venv/bin</code> se trouve en tête de votre <code>$PATH</code>, la commande devient instantanément disponible dans votre console.</p>
+<hr>
+</section>
+<section id="exercice-guidé-4-création-de-la-commande-arene-cli" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-guidé-4-création-de-la-commande-arene-cli">4.3 Exercice Guidé 4 : Création de la Commande <code>arene-cli</code></h2>
+<ol type="1">
+<li><p><strong>Créer le module exécutable <code>src/mini_moteur/interface.py</code> :</strong></p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/mini_moteur/interface.py</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mini_moteur.duel <span class="im">import</span> resoudre_frappe</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> demarrer():</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"=== Simulateur de Duel en Ligne de Commande ==="</span>)</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Vérification du nombre d'arguments passés</span></span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&lt;</span> <span class="dv">3</span>:</span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Erreur : arguments manquants."</span>)</span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Usage  : arene-cli &lt;attaque&gt; &lt;armure&gt;"</span>)</span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Exemple: arene-cli 50 20"</span>)</span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>        sys.exit(<span class="dv">1</span>)</span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Conversion des arguments textes en entiers</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>    valeur_attaque <span class="op">=</span> <span class="bu">int</span>(sys.argv[<span class="dv">1</span>])</span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>    valeur_armure <span class="op">=</span> <span class="bu">int</span>(sys.argv[<span class="dv">2</span>])</span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>    degats <span class="op">=</span> resoudre_frappe(valeur_attaque, valeur_armure)</span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Bilan : Attaque=</span><span class="sc">{</span>valeur_attaque<span class="sc">}</span><span class="ss"> vs Armure=</span><span class="sc">{</span>valeur_armure<span class="sc">}</span><span class="ss"> -&gt; Dégâts nets = </span><span class="sc">{</span>degats<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Déclarer la commande dans <code>pyproject.toml</code> :</strong> Ouvrez <code>pyproject.toml</code> et ajoutez le bloc <code>[project.scripts]</code> à la fin :</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.scripts]</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="dt">arene-cli</span> <span class="op">=</span> <span class="st">"mini_moteur.interface:demarrer"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Régénérer les points d’entrée de l’environnement :</strong> Le fichier <code>pyproject.toml</code> ayant été modifié, il faut réexécuter l’installation :</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Vérifier l’existence physique du binaire :</strong></p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">which</span> arene-cli</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Le système confirme l’emplacement : <code>/home/.../tp-packaging/.venv/bin/arene-cli</code>.</p></li>
+<li><p><strong>Tester la commande native dans le terminal :</strong></p>
+<ul>
+<li><p>Test de la gestion d’erreur (aucun argument) :</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arene-cli</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Test d’un calcul opérationnel :</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">arene-cli</span> 60 24</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Sortie attendue :</em> <code>Bilan : Attaque=60 vs Armure=24 -&gt; Dégâts nets = 48</code>.</p></li>
+</ul></li>
+</ol>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Tous les concepts fondamentaux sont désormais éprouvés. Nous allons maintenant mobiliser l’ensemble de ces compétences pour initialiser le dépôt officiel du projet PyArena en respectant scrupuleusement le cahier des charges et le protocole de branches Git.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" class="level1">
+<h1>Partie 5 : Exercice de Synthèse — Le Squelette Officiel de <code>PyArena</code> &amp; Publication Git (20 min)</h1>
+<p><em>Cet exercice permet de mettre en place le projet semestriel en groupe. Vous initialisez l’arborescence complète, configurez le packaging professionnel et publiez la fondation sur GitHub selon les règles de l’art.</em></p>
+<pre class="text"><code>ARBORESCENCE OFFICIELLE DU PROJET PYARENA :
+
+pyarena-officiel/
+├── pyproject.toml
+├── README.md
+├── .gitignore
+├── .venv/                         &lt;-- Non versionné
+├── src/
+│   └── pyarena/
+│       ├── __init__.py            &lt;-- Vitrine générale
+│       ├── cli.py                 &lt;-- Point d'entrée console
+│       ├── core/                  &lt;-- Règles du jeu et combattants (prochain TP)
+│       │   └── __init__.py
+│       ├── simulation/            &lt;-- Moteur stochastique et tournois
+│       │   └── __init__.py
+│       └── utils/                 &lt;-- Gestion du cache et des données
+│           └── __init__.py
+├── tests/
+│   └── test_init.py               &lt;-- Test de validation du packaging (smoke test)
+└── data/
+    └── cache/                     &lt;-- Données brutes (ignoré par Git)</code></pre>
+<section id="à-quoi-sert-le-fichier-teststest_init.py" class="level3">
+<h3 class="anchored" data-anchor-id="à-quoi-sert-le-fichier-teststest_init.py">À quoi sert le fichier <code>tests/test_init.py</code> ?</h3>
+<p>C’est un <strong>test de validation initial (<em>smoke test</em>)</strong>. Il ne teste pas encore la logique métier des combats (qui sera écrite lors des prochains TPs), mais certifie immédiatement que :</p>
+<ol type="1">
+<li>Le paquet <code>pyarena</code> est bien installé et reconnu dans l’environnement virtuel.</li>
+<li>La variable <code>__version__</code> est lisible depuis la racine du paquet sans erreur d’importation.</li>
+</ol>
+</section>
+<section id="étape-1-initialisation-de-lespace-de-travail" class="level3">
+<h3 class="anchored" data-anchor-id="étape-1-initialisation-de-lespace-de-travail">Étape 1 : Initialisation de l’Espace de Travail</h3>
+<ol type="1">
+<li><p>Créez le répertoire officiel du projet et placez-vous dedans :</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/pyarena-officiel <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> ~/pyarena-officiel</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Créez l’environnement virtuel local et activez-le :</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Rédigez le fichier <code>.gitignore</code> à la racine :</p>
+<pre class="text"><code># Environnement virtuel local (JAMAIS sur Git)
+.venv/
+
+# Caches bytecode Python
+__pycache__/
+*.py[cod]
+
+# Artefacts de distribution et packaging
+*.egg-info/
+dist/
+build/
+
+# Caches d'outils de test
+.pytest_cache/
+.coverage
+
+# Caches de données et logs du projet
+data/cache/*
+!data/cache/.gitkeep
+*.log
+.DS_Store</code></pre></li>
+<li><p>Créez l’arborescence complète des dossiers avec leurs fichiers d’accroche :</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> src/pyarena/core src/pyarena/simulation src/pyarena/utils tests data/cache</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> data/cache/.gitkeep</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/core/__init__.py</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/simulation/__init__.py</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/utils/__init__.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="étape-2-implémentation-du-socle-logiciel" class="level3">
+<h3 class="anchored" data-anchor-id="étape-2-implémentation-du-socle-logiciel">Étape 2 : Implémentation du Socle Logiciel</h3>
+<ol type="1">
+<li><p>Créez le fichier <code>src/pyarena/__init__.py</code> :</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Package officiel de simulation stochastique PyArena."""</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="va">__all__</span> <span class="op">=</span> [<span class="st">"__version__"</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Créez le point d’entrée CLI dans <code>src/pyarena/cli.py</code> :</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/pyarena/cli.py</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena <span class="im">import</span> __version__</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&gt;</span> <span class="dv">1</span> <span class="kw">and</span> sys.argv[<span class="dv">1</span>] <span class="op">==</span> <span class="st">"--version"</span>:</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"PyArena version </span><span class="sc">{</span>__version__<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"PyArena : Moteur opérationnel. Utilisez '--version' pour vérifier la version."</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Créez le test de validation initiale dans <code>tests/test_init.py</code> :</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/test_init.py</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena <span class="im">import</span> __version__</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_package_installe_et_version():</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Vérifie que pyarena est importable et expose sa version."""</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> __version__ <span class="op">==</span> <span class="st">"0.1.0"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Créez le fichier de présentation <code>README.md</code> :</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"# PyArena - Moteur de Combat d'Arène Stochastique"</span> <span class="op">&gt;</span> README.md</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Rédigez le fichier <code>pyproject.toml</code> de référence :</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">"setuptools&gt;=68.0"</span><span class="op">,</span> <span class="st">"wheel"</span><span class="op">]</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">"setuptools.build_meta"</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[project]</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"pyarena"</span></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">"Moteur de simulation stochastique pour combats d'arènes"</span></span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">"README.md"</span></span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">"&gt;=3.10"</span></span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">""</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">""</span><span class="op"> }</span></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a><span class="dt">classifiers</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Programming Language :: Python :: 3"</span><span class="op">,</span></span>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Operating System :: OS Independent"</span><span class="op">,</span></span>
+<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"numpy&gt;=1.24.0"</span><span class="op">,</span></span>
+<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"requests&gt;=2.31.0"</span><span class="op">,</span></span>
+<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.optional-dependencies]</span></span>
+<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest&gt;=7.4.0"</span><span class="op">,</span></span>
+<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest-cov&gt;=4.1.0"</span><span class="op">,</span></span>
+<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ruff&gt;=0.1.0"</span><span class="op">,</span></span>
+<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb64-29"><a href="#cb64-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-30"><a href="#cb64-30" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.scripts]</span></span>
+<span id="cb64-31"><a href="#cb64-31" aria-hidden="true" tabindex="-1"></a><span class="dt">pyarena</span> <span class="op">=</span> <span class="st">"pyarena.cli:main"</span></span>
+<span id="cb64-32"><a href="#cb64-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-33"><a href="#cb64-33" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.setuptools.packages.find]</span></span>
+<span id="cb64-34"><a href="#cb64-34" aria-hidden="true" tabindex="-1"></a><span class="dt">where</span> <span class="op">=</span> <span class="op">[</span><span class="st">"src"</span><span class="op">]</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</section>
+<section id="étape-3-installation-et-validation-des-outils" class="level3">
+<h3 class="anchored" data-anchor-id="étape-3-installation-et-validation-des-outils">Étape 3 : Installation et Validation des Outils</h3>
+<ol type="1">
+<li><p>Installez le paquet en mode éditable avec ses dépendances de développement :</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Testez la commande console native :</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pyarena</span> <span class="at">--version</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Sortie attendue :</em> <code>PyArena version 0.1.0</code>.</p></li>
+<li><p>Lancez la suite de tests pour certifier l’environnement :</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Résultat :</em> <code>1 passed in 0.02s</code> ! Le paquet est certifié opérationnel.</p></li>
+</ol>
+</section>
+<section id="étape-4-scellement-git-tag-et-protocole-de-branches" class="level3">
+<h3 class="anchored" data-anchor-id="étape-4-scellement-git-tag-et-protocole-de-branches">Étape 4 : Scellement Git, Tag et Protocole de Branches</h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Protocole d’Initialisation sur GitHub
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>On ne peut pas créer de branche <code>dev</code> ni verrouiller une branche <code>main</code> qui n’existe pas encore sur le serveur distant.<br>
+<strong>L’Étudiant A est exceptionnellement autorisé à pousser directement sur <code>main</code> pour ce tout premier commit de fondation.</strong></p>
+</div>
+</div>
+<ol type="1">
+<li><p><strong>L’Étudiant A</strong> réalise le commit initial sur sa machine locale :</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: initialisation de l'arborescence officielle et pyproject.toml"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>L’Étudiant A</strong> pose le premier tag officiel de jalon (SemVer) :</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag <span class="at">-a</span> v0.1.0 <span class="at">-m</span> <span class="st">"Release v0.1.0 : Squelette officiel certifie"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>L’Étudiant A</strong> lie le dépôt distant GitHub et pousse la branche <code>main</code> avec son tag :</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin git@github.com:<span class="op">&lt;</span>organisation-ou-pseudo<span class="op">&gt;</span>/pyarena.git</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main <span class="at">--tags</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Verrouillage immédiat sur GitHub :</strong><br>
+L’Étudiant A se rend sur GitHub <span class="math inline">\(\rightarrow\)</span> <strong>Settings</strong> <span class="math inline">\(\rightarrow\)</span> <strong>Branches</strong> <span class="math inline">\(\rightarrow\)</span> Active la protection sur <code>main</code> (<em>Require a pull request before merging</em>).</p></li>
+<li><p><strong>Création et publication de la branche <code>dev</code> :</strong><br>
+L’Étudiant A crée la branche d’intégration collective et la publie :</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> dev</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin dev</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>L’Étudiant B</strong> clone le projet et se positionne directement sur <code>dev</code> :</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:<span class="op">&lt;</span>organisation-ou-pseudo<span class="op">&gt;</span>/pyarena.git</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> pyarena</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+<p>L’ensemble de votre infrastructure logicielle est en place et certifiée par les tests. Lors de la prochaine séance, nous pourrons directement concevoir les classes du modèle métier (<strong>Programmation Orientée Objet</strong>) au sein d’une structure logicielle éprouvée.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
