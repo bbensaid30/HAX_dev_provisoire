@@ -1,0 +1,909 @@
+---
+title: "Cours-TP : Environnements Virtuels, Modularité & Packaging Moderne"
+subtitle: "De l'Organisation du Code au Standard pyproject.toml (3h00)"
+author: "Bensaid Bilel"
+date: "25 Septembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire de la séance"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Découpage Pédagogique
+
+Dans les projets de calcul scientifique et d'ingénierie logicielle, l'organisation des fichiers conditionne directement la reproductibilité et la robustesse du travail. L'approche artisanale consistant à empiler des scripts dans un dossier unique et à exécuter son code « là où on se trouve » mène rapidement à des erreurs d'importation insolubles (`ModuleNotFoundError`) et à des conflits d'environnements destructeurs.
+
+### Compétences opérationnelles visées :
+
+1. **Comprendre l'isolation système :** Maîtriser le fonctionnement d'un environnement virtuel (`venv`), le rôle de la variable `$PATH` et la protection de l'OS.
+2. **Démystifier les imports Python :** Comprendre comment l'interpréteur résout les modules via `sys.path`, éliminer les manipulations relatives (`sys.path.append("..")`) et prévenir les blocages d'imports mutuels.
+3. **Structurer les espaces de noms avec `__init__.py` :** Distinguer l'API publique exposée (la vitrine) des imports internes directs entre modules d'un même paquet.
+4. **Adopter l'architecture industrielle `src-layout` :** Supprimer les faux positifs liés au répertoire courant et éliminer les risques de masquage de la bibliothèque standard (*name shadowing*).
+5. **Configurer un paquet selon les standards PEP 517/518/621 :** Rédiger un fichier `pyproject.toml`, comprendre le rôle du moteur de construction `setuptools` et des archives `wheel`.
+6. **Développer en mode éditable (`pip install -e ".[dev]"`) :** Lier dynamiquement son code à l'environnement pour tester en direct sans réinstallation.
+7. **Créer une interface en ligne de commande (CLI) :** Récupérer des arguments avec `sys.argv` et déclarer un point d'entrée exécutable dans le terminal.
+8. **Initialiser le socle officiel du projet :** Poser l'arborescence définitive de `PyArena`, certifier l'installation par un test de validation, configurer Git avec un tag de jalon sur `main` et basculer sur la branche d'intégration `dev`.
+
+---
+
+## Découpage Temporel (3h00)
+
+| Phase | Durée | Thématique abordée | Modalité |
+| :--- | :---: | :--- | :---: |
+| **Partie 0** | 10 min | Prérequis système sous Ubuntu / WSL | Pratique guidée |
+| **Partie 1** | 35 min | Isolation d'environnement (`venv`) & la variable `$PATH` | Cours & Exercice 1 |
+| **Partie 2** | 45 min | Modules, `sys.path`, le rôle de `__init__.py` & l'architecture `src/` | Cours & Exercice 2 |
+| **Pause** | 10 min | *Pause pédagogique* | - |
+| **Partie 3** | 40 min | Le format TOML, `pyproject.toml` & l'installation éditable (`-e`) | Cours & Exercice 3 |
+| **Partie 4** | 20 min | Points d'entrée console (CLI) & manipulation de `sys.argv` | Cours & Exercice 4 |
+| **Partie 5** | 20 min | Synthèse : Socle officiel de `PyArena`, test de validation et Git | Autonomie |
+
+---
+
+# Partie 0 : Prérequis Système sous Ubuntu / WSL (10 min)
+
+Sur les distributions Linux récentes (Ubuntu 24.04+, Debian 12+) et dans WSL 2, Python 3 est préinstallé pour les besoins du système d'exploitation. Cependant, les paquets nécessaires à la création d'environnements virtuels et à la gestion de paquets sont dissociés pour éviter les fausses manipulations.
+
+Ouvrez votre terminal et installez les paquets requis :
+
+```bash
+sudo apt update
+sudo apt install -y python3-venv python3-pip
+```
+
+Vérifiez la disponibilité des outils :
+```bash
+python3 --version
+python3 -m venv --help
+```
+Si le manuel d'aide du module `venv` s'affiche sans message d'erreur rouge, votre poste de travail est opérationnel.
+
+---
+
+> *Transition : Nos outils système sont prêts. Mais pourquoi ne doit-on surtout pas les utiliser pour y installer directement les bibliothèques de nos cours ? C'est ce que nous allons comprendre en ouvrant le capot du système.*
+
+---
+
+# Partie 1 : Le Python Système et les Environnements Virtuels (35 min)
+
+## 1.1 Pourquoi le Python système est sanctuarisé (PEP 668)
+
+Sur Linux et macOS, Python est une brique fondamentale du système d'exploitation. Les utilitaires réseau, les gestionnaires de paquets (`apt`) et les composants graphiques reposent sur des scripts Python système situés dans `/usr/lib/python3/`.
+
+### L'erreur historique : `sudo pip install ...`
+Exécuter la commande suivante est une faute grave :
+```bash
+# COMMANDE PROSCRITE : NE JAMAIS EXÉCUTER
+sudo pip install numpy
+```
+
+Cette commande écrase les bibliothèques internes de votre système avec des versions récupérées sur Internet. Les distributions modernes bloquent d'ailleurs cette action via la spécification **PEP 668** en renvoyant : `error: externally-managed-environment`.
+
+### Le conflit de dépendances entre projets
+
+* Votre projet d'optimisation numérique exige `scipy == 1.10.0`.
+* Votre projet d'apprentissage automatique exige `scipy >= 1.14.0`.
+
+Installer ces outils globalement rend les deux projets mutuellement incompatibles sur votre machine. **Chaque projet doit impérativement disposer de son propre environnement isolé.**
+
+---
+
+## 1.2 Variable d'Environnement et Variable `$PATH`
+
+Pour comprendre l'isolation sans recourir à des abstractions superflues, deux concepts système suffisent :
+
+### 1. Une variable d'environnement
+
+C'est un **pense-bête textuel** associé à votre session de terminal. Tout programme démarré depuis ce terminal peut lire les valeurs qui y sont inscrites.
+
+### 2. Le carnet d'adresses du terminal : `$PATH`
+Quand vous tapez une commande (`ls`, `git` ou `python3`), le système ne parcourt pas l'intégralité du disque dur. Il consulte la liste ordonnée des dossiers stockée dans la variable d'environnement **`$PATH`**.
+
+Affichez cette variable dans votre console :
+```bash
+echo $PATH
+```
+
+La sortie est une liste de répertoires séparés par des deux-points (`:`) :
+```text
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+```
+
+Quand vous écrivez `python3`, le système inspecte le premier dossier (`/usr/local/sbin`). S'il n'y trouve aucun fichier exécutable nommé `python3`, il interroge le second, puis le troisième. Dès qu'un binaire correspondant est localisé, il est exécuté et la recherche s'interrompt.
+
+La commande `which` permet d'identifier précisément le fichier sélectionné :
+```bash
+which python3
+```
+
+Le terminal répond `/usr/bin/python3` : c'est l'interpréteur Python officiel de la machine hôte.
+
+---
+
+## 1.3 Anatomie d'un Environnement Virtuel (`venv`)
+
+Un environnement virtuel n'est ni une machine virtuelle, ni un conteneur lourd. C'est simplement **un dossier local contenant des liens symboliques vers Python et un dossier dédié aux bibliothèques** :
+
+```text
+mon-projet/
+├── .venv/                          <-- Répertoire de l'environnement virtuel
+│   ├── pyvenv.cfg                  <-- Fichier texte de configuration
+│   ├── bin/                        <-- Exécutables locaux
+│   │   ├── python                  <-- Lien symbolique vers /usr/bin/python3
+│   │   ├── pip                     <-- Gestionnaire de paquets dédié
+│   │   └── activate                <-- Script Shell de bascule du $PATH
+│   └── lib/python3.11/
+│       └── site-packages/          <-- Répertoire où s'installent VOS bibliothèques
+```
+
+### Le rôle physique du script `activate`
+Quand vous exécutez `source .venv/bin/activate`, le script ne fait qu'une seule opération :  
+**Il insère le chemin absolu du dossier `.venv/bin` tout au début de la variable `$PATH`.**
+
+* **Avant activation :**  
+  `$PATH = /usr/local/bin:/usr/bin:/bin` $\rightarrow$ Le système exécute `/usr/bin/python3`.
+* **Après activation :**  
+  `$PATH = /home/user/mon-projet/.venv/bin:/usr/local/bin:/usr/bin:/bin` $\rightarrow$ Le système trouve en priorité l'exécutable local `.venv/bin/python`.
+
+---
+
+## 1.4 Exercice Guidé 1 : Création et Isolation d'un Environnement
+
+1. **Créer un répertoire de travail pour la séance et s'y positionner :**
+   ```bash
+   mkdir ~/tp-packaging && cd ~/tp-packaging
+   ```
+2. **Générer l'environnement virtuel local :**
+   ```bash
+   python3 -m venv .venv
+   ```
+   *(Le point initial rend le dossier caché sous Linux, évitant d'encombrer l'explorateur de fichiers).*
+3. **Activer l'environnement :**
+   ```bash
+   source .venv/bin/activate
+   ```
+   *Constat :* L'invite de commande affiche désormais le préfixe **`(.venv)`**.
+4. **Vérifier la priorité dans le carnet d'adresses :**
+   ```bash
+   which python
+   ```
+   Le terminal indique désormais `/home/.../tp-packaging/.venv/bin/python`.
+5. **Inspecter le fichier de configuration interne :**
+   ```bash
+   cat .venv/pyvenv.cfg
+   ```
+   *Observez la ligne :* `include-system-site-packages = false`. Elle garantit l'étanchéité absolue : aucune bibliothèque installée sur l'OS n'est visible à l'intérieur de cet environnement.
+6. **Vérifier l'absence de bibliothèques tierces :**
+   ```bash
+   pip list
+   ```
+   Seuls les outils d'installation de base (`pip`) sont présents.
+7. **Désactiver et réactiver l'environnement :**
+   ```bash
+   deactivate        # Quitte l'environnement
+   which python3     # Retourne au Python système (/usr/bin/python3)
+   source .venv/bin/activate # Réactive l'environnement local pour la suite
+   ```
+
+::: {.callout-important}
+### Règle d'Hygiène Git Fondamentale
+Le dossier `.venv` contient des milliers de fichiers générés pour votre machine locale.  
+**Il est formellement interdit de versionner `.venv` dans Git.**  
+Le motif `.venv/` doit figurer en première ligne de votre fichier `.gitignore`.
+:::
+
+---
+
+> *Transition : Notre bulle étanche est en place et notre terminal sait où chercher Python. Maintenant, quand nous écrivons du code, comment Python fait-il pour trouver et relier nos différents fichiers entre eux ?*
+
+---
+
+# Partie 2 : Modules, Paquets, `__init__.py` et l'Architecture `src/` (45 min)
+
+## 2.1 Modules, Paquets et Espaces de Noms
+
+* **Module :** Un fichier texte unique portant l'extension `.py` contenant du code Python (fonctions, constantes procédurales).
+* **Paquet (*Package*) :** Un répertoire physique contenant un ou plusieurs modules, ainsi qu'un fichier d'initialisation nommé **`__init__.py`**.
+* **Espace de noms (*Namespace*) :** Une boîte étiquetée. Si vous disposez d'une fonction `calculer()` dans `attaque.py` et d'une fonction `calculer()` dans `soin.py`, les paquets permettent de les distinguer sans collision d'identifiants :
+  ```python
+  from pyarena.attaque import calculer
+  from pyarena.soin import calculer
+  ```
+
+---
+
+## 2.2 Comment Python résout les imports : La liste `sys.path`
+
+Quand vous écrivez dans un script `import moteur`, l'interpréteur consulte séquentiellement une liste interne de dossiers stockée dans la variable **`sys.path`** :
+
+```text
+Ordre d'inspection de sys.path :
+1. Le répertoire contenant le script qui a été lancé au terminal.
+2. Les répertoires de la bibliothèque standard (/usr/lib/python3.11).
+3. Le répertoire des paquets tiers installés : .venv/lib/python3.11/site-packages/.
+```
+
+Si le module demandé n'est présent dans **aucun** de ces dossiers, l'exécution s'interrompt avec l'erreur :  
+`ModuleNotFoundError: No module named 'moteur'`.
+
+---
+
+## 2.3 Pourquoi `sys.path.append("..")` est une erreur de conception
+
+Face à une erreur d'importation, une mauvaise pratique fréquente consiste à manipuler manuellement cette liste :
+
+```python
+# CODE PROSCRIT : NE JAMAIS UTILISER
+import sys
+sys.path.append("..")  # "Ajoute le dossier parent"
+import moteur
+```
+
+### Analyse de l'échec en conditions réelles
+Considérons l'arborescence suivante :
+```text
+mon-projet/
+├── moteur.py
+└── analyses/
+    └── run.py        <-- Contient sys.path.append("..")
+```
+
+Le symbole relatif `".."` désigne le dossier parent **du répertoire d'exécution courant du terminal** :
+
+* Si vous exécutez `cd analyses && python run.py` :  
+  Le répertoire courant est `analyses/`. Son parent `..` correspond à `mon-projet/`. Le fichier `moteur.py` est trouvé : le script s'exécute.
+* Si vous exécutez `python analyses/run.py` depuis la racine `mon-projet/` :  
+  Le répertoire courant est `mon-projet/`. Son parent `..` devient votre dossier personnel `~` ! Le fichier `moteur.py` est introuvable : **le code plante avec `ModuleNotFoundError`.**
+
+Le comportement de votre code dépend de l'endroit exact où se trouvait l'utilisateur avant d'appuyer sur Entrée. C'est un code instable, impossible à intégrer dans un pipeline automatisé.
+
+---
+
+## 2.4 Le Rôle Précis de `__init__.py` : Vitrine Publique et Découplage
+
+Le fichier `__init__.py` s'exécute automatiquement dès que le dossier qui le contient est importé. Il remplit deux fonctions distinctes :
+
+### 1. Déclarer le paquet
+Sa présence indique formellement à Python : *« Ce répertoire doit être traité comme un paquet de modules importables »*.
+
+### 2. Agir comme une vitrine (*Re-export*)
+Considérons une arborescence procédurale avec plusieurs sous-dossiers :
+
+```text
+src/pyarena/
+├── __init__.py               <-- Vitrine générale du logiciel
+├── core/                     <-- Sous-paquet des règles
+│   ├── __init__.py           <-- Vitrine locale du dossier core/
+│   ├── combat.py             <-- Contient def calculer_degats(...)
+│   └── regles.py             <-- Contient def verifier_statut(...)
+```
+
+Sans vitrine, un script externe doit spécifier l'arborescence complète :
+```python
+from pyarena.core.combat import calculer_degats
+from pyarena.core.regles import verifier_statut
+```
+
+Grâce à `src/pyarena/core/__init__.py`, le sous-paquet expose directement ses outils majeurs :
+```python
+# src/pyarena/core/__init__.py
+from pyarena.core.combat import calculer_degats
+from pyarena.core.regles import verifier_statut
+
+__all__ = ["calculer_degats", "verifier_statut"]
+```
+
+Le fichier racine `src/pyarena/__init__.py` peut alors consolider l'API publique du logiciel :
+```python
+# src/pyarena/__init__.py
+from pyarena.core import calculer_degats, verifier_statut
+
+__version__ = "0.1.0"
+__all__ = ["calculer_degats", "verifier_statut", "__version__"]
+```
+
+Un utilisateur externe (script de simulation, notebook, test) importe alors les fonctions directement depuis la racine :
+```python
+from pyarena import calculer_degats, verifier_statut
+```
+
+### Règle stricte : Imports externes vs Imports internes
+* **Depuis l'extérieur du paquet :** On importe depuis la vitrine (`from pyarena import calculer_degats`).
+* **À l'intérieur des modules du paquet :** Dans `combat.py`, on importe **toujours directement depuis le module source voisin** :
+
+  ```python
+  # Dans src/pyarena/core/combat.py
+  from pyarena.core.regles import verifier_statut  # BONNE PRATIQUE
+  ```
+  On n'écrit jamais `from pyarena import verifier_statut` au sein de `combat.py`, car cela forcerait Python à initialiser la racine du paquet alors que ses composants sont en cours de chargement.
+
+---
+
+## 2.5 Les Dépendances Croisées : Le Piège de l'Import Mutuel
+
+Un import circulaire survient quand deux fichiers se demandent mutuellement leur définition dès la première ligne :
+
+* `fichier_a.py` commence par `import fichier_b`
+* `fichier_b.py` commence par `import fichier_a`
+
+Au chargement, Python suspend la lecture de `fichier_a` pour ouvrir `fichier_b`, qui lui-même tente de lire `fichier_a` encore incomplet. Le programme s'interrompt avec l'erreur :  
+`ImportError: cannot import name ... from partially initialized module`.
+
+### La règle d'organisation :
+Dans un paquet bien conçu, les dépendances vont toujours dans le même sens :
+quarto 
+* Un module de calcul ou de règles ne doit **jamais** importer le script qui l'appelle ou qui orchestre la partie.
+* Les fonctions utilitaires et les formules de base doivent être autonomes : elles reçoivent leurs données par des arguments en paramètres, sans aller piocher dans le reste du projet.
+
+---
+
+## 2.6 Pourquoi l'Architecture `src/` (*src-layout*) est Indispensable
+
+Considérons ces deux manières d'organiser un projet sur le disque :
+
+```text
+STRUCTURE NAÏVE ("Flat Layout")       STRUCTURE INDUSTRIELLE ("src-layout")
+(À PROSCRIRE)                         (OBLIGATOIRE EN PROJET)
+
+mon-projet/                           mon-projet/
+├── pyarena/                          ├── src/
+│   ├── __init__.py                   │   └── pyarena/
+│   └── combat.py                     │       ├── __init__.py
+└── scripts/                          │       └── combat.py
+    └── run.py                        └── scripts/
+                                          └── run.py
+```
+
+### Le piège de la structure naïve : L'illusion locale
+Dans la structure naïve de gauche, le dossier `pyarena/` est situé directement à la racine du projet.  
+Si vous ouvrez votre terminal dans `mon-projet/` et lancez un script Python :
+
+1. Python insère automatiquement le dossier courant (`mon-projet/`) en tête de `sys.path`.
+2. Il localise immédiatement le dossier `pyarena/` posé à côté de lui.
+3. L'instruction `import pyarena` réussit par pur opportunisme géographique.
+
+**Les deux défaillances majeures du Flat Layout :**
+
+* **Échec dès qu'on change de répertoire :** Si un script est placé dans un sous-dossier `scripts/run.py` et qu'un utilisateur tape `cd scripts && python run.py`, le dossier courant devient `scripts/`. Le dossier `pyarena` n'est plus visible sous ses yeux : le code plante immédiatement.
+* **Le risque critique de masquage (*Name Shadowing*) :** Si vous créez à la racine de votre projet un fichier nommé `random.py`, `math.py`, `test.py` ou un dossier nommé `types/`, Python chargera votre fichier local au lieu du module officiel du langage. Les bibliothèques tierces comme NumPy ou Requests s'effondrent alors mystérieusement avec des erreurs de type `AttributeError`.
+
+### La protection de la structure `src/`
+Dans la structure de droite, le code est encapsulé dans `src/pyarena/`.  
+À la racine de `mon-projet/`, le dossier `pyarena` n'existe pas directement sous les yeux de Python.  
+Tant que le projet n'est pas formellement installé dans l'environnement virtuel, toute tentative d'importation échoue. **La structure `src/` garantit qu'un code qui fonctionne sur votre poste fonctionnera de manière identique sur n'importe quel autre ordinateur.**
+
+---
+
+## 2.7 Exercice Guidé 2 : Constater l'Échec Géographique d'Importation
+
+Reproduisons le piège d'un import dépendant de l'emplacement du terminal.
+
+```text
+tp-packaging/                         <-- Votre terminal se trouve ICI
+└── test_import/
+    ├── service/
+    │   └── algebre.py                <-- Contient def carre(x)
+    └── execution/
+        └── lancer.py                 <-- Tente d'importer algebre.py
+```
+
+1. **Créer l'arborescence témoin :**
+   ```bash
+   mkdir -p test_import/service test_import/execution
+   ```
+2. **Créer le module de calcul dans `test_import/service/algebre.py` :**
+   ```python
+   # test_import/service/algebre.py
+   def carre(valeur: int) -> int:
+       return valeur ** 2
+   ```
+3. **Créer le script dans `test_import/execution/lancer.py` :**
+   ```python
+   # test_import/execution/lancer.py
+   from service.algebre import carre
+
+   print("Résultat :", carre(6))
+   ```
+4. **Exécuter le script depuis la racine du TP :**
+   ```bash
+   python test_import/execution/lancer.py
+   ```
+   **Sortie :**
+   ```text
+   ModuleNotFoundError: No module named 'service'
+   ```
+   *Explication :* Python a inspecté `test_import/execution/` (l'emplacement du script `lancer.py`). N'y trouvant aucun sous-dossier `service`, il a levé une exception.
+5. **Supprimer le dossier de test :**
+   ```bash
+   rm -rf test_import
+   ```
+
+---
+
+> *Transition : Nous avons constaté qu'un dossier de code isolé ne peut pas fonctionner de manière stable par de simples chemins relatifs. Pour que nos fichiers communiquent quel que soit l'endroit où se trouve le terminal, nous devons déclarer officiellement notre projet auprès de notre environnement virtuel via un fichier de configuration standardisé.*
+
+---
+
+# Partie 3 : Le Format TOML, `pyproject.toml` et l'Installation Éditable (40 min)
+
+## 3.1 Qu'est-ce que le Format TOML ?
+
+**TOML** (*Tom's Obvious, Minimal Language*) est un format de configuration textuel conçu pour être parfaitement lisible par un être humain et parsé sans ambiguïté par une machine.
+
+Sa syntaxe repose sur trois éléments :
+
+* Des paires clé-valeur : `nom = "pyarena"`
+* Des listes délimitées par des crochets : `outils = ["numpy", "scipy"]`
+* Des tables (sections) délimitées par des en-têtes : `[nom-de-section]`
+
+---
+
+## 3.2 Le Rôle de `pyproject.toml` : L'Acte de Naissance du Logiciel
+
+Un répertoire contenant des fichiers `.py` n'est qu'un ensemble de textes sur un disque.  
+Le fichier **`pyproject.toml`** (normes PEP 517 / 518 / 621) constitue **l'acte de naissance officiel et le cahier des charges** de votre paquet.
+
+Il répond de manière déclarative et statique à trois questions :
+
+1. **Qui est ce logiciel ?** (Nom, version, auteurs, licence).
+2. **De quoi a-t-il besoin pour s'exécuter ?** (Dépendances obligatoires et optionnelles).
+3. **Comment doit-on assembler le paquet ?** (Le moteur de construction).
+
+---
+
+## 3.3 Décorticage du Moteur de Construction : `setuptools` et `wheel`
+
+Dans tout fichier `pyproject.toml`, la première section déclare le moteur d'assemblage :
+
+```toml
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+```
+
+Ces termes correspondent aux rôles suivants :
+
+* **`setuptools` (L'assembleur / Le chef cuisinier) :** C'est le programme Python chargé d'analyser le dossier `src/`, de recenser les modules, de vérifier les dépendances et de construire le paquet final.
+* **`wheel` (Le carton d'emballage standardisé) :** En Python, un logiciel n'est pas distribué sous la forme d'un dossier en vrac. Il est conditionné sous la forme d'une archive compressée portant l'extension `.whl` (*wheel* signifie « roue », en référence au logo de Python).
+* **`build-backend` :** Indique à `pip` quel sous-module interne de `setuptools` doit être sollicité pour fabriquer l'archive.
+
+---
+
+## 3.4 Qu'est-ce que l'Installation Éditable (`pip install -e ".[dev]"`) ?
+
+Quand vous installez une bibliothèque externe avec `pip install numpy`, `pip` télécharge les fichiers et les copie physiquement dans le dossier `.venv/lib/python3.11/site-packages/`.
+
+Si vous appliquiez ce procédé à votre propre code avec `pip install .`, à chaque correction d'une ligne dans VS Code, il faudrait relancer `pip install .` pour que la modification soit répercutée.
+
+### Le mécanisme du drapeau `-e` (*Editable*)
+Lorsque vous vous placez à la racine de votre projet et que vous exécutez :
+```bash
+pip install -e ".[dev]"
+```
+`pip` ne copie **aucun fichier de code**.  
+Il crée dans votre dossier `site-packages` un fichier de liaison (un fichier `.pth`) qui enregistre le chemin absolu vers votre dossier `src/`. Il indique à l'environnement :  
+> *« Dès qu'un import concerne ce paquet, charge directement les fichiers situés dans `/home/.../mon-projet/src` ! »*
+
+### Décorticage de la commande `pip install -e ".[dev]"` :
+
+* **Le point `.`** : désigne le répertoire courant contenant `pyproject.toml`.
+* **L'option `-e`** : active le mode éditable (modifications prises en compte en direct sans réinstallation).
+* **Le sélecteur `[dev]`** : ordonne à `pip` d'installer les dépendances optionnelles de développement (`pytest`, `ruff`) déclarées dans la section `[project.optional-dependencies]`. Sans ce sélecteur, seuls les outils de base du logiciel (`numpy`, `requests`) sont installés.
+* **Les guillemets `".[dev]"`** : indispensables sous certains shells (notamment Zsh) pour éviter que les crochets ne soient interprétés comme des motifs d'expressions régulières.
+
+### Quand faut-il réexécuter `pip install -e ".[dev]"` ?
+
+* **Modification du code Python (`.py` ou `__init__.py`) :** Jamais. Les modifications sont actives instantanément.
+* **Modification de `pyproject.toml` :** Toujours. Si vous ajoutez une dépendance ou si vous déclarez une nouvelle commande console, vous devez relancer l'installation.
+
+---
+
+## 3.5 Exercice Guidé 3 : Assemblage et Installation d'un Paquet Minimal
+
+Construisons un paquet propre sous l'architecture `src-layout` :
+
+```text
+tp-packaging/                         <-- Racine du projet
+├── pyproject.toml                    <-- Acte de naissance du paquet
+├── README.md                         <-- Documentation minimale
+└── src/
+    └── mini_moteur/                  <-- Dossier du paquet
+        ├── __init__.py               <-- Vitrine du paquet
+        └── duel.py                   <-- Logique métier procédurale
+```
+
+1. **Créer l'arborescence professionnelle :**
+   ```bash
+   mkdir -p src/mini_moteur
+   ```
+2. **Créer le fichier de présentation `README.md` :**
+   ```bash
+   echo "# Démonstrateur de Packaging Moderne" > README.md
+   ```
+3. **Créer le module de calcul dans `src/mini_moteur/duel.py` :**
+   ```python
+   # src/mini_moteur/duel.py
+   def resoudre_frappe(attaque: int, armure: int) -> int:
+       """Calcule les dégâts infligés avec atténuation par l'armure."""
+       return max(1, attaque - (armure // 2))
+   ```
+4. **Créer la vitrine dans `src/mini_moteur/__init__.py` :**
+   ```python
+   # src/mini_moteur/__init__.py
+   from mini_moteur.duel import resoudre_frappe
+
+   __version__ = "0.1.0"
+   __all__ = ["resoudre_frappe", "__version__"]
+   ```
+5. **Rédiger le fichier `pyproject.toml` à la racine :**
+   ```toml
+   [build-system]
+   requires = ["setuptools>=68.0", "wheel"]
+   build-backend = "setuptools.build_meta"
+
+   [project]
+   name = "mini-moteur"
+   version = "0.1.0"
+   description = "Module de calcul de duel pour l'arène"
+   readme = "README.md"
+   requires-python = ">=3.10"
+   dependencies = []
+
+   [project.optional-dependencies]
+   dev = [
+       "pytest>=7.4.0",
+   ]
+
+   [tool.setuptools.packages.find]
+   where = ["src"]
+   ```
+6. **Lancer l'installation éditable dans le terminal :**
+   Vérifiez que votre invite affiche `(.venv)` et lancez :
+   ```bash
+   pip install -e ".[dev]"
+   ```
+   *Sortie attendue :* `Successfully installed mini-moteur-0.1.0`.
+7. **Preuve de l'importation universelle :**
+   Déplacez-vous dans votre dossier personnel (`cd ~`), hors du projet, et lancez :
+   ```bash
+   cd ~
+   python -c "import mini_moteur; print('Version active :', mini_moteur.__version__)"
+   python -c "from mini_moteur import resoudre_frappe; print('Dégâts calculés :', resoudre_frappe(40, 10))"
+   ```
+   *Résultat :* Le calcul s'exécute et affiche `Dégâts calculés : 35` ! Le paquet est universellement résolu par Python.
+8. **Preuve de la modification :**
+   Revenez dans votre dossier de travail :
+   ```bash
+   cd ~/tp-packaging
+   ```
+   Éditez `src/mini_moteur/duel.py` dans VS Code pour modifier le calcul :
+   ```python
+   def resoudre_frappe(attaque: int, armure: int) -> int:
+       print(">>> Calcul de combat en cours...")
+       return max(1, attaque - (armure // 2))
+   ```
+   Enregistrez (**Ctrl+S**) et relancez immédiatement dans la console :
+   ```bash
+   python -c "from mini_moteur import resoudre_frappe; resoudre_frappe(20, 4)"
+   ```
+   Le message s'affiche instantanément sans aucune réinstallation.
+
+---
+
+> *Transition : Notre bibliothèque fonctionne et s'importe de n'importe où. Mais comment permettre à un utilisateur d'interagir avec notre logiciel directement depuis son terminal, sans avoir à écrire une ligne de code Python ?*
+
+---
+
+# Partie 4 : Créer une Commande Terminal avec `sys.argv` (20 min)
+
+## 4.1 Récupérer les Arguments Utilisateur : `sys.argv`
+
+Quand vous lancez une commande dans votre terminal en écrivant :
+```bash
+python combat.py 50 15
+```
+Comment le programme peut-il récupérer les valeurs `50` et `15` ?
+
+L'interpréteur Python découpe la ligne de commande au niveau des espaces et stocke chaque terme dans une **liste de chaînes de caractères** accessible via le module standard `sys` : la variable **`sys.argv`** (*argument vector*) :
+
+```text
+Commande tapée : python combat.py 50 15
+
+Contenu de la liste interne :
+sys.argv = [ "combat.py" ,  "50"   ,  "15"   ]
+                Index 0      Index 1   Index 2
+```
+* `sys.argv[0]` contient toujours le nom du script appelé.
+* `sys.argv[1]` contient le premier argument fourni par l'utilisateur (sous forme de texte `str`).
+* `sys.argv[2]` contient le second argument.
+
+*Règle d'arithmétique :* Pour utiliser ces valeurs dans des calculs, vous devez impérativement convertir les chaînes de caractères en entiers via `int(sys.argv[1])`.
+
+---
+
+## 4.2 Déclarer un Point d'Entrée Console dans `pyproject.toml`
+
+Pour qu'une fonction Python devienne une commande utilisable directement dans le terminal (comme `git` ou `pip`), on déclare une section **`[project.scripts]`** dans `pyproject.toml` :
+
+```toml
+[project.scripts]
+nom_de_la_commande = "nom_du_paquet.nom_du_module:nom_de_la_fonction"
+```
+
+Lors de l'installation, `pip` lit cette instruction et crée un mini-exécutable binaire dans `.venv/bin/nom_de_la_commande`. Puisque `.venv/bin` se trouve en tête de votre `$PATH`, la commande devient instantanément disponible dans votre console.
+
+---
+
+## 4.3 Exercice Guidé 4 : Création de la Commande `arene-cli`
+
+1. **Créer le module exécutable `src/mini_moteur/interface.py` :**
+   ```python
+   # src/mini_moteur/interface.py
+   import sys
+   from mini_moteur.duel import resoudre_frappe
+
+   def demarrer():
+       print("=== Simulateur de Duel en Ligne de Commande ===")
+       
+       # Vérification du nombre d'arguments passés
+       if len(sys.argv) < 3:
+           print("Erreur : arguments manquants.")
+           print("Usage  : arene-cli <attaque> <armure>")
+           print("Exemple: arene-cli 50 20")
+           sys.exit(1)
+           
+       # Conversion des arguments textes en entiers
+       valeur_attaque = int(sys.argv[1])
+       valeur_armure = int(sys.argv[2])
+       
+       degats = resoudre_frappe(valeur_attaque, valeur_armure)
+       print(f"Bilan : Attaque={valeur_attaque} vs Armure={valeur_armure} -> Dégâts nets = {degats}")
+   ```
+2. **Déclarer la commande dans `pyproject.toml` :**
+   Ouvrez `pyproject.toml` et ajoutez le bloc `[project.scripts]` à la fin :
+   ```toml
+   [project.scripts]
+   arene-cli = "mini_moteur.interface:demarrer"
+   ```
+3. **Régénérer les points d'entrée de l'environnement :**
+   Le fichier `pyproject.toml` ayant été modifié, il faut réexécuter l'installation :
+   ```bash
+   pip install -e ".[dev]"
+   ```
+4. **Vérifier l'existence physique du binaire :**
+   ```bash
+   which arene-cli
+   ```
+   Le système confirme l'emplacement : `/home/.../tp-packaging/.venv/bin/arene-cli`.
+5. **Tester la commande native dans le terminal :**
+   * Test de la gestion d'erreur (aucun argument) :
+     ```bash
+     arene-cli
+     ```
+   * Test d'un calcul opérationnel :
+     ```bash
+     arene-cli 60 24
+     ```
+     *Sortie attendue :* `Bilan : Attaque=60 vs Armure=24 -> Dégâts nets = 48`.
+
+---
+
+> *Transition : Tous les concepts fondamentaux sont désormais éprouvés. Nous allons maintenant mobiliser l'ensemble de ces compétences pour initialiser le dépôt officiel du projet PyArena en respectant scrupuleusement le cahier des charges et le protocole de branches Git.*
+
+---
+
+# Partie 5 : Exercice de Synthèse — Le Squelette Officiel de `PyArena` & Publication Git (20 min)
+
+*Cet exercice permet de mettre en place le projet semestriel en groupe. Vous initialisez l'arborescence complète, configurez le packaging professionnel et publiez la fondation sur GitHub selon les règles de l'art.*
+
+```text
+ARBORESCENCE OFFICIELLE DU PROJET PYARENA :
+
+pyarena-officiel/
+├── pyproject.toml
+├── README.md
+├── .gitignore
+├── .venv/                         <-- Non versionné
+├── src/
+│   └── pyarena/
+│       ├── __init__.py            <-- Vitrine générale
+│       ├── cli.py                 <-- Point d'entrée console
+│       ├── core/                  <-- Règles du jeu et combattants (prochain TP)
+│       │   └── __init__.py
+│       ├── simulation/            <-- Moteur stochastique et tournois
+│       │   └── __init__.py
+│       └── utils/                 <-- Gestion du cache et des données
+│           └── __init__.py
+├── tests/
+│   └── test_init.py               <-- Test de validation du packaging (smoke test)
+└── data/
+    └── cache/                     <-- Données brutes (ignoré par Git)
+```
+
+### À quoi sert le fichier `tests/test_init.py` ?
+C'est un **test de validation initial (*smoke test*)**. Il ne teste pas encore la logique métier des combats (qui sera écrite lors des prochains TPs), mais certifie immédiatement que :
+
+1. Le paquet `pyarena` est bien installé et reconnu dans l'environnement virtuel.
+2. La variable `__version__` est lisible depuis la racine du paquet sans erreur d'importation.
+
+### Étape 1 : Initialisation de l'Espace de Travail
+
+1. Créez le répertoire officiel du projet et placez-vous dedans :
+   ```bash
+   mkdir ~/pyarena-officiel && cd ~/pyarena-officiel
+   git init
+   ```
+2. Créez l'environnement virtuel local et activez-le :
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+3. Rédigez le fichier `.gitignore` à la racine :
+   ```text
+   # Environnement virtuel local (JAMAIS sur Git)
+   .venv/
+
+   # Caches bytecode Python
+   __pycache__/
+   *.py[cod]
+
+   # Artefacts de distribution et packaging
+   *.egg-info/
+   dist/
+   build/
+
+   # Caches d'outils de test
+   .pytest_cache/
+   .coverage
+
+   # Caches de données et logs du projet
+   data/cache/*
+   !data/cache/.gitkeep
+   *.log
+   .DS_Store
+   ```
+4. Créez l'arborescence complète des dossiers avec leurs fichiers d'accroche :
+   ```bash
+   mkdir -p src/pyarena/core src/pyarena/simulation src/pyarena/utils tests data/cache
+   touch data/cache/.gitkeep
+   touch src/pyarena/core/__init__.py
+   touch src/pyarena/simulation/__init__.py
+   touch src/pyarena/utils/__init__.py
+   ```
+
+### Étape 2 : Implémentation du Socle Logiciel
+
+1. Créez le fichier `src/pyarena/__init__.py` :
+   ```python
+   """Package officiel de simulation stochastique PyArena."""
+
+   __version__ = "0.1.0"
+   __all__ = ["__version__"]
+   ```
+2. Créez le point d'entrée CLI dans `src/pyarena/cli.py` :
+   ```python
+   # src/pyarena/cli.py
+   import sys
+   from pyarena import __version__
+
+   def main():
+       if len(sys.argv) > 1 and sys.argv[1] == "--version":
+           print(f"PyArena version {__version__}")
+       else:
+           print("PyArena : Moteur opérationnel. Utilisez '--version' pour vérifier la version.")
+   ```
+3. Créez le test de validation initiale dans `tests/test_init.py` :
+   ```python
+   # tests/test_init.py
+   from pyarena import __version__
+
+   def test_package_installe_et_version():
+       """Vérifie que pyarena est importable et expose sa version."""
+       assert __version__ == "0.1.0"
+   ```
+4. Créez le fichier de présentation `README.md` :
+   ```bash
+   echo "# PyArena - Moteur de Combat d'Arène Stochastique" > README.md
+   ```
+5. Rédigez le fichier `pyproject.toml` de référence :
+   ```toml
+   [build-system]
+   requires = ["setuptools>=68.0", "wheel"]
+   build-backend = "setuptools.build_meta"
+
+   [project]
+   name = "pyarena"
+   version = "0.1.0"
+   description = "Moteur de simulation stochastique pour combats d'arènes"
+   readme = "README.md"
+   requires-python = ">=3.10"
+   authors = [
+       { name = "", email = "" }
+   ]
+   classifiers = [
+       "Programming Language :: Python :: 3",
+       "Operating System :: OS Independent",
+   ]
+   dependencies = [
+       "numpy>=1.24.0",
+       "requests>=2.31.0",
+   ]
+
+   [project.optional-dependencies]
+   dev = [
+       "pytest>=7.4.0",
+       "pytest-cov>=4.1.0",
+       "ruff>=0.1.0",
+   ]
+
+   [project.scripts]
+   pyarena = "pyarena.cli:main"
+
+   [tool.setuptools.packages.find]
+   where = ["src"]
+   ```
+
+### Étape 3 : Installation et Validation des Outils
+
+1. Installez le paquet en mode éditable avec ses dépendances de développement :
+   ```bash
+   pip install -e ".[dev]"
+   ```
+2. Testez la commande console native :
+   ```bash
+   pyarena --version
+   ```
+   *Sortie attendue :* `PyArena version 0.1.0`.
+3. Lancez la suite de tests pour certifier l'environnement :
+   ```bash
+   pytest
+   ```
+   *Résultat :* `1 passed in 0.02s` ! Le paquet est certifié opérationnel.
+
+### Étape 4 : Scellement Git, Tag et Protocole de Branches
+
+::: {.callout-note}
+### Protocole d'Initialisation sur GitHub
+On ne peut pas créer de branche `dev` ni verrouiller une branche `main` qui n'existe pas encore sur le serveur distant.  
+**L'Étudiant A est exceptionnellement autorisé à pousser directement sur `main` pour ce tout premier commit de fondation.**
+:::
+
+1. **L'Étudiant A** réalise le commit initial sur sa machine locale :
+   ```bash
+   git add .
+   git commit -m "chore: initialisation de l'arborescence officielle et pyproject.toml"
+   ```
+2. **L'Étudiant A** pose le premier tag officiel de jalon (SemVer) :
+   ```bash
+   git tag -a v0.1.0 -m "Release v0.1.0 : Squelette officiel certifie"
+   ```
+3. **L'Étudiant A** lie le dépôt distant GitHub et pousse la branche `main` avec son tag :
+   ```bash
+   git remote add origin git@github.com:<organisation-ou-pseudo>/pyarena.git
+   git push -u origin main --tags
+   ```
+4. **Verrouillage immédiat sur GitHub :**  
+   L'Étudiant A se rend sur GitHub $\rightarrow$ **Settings** $\rightarrow$ **Branches** $\rightarrow$ Active la protection sur `main` (*Require a pull request before merging*).
+5. **Création et publication de la branche `dev` :**  
+   L'Étudiant A crée la branche d'intégration collective et la publie :
+   ```bash
+   git switch -c dev
+   git push -u origin dev
+   ```
+6. **L'Étudiant B** clone le projet et se positionne directement sur `dev` :
+   ```bash
+   git clone git@github.com:<organisation-ou-pseudo>/pyarena.git
+   cd pyarena
+   git switch dev
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -e ".[dev]"
+   pytest
+   ```
+
+L'ensemble de votre infrastructure logicielle est en place et certifiée par les tests. Lors de la prochaine séance, nous pourrons directement concevoir les classes du modèle métier (**Programmation Orientée Objet**) au sein d'une structure logicielle éprouvée.
