@@ -1,0 +1,302 @@
+---
+title: "Annexe Technique : Spécification Contractuelle de l'API Publique"
+subtitle: "Contrats d'Interface, Signatures et Invariants du Projet PyArena (HAX712X)"
+author: "Bensaid Bilel"
+date: "28 Septembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire des Shécifications"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# 1. Philosophie du Contrat d'Interface
+
+En ingénierie logicielle comme dans les bibliothèques scientifiques modernes (telles que `scikit-learn`, `SciPy` ou `PyTorch`), une spécification stricte de l'API publique n'est pas un carcan : c'est la garantie fondamentale d'interopérabilité, de testabilité et de modularité.
+
+::: {.callout-note}
+### Ce qui est contractel vs Ce qui est libre
+* **Contractuel (Sanctuarisé) :** Les noms de modules, noms de classes, signatures de fonctions, propriétés d'accès (`@property`), exceptions levées et clés de dictionnaires documentés ci-dessous. Les bancs de tests automatisés (CI GitHub Actions et tests d'évaluation) reposent **exclusivement** sur ces interfaces.
+
+* **Libre (Votre valeur ajoutée) :** L'algorithmique interne, le découpage en fonctions auxiliaires privées (`_nom_methode`), la gestion fine du cache, le choix des bibliothèques de calcul parallèle (`joblib` ou `multiprocessing`), l'architecture de vos extensions et l'ensemble de votre tableau de bord Streamlit.
+:::
+
+---
+
+# 2. Module des Exceptions : `pyarena.core.exceptions`
+
+Toutes les exceptions métier de l'application dérivent d'une classe racine unique.
+
+```python
+class PyArenaException(Exception):
+    """Exception racine du projet PyArena."""
+    pass
+
+class FighterFaintedError(PyArenaException):
+    """Levée lorsqu'une entité K.-O. *hp == 0) tente d'agir ou de subir une action invalide."""
+    pass
+
+class InvalidStatError(PyArenaException):
+    """Levée lorsqu'une statistique de base ou recalculée est strictement négative ou incohérente."""
+    pass
+
+class DataFetchError(PyArenaException):
+    """Levée si l'API distante est injoignable ET qu'aucun cache local n'existe sur le disque."""
+    pass
+```
+
+---
+
+# 3. Modèles de Données : `pyarena.core.models`
+
+### 3.1 Classe Abstraite `BaseFighter`
+
+Classe de base non instanciable (`abc.ABC`) formalisant le contrat comportemental d'un combattant.
+
+
+```python
+from abc import ABC, abstractmethod
+
+class BaseFighter(ABC):
+    @property
+    @abstractmethod
+    def id(self) -> int:
+        """Identifiant numérique officiel PokéAPI."""
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Nom du combattant."""
+        pass
+
+    @property
+    @abstractmethod
+    def hp(self) -> int:
+        """Points de vie courants."""
+        pass
+
+    @hp.setter
+    @abstractmethod
+    def hp(self, value: int) -> None:
+        """Fixe les points de vie avec bornage strict [0, max_hp]."""
+        pass
+
+    @property
+    @abstractmethod
+    def max_hp(self) -> int:
+        """Points de vie maximaux calculés au niveau 50."""
+        pass
+
+    @property
+    @abstractmethod
+    def attack(self) -> int:
+        """Statistique d'attaque effective."""
+        pass
+
+    @property
+    @abstractmethod
+    def defense(self) -> int:
+        """Statistique de défense effective."""
+        pass
+
+    @property
+    @abstractmethod
+    def speed(self) -> int:
+        """Statistique de vitesse effective."""
+        pass
+
+    @property
+    @abstractmethod
+    def type_1(self) -> str:
+        """Type élémentaire principal (ex: 'Feu', 'Eau', 'Plante', etc.)."""
+        pass
+
+    @property
+    @abstractmethod
+    def type_2(self) -> str | None:
+        """Second type élémentaire éventuel, ou None si mono-type."""
+        pass
+
+    @abstractmethod
+    def take_damage(self, amount: int) -> None:
+        """
+        Décrémente les points de vie de la valeur indiquée.
+        Ne peut jamais laisser hp sous 0.
+        Lève FighterFaintedError si le combattant est déjà K.-O. *hp == 0) avant l'appel.
+        """
+        pass
+
+    @abstractmethod
+    def is_alive(self) -> bool:
+        """Retourne True si hp > 0, False sinon."""
+        pass
+
+    @abstractmethod
+    def reset_stats(self) -> None:
+        """Restaure les points de vie à leur valeur maximale (hp = max_hp)."""
+        pass
+
+```
+
+### 3.2 Classe Concrète `Fighter`
+
+Hérite de `BaseFighter`. Son constructeur initialise les attributs et calcule les caractéristiques normalisées au **Niveau 50** selon le cahier des charges :
+
+$$ \text{max\_hp} = \text{hp\_base} + 60, \quad \text{attack} = \text{attack\_base} + 5$$
+$$ \text{defense} = \text{defense\_base} + 5, \quad \text{speed} = \text{speed\_base} + 5$$
+
+```python
+class Fighter(BaseFighter):
+    def __init__(
+        self,
+        id: int,
+        name: str,
+        type_1: str,
+        type_2: str | None,
+        hp_base: int,
+        attack_base: int,
+        defense_base: int,
+        speed_base: int,
+    ) -> None:
+        """
+        Initialise un combattant et calcule ses statistiques au niveau 50.
+        Lève InvalidStatError si une statistique de base est <= 0.
+        """
+        ...
+```
+
+* **Méthodes shéciales requises :**
+
+  * `__repr__(self) -> str` : Représentation non ambigue pour le débogage, ex : `Fighter(id=25, name='Pikachu', hp=95/95)`.
+  * `__str__(self) -> str` : Affichage lisible pour l'utilisateur, ex : `Pikachu (Électrik) - PV: 95/95` (valeur et maximum).
+  * `__eq__(self, other: object) -> bool` : Egalité basée sur la parité de l'attribut `id` (et du type de l'instance).
+
+### 3.3 Structure de Données `BattleResult`
+
+Structure immuable consignant le bilan d'un affrontement singulier.
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class BattleResult:
+    winner: BaseFighter        # Instance du combattant vainqueur
+    loser: BaseFighter         # Instance du combattant vaincu
+    turns: int                # Nombre total de tours de jeu écoulés jusqu'au K.-O.
+    remaining_hp: int          # Points de vie résiduels du vainqueur
+```
+
+---
+
+# 4. Moteur de Combat : `pyarena.core.engine`
+
+Le moteur déterministe orchestre la confrontation tour par tour entre deux entités selon la séquence formalisée : initiative, calcul des dégâts avec multiplicateur élémentaire et facteur d'aléa, mise à jour des points de vie, vérification du K.-O.
+
+```python
+def simulate_battle(
+    f1: BaseFighter, 
+    f2: BaseFighter, 
+    seed: int | None = None
+) -> BattleResult:
+    """
+    Exécute un affrontement complet jusqu'au K.-O. de l'un des participants.
+    
+    Paramètres :
+-       f1 : Premier combattant.
+-       f2 : Second combattant.
+-       seed : Entier optionnel garantissant la reproductibilité stricte du match
+              (gestion des tirages d'initiative en cas d'égalité, d'aléa U et de critique K).
+              
+    Retourne :
+        Une instance de BattleResult.
+    """
+    ...
+```
+
+---
+
+# 5. Pipeline de Données : `pyarena.io
+
+#
+5.1 Client API avec Cache Disque : `pyarena.io.fetcher`
+
+```python
+from pathlib import Path
+
+class DataFetcher:
+    def __init__(self, cache_dir: str | Path = "data/cache") -> None:
+        """Configure le gestionnaire d'ingestion avec le dossier de stockage local."""
+        ...
+
+    def get_pokemon(self, pokemon_id: int) -> dict:
+        """
+        Récupère le dictionnaire JSON décrivant la créature.
+        Stratégie :
+          1. Si 'data/cache/{pokemon_id}.json' existe sur le disque, charger le fichier.
+          2. Sinon, interroger l'API PokéAPI, enregistrer la réponse dans le cache puis la renvoyer.
+          3. En cas d'échec réseau sans cache disponible, lever DataFetchError.
+        """
+        ...
+```
+
+### 5.2 Chargement des Données Statiques : `pyarena.io.loader`
+
+```python
+from pathlib import Path
+import pandas as pd
+
+def load_type_matrix(filepath: str | Path = "data/types.csv") -> pd.DataFrame:
+    """Charge et retourne la matrice des coefficients élémentaires multiplicateurs."""
+    ...
+
+def load_arenas(filepath: str | Path = "data/arenes_occitanie.geojson") -> dict:
+    """Charge et retourne les géométries et métadonnées des arènes régionales."""
+    ...
+```
+
+---
+
+# 6. Simulateur Stochastique : `pyarena.simulation.monte_carlo`
+
+Lors de la distribution des simulations sur plusieurs coeurs, le dictionnaire de synthèse doit respecter formellement les noms de clés suivants pour être interopérable avec les scripts d'évaluation.
+
+```python
+def run_monte_carlo(
+    f1: BaseFighter, 
+    f2: BaseFighter, 
+    n_simulations: int = 5000, 
+    n_jobs: int = -1
+) -> dict:
+    """
+    Simule n_simulations duels entre f1 et f2 via un pool parallèle (joblib ou multiprocessing).
+    
+    Paramètres :
+        f1, f2 : Combattants engagés.
+        n_simulations : Nombre d'itérations indépendantes définies par le user (defaut : 5000).
+        n_jobs : Nombre de cœurs alloués (-1 pour tous les coeurs disponibles).
+        
+    Retourne un dictionnaire contenant STRICTEMENT les clés suivantes :
+        - "winrate"     : float compris dans [0.0, 1.0], estimation ponctuelle du winrate de f1.
+        - "ci_95"       : tuple[float, float], intervalle de confiance asymptotique à 95 %.
+        - "turns_mean"  : float, durée moyenne des combats (nombre de tours).
+        - "turns_median": float, médiane du nombre de tours.
+        - "turns_std"   : float, écart-type empirique du nombre de tours.
+    """
+    ...
+```
+
+---
+
+# 7. Vos Degrés de Liberté
+
+Ces mesures n'imposent jamais le déroulement ligne à ligne de vos algorithmes. Chaque equipe conserve une liberté architecturale totale sur :
+
+1. **L'implémentation de la boucle d'affrontement :** La manière dont vous séparez les phases de dêgâts, l'aléa ou les affichages texte dans `engine.py`.
+2. **Le partitionnement parallèle :** Utilisation de `joblib.Parallel` avec `delayed` ou de `multiprocessing.Pool.map_async`, gestion des graines pour chaque worker (`numpy.random.SeedSequence`).
+3. **La conception de vos extensions (1 à 10) :** Vous êtes libres de créer les sous-classes, décorateurs ou modules auxiliaires sous `src/pyarena/extensions/` que vous jugez les plus élégants.
+4. **l'expérience utilisateur du Dashboard Streamlit :** Choix des composants graphiques, organisation spatiale des graphiques Plotly, pop-ups Folium et mise en cache avec `@st.cache_data`.
