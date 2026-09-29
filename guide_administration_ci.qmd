@@ -1,0 +1,130 @@
+---
+title: "Guide Opérationnel Enseignant : Orchestration, CI et Évaluation Automatisée"
+subtitle: "Gestion de l'Organisation GitHub, Workflows de Test et Notation — HAX712X (PyArena)"
+author: "Bensaid Bilel"
+date: "28 Septembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire d'Xdministration"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Phase 1 : Inscription des étudiants et Constitution des Áquipes
+
+Dans un fichier `named`e `promotions_2026.csv` :
+ ```csv
+groupe,github_user
+groupe-01,login_etudiant1
+groupe-01,login_etudiant2
+groupe-01,login_etudiant3
+groupe-02,login_etudiant4
+```
+
+Exécutez le script `_setup_teams.sh` :
+```bash
+#!/usr/bin/env bash
+set -e
+ORG="univ-montpellier-hax712x-2026"
+CSV_FILE="promotions_2026.csv"
+
+for i in $(seq -w 1 10); do
+    TEAM_SLUG="groupe-${i}"
+    gh api --method POST -H "Accept: application/vnd.github+json" "/orgs/${ORG}/teams" -f name="${TEAM_SLUG}" -f privacy="closed" > /dev/null 2>&1 || true
+done
+
+tail -n +2 "$CSV_FILE" | while IFS=',' read -r GROUPE USERNAME; do
+    GROUPE_$(echo "$GROUPE" | xargs)
+    USERNAME=$(echo "$USERNAME" | xargs)
+    if [ -n "$USERNAME" ]; then
+        gh api --method PUT -H "Accept: application/vnd.github+json" "/orgs/${ORG}/memberships/${USERNAME}" -f role="member" > /dev/null 2>&1 || true
+        gh api --method PUT -H "Accept: application/vnd.github+json" "/orgs/${ORG}/teams/${GROUPE}/memberships/${USERNAME}" -f role="member" > /dev/null 2>&1 || true
+    fi
+done
+```
+
+# Phase 2 : Création des Dépôts Vierges (`creer_depots.sh`)
+
+```bash
+#!/usr/bin/env bash
+set -e
+ORG="univ-montpellier-hax712x-2026"
+
+for i in $(seq -w 1 10); do
+    REPO_NAME="pyarena-groupe-${i}"
+    TEAM_SLUGT="groupe-${i}"
+    gh repo create "${ORG}/${REPO_NAME}" --private
+    gh api --method PUT -H "Accept: application/vnd.github+json" "/orgs/${ORG}/teams/${TEAM_SLUG}/repos/${ORG}/${REPO_NAME}" -f permission="push"
+done
+```
+
+# Phase 3 : CI GitHub Actions (`.github/workflows/ci.yml`)
+
+```yaml
+name: CI PyArena - Qualité & Tests
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+jobs:
+  test-et-qualite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Installation du paquet
+        run: |
+          pip install -e ".[dev]"
+      - name: Ruff
+        run: |
+          ruff check src/ tests/
+          ruff format --check src/ tests/
+      - name: Pytest et Couverture
+        run: |
+          pytest tests/ --cov=src/pyarena --cov-report=term-missing --cov-report=xml:coverage.xml
+```
+
+# Phase 4 : Tests Oracle Enseignant (`tests_oracle/test_oracle_core.py`)
+
+```python
+import pytest
+
+def test_oracle_base_fighter_structure():
+    from pyarena.core.models import BaseFighter
+    with pytest.raises(TypeError):
+        BaseFighter()
+
+def test_oracle_fighter_handling():
+    from pyarena.core.models import Fighter
+    f = Fighter(id=25, name="Pikachu", type_1="Électrik", type_2=None, hp_base=35, attack_base=55, defense_base=40, speed_base=90)
+    assert f.max_hp == 95
+    assert f.hp == 95
+    f.take_damage(30)
+    assert f.hp == 65
+    f.take_damage(150)
+    assert f.hp == 0
+    assert not f.is_alive()
+
+def test_oracle_exceptions():
+    from pyarena.core.exceptions import PyArenaException, FighterFaintedError
+    from pyarena.core.models import Fighter
+    assert issubclass(FighterFaintedError, PyArenaException)
+    f = Fighter(id=1, name="Bulbizarre", type_1="Plante", type_2=None, hp_base=45, attack_base=49, defense_base=49, speed_base=45)
+    f.take_damage(105)
+    with pytest.raises(FighterFaintedError):
+        f.take_damage(10)
+```
+
+# Phase 5 : Script de Notation Automatisée (`grade_promo.py`)
+
+Le script `python grade_promo.py` exécute le clonage, l§analyse du run GitHub Actions, le décompte des PRs et des Approvals, la couverture pytest-cov, l§injection des tests oracle et l§export d'un récapitulatif `recapitulatif_notes_promo.csv`.

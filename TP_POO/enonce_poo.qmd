@@ -1,0 +1,1291 @@
+
+---
+title: "Cours-TP : Programmation Orientée Objet & Conception Logicielle Robuste"
+subtitle: "Moteur de Combat Z-Arena : Du Typage Statique aux Classes Abstraites (3h00)"
+author: "Bensaid Bilel"
+date: "02 Octobre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire des Spécifications"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Démarche Pédagogique
+
+Dans les cursus scientifiques, la programmation est souvent abordée sous un angle purement **procédural** : un script linéaire exécuté séquentiellement, manipulant des dictionnaires ouverts (`goku = {"hp": 100, "ki": 50}`).
+
+Si ce style convient à de courts scripts d'exploration, il s'effondre dès que l'on manipule un système multi-agents ou un simulateur :
+
+* **Données sans géométrie garantie :** un dictionnaire peut recevoir n'importe quelle clé parasite ou en perdre une sans alerte (`goku["force"]` au lieu de `goku["power"]`).
+* **Absence de protection des invariants :** rien n'interdit d'assigner des points de vie négatifs ($\text{hp} = -500$) ou une jauge de Ki supérieure à son maximum théorique.
+* **Dispersion destructrice :** l'état interne d'un combattant est découplé des fonctions qui appliquent les règles du jeu (attaquer, encaisser, se transformer).
+
+La **Programmation Orientée Objet (POO)** répond à cette exigence d'ingénierie logicielle : elle permet de **lier indissociablement un état interne protégé aux algorithmes qui le manipulent**, tout en formalisant des contrats d'interface stricts.
+
+---
+
+## Découpage Temporel & Pédagogie de l'Échafaudage (3h00)
+
+Pour vous amener progressivement vers l'autonomie requise par le projet, les exercices suivent un principe de **scaffolding dégressif** :
+
+| Phase | Durée | Thématique abordée | Degré d'autonomie |
+| --- | --- | --- | --- |
+| **Partie 0** | 15 min | Architecture `src-layout` & Paquet `zarena` | Manipulation guidée |
+| **Partie 1** | 25 min | Typage Statique (PEP 484/604) & Linter `ruff` | Cours & Exercice 1 |
+| **Partie 2** | 35 min | Classes, Instances, rôle mémoire de `self` & `raise` | **Guidage fort** (Squelette fourni) |
+| **Partie 3** | 30 min | Encapsulation, Attributs Protégés (`_attr`) & `@property` | **Guidage fort** (Squelette fourni) |
+| **Partie 4** | 30 min | L'Héritage Classique : Factorisation, `super()` & Surcharge | **Semi-autonomie** (Classe fille sans squelette) |
+| **Partie 5** | 25 min | Notion d'Interface & Classes Abstraites (`abc.ABC`) | **Autonomie complète** (Approche TDD) |
+| **Partie 6** | 20 min | Méthodes Spéciales (*Dunders*) : Intégration Native | **Autonomie complète** (Approche TDD) |
+| **Synthèse** | - | **Devoir Maison Guidé (Hors séance) :** Projet PyArena | En équipe sur Git |
+
+---
+
+# Partie 0 : Architecture & Initialisation du Paquet `zarena` (15 min)
+
+Tout code modulaire s'organise selon l'architecture standard `src-layout` avec un fichier déclaratif `pyproject.toml`. Nous initialisons le paquet **`zarena`**, notre moteur d'arène de combat DBZ.
+
+### 1. Créer l'arborescence de travail
+
+```bash
+mkdir -p ~/tp-exercices/src/zarena
+cd ~/tp-exercices
+
+```
+
+### 2. Créer l'environnement virtuel et l'activer
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+
+```
+
+### 3. Rédiger le fichier `pyproject.toml`
+
+À la racine de `~/tp-exercices/`, créez le fichier `pyproject.toml` :
+
+```toml
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zarena"
+version = "0.1.0"
+description = "Moteur de simulation d'arène de combat Dragon Ball Z"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+```
+
+### 4. Déclarer le paquet
+
+Créez le fichier d'initialisation `src/zarena/__init__.py` :
+
+```python
+"""Moteur de combat Z-Arena (Support pédagogique HAX712X)."""
+
+__version__ = "0.1.0"
+__all__ = ["__version__"]
+
+```
+
+### 5. Installer en mode éditable avec les outils de développement
+
+```bash
+pip install -e ".[dev]"
+
+```
+
+---
+
+> *Transition : Avant d'écrire nos premiers guerriers, posons les règles du dialogue entre le développeur et la machine : le typage statique et l'audit automatique avec Ruff.*
+
+---
+
+# Partie 1 : Typage Statique & Analyse de Code (Ruff) en POO (25 min)
+
+## 1.1 Motivation DBZ : Pourquoi typer en Orienté Objet ?
+
+Considérons une fonction de calcul de dégâts non typée :
+
+```python
+def lancer_kamehameha(attaquant, cible, multiplicateur):
+    return (attaquant.ki * multiplicateur) - cible.defense
+
+```
+
+En lisant ce code :
+
+* `cible` est-il un combattant, une chaîne de caractères ou un entier ?
+* Que se passe-t-il si un développeur passe `multiplicateur = "x2"` au lieu de `2.0` ? Le calcul explose au milieu du combat avec un `TypeError`.
+
+En POO, **la signature d'une méthode est un contrat formel**. Typer ses arguments explicite immédiatement les types attendus et permet aux outils d'analyse statique de bloquer les bugs en amont de l'exécution.
+
+---
+
+## 1.2 La Syntaxe Moderne du Typage (PEP 484 & PEP 604)
+
+Depuis Python 3.10 :
+
+* **Scalaires :** `nom: str`, `hp: int`, `ratio: float`, `est_actif: bool`.
+* **Valeur par défaut :** `def recharger(self, gain: int = 20) -> None:`.
+* **Absence de retour :** `-> None` indique une modification interne par effet de bord.
+* **Union de types moderne (PEP 604) :** On utilise `|` au lieu de `Optional` :
+```python
+self.transformation_active: str | None = None
+
+```
+
+
+* **Comparaison universelle :** Dans `__eq__(self, other: object) -> bool`, typer `other: object` garantit que l'objet accepte d'être comparé avec n'importe quelle entité sans lever d'exception.
+
+---
+
+## 1.3 Le Rôle de Ruff
+
+Dans un langage compilé, le compilateur refuse de fabriquer l'exécutable si les types ou les syntaxes sont incohérents. En Python, **Ruff** joue ce rôle d'inspecteur statique :
+
+1. Il analyse l'arbre syntaxique abstrait (AST) sans lancer le programme.
+2. Il signale les variables mortes, les fautes de frappe et les violations de signatures.
+3. Il s'exécute instantanément : `ruff check src/`.
+
+---
+
+## 1.4 Exercice 1 : Traque d'Incohérences Statiques (10 min)
+
+Créez un fichier temporaire `src/zarena/test_syntaxe.py` :
+
+```python
+# src/zarena/test_syntaxe.py
+import math  # Module importé mais jamais utilisé
+
+
+def calculer_degats_bruts(puissance: int, defense: int) -> int:
+    degats = puissance - defense
+    return degat  # Faute de frappe sur la variable de retour !
+
+```
+
+Lancez l'audit statique avec Ruff :
+
+```bash
+ruff check src/zarena/test_syntaxe.py
+
+```
+
+*Ruff intercepte immédiatement les deux anomalies avant toute exécution :*
+
+* `F401`: `math` imported but unused.
+* `F821`: Undefined name `degat`.
+
+Supprimez ce fichier de test avant de poursuivre :
+
+```bash
+rm src/zarena/test_syntaxe.py
+
+```
+
+---
+
+> *Transition : Les outils d'analyse statique sont prêts. Abordons maintenant le cœur de la POO : comment créer des combattants en mémoire, quel est le rôle physique de self, et comment sanctuariser les règles du monde avec raise.*
+
+---
+
+# Partie 2 : Classes, Instances, `self` & Sanctuarisation des Invariants (35 min)
+
+## 2.1 Motivation DBZ : Classe vs Instance
+
+* **La Classe (`Warrior`) :** C'est la **fiche technique** ou l'espèce (le plan de conception). Elle stipule : *« Tout combattant possède un nom, des PV, une jauge de Ki, et sait attaquer »*.
+* **L'Instance (`goku`, `vegeta`) :** C'est le **guerrier réel sur le ring**. Goku et Vegeta partagent la même structure, mais Goku a 100 PV et 80 de Ki, alors que Vegeta a 40 PV et 100 de Ki.
+
+```python
+class FighterProfile:
+    """Fiche d'identité d'un combattant."""
+
+    def __init__(self, name: str, max_hp: int) -> None:
+        self.name: str = name  # Propre à cette instance
+        self.max_hp: int = max_hp  # Propre à cette instance
+
+```
+
+---
+
+## 2.2 Que représente physiquement `self` en mémoire ?
+
+Contrairement à Java ou C++ où l'instance courante (`this`) est masquée, Python impose d'expliciter **`self`** comme tout premier argument de chaque méthode.
+
+Que se passe-t-il physiquement lors de l'appel ?
+
+```python
+goku = FighterProfile(name="Goku", max_hp=100)
+
+```
+
+1. L'interpréteur Python alloue un bloc de mémoire libre (par exemple à l'adresse hexadécimale `0x7f8a10`).
+2. Python appelle automatiquement le constructeur `__init__` en lui passant **l'adresse de ce bloc comme premier argument** :
+```python
+FighterProfile.__init__(0x7f8a10, name="Goku", max_hp=100)
+
+```
+
+
+3. `self.name = name` signifie : *« Dans le bloc mémoire 0x7f8a10, enregistre l'attribut name avec la valeur "Goku" »*.
+
+### Le sucre syntaxique
+
+Écrire plus loin dans le code `goku.afficher()` est automatiquement traduit par l'interpréteur en `FighterProfile.afficher(goku)`.
+
+---
+
+## 2.3 Sanctuariser les Règles du Monde : Le mot-clé `raise`
+
+En génie logiciel, un **invariant** est une règle absolue qui ne doit jamais être violée.
+
+Dans notre moteur :
+
+* Les points de vie maximaux d'un guerrier doivent être strictement positifs ($\text{max\_hp} > 0$).
+* Un guerrier K.-O. ne peut plus subir de coups ni agir.
+
+Un code robuste applique le principe du **Fail-Fast** : dès qu'une incohérence survient, on refuse la création de l'objet ou l'action en levant immédiatement une exception métier via `raise`.
+
+Déclarons nos exceptions dans `src/zarena/exceptions.py` :
+
+```python
+# src/zarena/exceptions.py
+
+
+class ZArenaError(Exception):
+    """Exception racine du moteur Z-Arena."""
+
+    pass
+
+
+class InvalidFighterError(ZArenaError):
+    """Levée lorsqu'une statistique de base est illégale."""
+
+    pass
+
+
+class FighterFaintedError(ZArenaError):
+    """Levée lorsqu'un guerrier K.-O. tente d'agir ou de subir une action."""
+
+    pass
+
+```
+
+---
+
+## 2.4 Exercice 2 : La Classe `TrainingDummy` [Guidage Fort]
+
+Dans `src/zarena/dummy.py`, vous allez concevoir un mannequin d'entraînement pour tester les coups.
+
+### Cahier des charges
+
+1. Le constructeur `__init__(self, name: str, max_hp: int) -> None` :
+* Valide que `max_hp > 0`. Si `max_hp <= 0`, lever immédiatement `InvalidFighterError`.
+* Enregistre `self.name`, `self.max_hp` et initialise `self.current_hp = max_hp`.
+
+
+2. La méthode `take_hit(self, damage: int) -> None` :
+* Valide que les dégâts sont positifs (`damage >= 0`, lever `InvalidFighterError` sinon).
+* Si `self.current_hp == 0`, lever immédiatement `FighterFaintedError("Le mannequin est déjà pulvérisé !")`.
+* Réduit `self.current_hp` des dégâts reçus, sans jamais descendre sous 0.
+
+
+3. La méthode `is_broken(self) -> bool` :
+* Renvoie `True` si `self.current_hp == 0`, et `False` sinon.
+
+
+
+::: {.content-visible when-profile="student"}
+
+### Squelette à compléter (`src/zarena/dummy.py`) :
+
+```python
+# src/zarena/dummy.py
+from zarena.exceptions import FighterFaintedError, InvalidFighterError
+
+
+class TrainingDummy:
+    """Mannequin d'entraînement doté de points de vie contrôlés."""
+
+    def __init__(self, name: str, max_hp: int) -> None:
+        # TODO: Valider max_hp > 0 (lever InvalidFighterError)
+        # TODO: Stocker self.name, self.max_hp et self.current_hp
+        pass
+
+    def take_hit(self, damage: int) -> None:
+        """Enveloppe l'encaissement d'un coup."""
+        # TODO: Valider damage >= 0
+        # TODO: Vérifier si déjà détruit (lever FighterFaintedError)
+        # TODO: Décrémenter current_hp sans descendre sous 0
+        pass
+
+    def is_broken(self) -> bool:
+        """Vérifie si le mannequin est hors d'usage."""
+        # TODO: Retourner True si current_hp == 0
+        pass
+
+```
+
+:::
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`src/zarena/dummy.py`) :
+
+```python
+# src/zarena/dummy.py
+from zarena.exceptions import FighterFaintedError, InvalidFighterError
+
+
+class TrainingDummy:
+    """Mannequin d'entraînement doté de points de vie contrôlés."""
+
+    def __init__(self, name: str, max_hp: int) -> None:
+        if max_hp <= 0:
+            raise InvalidFighterError(
+                f"Les PV maximaux doivent être > 0 (reçu : {max_hp})"
+            )
+        self.name = name
+        self.max_hp = max_hp
+        self.current_hp = max_hp
+
+    def take_hit(self, damage: int) -> None:
+        if damage < 0:
+            raise InvalidFighterError("Les dégâts doivent être positifs.")
+        if self.current_hp == 0:
+            raise FighterFaintedError("Le mannequin est déjà pulvérisé !")
+        self.current_hp = max(0, self.current_hp - damage)
+
+    def is_broken(self) -> bool:
+        return self.current_hp == 0
+
+```
+
+:::
+
+### Banc d'auto-validation
+
+Créez `test_exo2.py` à la racine :
+
+```python
+# test_exo2.py
+from zarena.dummy import TrainingDummy
+from zarena.exceptions import FighterFaintedError, InvalidFighterError
+
+# 1. Validation de l'invariant constructeur
+try:
+    TrainingDummy(name="Cible", max_hp=0)
+    assert False, "Erreur : max_hp <= 0 accepté !"
+except InvalidFighterError:
+    pass
+
+# 2. Test des coups et du plancher à 0
+dummy = TrainingDummy(name="Mannequin Bois", max_hp=50)
+assert dummy.current_hp == 50
+assert dummy.is_broken() is False
+
+dummy.take_hit(30)
+assert dummy.current_hp == 20
+
+dummy.take_hit(40)  # Doit tomber à 0, pas à -20
+assert dummy.current_hp == 0
+assert dummy.is_broken() is True
+
+# 3. Test de frappe sur cible déjà K.-O.
+try:
+    dummy.take_hit(10)
+    assert False, "Erreur : coup sur cible K.-O. accepté !"
+except FighterFaintedError:
+    pass
+
+print("Exercice 2 validé avec succès !")
+
+```
+
+::: {.callout-note}
+
+### Question de Compréhension 1
+
+Dans `__init__`, qu'adviendrait-il si le développeur écrivait `max_hp = max_hp` sans préfixer par `self.` ?
+:::
+
+::: {.callout-tip collapse="true"}
+
+### Dérouler pour afficher la solution
+
+La variable resterait locale à la fonction `__init__` et serait détruite à la fin du constructeur. L'objet créé n'aurait aucun attribut `max_hp`, provoquant un `AttributeError` lors de l'appel aux méthodes suivantes.
+:::
+
+---
+
+> *Transition : Grâce à raise, nous empêchons l'instanciation de données illégales. Mais qu'est-ce qui empêche un utilisateur d'écrire directement dummy.current_hp = -999 après la création ? C'est le rôle de l'encapsulation.*
+
+---
+
+# Partie 3 : Encapsulation, Attributs Protégés & `@property` (30 min)
+
+## 3.1 Motivation DBZ : La Triche des Attributs Publics
+
+Par défaut en Python, tous les attributs sont **publics**. N'importe quel script externe peut contourner vos fonctions :
+
+```python
+dummy = TrainingDummy(name="Cible", max_hp=100)
+dummy.current_hp = 999999  # Triche ! Plus de PV que le max sans passer par take_hit
+
+```
+
+Dans les langages comme Java, on utilise des accesseurs verbeux (`getKi()`, `setKi()`). Python propose une solution élégante : **le décorateur `@property**`, qui conserve la syntaxe naturelle d'un attribut tout en déléguant la lecture et l'écriture à des méthodes de contrôle.
+
+---
+
+## 3.2 La Convention de l'Attribut Protégé (`_nom`)
+
+Pour signaler qu'une variable relève de l'implémentation interne et ne doit **jamais** être modifiée directement depuis l'extérieur, on la préfixe d'un tiret bas : `self._ki`.
+
+```python
+class EnergyCore:
+
+    def __init__(self, initial_ki: int) -> None:
+        self.ki = initial_ki  # Passe par le setter dès l'initialisation
+
+    @property
+    def ki(self) -> int:
+        """GETTER : Accès en lecture (val = core.ki)."""
+        return self._ki
+
+    @ki.setter
+    def ki(self, value: int) -> None:
+        """SETTER : Intercepte core.ki = ... et borne entre 0 et 100."""
+        if value < 0:
+            self._ki = 0
+        elif value > 100:
+            self._ki = 100
+        else:
+            self._ki = value
+
+```
+
+---
+
+## 3.3 Exercice 3 : Gestionnaire de Ki Sécurisé [Guidage Fort]
+
+Dans `src/zarena/energy.py`, concevez la classe `KiManager`.
+
+### Cahier des charges
+
+1. Le constructeur prend `max_ki: int = 100` et initialise le Ki courant au maximum.
+2. **Encapsulation de `current_ki` :**
+* Attribut protégé interne : `self._current_ki`.
+* `@property def current_ki(self) -> int`.
+* `@current_ki.setter def current_ki(self, value: int) -> None` :
+* Borne automatiquement la valeur entre $0$ et `self.max_ki` :
+
+
+
+
+
+$$\text{current\_ki} \leftarrow \max(0, \min(\text{value}, \text{max\_ki}))$$
+
+3. **Propriété calculée en lecture seule :**
+* `@property def can_blast(self) -> bool` : renvoie `True` si `self.current_ki >= 25`, `False` sinon.
+* **Aucun setter** ne doit être associé à cette propriété.
+
+
+
+::: {.content-visible when-profile="student"}
+
+### Squelette à compléter (`src/zarena/energy.py`) :
+
+```python
+# src/zarena/energy.py
+from zarena.exceptions import InvalidFighterError
+
+
+class KiManager:
+    """Gère l'accumulation et la consommation d'énergie vitale (Ki)."""
+
+    def __init__(self, max_ki: int = 100) -> None:
+        if max_ki <= 0:
+            raise InvalidFighterError("Le Ki maximal doit être > 0.")
+        self.max_ki = max_ki
+        self.current_ki = max_ki
+
+    # TODO: Déclarer le getter @property current_ki
+    # TODO: Déclarer le setter @current_ki.setter (borner entre 0 et self.max_ki)
+
+    # TODO: Déclarer la propriété en lecture seule can_blast (>= 25)
+
+```
+
+:::
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`src/zarena/energy.py`) :
+
+```python
+# src/zarena/energy.py
+from zarena.exceptions import InvalidFighterError
+
+
+class KiManager:
+    """Gère l'accumulation et la consommation d'énergie vitale (Ki)."""
+
+    def __init__(self, max_ki: int = 100) -> None:
+        if max_ki <= 0:
+            raise InvalidFighterError("Le Ki maximal doit être > 0.")
+        self.max_ki = max_ki
+        self.current_ki = max_ki
+
+    @property
+    def current_ki(self) -> int:
+        return self._current_ki
+
+    @current_ki.setter
+    def current_ki(self, value: int) -> None:
+        self._current_ki = max(0, min(value, self.max_ki))
+
+    @property
+    def can_blast(self) -> bool:
+        return self._current_ki >= 25
+
+```
+
+:::
+
+### Banc d'auto-validation
+
+Créez `test_exo3.py` à la racine :
+
+```python
+# test_exo3.py
+from zarena.energy import KiManager
+
+ki = KiManager(max_ki=100)
+assert ki.current_ki == 100
+assert ki.can_blast is True
+
+# Test du setter avec dépassement supérieur
+ki.current_ki = 150
+assert ki.current_ki == 100  # Bloqué à max_ki
+
+# Test de consommation
+ki.current_ki -= 80
+assert ki.current_ki == 20
+assert ki.can_blast is False  # Moins de 25
+
+# Test du dépassement inférieur
+ki.current_ki = -50
+assert ki.current_ki == 0  # Bloqué à 0
+
+# Test de l'immuabilité de can_blast
+try:
+    ki.can_blast = True  # type: ignore
+    assert False, "Erreur : assignation d'une propriété en lecture seule !"
+except AttributeError:
+    pass
+
+print("Exercice 3 validé avec succès !")
+
+```
+
+::: {.callout-note}
+
+### Question de Compréhension 2
+
+Pourquoi privilégier un getter avec `@property` plutôt qu'une méthode explicite comme `get_ki()` ?
+:::
+
+::: {.callout-tip collapse="true"}
+
+### Dérouler pour afficher la solution
+
+Parce que `@property` respecte le principe d'accès uniforme de Python : l'utilisateur manipule `guerrier.ki` avec la syntaxe concise et lisible d'un attribut classique, sans avoir à savoir s'il s'agit d'une simple variable ou d'un calcul complexe sous le capot.
+:::
+
+---
+
+> *Transition : Nos combattants protègent désormais leur santé et leur énergie. Mais allons-nous réécrire les attributs de nom, de santé et d'encaissement pour chaque espèce ? Un Saiyan n'est pas un Terrien ! C'est ici qu'intervient l'Héritage.*
+
+---
+
+# Partie 4 : L'Héritage — Factorisation, `super()` & Surcharge (30 min)
+
+## 4.1 Motivation DBZ : Ne pas Réinventer la Roue
+
+Tous les guerriers ont un nom, des PV et une puissance de base. Mais chaque race a ses particularités :
+
+* Un **Terrien** combat avec sa puissance nominale.
+* Un **Saiyan** possède la rage des guerriers : lorsqu'il subit des dégâts critiques, sa puissance offensive augmente (effet *Zenkai*).
+
+Sans héritage, on copierait-collerait toute la classe de base pour ajouter une ligne de code au Saiyan.
+
+**L'héritage permet de définir une classe parente (`BaseWarrior`) et de spécialiser des classes filles (`SaiyanWarrior`).**
+
+---
+
+## 4.2 Le Rôle Impératif de `super().__init__()`
+
+Lorsqu'une classe enfant hérite d'une classe parente, son constructeur **doit obligatoirement appeler le constructeur du parent via `super().__init__(...)**` pour initialiser les attributs de base.
+
+```python
+class BaseWarrior:
+
+    def __init__(self, name: str, power: int) -> None:
+        self.name = name
+        self.power = power
+
+
+class SaiyanWarrior(BaseWarrior):
+
+    def __init__(self, name: str, power: int, is_super_saiyan: bool) -> None:
+        super().__init__(name=name, power=power)
+        self.is_super_saiyan = is_super_saiyan
+
+```
+
+---
+
+## 4.3 Surcharge de Méthodes (*Overriding*)
+
+La classe fille peut redéfinir une méthode pour changer son comportement :
+
+* Soit **remplacer** totalement la méthode parente.
+* Soit **l'étendre** en appelant `super().methode()` puis en effectuant des calculs complémentaires.
+
+---
+
+## 4.4 Exercice 4 : La Dynastie Saiyan [Semi-Autonomie]
+
+Dans `src/zarena/warriors.py`, concevez `BaseWarrior` et sa déclinaison `SaiyanWarrior`.
+
+La classe de base `BaseWarrior` vous est fournie :
+
+```python
+# src/zarena/warriors.py
+from zarena.exceptions import FighterFaintedError, InvalidFighterError
+
+
+class BaseWarrior:
+    """Guerrier standard de l'arène."""
+
+    def __init__(self, name: str, hp: int, attack_power: int) -> None:
+        if hp <= 0 or attack_power <= 0:
+            raise InvalidFighterError("Stats invalides.")
+        self.name = name
+        self.max_hp = hp
+        self._hp = hp
+        self.attack_power = attack_power
+
+    @property
+    def hp(self) -> int:
+        return self._hp
+
+    @hp.setter
+    def hp(self, value: int) -> None:
+        self._hp = max(0, min(value, self.max_hp))
+
+    def compute_damage(self) -> int:
+        return self.attack_power
+
+    def take_damage(self, amount: int) -> None:
+        if self.hp == 0:
+            raise FighterFaintedError("Guerrier déjà K.-O.")
+        self.hp -= amount
+
+```
+
+### Cahier des charges de `SaiyanWarrior` (À concevoir sans squelette !) :
+
+1. Déclarez la classe `SaiyanWarrior` qui hérite de `BaseWarrior`.
+2. Constructeur `__init__(self, name: str, hp: int, attack_power: int, rage_multiplier: float = 1.5) -> None` :
+* Délègue à `super().__init__(...)`.
+* Valide que `rage_multiplier > 1.0` (lever `InvalidFighterError` sinon).
+* Stocke `self.rage_multiplier`.
+
+
+3. Surcharge de `compute_damage(self) -> int` :
+* Si `self.hp <= self.max_hp // 4` (effet *Zenkai* : santé critique à 25% ou moins) :
+
+
+
+$$\text{dégâts} = \lfloor \text{attack\_power} \times \text{rage\_multiplier} \rfloor$$
+
+* Sinon, renvoie les dégâts normaux via `super().compute_damage()`.
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`SaiyanWarrior` dans `src/zarena/warriors.py`) :
+
+```python
+class SaiyanWarrior(BaseWarrior):
+    """Guerrier Saiyan bénéficiant de la rage du combattant."""
+
+    def __init__(
+        self,
+        name: str,
+        hp: int,
+        attack_power: int,
+        rage_multiplier: float = 1.5,
+    ) -> None:
+        super().__init__(name=name, hp=hp, attack_power=attack_power)
+        if rage_multiplier <= 1.0:
+            raise InvalidFighterError("Le multiplicateur doit être > 1.0")
+        self.rage_multiplier = rage_multiplier
+
+    def compute_damage(self) -> int:
+        if self.hp <= self.max_hp // 4:
+            return int(self.attack_power * self.rage_multiplier)
+        return super().compute_damage()
+
+```
+
+:::
+
+### Banc d'auto-validation
+
+Créez `test_exo4.py` à la racine :
+
+```python
+# test_exo4.py
+from zarena.warriors import BaseWarrior, SaiyanWarrior
+
+# 1. Guerrier de base (Krilin)
+krilin = BaseWarrior(name="Krilin", hp=100, attack_power=40)
+assert krilin.compute_damage() == 40
+krilin.take_damage(80)
+assert krilin.hp == 20
+assert krilin.compute_damage() == 40
+
+# 2. Saiyan (Vegeta)
+vegeta = SaiyanWarrior(
+    name="Vegeta", hp=100, attack_power=50, rage_multiplier=2.0
+)
+assert vegeta.compute_damage() == 50
+
+vegeta.take_damage(80)  # Tombe à 20 PV (<= 25 PV) : Zenkai activé !
+assert vegeta.hp == 20
+assert vegeta.compute_damage() == 100  # 50 * 2.0 !
+
+print("Exercice 4 validé avec succès !")
+
+```
+
+::: {.callout-note}
+
+### Question de Compréhension 3
+
+Dans `SaiyanWarrior.compute_damage()`, pourquoi appelle-t-on `super().compute_damage()` plutôt que de renvoyer directement `self.attack_power` ?
+:::
+
+::: {.callout-tip collapse="true"}
+
+### Dérouler pour afficher la solution
+
+Pour respecter la maintenance du code : si la classe parente décide plus tard d'appliquer un malus d'état global (ex: fatigue ou poison) dans son calcul de dégâts, la classe fille en bénéficiera automatiquement.
+:::
+
+---
+
+> *Transition : L'héritage permet de partager du code. Mais comment obliger chaque combattant du jeu à implémenter rigoureusement les mêmes méthodes d'action sans oubli ? C'est le rôle des interfaces et des classes abstraites.*
+
+---
+
+# Partie 5 : Notion d'Interface & Classes Abstraites (`abc.ABC`) (25 min)
+
+## 5.1 Motivation DBZ : Le Contrat du Tournoi du Pouvoir
+
+Imaginons le moteur de combat de l'arène :
+
+```python
+def simuler_tour(attaquant, defenseur):
+    degats = attaquant.execute_special_move()
+    defenseur.take_damage(degats)
+
+```
+
+Si un développeur conçoit un combattant mais nomme sa méthode `lancer_attaque()` au lieu de `execute_special_move()`, l'arène plante immédiatement avec un `AttributeError`.
+
+Une **classe abstraite** (`abc.ABC`) est un **contrat formel inviolable** :
+
+1. Elle interdit formellement d'être instanciée directement.
+2. Elle impose des méthodes scellées avec **`@abstractmethod`** à toutes ses sous-classes.
+3. Si une sous-classe oublie d'implémenter ne serait-ce qu'une seule méthode abstraite, Python refuse catégoriquement sa création.
+
+---
+
+## 5.2 Le Module `abc` en Action
+
+```python
+from abc import ABC, abstractmethod
+
+
+class ArenaFighter(ABC):
+    """CONTRAT : Tout guerrier sur le ring doit implémenter ces méthodes."""
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    @abstractmethod
+    def execute_move(self) -> int:
+        """Chaque combattant doit définir son attaque signature."""
+        pass
+
+```
+
+---
+
+## 5.3 Exercice 5 : Le Contrat `ArenaFighter` [Autonomie Complète / TDD]
+
+Dans `src/zarena/arena.py`, officialisez le contrat abstrait et implémentez un cyborg. Aucun code n'est fourni : appuyez-vous strictement sur le cahier des charges et le banc de test.
+
+### Cahier des charges 1 : `ArenaFighter` (Abstraite)
+
+1. Hérite de `abc.ABC`.
+2. Constructeur `__init__(self, name: str, hp: int, power: int) -> None`. Valide que `hp > 0` et `power > 0` (`InvalidFighterError`).
+3. Propriété abstraite `@property @abstractmethod def is_defeated(self) -> bool : pass`.
+4. Méthode abstraite `@abstractmethod def execute_attack(self) -> int : pass`.
+5. Méthode abstraite `@abstractmethod def take_damage(self, amount: int) -> None : pass`.
+
+### Cahier des charges 2 : `Cyborg` (Concrète, hérite de `ArenaFighter`)
+
+1. Constructeur `__init__(self, name: str, hp: int, power: int, shield: int = 10) -> None`.
+2. Implémente `@property def is_defeated(self) -> bool` : renvoie `self.hp == 0`.
+3. Implémente `execute_attack(self) -> int` : renvoie `self.power`.
+4. Implémente `take_damage(self, amount: int) -> None` :
+* Les dégâts effectifs sont réduits par le bouclier : $\max(0, \text{amount} - \text{shield})$.
+* Décrémente les PV sans descendre sous 0.
+
+
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`src/zarena/arena.py`) :
+
+```python
+from abc import ABC, abstractmethod
+from zarena.exceptions import InvalidFighterError
+
+
+class ArenaFighter(ABC):
+    """Interface contractuelle pour tout combattant d'arène."""
+
+    def __init__(self, name: str, hp: int, power: int) -> None:
+        if hp <= 0 or power <= 0:
+            raise InvalidFighterError("Stats invalides.")
+        self.name = name
+        self.hp = hp
+        self.power = power
+
+    @property
+    @abstractmethod
+    def is_defeated(self) -> bool:
+        pass
+
+    @abstractmethod
+    def execute_attack(self) -> int:
+        pass
+
+    @abstractmethod
+    def take_damage(self, amount: int) -> None:
+        pass
+
+
+class Cyborg(ArenaFighter):
+    """Cyborg absorbant une partie des coups."""
+
+    def __init__(
+        self, name: str, hp: int, power: int, shield: int = 10
+    ) -> None:
+        super().__init__(name=name, hp=hp, power=power)
+        self.shield = shield
+
+    @property
+    def is_defeated(self) -> bool:
+        return self.hp == 0
+
+    def execute_attack(self) -> int:
+        return self.power
+
+    def take_damage(self, amount: int) -> None:
+        actual_damage = max(0, amount - self.shield)
+        self.hp = max(0, self.hp - actual_damage)
+
+```
+
+:::
+
+### Banc d'auto-validation
+
+Créez `test_exo5.py` à la racine :
+
+```python
+# test_exo5.py
+from zarena.arena import ArenaFighter, Cyborg
+
+# 1. Vérification de l'interdiction d'instancier l'abstrait
+try:
+    ArenaFighter(name="Fantôme", hp=100, power=50)  # type: ignore
+    assert False, "Erreur : instanciation directe d'ArenaFighter autorisée !"
+except TypeError:
+    pass
+
+# 2. Test du Cyborg concret
+c17 = Cyborg(name="C-17", hp=100, power=60, shield=15)
+assert isinstance(c17, ArenaFighter)
+assert c17.execute_attack() == 60
+
+c17.take_damage(35)  # 35 - 15 = 20 dégâts réels
+assert c17.hp == 80
+assert c17.is_defeated is False
+
+print("Exercice 5 validé avec succès !")
+
+```
+
+::: {.callout-note}
+
+### Question de Compréhension 4
+
+Quelle est la différence fondamentale entre une classe parente ordinaire comme `BaseWarrior` et une classe abstraite comme `ArenaFighter` ?
+:::
+
+::: {.callout-tip collapse="true"}
+
+### Dérouler pour afficher la solution
+
+Une classe ordinaire est concrète : on peut l'instancier directement pour créer un guerrier fonctionnel. Une classe abstraite est incomplète : elle refuse toute instanciation directe et ne sert que de contrat architectural pour forcer les classes filles à respecter une signature commune.
+:::
+
+---
+
+> *Transition : Nos classes respectent les contrats officiels. Mais lorsqu'on fait print(c17) dans un terminal, l'interpréteur affiche ``. Et comparer deux guerriers avec == échoue. Pour marier nos objets avec les opérateurs standards de Python, nous abordons les méthodes spéciales.*
+
+---
+
+# Partie 6 : Méthodes Spéciales (*Dunders*) — Intégration Native (20 min)
+
+En Python, chaque opérateur (`print`, `==`, `+`, `()`) est relié en coulisses à une méthode spéciale entourée de doubles tirets bas (**Double Underscore** $\rightarrow$ **`__dunder__`**).
+
+---
+
+## 6.1 `__repr__` vs `__str__`
+
+* **`__repr__` (Rigueur technique) :** Destiné aux développeurs dans le terminal ou les journaux de logs. Doit décrire l'objet de façon univoque :
+`Cyborg(name='C-17', hp=80, power=60)`
+* **`__str__` (Affichage utilisateur) :** Destiné à l'utilisateur final lors d'un `print()` :
+`[C-17 | PV: 80 | Puissance: 60]`
+
+---
+
+## 6.2 Égalité Sémantique : `__eq__`
+
+Par défaut, `c1 == c2` compare l'adresse mémoire physique (`c1 is c2`). Deux clones créés avec les mêmes statistiques sont jugés différents ! Pour comparer les valeurs :
+
+```python
+def __eq__(self, other: object) -> bool:
+    if not isinstance(other, Cyborg):
+        return False
+    return self.name == other.name and self.hp == other.hp
+
+```
+
+---
+
+## 6.3 Combattant Appelable : `__call__`
+
+Surcharger **`__call__`** permet d'utiliser l'instance comme une fonction pour déclencher son coup signature :
+
+```python
+degats = c17()  # Équivalent direct à c17.execute_attack()
+
+```
+
+---
+
+## 6.4 Exercice 6 : Instrumentation de `Cyborg` [Autonomie Complète / TDD]
+
+Dans `src/zarena/arena.py`, enrichissez la classe `Cyborg` avec les méthodes spéciales.
+
+### Cahier des charges
+
+1. `__repr__(self) -> str` : renvoie `f"Cyborg(name='{self.name}', hp={self.hp}, power={self.power})"`.
+2. `__str__(self) -> str` : renvoie `f"[{self.name} | PV: {self.hp}]"`.
+3. `__eq__(self, other: object) -> bool` :
+* Renvoie `False` si `other` n'est pas un `Cyborg`.
+* Renvoie `True` si les deux ont le même `name` et le même `hp`.
+
+
+4. `__call__(self) -> int` : délègue directement à `self.execute_attack()`.
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (Méthodes spéciales de `Cyborg`) :
+
+```python
+    def __repr__(self) -> str:
+        return f"Cyborg(name='{self.name}', hp={self.hp}, power={self.power})"
+
+    def __str__(self) -> str:
+        return f"[{self.name} | PV: {self.hp}]"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Cyborg):
+            return False
+        return self.name == other.name and self.hp == other.hp
+
+    def __call__(self) -> int:
+        return self.execute_attack()
+
+```
+
+:::
+
+### Banc d'auto-validation
+
+Créez `test_exo6.py` à la racine :
+
+```python
+# test_exo6.py
+from zarena.arena import Cyborg
+
+c1 = Cyborg(name="C-18", hp=90, power=55)
+c2 = Cyborg(name="C-18", hp=90, power=55)
+c3 = Cyborg(name="C-18", hp=40, power=55)
+
+# 1. Diagnostic textuel
+assert repr(c1) == "Cyborg(name='C-18', hp=90, power=55)"
+assert str(c1) == "[C-18 | PV: 90]"
+
+# 2. Égalité sémantique
+assert c1 == c2
+assert c1 != c3
+assert (c1 == "texte") is False
+
+# 3. Instance appelable
+assert c1() == 55
+
+print("Exercice 6 validé avec succès !")
+
+```
+
+::: {.callout-note}
+
+### Question de Compréhension 5
+
+Que se passe-t-il lors de l'appel à `print(mon_objet)` si la classe implémente `__repr__` mais n'implémente pas `__str__` ?
+:::
+
+::: {.callout-tip collapse="true"}
+
+### Dérouler pour afficher la solution
+
+Python utilise automatiquement `__repr__` comme solution de repli (*fallback*). En revanche, l'inverse n'est pas vrai : omettre `__repr__` laisse les listes et conteneurs avec l'adresse hexadécimale brute. **Règle d'or : implémentez toujours au moins `__repr__**`.
+:::
+
+---
+
+# Devoir Maison Guidé : Transposition au Projet PyArena (Jalon 2)
+
+*Ce travail est à réaliser en équipe d'ici le prochain TP sur votre dépôt de projet (`pyarena-groupe-XX`). Il concrétise les attendus du **Jalon 2** stipulés dans le cahier des charges.*
+
+### Objectif
+
+Vous avez acquis tous les fondements de l'ingénierie logicielle sur l'univers DBZ : typage strict, protection d'invariants avec `raise`, encapsulation avec `@property`, interface abstraite avec `abc.ABC` et méthodes spéciales.
+
+Vous allez maintenant **transposer exactement cette architecture** au moteur de jeu de votre projet officiel : l'arène de combat Pokémon sous `src/pyarena/core/`.
+
+::: {.callout-important}
+
+### Respect Strict des Signatures de l'Annexe Technique
+
+Les tests automatisés de la CI GitHub Actions reposent **strictement** sur les identifiants en anglais consignés ci-après. Toute divergence provoquera l'échec de votre suite de tests.
+:::
+
+---
+
+### Étape 1 : Branche de Fonctionnalité Git
+
+```bash
+cd ~/pyarena-officiel
+git switch dev
+git pull origin dev
+git switch -c feat/core-models
+
+```
+
+---
+
+### Étape 2 : Hiérarchie des Exceptions Métier (`src/pyarena/core/exceptions.py`)
+
+Déclarez l'arborescence des exceptions dérivant d'une racine commune :
+
+```python
+# src/pyarena/core/exceptions.py
+
+
+class PyArenaException(Exception):
+    """Exception racine du projet PyArena."""
+
+    pass
+
+
+class FighterFaintedError(PyArenaException):
+    """Levée lorsqu'une entité K.-O. tente d'agir ou de subir une action."""
+
+    pass
+
+
+class InvalidStatError(PyArenaException):
+    """Levée lorsqu'une caractéristique de base est négative ou nulle."""
+
+    pass
+
+```
+
+---
+
+### Étape 3 : Classe Abstraite `BaseFighter` (`src/pyarena/core/models.py`)
+
+Déclarez l'interface formelle en héritant de `abc.ABC` :
+
+* **Propriétés abstraites (`@property` + `@abstractmethod`) :**
+`id`, `name`, `hp`, `max_hp`, `attack`, `defense`, `speed`, `type_1`, `type_2`.
+* **Setter abstrait :** `@hp.setter` décoré de `@abstractmethod`.
+* **Méthodes comportementales abstraites :**
+* `take_damage(self, amount: int) -> None`
+
+* `is_alive(self) -> bool`
+
+* `reset_stats(self) -> None`
+
+
+
+
+---
+
+### Étape 4 : Classe Concrète `Fighter` (`src/pyarena/core/models.py`)
+
+Implémentez la classe concrète `Fighter(BaseFighter)` :
+
+1. **Constructeur `__init__` :**
+```python
+def __init__(
+    self,
+    id: int,
+    name: str,
+    type_1: str,
+    type_2: str | None,
+    hp_base: int,
+    attack_base: int,
+    defense_base: int,
+    speed_base: int,
+) -> None:
+
+```
+
+
+* Valider que toutes les statistiques de base sont $> 0$ (lever `InvalidStatError`).
+
+
+* Normaliser les statistiques au **Niveau 50** :
+
+
+
+
+
+$$\text{max\_hp} = \text{hp\_base} + 60$$
+
+$$\text{attack} = \text{attack\_base} + 5, \quad \text{defense} = \text{defense\_base} + 5, \quad \text{speed} = \text{speed\_base} + 5$$
+
+* Initialiser la santé courante au maximum : `self._hp = self._max_hp`.
+
+2. **Encapsulation de la Santé :**
+* Dans `@hp.setter`, contraindre rigoureusement la valeur dans $[0, \text{max\_hp}]$.
+
+
+
+
+3. **Méthode `take_damage(amount: int) -> None` :**
+* Si `not self.is_alive()`, lever immédiatement `FighterFaintedError`.
+
+
+* Décrémenter les points de vie via le setter.
+
+
+
+
+4. **Méthodes spéciales requises :**
+* `__repr__` : description technique univoque, ex: `Fighter(id=25, name='Pikachu', hp=95/95)`.
+* `__str__` : affichage convivial, ex: `Pikachu (Électrik) - PV: 95/95`.
+
+
+* `__eq__` : égalité basée sur l'identité stricte de l'attribut `id`.
+
+
+
+
+
+---
+
+### Étape 5 : Structure Immuable `BattleResult`
+
+Consignez le résultat d'un combat sous la forme d'une `dataclass` gelée :
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class BattleResult:
+    winner: BaseFighter
+    loser: BaseFighter
+    turns: int
+    remaining_hp: int
+
+```
+
+---
+
+### Étape 6 : Validation Qualité & Pull Request
+
+1. Vérifiez et formatez votre code avec Ruff :
+```bash
+ruff check src/
+ruff format src/
+
+```
+
+
+2. Poussez sur GitHub et ouvrez votre Pull Request vers `dev` :
+
+
+```bash
+git add src/pyarena/core/
+git commit -m "feat(core): implementation conforme de BaseFighter, Fighter et BattleResult"
+git push -u origin feat/core-models
+
+```
