@@ -1137,7 +1137,7 @@ Pour prouver la puissance de l'abstraction, notre arène accueillera deux famill
 
 ## 5.4 Exercice 5 : Le Contrat `ArenaFighter` et l'Agent `Cyborg` [Autonomie]
 
-Dans `src/zarena/arena.py`, officialisez le contrat abstrait et implémentez la classe `Cyborg`.
+Dans `src/zarena/warriors`, officialisez le contrat abstrait et implémentez la classe `Cyborg`.
 
 ### Cahier des charges 1 : `ArenaFighter` (Abstraite)
 
@@ -1185,7 +1185,7 @@ $$\text{degats\_reels} = \max(0, \text{amount} - \text{shield})$$
 
 ::: {.content-visible when-profile="solution"}
 
-### Solution Enseignant (`src/zarena/arena.py`) :
+### Solution Enseignant (`src/zarena/warriors.py`) :
 
 ```python
 from abc import ABC, abstractmethod
@@ -1261,8 +1261,7 @@ Créez `test_exo5.py` à la racine :
 
 ```python
 # test_exo5.py
-from zarena.arena import ArenaFighter, Cyborg
-from zarena.warriors import BaseWarrior
+from zarena.warriors import BaseWarrior, ArenaFighter, Cyborg
 
 # 1. Vérification de l'interdiction d'instancier l'abstrait
 try:
@@ -1359,7 +1358,7 @@ degats = c17()  # Peut être implémenté pour être l'équivalent direct à c17
 
 ## 6.4 Exercice 6 : Instrumentation de `Cyborg` [Autonomie Complète]
 
-Dans `src/zarena/arena.py`, enrichissez la classe `Cyborg` avec les méthodes spéciales.
+Enrichissez la classe `Cyborg` avec les méthodes spéciales.
 
 ### Cahier des charges
 
@@ -1401,7 +1400,7 @@ Créez `test_exo6.py` à la racine :
 
 ```python
 # test_exo6.py
-from zarena.arena import Cyborg
+from zarena.warriors import Cyborg
 
 c1 = Cyborg(name="C-18", hp=90, power=55, shield=10)
 c2 = Cyborg(name="C-18", hp=90, power=55, shield=10)
@@ -1434,7 +1433,7 @@ Que se passe-t-il lors de l'appel à `print(mon_objet)` si la classe implémente
 
 ### Dérouler pour afficher la solution
 
-Python utilise automatiquement `__repr__` comme méthode de repli (*fallback*). L'inverse n'est pas vrai : omettre `__repr__` laisse les affichages de conteneurs et les journaux de débogage avec l'adresse mémoire brute. **Règle générale : implémentez toujours prioritairement `__repr__**`.
+Python utilise automatiquement `__repr__` comme méthode de repli (*fallback*). L'inverse n'est pas vrai : omettre `__repr__` laisse les affichages de conteneurs et les journaux de débogage avec l'adresse mémoire brute. Règle générale : implémentez toujours prioritairement `__repr__`.
 :::
 
 ---
@@ -1698,6 +1697,7 @@ class BattleResult:
 ### Étape 6 : Validation Locale, Formatage & Pull Request
 
 1. Vérifiez la conformité du code et le formatage avec Ruff :
+
 ```bash
 ruff check src/
 ruff format src/
@@ -1706,6 +1706,7 @@ ruff format src/
 
 
 2. Validez le bon fonctionnement de votre modèle en exécutant un test local d'instanciation sous console Python :
+
 ```python
 from pyarena.core.models import Fighter
 
@@ -1730,12 +1731,12 @@ assert str(pika) == "Pikachu (Électrik) - PV: 95/95"
 
 ```
 3. Commitez et poussez votre branche sur GitHub :
+
    ```bash
    git add src/pyarena/core/
    git commit -m "feat(core): implementation conforme de BaseFighter, Fighter et BattleResult"
    git push -u origin feat/core-models
-
-```
+   ```
 
 4. Ouvrez la **Pull Request** sur GitHub ciblant la branche `dev`. Chaque membre de l'équipe passe en revue le code, vérifie la stricte conformité des signatures et approuve la fusion (*Approval*).
 
