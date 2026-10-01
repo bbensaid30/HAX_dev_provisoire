@@ -856,7 +856,9 @@ description = "Moteur de simulation stochastique pour combats d'arènes"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Équipe PyArena ...", email = "umontpellier.fr" }
+    { name = "Bilel Bensaid", email = "bilel.bensaid@umontpellier.fr" },
+    { name = "Ada Lovelace", email = "ada.lovelace@etud.univ-montp2.fr" },
+    { name = "Alan Turing", email = "alan.turing@etud.univ-montp2.fr" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
