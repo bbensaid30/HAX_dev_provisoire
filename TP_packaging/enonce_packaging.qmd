@@ -699,15 +699,18 @@ Lors de l'installation, `pip` lit cette instruction et crée un mini-exécutable
 
 # Partie 5 : Exercice de Synthèse — Le Squelette Officiel de `PyArena` & Publication Git (20 min)
 
-*Cet exercice permet de mettre en place le projet semestriel en groupe. Vous initialisez l'arborescence complète, configurez le packaging professionnel et publiez la fondation sur GitHub selon les règles de l'art.*
+*Cet exercice permet d'initialiser le projet semestriel en équipe. Vous récupérez le dépôt officiel préconfiguré attribué à votre groupe, mettez en place le packaging professionnel, implémentez le socle initial et validez votre première intégration continue (CI) sur GitHub Actions.*
 
 ```text
 ARBORESCENCE OFFICIELLE DU PROJET PYARENA :
 
-pyarena-officiel/
+pyarena/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 <-- Déployé par l'organisation (contrôle qualité & tests)
 ├── pyproject.toml
 ├── README.md
-├── .gitignore
+├── .gitignore                     <-- Déployé par l'organisation (cache PokéAPI ignoré)
 ├── .venv/                         <-- Non versionné
 ├── src/
 │   └── pyarena/
@@ -717,7 +720,7 @@ pyarena-officiel/
 │       │   └── __init__.py
 │       ├── simulation/            <-- Moteur stochastique et tournois
 │       │   └── __init__.py
-│       └── io/                 <-- Gestion du cache et des données
+│       └── io/                    <-- Ingestion et gestion du cache disque
 │           └── __init__.py
 ├── tests/
 │   └── test_init.py               <-- Test de validation du packaging (smoke test)
@@ -726,184 +729,284 @@ pyarena-officiel/
 ```
 
 ### À quoi sert le fichier `tests/test_init.py` ?
-C'est un **test de validation initial (*smoke test*)**. Il ne teste pas encore la logique métier des combats (qui sera écrite lors des prochains TPs), mais certifie immédiatement que :
+C'est un **test de validation initial (*smoke test*)**. Il ne teste pas encore la logique métier des combats (qui sera implémentée lors des prochaines séances), mais certifie immédiatement que :
 
-1. Le paquet `pyarena` est bien installé et reconnu dans l'environnement virtuel.
+1. Le paquet `pyarena` est correctement installé en mode éditable dans l'environnement virtuel.
 2. La variable `__version__` est lisible depuis la racine du paquet sans erreur d'importation.
 
-### Étape 1 : Initialisation de l'Espace de Travail
+```
 
-1. Créez le répertoire officiel du projet et placez-vous dedans :
-   ```bash
-   mkdir ~/pyarena-officiel && cd ~/pyarena-officiel
-   git init
-   ```
-2. Créez l'environnement virtuel local et activez-le :
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-3. Rédigez le fichier `.gitignore` à la racine :
-   ```text
-   # Environnement virtuel local (JAMAIS sur Git)
-   .venv/
+---
 
-   # Caches bytecode Python
-   __pycache__/
-   *.py[cod]
+### Étape 1 : Récupération du Dépôt et Espace de Travail Local
 
-   # Artefacts de distribution et packaging
-   *.egg-info/
-   dist/
-   build/
+::: {.callout-important}
 
-   # Caches d'outils de test
-   .pytest_cache/
-   .coverage
+### Répartition des Rôles au Sein de l'Équipe
 
-   # Caches de données et logs du projet
-   data/cache/*
-   !data/cache/.gitkeep
-   *.log
-   .DS_Store
-   ```
-4. Créez l'arborescence complète des dossiers avec leurs fichiers d'accroche :
-   ```bash
-   mkdir -p src/pyarena/core src/pyarena/simulation src/pyarena/utils tests data/cache
-   touch data/cache/.gitkeep
-   touch src/pyarena/core/__init__.py
-   touch src/pyarena/simulation/__init__.py
-   touch src/pyarena/io/__init__.py
-   ```
+Les étapes 1 à 4 sont exécutées par **l'Étudiant·e A** sur sa machine. **L'Étudiant·e B** (et C) prendra le relais à l'étape 5 dès que la branche partagée aura été publiée.
+:::
+
+1. **L'Étudiant·e A** clone le dépôt officiel attribué à son groupe (remplacez `XX` par le numéro de votre groupe, ex. : `01`, `02`...) :
+
+```bash
+git clone git@github.com:m1-ssd-2026/pyarena-groupe-XX.git pyarena
+cd pyarena
+
+```
+
+
+*(Si vos clés SSH ne sont pas configurées sur votre compte GitHub, utilisez l'URL HTTPS : `https://github.com/m1-ssd-2026/pyarena-groupe-XX.git`)*
+2. Constatez que le dépôt distant contient déjà les fondations d'assurance qualité : le workflow de test automatisé (`.github/workflows/ci.yml`) et le fichier `.gitignore` interdisant formellement le téléversement des caches de données PokéAPI.
+
+
+3. Créez l'environnement virtuel local et activez-le :
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+
+```
+
+
+4. Créez l'arborescence des modules et les fichiers de garde en commande ou sur VSCode:
+
+```bash
+mkdir -p src/pyarena/core src/pyarena/simulation src/pyarena/io tests data/cache
+touch data/cache/.gitkeep
+touch src/pyarena/core/__init__.py
+touch src/pyarena/simulation/__init__.py
+touch src/pyarena/io/__init__.py
+
+```
+
+
+
+---
 
 ### Étape 2 : Implémentation du Socle Logiciel
 
-1. Créez le fichier `src/pyarena/__init__.py` :
-   ```python
-   """Package officiel de simulation stochastique PyArena."""
+1. Rédigez le fichier `src/pyarena/__init__.py` :
 
-   __version__ = "0.1.0"
-   __all__ = ["__version__"]
-   ```
-2. Créez le point d'entrée CLI dans `src/pyarena/cli.py` :
-   ```python
-   # src/pyarena/cli.py
-   import sys
-   from pyarena import __version__
+```python
+"""Package officiel de simulation stochastique PyArena."""
 
-   def main():
-       if len(sys.argv) > 1 and sys.argv[1] == "--version":
-           print(f"PyArena version {__version__}")
-       else:
-           print("PyArena : Moteur opérationnel. Utilisez '--version' pour vérifier la version.")
-   ```
+__version__ = "0.1.0"
+__all__ = ["__version__"]
+
+```
+
+
+2. Créez le point d'entrée console dans `src/pyarena/cli.py` :
+
+```python
+import sys
+from pyarena import __version__
+
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--version":
+        print(f"PyArena version {__version__}")
+    else:
+        print("PyArena : Moteur opérationnel. Utilisez '--version' pour vérifier la version.")
+
+```
+
+
 3. Créez le test de validation initiale dans `tests/test_init.py` :
-   ```python
-   # tests/test_init.py
-   from pyarena import __version__
 
-   def test_package_installe_et_version():
-       """Vérifie que pyarena est importable et expose sa version."""
-       assert __version__ == "0.1.0"
-   ```
-4. Créez le fichier de présentation `README.md` :
-   ```bash
-   echo "# PyArena - Moteur de Combat d'Arène Stochastique" > README.md
-   ```
-5. Rédigez le fichier `pyproject.toml` de référence :
-   ```toml
-   [build-system]
-   requires = ["setuptools>=68.0", "wheel"]
-   build-backend = "setuptools.build_meta"
+```python
+from pyarena import __version__
 
-   [project]
-   name = "pyarena"
-   version = "0.1.0"
-   description = "Moteur de simulation stochastique pour combats d'arènes"
-   readme = "README.md"
-   requires-python = ">=3.10"
-   authors = [
-       { name = "", email = "" }
-   ]
-   classifiers = [
-       "Programming Language :: Python :: 3",
-       "Operating System :: OS Independent",
-   ]
-   dependencies = [
-       "numpy>=1.24.0",
-       "requests>=2.31.0",
-   ]
 
-   [project.optional-dependencies]
-   dev = [
-       "pytest>=7.4.0",
-       "pytest-cov>=4.1.0",
-       "ruff>=0.1.0",
-   ]
+def test_package_installe_et_version():
+    """Vérifie que pyarena est importable et expose sa version."""
+    assert __version__ == "0.1.0"
 
-   [project.scripts]
-   pyarena = "pyarena.cli:main"
+```
 
-   [tool.setuptools.packages.find]
-   where = ["src"]
-   ```
 
-### Étape 3 : Installation et Validation des Outils
+4. Complétez le fichier `README.md` à la racine pour identifier formellement les membres de votre groupe :
 
-1. Installez le paquet en mode éditable avec ses dépendances de développement :
-   ```bash
-   pip install -e ".[dev]"
-   ```
-2. Testez la commande console native :
-   ```bash
-   pyarena --version
-   ```
-   *Sortie attendue :* `PyArena version 0.1.0`.
-3. Lancez la suite de tests pour certifier l'environnement :
-   ```bash
-   pytest
-   ```
-   *Résultat :* `1 passed in 0.02s` ! Le paquet est certifié opérationnel.
 
-### Étape 4 : Scellement Git, Tag et Protocole de Branches
+```markdown
+# PyArena — HAX712X
+
+Moteur de combat d'arène stochastique et dashboard décisionnel.
+
+## Membres de l'équipe
+* Étudiant 1 (@login_github_1)
+* Étudiant 2 (@login_github_2)
+
+```
+
+
+5. Rédigez le fichier de packaging `pyproject.toml` à la racine :
+
+
+```toml
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyarena"
+version = "0.1.0"
+description = "Moteur de simulation stochastique pour combats d'arènes"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Équipe PyArena ...", email = "umontpellier.fr" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "requests>=2.31.0",
+    "pandas>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+pyarena = "pyarena.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+```
+
+
+
+---
+
+### Étape 3 : Installation et Contrôle Qualité Local
+
+1. Installez le paquet en mode éditable avec l'ensemble des dépendances d'outillage :
+
+
+```bash
+pip install -e ".[dev]"
+
+```
+
+
+*(Cette étape est indispensable : sans cette installation, Python ne pourra pas résoudre l'import `from pyarena import ...` lors de l'exécution en ligne de commande).*
+
+2. Testez le binaire console généré par le point d'entrée :
+
+```bash
+pyarena --version
+
+```
+
+
+*Sortie attendue :* `PyArena version 0.1.0`.
+3. **Formatage et analyse statique préventive :**
+Le serveur de CI vérifie deux aspects distincts de Ruff : l'absence d'erreurs de style (`ruff check`) et la conformité stricte du formatage de code (`ruff format --check`). Pour éviter tout rejet sur GitHub, appliquez le formateur localement avant de tester :
+
+
+```bash
+# 1. Formatage automatique des sources
+ruff format src/ tests/
+
+# 2. Vérification des règles de style et d'import
+ruff check src/ tests/
+
+# 3. Exécution du banc de test et calcul de couverture
+pytest tests/ --cov=src/pyarena
+
+```
+
+
+*Résultat attendu :* `1 passed` avec $100\%$ de couverture sur les modules actuels.
+
+---
+
+### Étape 4 : Scellement Git, Première CI et Protocole de Branches
 
 ::: {.callout-note}
-### Protocole d'Initialisation sur GitHub
-On ne peut pas créer de branche `dev` ni verrouiller une branche `main` qui n'existe pas encore sur le serveur distant.  
-**L'Étudiant A est exceptionnellement autorisé à pousser directement sur `main` pour ce tout premier commit de fondation.**
+
+### Gouvernance de la Branche `main`
+
+La branche `main` a vocation à être sanctuarisée côté organisation : aucune modification directe n'y sera autorisée ultérieurement sans passer par une Pull Request validée.
+
+**L'Étudiant·e A est exceptionnellement autorisé·e à pousser directement sur `main` ce tout premier commit de fondation.**
 :::
 
-1. **L'Étudiant A** réalise le commit initial sur sa machine locale :
-   ```bash
-   git add .
-   git commit -m "chore: initialisation de l'arborescence officielle et pyproject.toml"
-   ```
-2. **L'Étudiant A** pose le premier tag officiel de jalon (SemVer) :
-   ```bash
-   git tag -a v0.1.0 -m "Release v0.1.0 : Squelette officiel certifie"
-   ```
-3. **L'Étudiant A** lie le dépôt distant GitHub et pousse la branche `main` avec son tag :
-   ```bash
-   git remote add origin git@github.com:<organisation-ou-pseudo>/pyarena.git
-   git push -u origin main --tags
-   ```
-4. **Verrouillage immédiat sur GitHub :**  
-   L'Étudiant A se rend sur GitHub $\rightarrow$ **Settings** $\rightarrow$ **Branches** $\rightarrow$ Active la protection sur `main` (*Require a pull request before merging*).
-5. **Création et publication de la branche `dev` :**  
-   L'Étudiant A crée la branche d'intégration collective et la publie :
-   ```bash
-   git switch -c dev
-   git push -u origin dev
-   ```
-6. **L'Étudiant B** clone le projet et se positionne directement sur `dev` :
-   ```bash
-   git clone git@github.com:<organisation-ou-pseudo>/pyarena.git
-   cd pyarena
-   git switch dev
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -e ".[dev]"
-   pytest
-   ```
+1. **L'Étudiant·e A** prépare et enregistre le socle logiciel sur la branche principale :
+```bash
+git add .
+git commit -m "chore: initialisation de l'arborescence officielle et pyproject.toml"
 
-L'ensemble de votre infrastructure logicielle est en place et certifiée par les tests. Lors de la prochaine séance, nous pourrons directement concevoir les classes du modèle métier (**Programmation Orientée Objet**) au sein d'une structure logicielle éprouvée.
+```
+
+
+2. Posez le premier tag officiel de jalon (version sémantique) :
+```bash
+git tag -a v0.1.0 -m "Release v0.1.0 : Squelette officiel certifié"
+
+```
+
+
+3. Poussez le commit et le tag vers GitHub :
+```bash
+git push origin main --tags
+
+```
+
+
+4. **Validation de l'Intégration Continue (CI) :**
+Rendez-vous dans votre navigateur sur l'onglet **Actions** de votre dépôt GitHub. Le workflow `CI PyArena - Qualité & Tests` s'exécute automatiquement : installation, contrôle Ruff et Pytest passent au **VERT** !
+
+
+5. **Création et publication de la branche `dev` :**
+À partir de cet instant, tout développement s'effectuera en dehors de `main`. L'Étudiant·e A initialise la branche d'intégration partagée et la pousse sur le dépôt distant :
+
+
+```bash
+git switch -c dev
+git push -u origin dev
+
+```
+
+
+
+---
+
+### Étape 5 : Prise en Main par l'Étudiant·e B (et C)
+
+Dès que la branche `dev` est publiée sur GitHub, les autres membres de l'équipe synchronisent leur poste de travail :
+
+1. Clonez le dépôt et basculez immédiatement sur la branche collective `dev` :
+
+
+```bash
+git clone git@github.com:m1-ssd-2026/pyarena-groupe-XX.git pyarena
+cd pyarena
+git switch dev
+
+```
+
+
+2. Initialisez votre propre environnement virtuel et validez les tests :
+
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+
+```
+
+
+
+Votre environnement de travail collaboratif est opérationnel, certifié par les tests automatisés et prêt pour le développement du modèle orienté objet des combattants lors de la prochaine séance.
