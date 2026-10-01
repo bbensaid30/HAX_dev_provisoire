@@ -662,7 +662,11 @@ Le répertoire courant est <code>mon-projet/</code>. Son parent <code>..</code> 
 <code>ImportError: cannot import name ... from partially initialized module</code>.</p>
 <section id="la-règle-dorganisation" class="level3">
 <h3 class="anchored" data-anchor-id="la-règle-dorganisation">La règle d’organisation :</h3>
-<p>Dans un paquet bien conçu, les dépendances vont toujours dans le même sens : quarto * Un module de calcul ou de règles ne doit <strong>jamais</strong> importer le script qui l’appelle ou qui orchestre la partie. * Les fonctions utilitaires et les formules de base doivent être autonomes : elles reçoivent leurs données par des arguments en paramètres, sans aller piocher dans le reste du projet.</p>
+<p>Dans un paquet bien conçu, les dépendances vont toujours dans le même sens :</p>
+<ul>
+<li>Un module de calcul ou de règles ne doit <strong>jamais</strong> importer le script qui l’appelle ou qui orchestre la partie.</li>
+<li>Les fonctions utilitaires et les formules de base doivent être autonomes : elles reçoivent leurs données par des arguments en paramètres, sans aller piocher dans le reste du projet.</li>
+</ul>
 <hr>
 </section>
 </section>
@@ -973,7 +977,7 @@ pyarena-officiel/
 │       │   └── __init__.py
 │       ├── simulation/            &lt;-- Moteur stochastique et tournois
 │       │   └── __init__.py
-│       └── utils/                 &lt;-- Gestion du cache et des données
+│       └── io/                 &lt;-- Gestion du cache et des données
 │           └── __init__.py
 ├── tests/
 │   └── test_init.py               &lt;-- Test de validation du packaging (smoke test)
@@ -1023,7 +1027,7 @@ data/cache/*
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> data/cache/.gitkeep</span>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/core/__init__.py</span>
 <span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/simulation/__init__.py</span>
-<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/utils/__init__.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/io/__init__.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
 </ol>
 </section>
 <section id="étape-2-implémentation-du-socle-logiciel" class="level3">
