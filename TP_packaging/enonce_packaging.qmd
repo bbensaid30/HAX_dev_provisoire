@@ -734,9 +734,6 @@ C'est un **test de validation initial (*smoke test*)**. Il ne teste pas encore l
 1. Le paquet `pyarena` est correctement installé en mode éditable dans l'environnement virtuel.
 2. La variable `__version__` est lisible depuis la racine du paquet sans erreur d'importation.
 
-```
-
----
 
 ### Étape 1 : Récupération du Dépôt et Espace de Travail Local
 

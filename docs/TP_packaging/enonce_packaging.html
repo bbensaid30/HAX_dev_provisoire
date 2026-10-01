@@ -300,6 +300,7 @@ window.Quarto = {
   <li><a href="#partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" id="toc-partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" class="nav-link" data-scroll-target="#partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min">Partie 5 : Exercice de Synthèse — Le Squelette Officiel de <code>PyArena</code> &amp; Publication Git (20 min)</a>
   <ul class="collapse">
   <li><a href="#à-quoi-sert-le-fichier-teststest_init.py" id="toc-à-quoi-sert-le-fichier-teststest_init.py" class="nav-link" data-scroll-target="#à-quoi-sert-le-fichier-teststest_init.py">À quoi sert le fichier <code>tests/test_init.py</code> ?</a></li>
+  <li><a href="#étape-1-récupération-du-dépôt-et-espace-de-travail-local" id="toc-étape-1-récupération-du-dépôt-et-espace-de-travail-local" class="nav-link" data-scroll-target="#étape-1-récupération-du-dépôt-et-espace-de-travail-local">Étape 1 : Récupération du Dépôt et Espace de Travail Local</a></li>
   <li><a href="#étape-2-implémentation-du-socle-logiciel" id="toc-étape-2-implémentation-du-socle-logiciel" class="nav-link" data-scroll-target="#étape-2-implémentation-du-socle-logiciel">Étape 2 : Implémentation du Socle Logiciel</a></li>
   <li><a href="#étape-3-installation-et-contrôle-qualité-local" id="toc-étape-3-installation-et-contrôle-qualité-local" class="nav-link" data-scroll-target="#étape-3-installation-et-contrôle-qualité-local">Étape 3 : Installation et Contrôle Qualité Local</a></li>
   <li><a href="#étape-4-scellement-git-première-ci-et-protocole-de-branches" id="toc-étape-4-scellement-git-première-ci-et-protocole-de-branches" class="nav-link" data-scroll-target="#étape-4-scellement-git-première-ci-et-protocole-de-branches">Étape 4 : Scellement Git, Première CI et Protocole de Branches</a></li>
@@ -993,24 +994,27 @@ pyarena/
 <li>Le paquet <code>pyarena</code> est correctement installé en mode éditable dans l’environnement virtuel.</li>
 <li>La variable <code>__version__</code> est lisible depuis la racine du paquet sans erreur d’importation.</li>
 </ol>
-<pre><code>
----
-
-### Étape 1 : Récupération du Dépôt et Espace de Travail Local
-
-::: {.callout-important}
-
-### Répartition des Rôles au Sein de l'Équipe
-
-Les étapes 1 à 4 sont exécutées par **l'Étudiant·e A** sur sa machine. **L'Étudiant·e B** (et C) prendra le relais à l'étape 5 dès que la branche partagée aura été publiée.
-:::
-
-1. **L'Étudiant·e A** clone le dépôt officiel attribué à son groupe (remplacez `XX` par le numéro de votre groupe, ex. : `01`, `02`...) :
-
-```bash
-git clone git@github.com:m1-ssd-2026/pyarena-groupe-XX.git pyarena
-cd pyarena
-</code></pre>
+</section>
+<section id="étape-1-récupération-du-dépôt-et-espace-de-travail-local" class="level3">
+<h3 class="anchored" data-anchor-id="étape-1-récupération-du-dépôt-et-espace-de-travail-local">Étape 1 : Récupération du Dépôt et Espace de Travail Local</h3>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Répartition des Rôles au Sein de l’Équipe
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Les étapes 1 à 4 sont exécutées par <strong>l’Étudiant·e A</strong> sur sa machine. <strong>L’Étudiant·e B</strong> (et C) prendra le relais à l’étape 5 dès que la branche partagée aura été publiée.</p>
+</div>
+</div>
+<ol type="1">
+<li><strong>L’Étudiant·e A</strong> clone le dépôt officiel attribué à son groupe (remplacez <code>XX</code> par le numéro de votre groupe, ex. : <code>01</code>, <code>02</code>…) :</li>
+</ol>
+<div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:m1-ssd-2026/pyarena-groupe-XX.git pyarena</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> pyarena</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><em>(Si vos clés SSH ne sont pas configurées sur votre compte GitHub, utilisez l’URL HTTPS : <code>https://github.com/m1-ssd-2026/pyarena-groupe-XX.git</code>)</em> 2. Constatez que le dépôt distant contient déjà les fondations d’assurance qualité : le workflow de test automatisé (<code>.github/workflows/ci.yml</code>) et le fichier <code>.gitignore</code> interdisant formellement le téléversement des caches de données PokéAPI.</p>
 <ol start="3" type="1">
 <li>Créez l’environnement virtuel local et activez-le :</li>
