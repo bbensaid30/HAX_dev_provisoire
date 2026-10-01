@@ -1,0 +1,35 @@
+name: CI PyArena - Qualité & Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  test-et-qualite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Installation du paquet
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Contrôle qualité (Ruff)
+        run: |
+          ruff check src/ tests/
+          ruff format --check src/ tests/
+
+      - name: Pytest et Couverture
+        run: |
+          pytest tests/ --cov=src/pyarena --cov-report=term-missing --cov-report=xml:coverage.xml

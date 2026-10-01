@@ -16,7 +16,8 @@ format:
 
 # Phase 1 : Inscription des étudiants et Constitution des Áquipes
 
-Dans un fichier `named`e `promotions_2026.csv` :
+Dans un fichier nommé `promotions_2026.csv` :
+
  ```csv
 groupe,github_user
 groupe-01,login_etudiant1
@@ -29,22 +30,142 @@ Exécutez le script `_setup_teams.sh` :
 ```bash
 #!/usr/bin/env bash
 set -e
-ORG="univ-montpellier-hax712x-2026"
-CSV_FILE="promotions_2026.csv"
 
-for i in $(seq -w 1 10); do
-    TEAM_SLUG="groupe-${i}"
-    gh api --method POST -H "Accept: application/vnd.github+json" "/orgs/${ORG}/teams" -f name="${TEAM_SLUG}" -f privacy="closed" > /dev/null 2>&1 || true
+# ==============================================================================
+# Configuration
+# ==============================================================================
+ORG="m1-ssd-2026"
+CSV_FILE="promotions_2026.csv"
+NB_GROUPES=8
+
+# Vérifier que gh est connecté
+if ! gh auth status > /dev/null 2>&1; then
+    echo "Erreur : GitHub CLI (gh) n'est pas authentifié. Lancez d'abord 'gh auth login'."
+    exit 1
+fi
+
+if [ ! -f "$CSV_FILE" ]; then
+    echo "Erreur : Le fichier $CSV_FILE est introuvable."
+    exit 1
+fi
+
+echo "--- Étape 1A : Création des équipes groupe-01 à groupe-${NB_GROUPES} ---"
+for ((i=1; i<=NB_GROUPES; i++)); do
+    printf -v TEAM_SLUG "groupe-%02d" "$i"
+    echo "Création de l'équipe : ${TEAM_SLUG}"
+    gh api --method POST \
+        -H "Accept: application/vnd.github+json" \
+        "/orgs/${ORG}/teams" \
+        -f name="${TEAM_SLUG}" \
+        -f privacy="closed" > /dev/null 2>&1 || true
 done
 
-tail -n +2 "$CSV_FILE" | while IFS=',' read -r GROUPE USERNAME; do
-    GROUPE_$(echo "$GROUPE" | xargs)
-    USERNAME=$(echo "$USERNAME" | xargs)
-    if [ -n "$USERNAME" ]; then
-        gh api --method PUT -H "Accept: application/vnd.github+json" "/orgs/${ORG}/memberships/${USERNAME}" -f role="member" > /dev/null 2>&1 || true
-        gh api --method PUT -H "Accept: application/vnd.github+json" "/orgs/${ORG}/teams/${GROUPE}/memberships/${USERNAME}" -f role="member" > /dev/null 2>&1 || true
+echo "--- Étape 1B : Affectation des étudiants aux équipes ---"
+# Lecture ligne par ligne sans sous-shell fragile
+tail -n +2 "\(CSV_FILE" | while IFS=',' read -r GROUPE USERNAME || [ -n "\)GROUPE" ]; do
+    # Nettoyage natif des espaces et retours chariots Windows (\r)
+    GROUPE="\({GROUPE//[\)'\t\r\n ']/}"
+    USERNAME="\({USERNAME//[\)'\t\r\n ']/}"
+
+    if [ -n "\(USERNAME" ] && [ -n "\)GROUPE" ]; then
+        echo "Ajout de \({USERNAME} ->\){GROUPE}"
+        
+        # 1. Invitation dans l'organisation
+        gh api --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            "/orgs/\({ORG}/memberships/\){USERNAME}" \
+            -f role="member" > /dev/null 2>&1 || true
+
+        # 2. Ajout dans l'équipe
+        gh api --method PUT \
+            -H "Accept: application/vnd.github+json" \
+            "/orgs/\({ORG}/teams/\){GROUPE}/memberships/${USERNAME}" \
+            -f role="member" > /dev/null 2>&1 || true
     fi
 done
+
+echo "--- Étape 1 terminée avec succès ! ---"
+```
+
+```python
+#!/usr/bin/env python3
+import csv
+import subprocess
+import sys
+
+ORG = "univ-montpellier-hax712x-2026"
+CSV_FILE = "promotions_2026.csv"
+NB_GROUPES = 10
+
+
+def run_gh_api(method: str, endpoint: str, **fields) -> None:
+    """Exécute une commande gh api via subprocess."""
+    cmd = [
+        "gh",
+        "api",
+        "--method",
+        method,
+        "-H",
+        "Accept: application/vnd.github+json",
+        endpoint,
+    ]
+    for key, val in fields.items():
+        cmd.extend(["-f", f"{key}={val}"])
+
+    # On ignore les erreurs si l'équipe ou le membre existe déjà
+    subprocess.run(
+        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False
+    )
+
+
+def main() -> None:
+    # 1. Création des équipes
+    print(f"--- [1/2] Création des {NB_GROUPES} équipes sur GitHub ---")
+    for i in range(1, NB_GROUPES + 1):
+        team_slug = f"groupe-{i:02d}"
+        print(f" -> Création de l'équipe : {team_slug}")
+        run_gh_api(
+            "POST", f"/orgs/{ORG}/teams", name=team_slug, privacy="closed"
+        )
+
+    # 2. Lecture du fichier CSV et inscription
+    print(f"\n--- [2/2] Inscription des étudiants depuis {CSV_FILE} ---")
+    try:
+        with open(CSV_FILE, mode="r", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            # Sauter la ligne d'en-tête (groupe, github_user)
+            header = next(reader, None)
+
+            for row in reader:
+                if not row or len(row) < 2:
+                    continue
+                groupe = row[0].strip()
+                username = row[1].strip()
+
+                if groupe and username:
+                    print(f" -> Inscription de {username} dans {groupe}")
+                    # Invitation organisation
+                    run_gh_api(
+                        "PUT",
+                        f"/orgs/{ORG}/memberships/{username}",
+                        role="member",
+                    )
+                    # Ajout à l'équipe
+                    run_gh_api(
+                        "PUT",
+                        f"/orgs/{ORG}/teams/{groupe}/memberships/{username}",
+                        role="member",
+                    )
+
+    except FileNotFoundError:
+        print(f"Erreur : le fichier {CSV_FILE} est introuvable.", file=sys.stderr)
+        sys.exit(1)
+
+    print("\nInitialisation terminée avec succès !")
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 # Phase 2 : Création des Dépôts Vierges (`creer_depots.sh`)
@@ -62,36 +183,411 @@ for i in $(seq -w 1 10); do
 done
 ```
 
+```python
+#!/usr/bin/env python3
+"""Script d'orchestration - Phase 2 : Création des dépôts et affectation des droits.
+
+Projet : HAX712X (PyArena)
+Organisation : univ-montpellier-hax712x-2026
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+import sys
+
+# ==============================================================================
+# Configuration
+# ==============================================================================
+ORG = "univ-montpellier-hax712x-2026"
+NB_GROUPES = 10
+PREFIXE_DEPOT = "pyarena"
+
+# Si True, GitHub crée un premier commit avec un README.md vierge (crée la branche 'main').
+# Si False, le dépôt est strictement vide (dépôt vierge / bare).
+INITIALISER_AVEC_README = True
+
+
+def verifier_pre-requis() -> None:
+    """Vérifie que la CLI GitHub 'gh' est installée et authentifiée."""
+    if shutil.which("gh") is None:
+        sys.exit(
+            " Erreur : L'exécutable 'gh' est introuvable. "
+            "Veuillez installer GitHub CLI."
+        )
+
+    auth_check = subprocess.run(
+        ["gh", "auth", "status"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if auth_check.returncode != 0:
+        sys.exit(
+            " Erreur : GitHub CLI n'est pas authentifié.\n"
+            "Veuillez exécuter 'gh auth login' au préalable."
+        )
+
+
+def creer_depot_prive(org: str, repo_name: str, auto_init: bool = False) -> bool:
+    """Crée un dépôt privé dans l'organisation via l'API REST de GitHub.
+
+    Retourne True si le dépôt a été créé, False s'il existait déjà.
+    """
+    endpoint = f"/orgs/{org}/repos"
+    payload = {
+        "name": repo_name,
+        "private": True,
+        "auto_init": auto_init,
+        "description": f"Dépôt de projet étudiant pour {repo_name} (HAX712X)",
+    }
+
+    # Utilisation de 'gh api' avec passage de données JSON brutes
+    cmd = [
+        "gh",
+        "api",
+        "--method",
+        "POST",
+        "-H",
+        "Accept: application/vnd.github+json",
+        endpoint,
+        "--input",
+        "-",
+    ]
+
+    process = subprocess.run(
+        cmd,
+        input=json.dumps(payload),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    if process.returncode == 0:
+        return True
+
+    # Analyse de l'erreur : si le dépôt existe déjà, GitHub renvoie une erreur 422
+    erreur = process.stderr.lower()
+    if "already exists" in erreur or "name already exists" in erreur:
+        return False
+
+    # Erreur inattendue
+    print(f"    Échec création dépôt {repo_name} : {process.stderr.strip()}", file=sys.stderr)
+    return False
+
+
+def attacher_equipe_au_depot(
+    org: str, team_slug: str, repo_name: str, permission: str = "push"
+) -> bool:
+    """Associe une équipe à un dépôt avec le niveau de permission souhaité.
+
+    Niveaux acceptés : 'pull' (lecture), 'push' (écriture), 'admin'.
+    """
+    endpoint = f"/orgs/{org}/teams/{team_slug}/repos/{org}/{repo_name}"
+
+    cmd = [
+        "gh",
+        "api",
+        "--method",
+        "PUT",
+        "-H",
+        "Accept: application/vnd.github+json",
+        endpoint,
+        "-f",
+        f"permission={permission}",
+    ]
+
+    process = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    if process.returncode == 0:
+        return True
+
+    print(
+        f"    Échec association équipe {team_slug} -> {repo_name} : {process.stderr.strip()}",
+        file=sys.stderr,
+    )
+    return False
+
+
+def main() -> None:
+    print("=" * 70)
+    print(" PHASE 2 : Provisionnement des dépôts et attribution des droits")
+    print(f" Organisation : {ORG}")
+    print(f" Nombre de groupes : {NB_GROUPES}")
+    print("=" * 70)
+
+    verifier_pre-requis()
+
+    succes_creation = 0
+    succes_droits = 0
+
+    for i in range(1, NB_GROUPES + 1):
+        team_slug = f"groupe-{i:02d}"
+        repo_name = f"{PREFIXE_DEPOT}-{team_slug}"
+
+        print(f"\n Traitement du Groupe {i:02d} :")
+
+        # 1. Création du dépôt
+        cree = creer_depot_prive(
+            ORG, repo_name, auto_init=INITIALISER_AVEC_README
+        )
+        if cree:
+            print(f"   [+] Dépôt créé : {ORG}/{repo_name} (Privé)")
+            succes_creation += 1
+        else:
+            print(f"   [=] Dépôt existant : {ORG}/{repo_name} (Ignoré)")
+
+        # 2. Attribution des permissions à l'équipe
+        ok_perm = attacher_equipe_au_depot(
+            ORG, team_slug, repo_name, permission="push"
+        )
+        if ok_perm:
+            print(f"   [✓] Équipe '{team_slug}' associée avec droits d'écriture ('push')")
+            succes_droits += 1
+        else:
+            print(f"   [✗] Problème d'attribution des droits pour '{team_slug}'")
+
+    print("\n" + "=" * 70)
+    print(" BILAN DE LA PHASE 2 :")
+    print(f" • Dépôts créés / vérifiés : {NB_GROUPES}")
+    print(f" • Équipes correctement liées : {succes_droits}/{NB_GROUPES}")
+    print("=" * 70)
+    print("\nProchaine étape : Configuration des workflows GitHub Actions (Phase 3).")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 # Phase 3 : CI GitHub Actions (`.github/workflows/ci.yml`)
 
 ```yaml
 name: CI PyArena - Qualité & Tests
+
 on:
   push:
     branches: [ main, dev ]
   pull_request:
     branches: [ main, dev ]
+
 jobs:
   test-et-qualite:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3v4
+      - name: Récupération du code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
+
       - name: Installation du paquet
         run: |
           pip install -e ".[dev]"
-      - name: Ruff
+
+      - name: Contrôle qualité (Ruff)
         run: |
           ruff check src/ tests/
           ruff format --check src/ tests/
+
       - name: Pytest et Couverture
         run: |
           pytest tests/ --cov=src/pyarena --cov-report=term-missing --cov-report=xml:coverage.xml
+```
+
+```python
+#!/usr/bin/env python3
+"""Script de déploiement universel - Phase 3.
+
+Initialise la branche 'main', déploie le pipeline de CI, le README
+et le .gitignore sur tous les dépôts étudiants de l'organisation.
+
+Organisation : m1-ssd-2026
+Projet : HAX712X (PyArena)
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ORG = "m1-ssd-2026"
+
+# Workflow de CI officiel conforme au cahier des charges
+WORKFLOW_YAML = """name: CI PyArena - Qualité & Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  test-et-qualite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Installation du paquet
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Contrôle qualité (Ruff)
+        run: |
+          ruff check src/ tests/
+          ruff format --check src/ tests/
+
+      - name: Pytest et Couverture
+        run: |
+          pytest tests/ --cov=src/pyarena --cov-report=term-missing --cov-report=xml:coverage.xml
+"""
+
+GITIGNORE_CONTENT = """# Cache local PokéAPI (Interdit sur GitHub selon cahier des charges)
+data/cache/
+*.json
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# Fichiers de cache Python et tests
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Distribution & build
+build/
+dist/
+*.egg-info/
+"""
+
+
+def verifier_commandes() -> None:
+    for cmd in ("git", "gh"):
+        if shutil.which(cmd) is None:
+            sys.exit(f"Erreur : la commande '{cmd}' est introuvable.")
+
+    auth = subprocess.run(["gh", "auth", "status"], capture_output=True)
+    if auth.returncode != 0:
+        sys.exit("Erreur : GitHub CLI n'est pas connecté. Lance 'gh auth login'.")
+
+
+def recuperer_depots_organisation(org: str) -> list[str]:
+    """Récupère la liste exacte des dépôts 'pyarena' existants sur GitHub."""
+    cmd = ["gh", "repo", "list", org, "--json", "name", "--limit", "100"]
+    res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    donnees = json.loads(res.stdout)
+    depots = [item["name"] for item in donnees if item["name"].startswith("pyarena")]
+    depots.sort()
+    return depots
+
+
+def deployer_vers_depot(tmp_dir: Path, org: str, repo: str) -> bool:
+    """Configure le remote et pousse la branche main vers le dépôt cible."""
+    url_remote = f"https://github.com/{org}/{repo}.git"
+
+    # Réinitialisation du remote origin
+    subprocess.run(["git", "remote", "remove", "origin"], cwd=tmp_dir, capture_output=True)
+    subprocess.run(["git", "remote", "add", "origin", url_remote], cwd=tmp_dir, check=True)
+
+    # Push forcé pour garantir l'initialisation de la branche main
+    res = subprocess.run(
+        ["git", "push", "-u", "origin", "main", "--force"],
+        cwd=tmp_dir,
+        capture_output=True,
+        text=True,
+    )
+    if res.returncode == 0:
+        return True
+
+    print(f"\n   [DÉTAIL ERREUR] {res.stderr.strip()}", file=sys.stderr)
+    return False
+
+
+def main() -> None:
+    print("=" * 70)
+    print(" INITIALISATION ET DÉPLOIEMENT CI VIA GIT")
+    print(f" Organisation : {ORG}")
+    print("=" * 70)
+
+    verifier_commandes()
+
+    depots = recuperer_depots_organisation(ORG)
+    if not depots:
+        sys.exit(f"Aucun dépôt préfixé par 'pyarena' trouvé sous {ORG}.")
+
+    print(f"Dépôts détectés ({len(depots)}) : {', '.join(depots)}\n")
+
+    # Création d'un espace de travail temporaire
+    with tempfile.TemporaryDirectory() as temp_dir:
+        tmp_path = Path(temp_dir)
+
+        # 1. Initialisation d'un dépôt Git local sur la branche 'main'
+        subprocess.run(["git", "init", "-b", "main"], cwd=tmp_path, check=True)
+
+        # 2. Écriture des fichiers de base
+        workflows_dir = tmp_path / ".github" / "workflows"
+        workflows_dir.mkdir(parents=True, exist_ok=True)
+
+        (workflows_dir / "ci.yml").write_text(WORKFLOW_YAML, encoding="utf-8")
+        (tmp_path / ".gitignore").write_text(GITIGNORE_CONTENT, encoding="utf-8")
+        (tmp_path / "README.md").write_text(
+            f"# PyArena — HAX712X\nProjet de Développement Logiciel (Promotion M1 SSD 2026)\n",
+            encoding="utf-8",
+        )
+
+        # 3. Création du commit initial
+        subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+        subprocess.run(
+            ["git", "commit", "-m", "ci: initialisation du dépôt et du workflow de test"],
+            cwd=tmp_path,
+            check=True,
+        )
+
+        # 4. Envoi vers chacun des dépôts étudiants
+        succes = 0
+        for repo in depots:
+            print(f" -> Déploiement sur {ORG}/{repo}...", end=" ", flush=True)
+            if deployer_vers_depot(tmp_path, ORG, repo):
+                print("[OK]")
+                succes += 1
+            else:
+                print("[ÉCHEC]")
+
+    print("\n" + "=" * 70)
+    print(f" Résultat : {succes}/{len(depots)} dépôts configurés et initialisés.")
+    print("=" * 70)
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 # Phase 4 : Tests Oracle Enseignant (`tests_oracle/test_oracle_core.py`)
@@ -128,3 +624,14 @@ def test_oracle_exceptions():
 # Phase 5 : Script de Notation Automatisée (`grade_promo.py`)
 
 Le script `python grade_promo.py` exécute le clonage, l§analyse du run GitHub Actions, le décompte des PRs et des Approvals, la couverture pytest-cov, l§injection des tests oracle et l§export d'un récapitulatif `recapitulatif_notes_promo.csv`.
+
+for i in $(seq -w 1 8); do
+    gh api --method PUT \
+      -H "Accept: application/vnd.github+json" \
+      "/repos/m1-ssd-2026/pyarena-groupe-${i}/branches/main/protection" \
+      -F "required_status_checks[strict]=true" \
+      -F "required_status_checks[contexts][]=test-et-qualite" \
+      -F "enforce_admins=false" \
+      -F "required_pull_request_reviews[required_approving_review_count]=1" \
+      -F "restrictions=null"
+done

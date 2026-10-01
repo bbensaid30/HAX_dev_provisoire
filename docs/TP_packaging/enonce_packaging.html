@@ -300,10 +300,10 @@ window.Quarto = {
   <li><a href="#partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" id="toc-partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" class="nav-link" data-scroll-target="#partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min">Partie 5 : Exercice de Synthèse — Le Squelette Officiel de <code>PyArena</code> &amp; Publication Git (20 min)</a>
   <ul class="collapse">
   <li><a href="#à-quoi-sert-le-fichier-teststest_init.py" id="toc-à-quoi-sert-le-fichier-teststest_init.py" class="nav-link" data-scroll-target="#à-quoi-sert-le-fichier-teststest_init.py">À quoi sert le fichier <code>tests/test_init.py</code> ?</a></li>
-  <li><a href="#étape-1-initialisation-de-lespace-de-travail" id="toc-étape-1-initialisation-de-lespace-de-travail" class="nav-link" data-scroll-target="#étape-1-initialisation-de-lespace-de-travail">Étape 1 : Initialisation de l’Espace de Travail</a></li>
   <li><a href="#étape-2-implémentation-du-socle-logiciel" id="toc-étape-2-implémentation-du-socle-logiciel" class="nav-link" data-scroll-target="#étape-2-implémentation-du-socle-logiciel">Étape 2 : Implémentation du Socle Logiciel</a></li>
-  <li><a href="#étape-3-installation-et-validation-des-outils" id="toc-étape-3-installation-et-validation-des-outils" class="nav-link" data-scroll-target="#étape-3-installation-et-validation-des-outils">Étape 3 : Installation et Validation des Outils</a></li>
-  <li><a href="#étape-4-scellement-git-tag-et-protocole-de-branches" id="toc-étape-4-scellement-git-tag-et-protocole-de-branches" class="nav-link" data-scroll-target="#étape-4-scellement-git-tag-et-protocole-de-branches">Étape 4 : Scellement Git, Tag et Protocole de Branches</a></li>
+  <li><a href="#étape-3-installation-et-contrôle-qualité-local" id="toc-étape-3-installation-et-contrôle-qualité-local" class="nav-link" data-scroll-target="#étape-3-installation-et-contrôle-qualité-local">Étape 3 : Installation et Contrôle Qualité Local</a></li>
+  <li><a href="#étape-4-scellement-git-première-ci-et-protocole-de-branches" id="toc-étape-4-scellement-git-première-ci-et-protocole-de-branches" class="nav-link" data-scroll-target="#étape-4-scellement-git-première-ci-et-protocole-de-branches">Étape 4 : Scellement Git, Première CI et Protocole de Branches</a></li>
+  <li><a href="#étape-5-prise-en-main-par-létudiante-b-et-c" id="toc-étape-5-prise-en-main-par-létudiante-b-et-c" class="nav-link" data-scroll-target="#étape-5-prise-en-main-par-létudiante-b-et-c">Étape 5 : Prise en Main par l’Étudiant·e B (et C)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -961,13 +961,16 @@ sys.argv = [ "combat.py" ,  "50"   ,  "15"   ]
 </section>
 <section id="partie-5-exercice-de-synthèse-le-squelette-officiel-de-pyarena-publication-git-20-min" class="level1">
 <h1>Partie 5 : Exercice de Synthèse — Le Squelette Officiel de <code>PyArena</code> &amp; Publication Git (20 min)</h1>
-<p><em>Cet exercice permet de mettre en place le projet semestriel en groupe. Vous initialisez l’arborescence complète, configurez le packaging professionnel et publiez la fondation sur GitHub selon les règles de l’art.</em></p>
+<p><em>Cet exercice permet d’initialiser le projet semestriel en équipe. Vous récupérez le dépôt officiel préconfiguré attribué à votre groupe, mettez en place le packaging professionnel, implémentez le socle initial et validez votre première intégration continue (CI) sur GitHub Actions.</em></p>
 <pre class="text"><code>ARBORESCENCE OFFICIELLE DU PROJET PYARENA :
 
-pyarena-officiel/
+pyarena/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 &lt;-- Déployé par l'organisation (contrôle qualité &amp; tests)
 ├── pyproject.toml
 ├── README.md
-├── .gitignore
+├── .gitignore                     &lt;-- Déployé par l'organisation (cache PokéAPI ignoré)
 ├── .venv/                         &lt;-- Non versionné
 ├── src/
 │   └── pyarena/
@@ -977,7 +980,7 @@ pyarena-officiel/
 │       │   └── __init__.py
 │       ├── simulation/            &lt;-- Moteur stochastique et tournois
 │       │   └── __init__.py
-│       └── io/                 &lt;-- Gestion du cache et des données
+│       └── io/                    &lt;-- Ingestion et gestion du cache disque
 │           └── __init__.py
 ├── tests/
 │   └── test_init.py               &lt;-- Test de validation du packaging (smoke test)
@@ -985,169 +988,204 @@ pyarena-officiel/
     └── cache/                     &lt;-- Données brutes (ignoré par Git)</code></pre>
 <section id="à-quoi-sert-le-fichier-teststest_init.py" class="level3">
 <h3 class="anchored" data-anchor-id="à-quoi-sert-le-fichier-teststest_init.py">À quoi sert le fichier <code>tests/test_init.py</code> ?</h3>
-<p>C’est un <strong>test de validation initial (<em>smoke test</em>)</strong>. Il ne teste pas encore la logique métier des combats (qui sera écrite lors des prochains TPs), mais certifie immédiatement que :</p>
+<p>C’est un <strong>test de validation initial (<em>smoke test</em>)</strong>. Il ne teste pas encore la logique métier des combats (qui sera implémentée lors des prochaines séances), mais certifie immédiatement que :</p>
 <ol type="1">
-<li>Le paquet <code>pyarena</code> est bien installé et reconnu dans l’environnement virtuel.</li>
+<li>Le paquet <code>pyarena</code> est correctement installé en mode éditable dans l’environnement virtuel.</li>
 <li>La variable <code>__version__</code> est lisible depuis la racine du paquet sans erreur d’importation.</li>
 </ol>
-</section>
-<section id="étape-1-initialisation-de-lespace-de-travail" class="level3">
-<h3 class="anchored" data-anchor-id="étape-1-initialisation-de-lespace-de-travail">Étape 1 : Initialisation de l’Espace de Travail</h3>
-<ol type="1">
-<li><p>Créez le répertoire officiel du projet et placez-vous dedans :</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> ~/pyarena-officiel <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> ~/pyarena-officiel</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Créez l’environnement virtuel local et activez-le :</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Rédigez le fichier <code>.gitignore</code> à la racine :</p>
-<pre class="text"><code># Environnement virtuel local (JAMAIS sur Git)
-.venv/
+<pre><code>
+---
 
-# Caches bytecode Python
-__pycache__/
-*.py[cod]
+### Étape 1 : Récupération du Dépôt et Espace de Travail Local
 
-# Artefacts de distribution et packaging
-*.egg-info/
-dist/
-build/
+::: {.callout-important}
 
-# Caches d'outils de test
-.pytest_cache/
-.coverage
+### Répartition des Rôles au Sein de l'Équipe
 
-# Caches de données et logs du projet
-data/cache/*
-!data/cache/.gitkeep
-*.log
-.DS_Store</code></pre></li>
-<li><p>Créez l’arborescence complète des dossiers avec leurs fichiers d’accroche :</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> src/pyarena/core src/pyarena/simulation src/pyarena/utils tests data/cache</span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> data/cache/.gitkeep</span>
-<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/core/__init__.py</span>
-<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/simulation/__init__.py</span>
-<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/io/__init__.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+Les étapes 1 à 4 sont exécutées par **l'Étudiant·e A** sur sa machine. **L'Étudiant·e B** (et C) prendra le relais à l'étape 5 dès que la branche partagée aura été publiée.
+:::
+
+1. **L'Étudiant·e A** clone le dépôt officiel attribué à son groupe (remplacez `XX` par le numéro de votre groupe, ex. : `01`, `02`...) :
+
+```bash
+git clone git@github.com:m1-ssd-2026/pyarena-groupe-XX.git pyarena
+cd pyarena
+</code></pre>
+<p><em>(Si vos clés SSH ne sont pas configurées sur votre compte GitHub, utilisez l’URL HTTPS : <code>https://github.com/m1-ssd-2026/pyarena-groupe-XX.git</code>)</em> 2. Constatez que le dépôt distant contient déjà les fondations d’assurance qualité : le workflow de test automatisé (<code>.github/workflows/ci.yml</code>) et le fichier <code>.gitignore</code> interdisant formellement le téléversement des caches de données PokéAPI.</p>
+<ol start="3" type="1">
+<li>Créez l’environnement virtuel local et activez-le :</li>
 </ol>
+<div class="sourceCode" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="4" type="1">
+<li>Créez l’arborescence des modules et les fichiers de garde en commande ou sur VSCode:</li>
+</ol>
+<div class="sourceCode" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> src/pyarena/core src/pyarena/simulation src/pyarena/io tests data/cache</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> data/cache/.gitkeep</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/core/__init__.py</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/simulation/__init__.py</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/pyarena/io/__init__.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
 </section>
 <section id="étape-2-implémentation-du-socle-logiciel" class="level3">
 <h3 class="anchored" data-anchor-id="étape-2-implémentation-du-socle-logiciel">Étape 2 : Implémentation du Socle Logiciel</h3>
 <ol type="1">
-<li><p>Créez le fichier <code>src/pyarena/__init__.py</code> :</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Package officiel de simulation stochastique PyArena."""</span></span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span>
-<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="va">__all__</span> <span class="op">=</span> [<span class="st">"__version__"</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Créez le point d’entrée CLI dans <code>src/pyarena/cli.py</code> :</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/pyarena/cli.py</span></span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena <span class="im">import</span> __version__</span>
-<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
-<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&gt;</span> <span class="dv">1</span> <span class="kw">and</span> sys.argv[<span class="dv">1</span>] <span class="op">==</span> <span class="st">"--version"</span>:</span>
-<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"PyArena version </span><span class="sc">{</span>__version__<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"PyArena : Moteur opérationnel. Utilisez '--version' pour vérifier la version."</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Créez le test de validation initiale dans <code>tests/test_init.py</code> :</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/test_init.py</span></span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena <span class="im">import</span> __version__</span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_package_installe_et_version():</span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Vérifie que pyarena est importable et expose sa version."""</span></span>
-<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> __version__ <span class="op">==</span> <span class="st">"0.1.0"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Créez le fichier de présentation <code>README.md</code> :</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"# PyArena - Moteur de Combat d'Arène Stochastique"</span> <span class="op">&gt;</span> README.md</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Rédigez le fichier <code>pyproject.toml</code> de référence :</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">"setuptools&gt;=68.0"</span><span class="op">,</span> <span class="st">"wheel"</span><span class="op">]</span></span>
-<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">"setuptools.build_meta"</span></span>
-<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[project]</span></span>
-<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"pyarena"</span></span>
-<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
-<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">"Moteur de simulation stochastique pour combats d'arènes"</span></span>
-<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">"README.md"</span></span>
-<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">"&gt;=3.10"</span></span>
-<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">""</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">""</span><span class="op"> }</span></span>
-<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
-<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a><span class="dt">classifiers</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Programming Language :: Python :: 3"</span><span class="op">,</span></span>
-<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Operating System :: OS Independent"</span><span class="op">,</span></span>
-<span id="cb64-17"><a href="#cb64-17" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
-<span id="cb64-18"><a href="#cb64-18" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb64-19"><a href="#cb64-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"numpy&gt;=1.24.0"</span><span class="op">,</span></span>
-<span id="cb64-20"><a href="#cb64-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"requests&gt;=2.31.0"</span><span class="op">,</span></span>
-<span id="cb64-21"><a href="#cb64-21" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
-<span id="cb64-22"><a href="#cb64-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-23"><a href="#cb64-23" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.optional-dependencies]</span></span>
-<span id="cb64-24"><a href="#cb64-24" aria-hidden="true" tabindex="-1"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb64-25"><a href="#cb64-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest&gt;=7.4.0"</span><span class="op">,</span></span>
-<span id="cb64-26"><a href="#cb64-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest-cov&gt;=4.1.0"</span><span class="op">,</span></span>
-<span id="cb64-27"><a href="#cb64-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ruff&gt;=0.1.0"</span><span class="op">,</span></span>
-<span id="cb64-28"><a href="#cb64-28" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
-<span id="cb64-29"><a href="#cb64-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-30"><a href="#cb64-30" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.scripts]</span></span>
-<span id="cb64-31"><a href="#cb64-31" aria-hidden="true" tabindex="-1"></a><span class="dt">pyarena</span> <span class="op">=</span> <span class="st">"pyarena.cli:main"</span></span>
-<span id="cb64-32"><a href="#cb64-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-33"><a href="#cb64-33" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.setuptools.packages.find]</span></span>
-<span id="cb64-34"><a href="#cb64-34" aria-hidden="true" tabindex="-1"></a><span class="dt">where</span> <span class="op">=</span> <span class="op">[</span><span class="st">"src"</span><span class="op">]</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li>Rédigez le fichier <code>src/pyarena/__init__.py</code> :</li>
 </ol>
+<div class="sourceCode" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Package officiel de simulation stochastique PyArena."""</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a><span class="va">__all__</span> <span class="op">=</span> [<span class="st">"__version__"</span>]</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="2" type="1">
+<li>Créez le point d’entrée console dans <code>src/pyarena/cli.py</code> :</li>
+</ol>
+<div class="sourceCode" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena <span class="im">import</span> __version__</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(sys.argv) <span class="op">&gt;</span> <span class="dv">1</span> <span class="kw">and</span> sys.argv[<span class="dv">1</span>] <span class="op">==</span> <span class="st">"--version"</span>:</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"PyArena version </span><span class="sc">{</span>__version__<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"PyArena : Moteur opérationnel. Utilisez '--version' pour vérifier la version."</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="3" type="1">
+<li>Créez le test de validation initiale dans <code>tests/test_init.py</code> :</li>
+</ol>
+<div class="sourceCode" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena <span class="im">import</span> __version__</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_package_installe_et_version():</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Vérifie que pyarena est importable et expose sa version."""</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> __version__ <span class="op">==</span> <span class="st">"0.1.0"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="4" type="1">
+<li>Complétez le fichier <code>README.md</code> à la racine pour identifier formellement les membres de votre groupe :</li>
+</ol>
+<div class="sourceCode" id="cb62"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># PyArena — HAX712X</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>Moteur de combat d'arène stochastique et dashboard décisionnel.</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Membres de l'équipe</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Étudiant 1 (@login_github_1)</span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Étudiant 2 (@login_github_2)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="5" type="1">
+<li>Rédigez le fichier de packaging <code>pyproject.toml</code> à la racine :</li>
+</ol>
+<div class="sourceCode" id="cb63"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">"setuptools&gt;=68.0"</span><span class="op">,</span> <span class="st">"wheel"</span><span class="op">]</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">"setuptools.build_meta"</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="kw">[project]</span></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"pyarena"</span></span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">"Moteur de simulation stochastique pour combats d'arènes"</span></span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">"README.md"</span></span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">"&gt;=3.10"</span></span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">"Bilel Bensaid"</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">"bilel.bensaid@umontpellier.fr"</span><span class="op"> },</span></span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">"Ada Lovelace"</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">"ada.lovelace@etud.univ-montp2.fr"</span><span class="op"> },</span></span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">"Alan Turing"</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">"alan.turing@etud.univ-montp2.fr"</span><span class="op"> }</span></span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb63-16"><a href="#cb63-16" aria-hidden="true" tabindex="-1"></a><span class="dt">classifiers</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb63-17"><a href="#cb63-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Programming Language :: Python :: 3"</span><span class="op">,</span></span>
+<span id="cb63-18"><a href="#cb63-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Operating System :: OS Independent"</span><span class="op">,</span></span>
+<span id="cb63-19"><a href="#cb63-19" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb63-20"><a href="#cb63-20" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb63-21"><a href="#cb63-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"numpy&gt;=1.24.0"</span><span class="op">,</span></span>
+<span id="cb63-22"><a href="#cb63-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"requests&gt;=2.31.0"</span><span class="op">,</span></span>
+<span id="cb63-23"><a href="#cb63-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pandas&gt;=2.0.0"</span><span class="op">,</span></span>
+<span id="cb63-24"><a href="#cb63-24" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb63-25"><a href="#cb63-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-26"><a href="#cb63-26" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.optional-dependencies]</span></span>
+<span id="cb63-27"><a href="#cb63-27" aria-hidden="true" tabindex="-1"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb63-28"><a href="#cb63-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest&gt;=7.4.0"</span><span class="op">,</span></span>
+<span id="cb63-29"><a href="#cb63-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest-cov&gt;=4.1.0"</span><span class="op">,</span></span>
+<span id="cb63-30"><a href="#cb63-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ruff&gt;=0.1.0"</span><span class="op">,</span></span>
+<span id="cb63-31"><a href="#cb63-31" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb63-32"><a href="#cb63-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-33"><a href="#cb63-33" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.scripts]</span></span>
+<span id="cb63-34"><a href="#cb63-34" aria-hidden="true" tabindex="-1"></a><span class="dt">pyarena</span> <span class="op">=</span> <span class="st">"pyarena.cli:main"</span></span>
+<span id="cb63-35"><a href="#cb63-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-36"><a href="#cb63-36" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.setuptools.packages.find]</span></span>
+<span id="cb63-37"><a href="#cb63-37" aria-hidden="true" tabindex="-1"></a><span class="dt">where</span> <span class="op">=</span> <span class="op">[</span><span class="st">"src"</span><span class="op">]</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
 </section>
-<section id="étape-3-installation-et-validation-des-outils" class="level3">
-<h3 class="anchored" data-anchor-id="étape-3-installation-et-validation-des-outils">Étape 3 : Installation et Validation des Outils</h3>
+<section id="étape-3-installation-et-contrôle-qualité-local" class="level3">
+<h3 class="anchored" data-anchor-id="étape-3-installation-et-contrôle-qualité-local">Étape 3 : Installation et Contrôle Qualité Local</h3>
 <ol type="1">
-<li><p>Installez le paquet en mode éditable avec ses dépendances de développement :</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>Testez la commande console native :</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pyarena</span> <span class="at">--version</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><em>Sortie attendue :</em> <code>PyArena version 0.1.0</code>.</p></li>
-<li><p>Lancez la suite de tests pour certifier l’environnement :</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><em>Résultat :</em> <code>1 passed in 0.02s</code> ! Le paquet est certifié opérationnel.</p></li>
+<li>Installez le paquet en mode éditable avec l’ensemble des dépendances d’outillage :</li>
 </ol>
+<div class="sourceCode" id="cb64"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>(Cette étape est indispensable : sans cette installation, Python ne pourra pas résoudre l’import <code>from pyarena import ...</code> lors de l’exécution en ligne de commande).</em></p>
+<ol start="2" type="1">
+<li>Testez le binaire console généré par le point d’entrée :</li>
+</ol>
+<div class="sourceCode" id="cb65"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pyarena</span> <span class="at">--version</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Sortie attendue :</em> <code>PyArena version 0.1.0</code>. 3. <strong>Formatage et analyse statique préventive :</strong> Le serveur de CI vérifie deux aspects distincts de Ruff : l’absence d’erreurs de style (<code>ruff check</code>) et la conformité stricte du formatage de code (<code>ruff format --check</code>). Pour éviter tout rejet sur GitHub, appliquez le formateur localement avant de tester :</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Formatage automatique des sources</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> format src/ tests/</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Vérification des règles de style et d'import</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check src/ tests/</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Exécution du banc de test et calcul de couverture</span></span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/ <span class="at">--cov</span><span class="op">=</span>src/pyarena</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>Résultat attendu :</em> <code>1 passed</code> avec <span class="math inline">\(100\%\)</span> de couverture sur les modules actuels.</p>
+<hr>
 </section>
-<section id="étape-4-scellement-git-tag-et-protocole-de-branches" class="level3">
-<h3 class="anchored" data-anchor-id="étape-4-scellement-git-tag-et-protocole-de-branches">Étape 4 : Scellement Git, Tag et Protocole de Branches</h3>
+<section id="étape-4-scellement-git-première-ci-et-protocole-de-branches" class="level3">
+<h3 class="anchored" data-anchor-id="étape-4-scellement-git-première-ci-et-protocole-de-branches">Étape 4 : Scellement Git, Première CI et Protocole de Branches</h3>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Protocole d’Initialisation sur GitHub
+Gouvernance de la Branche <code>main</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>On ne peut pas créer de branche <code>dev</code> ni verrouiller une branche <code>main</code> qui n’existe pas encore sur le serveur distant.<br>
-<strong>L’Étudiant A est exceptionnellement autorisé à pousser directement sur <code>main</code> pour ce tout premier commit de fondation.</strong></p>
+<p>La branche <code>main</code> a vocation à être sanctuarisée côté organisation : aucune modification directe n’y sera autorisée ultérieurement sans passer par une Pull Request validée.</p>
+<p><strong>L’Étudiant·e A est exceptionnellement autorisé·e à pousser directement sur <code>main</code> ce tout premier commit de fondation.</strong></p>
 </div>
 </div>
 <ol type="1">
-<li><p><strong>L’Étudiant A</strong> réalise le commit initial sur sa machine locale :</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: initialisation de l'arborescence officielle et pyproject.toml"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p><strong>L’Étudiant A</strong> pose le premier tag officiel de jalon (SemVer) :</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag <span class="at">-a</span> v0.1.0 <span class="at">-m</span> <span class="st">"Release v0.1.0 : Squelette officiel certifie"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p><strong>L’Étudiant A</strong> lie le dépôt distant GitHub et pousse la branche <code>main</code> avec son tag :</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin git@github.com:<span class="op">&lt;</span>organisation-ou-pseudo<span class="op">&gt;</span>/pyarena.git</span>
-<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main <span class="at">--tags</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p><strong>Verrouillage immédiat sur GitHub :</strong><br>
-L’Étudiant A se rend sur GitHub <span class="math inline">\(\rightarrow\)</span> <strong>Settings</strong> <span class="math inline">\(\rightarrow\)</span> <strong>Branches</strong> <span class="math inline">\(\rightarrow\)</span> Active la protection sur <code>main</code> (<em>Require a pull request before merging</em>).</p></li>
-<li><p><strong>Création et publication de la branche <code>dev</code> :</strong><br>
-L’Étudiant A crée la branche d’intégration collective et la publie :</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> dev</span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin dev</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p><strong>L’Étudiant B</strong> clone le projet et se positionne directement sur <code>dev</code> :</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:<span class="op">&lt;</span>organisation-ou-pseudo<span class="op">&gt;</span>/pyarena.git</span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> pyarena</span>
-<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
-<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
-<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
-<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span>
-<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><strong>L’Étudiant·e A</strong> prépare et enregistre le socle logiciel sur la branche principale :</li>
 </ol>
-<p>L’ensemble de votre infrastructure logicielle est en place et certifiée par les tests. Lors de la prochaine séance, nous pourrons directement concevoir les classes du modèle métier (<strong>Programmation Orientée Objet</strong>) au sein d’une structure logicielle éprouvée.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: initialisation de l'arborescence officielle et pyproject.toml"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="2" type="1">
+<li>Posez le premier tag officiel de jalon (version sémantique) :</li>
+</ol>
+<div class="sourceCode" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag <span class="at">-a</span> v0.1.0 <span class="at">-m</span> <span class="st">"Release v0.1.0 : Squelette officiel certifié"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="3" type="1">
+<li>Poussez le commit et le tag vers GitHub :</li>
+</ol>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin main <span class="at">--tags</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="4" type="1">
+<li><p><strong>Validation de l’Intégration Continue (CI) :</strong> Rendez-vous dans votre navigateur sur l’onglet <strong>Actions</strong> de votre dépôt GitHub. Le workflow <code>CI PyArena - Qualité &amp; Tests</code> s’exécute automatiquement : installation, contrôle Ruff et Pytest passent au <strong>VERT</strong> !</p></li>
+<li><p><strong>Création et publication de la branche <code>dev</code> :</strong> À partir de cet instant, tout développement s’effectuera en dehors de <code>main</code>. L’Étudiant·e A initialise la branche d’intégration partagée et la pousse sur le dépôt distant :</p></li>
+</ol>
+<div class="sourceCode" id="cb70"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> dev</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin dev</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="étape-5-prise-en-main-par-létudiante-b-et-c" class="level3">
+<h3 class="anchored" data-anchor-id="étape-5-prise-en-main-par-létudiante-b-et-c">Étape 5 : Prise en Main par l’Étudiant·e B (et C)</h3>
+<p>Dès que la branche <code>dev</code> est publiée sur GitHub, les autres membres de l’équipe synchronisent leur poste de travail :</p>
+<ol type="1">
+<li>Clonez le dépôt et basculez immédiatement sur la branche collective <code>dev</code> :</li>
+</ol>
+<div class="sourceCode" id="cb71"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:m1-ssd-2026/pyarena-groupe-XX.git pyarena</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> pyarena</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol start="2" type="1">
+<li>Initialisez votre propre environnement virtuel et validez les tests :</li>
+</ol>
+<div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> <span class="at">-m</span> venv .venv</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Votre environnement de travail collaboratif est opérationnel, certifié par les tests automatisés et prêt pour le développement du modèle orienté objet des combattants lors de la prochaine séance.</p>
 
 
 </section>
