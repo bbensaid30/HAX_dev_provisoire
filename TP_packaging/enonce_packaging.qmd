@@ -336,7 +336,7 @@ Au chargement, Python suspend la lecture de `fichier_a` pour ouvrir `fichier_b`,
 
 ### La règle d'organisation :
 Dans un paquet bien conçu, les dépendances vont toujours dans le même sens :
-quarto 
+
 * Un module de calcul ou de règles ne doit **jamais** importer le script qui l'appelle ou qui orchestre la partie.
 * Les fonctions utilitaires et les formules de base doivent être autonomes : elles reçoivent leurs données par des arguments en paramètres, sans aller piocher dans le reste du projet.
 
@@ -717,7 +717,7 @@ pyarena-officiel/
 │       │   └── __init__.py
 │       ├── simulation/            <-- Moteur stochastique et tournois
 │       │   └── __init__.py
-│       └── utils/                 <-- Gestion du cache et des données
+│       └── io/                 <-- Gestion du cache et des données
 │           └── __init__.py
 ├── tests/
 │   └── test_init.py               <-- Test de validation du packaging (smoke test)
@@ -773,7 +773,7 @@ C'est un **test de validation initial (*smoke test*)**. Il ne teste pas encore l
    touch data/cache/.gitkeep
    touch src/pyarena/core/__init__.py
    touch src/pyarena/simulation/__init__.py
-   touch src/pyarena/utils/__init__.py
+   touch src/pyarena/io/__init__.py
    ```
 
 ### Étape 2 : Implémentation du Socle Logiciel
