@@ -1,0 +1,1597 @@
+---
+title: "Cours-TP : Exceptions Robustes & Tests Unitaires avec pytest"
+subtitle: "De l'Arbitrage de Z-Arena aux Suites de Tests Scientifiques & Stochastiques"
+author: "Bensaid Bilel"
+date: "16 Octobre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire de la séance"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Démarche Pédagogique
+
+Lors de la séance précédente, nous avons doté nos combattants d'un état protégé (`@property`) et d'invariants sanctuarisés avec `raise`. Pour valider notre code, nous écrivions de petits scripts impératifs (`test_exo.py`) fondés sur des instructions `assert` exécutées séquentiellement.
+
+Cette approche artisanale présente trois limites fondamentales en ingénierie logicielle :
+
+* **Interruption prématurée :** dès qu'une assertion échoue, le script s'arrête net. Il est impossible de savoir si les cinquante assertions suivantes auraient fonctionné.
+* **Pollution d'état :** si un test modifie les points de vie d'un objet en mémoire, les vérifications suivantes travaillent sur des données altérées (absence d'isolation).
+* **Diagnostic opaque :** un `assert` Python standard ne fournit aucun rapport synthétique sur les temps d'exécution, la matrice des cas d'échec ou la couverture de code.
+
+L'objectif de cette séance est d'adopter les standards de la **qualité logicielle professionnelle et de l'ingénierie des données** :
+
+1. Comprendre le cycle complet de capture des anomalies via le bloc `try / except / else / finally`.
+2. Assimiler la théorie du test logiciel (motif AAA, typologie des tests).
+3. Découvrir et maîtriser le cadre de référence en Python : **`pytest`**.
+4. Valider méthodiquement les cas nominaux (*Happy Path*) avant d'éprouver les cas d'erreur (*Sad Path*) avec `pytest.raises`.
+5. Factoriser nos environnements de test grâce aux **fixtures** et aux tests matriciels (**`@pytest.mark.parametrize`**).
+6. **Tester le code stochastique et les simulations de Monte Carlo** sans créer de tests intermittents (*flaky tests*).
+7. Isoler les accès disque et le cache grâce à la fixture native **`tmp_path`**, et catégoriser les calculs lourds avec des marqueurs personnalisés (**`@pytest.mark.slow`**).
+8. Mesurer la rigueur de notre travail avec la métrique de **couverture de code (*code coverage*)**.
+
+---
+
+## Découpage Temporel & Pédagogie de l'Échafaudage
+
+Le code métier des modèles (`ArenaFighter`, `BaseWarrior`, `SaiyanWarrior`, `Cyborg`) sous `src/zarena/warriors.py` étant stabilisé, l'ensemble de cette séance est dédié à la conception de suites de tests :
+
+| Phase | Thématique abordée | Degré d'autonomie |
+| :--- | :--- | :---: |
+| **Partie 0** | Architecture `src/` vs `tests/` & Configuration des outils | Manipulation guidée |
+| **Partie 1** | Cycle de vie des Exceptions : `try / except / else / finally` | Cours & Exercice 1 (`referee.py`) |
+| **Partie 2** | Théorie du Test (AAA, Typologie) & Premiers tests nominaux | **Guidage fort** (Squelette fourni) |
+| **Partie 3** | Tester les Anomalies : `pytest.raises` & Validation des Invariants | **Guidage fort** (Squelette fourni) |
+| **Partie 4** | Isolation d'état : Fixtures réutilisables & `conftest.py` | **Semi-autonomie** (`test_saiyan.py`) |
+| **Partie 5** | Tests Paramétrés aux Limites (`@pytest.mark.parametrize`) | **Autonomie complète** (`test_cyborg.py`) |
+| **Partie 6** | Tester le Hasard : Déterminisme (`seed`), Invariants & Monte Carlo | **Guidage moyen** (`test_battle.py`) |
+| **Partie 7** | Pratiques Data Science : Fixture `tmp_path` & Marqueurs `@pytest.mark.slow` | **Semi-autonomie** (`test_records.py`) |
+| **Partie 8** | Couverture de Code (`pytest-cov`) & Chasse aux branches mortes | Diagnostic guidé |
+| **Synthèse** | **Devoir Maison Guidé (Hors séance) :** Suite de Tests `PyArena` | Projet Git en équipe |
+
+---
+
+# Partie 0 : Architecture Projet & Arborescence (15 min)
+
+## 0.1 Séparation Code Source / Code de Test
+
+Dans un projet Python packagé selon l'architecture `src-layout`, les fichiers de test ne doivent **jamais** être mélangés aux fichiers sources de l'application. Ils résident dans un répertoire miroir dédié nommé `tests/` placé à la racine du dépôt :
+
+```text
+tp-exercices/
+├── pyproject.toml            # Configuration du paquet, de Ruff et de Pytest
+├── src/                      # CODE DE PRODUCTION (distribué et installé)
+│   └── zarena/
+│       ├── __init__.py
+│       ├── battle.py         # Moteur de duels stochastiques & Monte Carlo
+│       ├── exceptions.py     # Classes d'exceptions métier (ZArenaError...)
+│       ├── records.py        # Sérialisation et journalisation disque
+│       ├── referee.py        # Fonctions d'arbitrage et d'orchestration
+│       └── warriors.py       # Modèles (ArenaFighter, BaseWarrior, Saiyan, Cyborg)
+└── tests/                    # CODE DE VALIDATION (strictement interne au dépôt)
+    ├── __init__.py
+    ├── conftest.py           # Fixtures partagées à l'échelle du projet
+    ├── test_battle.py        # Tests stochastiques et déterminisme
+    ├── test_cyborg.py        # Tests paramétrés du blindage et dunders
+    ├── test_records.py       # Tests d'I/O isolés via tmp_path
+    ├── test_referee.py       # Tests d'intégration de l'arbitrage
+    ├── test_saiyan.py        # Tests unitaires du SaiyanWarrior
+    └── test_warriors.py      # Tests unitaires de BaseWarrior
+
+```
+
+::: {.callout-note}
+
+### Pourquoi placer `tests/` en dehors de `src/` ?
+
+Lorsque votre paquet est construit pour être distribué via `pip install zarena`, seuls les fichiers du répertoire `src/` sont assemblés dans l'archive finale (la *wheel* `.whl`). Placer `tests/` à la racine évite d'alourdir inutilement le paquet distribué avec des dizaines de fichiers de tests, de fixtures et de données d'évaluation.
+:::
+
+---
+
+## 0.2 Configuration des Outils dans `pyproject.toml`
+
+Ouvrez le fichier `pyproject.toml` à la racine de votre dossier de travail `~/tp-exercices/` pour y déclarer les dépendances de test, la configuration de `pytest` et les marqueurs personnalisés :
+
+```toml
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zarena"
+version = "0.1.0"
+description = "Moteur de simulation d'arène de combat Dragon Ball Z"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: tests de calcul intensif ou de simulation lourde (Monte Carlo)",  #on comprendra cette ligne à la fin du TP
+]
+
+```
+
+Installez ces outils dans votre environnement virtuel actif :
+
+```bash
+source .venv/bin/activate
+pip install -e ".[dev]"
+
+```
+
+Créez le répertoire de tests à la racine :
+
+```bash
+mkdir -p tests
+touch tests/__init__.py
+
+```
+
+Vérifiez que votre environnement est fonctionnel :
+
+```bash
+pytest --version
+
+```
+
+---
+
+> *Transition : Avant d'écrire des bancs de test automatisés, comprenons comment intercepter et traiter proprement les erreurs métier émises par nos classes lors d'un match.*
+
+---
+
+# Partie 1 : Le Cycle de Vie des Exceptions en Python (25 min)
+
+## 1.1 Lever vs Intercepter : La Philosophie du Traitement d'Erreurs
+
+En programmation défensive :
+
+* Le composant de bas niveau (la méthode `BaseWarrior.take_damage`) **constate** qu'une règle est violée (ex. subir un coup alors que `is_alive is False`). Son rôle est d'interrompre immédiatement son flux d'instructions et d'émettre une alerte formelle via **`raise`**.
+* Le composant de haut niveau (l'arbitre de l'arène ou une boucle de jeu) **intercepte** cette alerte pour réagir sans faire planter brutalement l'application.
+
+Le mécanisme de capture repose sur quatre blocs complémentaires :
+
+```python
+try:
+    # 1. Bloc surveillé : code susceptible de lever une exception
+    degats = attaquant.execute_attack()
+    defenseur.take_damage(degats)
+except FighterFaintedError as err:
+    # 2. Bloc de secours : exécuté UNIQUEMENT si l'erreur ciblée survient
+    print(f"Action refusée par l'arbitre : {err}")
+else:
+    # 3. Bloc de succès : exécuté UNIQUEMENT si AUCUNE exception n'a été levée
+    print(f"Assaut validé : {degats} dégâts appliqués.")
+finally:
+    # 4. Bloc de clôture : exécuté SYSTÉMATIQUEMENT, quoi qu'il arrive
+    reinitialiser_chrono_tour()
+
+```
+
+---
+
+## 1.2 Le Polymorphisme Appliqué aux Exceptions
+
+Dans notre module `src/zarena/exceptions.py`, nous disposons de la hiérarchie suivante :
+
+
+$$\text{Exception} \longrightarrow \text{ZArenaError} \longrightarrow \begin{cases} \text{InvalidStatError} \\ \text{FighterFaintedError} \\ \text{NotEnoughKiError} \end{cases}$$
+
+Puisque `FighterFaintedError` hérite de `ZArenaError`, une clause d'interception sur la classe parente intercepte automatiquement toutes ses classes filles :
+
+```python
+try:
+    cible.take_damage(50)
+except ZArenaError as err:
+    # Intercepte indifféremment FighterFaintedError ou InvalidStatError
+    journaliser_incident(err)
+
+```
+
+::: {.callout-important}
+
+### Règle d'or : L'Ordre d'Évaluation des Blocs `except`
+
+Python évalue les clauses `except` séquentiellement de haut en bas et s'arrête au premier bloc compatible. Vous devez **toujours capturer les exceptions les plus spécifiques en premier** et les classes parentes génériques en dernier :
+
+```python
+try:
+    guerrier.blast_attack()
+except NotEnoughKiError:
+    # 1. Cas très spécifique : manque de ressource tactique
+    guerrier.recharge_ki(20)
+except ZArenaError:
+    # 2. Cas général : tout autre incident du moteur Z-Arena
+    annuler_tour()
+
+```
+
+:::
+
+---
+
+## 1.3 Exercice 1 : L'Arbitre Sécurisé de l'Arène [Guidage Moyen]
+
+Dans un fichier `src/zarena/referee.py`, nous souhaitons concevoir une fonction d'arbitrage sécurisée qui tente d'exécuter un échange de coups entre deux entités sans laisser planter le simulateur.
+
+### Cahier des charges
+
+Implémentez la fonction `safe_attack_round(attacker: ArenaFighter, defender: ArenaFighter) -> str` :
+
+1. Dans un bloc `try`, appelle `damage = attacker.execute_attack()` puis `defender.take_damage(damage)`.
+2. Si `defender` lève `FighterFaintedError`, interceptez-la et renvoyez la chaîne exacte :
+`"Coup impossible : défenseur déjà hors combat."`
+3. Si une exception `InvalidStatError` survient (ex. calcul de dégâts illégal), interceptez-la et renvoyez :
+`"Anomalie de combat : statistiques invalides."`
+4. Si aucune exception n'est levée (bloc `else`), renvoyez :
+`f"Assaut réussi : {damage} dégâts infligés."`
+
+::: {.content-visible when-profile="student"}
+
+### Squelette à compléter (`src/zarena/referee.py`) :
+
+```python
+# src/zarena/referee.py
+from zarena.exceptions import FighterFaintedError, InvalidStatError
+from zarena.warriors import ArenaFighter
+
+
+def safe_attack_round(attacker: ArenaFighter, defender: ArenaFighter) -> str:
+    """Orchestre un échange de coups en interceptant les erreurs métier."""
+    # TODO: Structurer le try / except (FighterFaintedError, InvalidStatError) / else
+    pass
+
+```
+
+:::
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`src/zarena/referee.py`) :
+
+```python
+# src/zarena/referee.py
+from zarena.exceptions import FighterFaintedError, InvalidStatError
+from zarena.warriors import ArenaFighter
+
+
+def safe_attack_round(attacker: ArenaFighter, defender: ArenaFighter) -> str:
+    """Orchestre un échange de coups en interceptant les erreurs métier."""
+    try:
+        damage = attacker.execute_attack()
+        defender.take_damage(damage)
+    except FighterFaintedError:
+        return "Coup impossible : défenseur déjà hors combat."
+    except InvalidStatError:
+        return "Anomalie de combat : statistiques invalides."
+    else:
+        return f"Assaut réussi : {damage} dégâts infligés."
+
+```
+
+:::
+
+---
+
+> *Transition : Notre code métier sait émettre et gérer des erreurs. Comment vérifier de façon automatisée, reproductible et exhaustive que l'ensemble de ces règles fonctionne sans faille ? C'est le rôle des tests logiciels.*
+
+---
+
+# Partie 2 : Théorie du Test & Premiers Tests Unitaires avec `pytest` (35 min)
+
+## 2.1 Qu'est-ce qu'un Test Automatisé ? Le Motif AAA
+
+Un test logiciel est un programme déterministe qui exécute une portion de code et compare le résultat obtenu au résultat théorique attendu.
+
+Tout test unitaire propre s'articule autour du motif universel **AAA (*Arrange - Act - Assert*)** :
+
+1. **Arrange (Préparer) :** instancier les objets nécessaires, initialiser les variables et configurer l'état initial.
+2. **Act (Agir) :** déclencher l'action ou appeler la méthode cible dont on souhaite tester le comportement.
+3. **Assert (Vérifier) :** vérifier que l'état résultant ou la valeur retournée est strictement conforme aux spécifications.
+
+---
+
+## 2.2 La Typologie des Tests : Des Unités au Système
+
+Dans une base de code, tous les tests n'ont pas la même granularité :
+
+```text
+       ▲        / \
+       │       /   \      Tests Bout-en-bout (E2E) : Simulation d'un tournoi complet
+       │      /-----\
+  Coût │     /       \    Tests d'Intégration : safe_attack_round(goku, c17)
+       │    /---------\
+       │   /           \  Tests Unitaires : BaseWarrior.take_damage(30)
+       ▼  /-------------\
+          Vitesse d'exécution
+
+```
+
+* **Tests Unitaires (*Unit Tests*) :** testent le comportement d'un composant élémentaire (une méthode, une fonction) isolé du reste du système. Ils s'exécutent souvent en quelques millisecondes.
+*Exemple :* vérifier que `krilin.take_damage(30)` réduit bien ses PV de 100 à 70.
+* **Tests d'Intégration (*Integration Tests*) :** vérifient l'interaction et la communication entre deux ou plusieurs composants distincts.
+*Exemple :* vérifier que la fonction `safe_attack_round` coordonne correctement l'attaque d'un `SaiyanWarrior` avec la défense d'un `Cyborg`.
+* **Tests de Bout-en-bout (*End-to-End / System*) :** simulent l'application complète depuis l'ingestion des paramètres d'entrée jusqu'à la production du bilan final.
+
+Bien que la frontière entre unitaire et intégration soit parfois subtile en POO, l'intention architecturale reste directrice : **valider chaque brique unitairement avant de tester leur assemblage**.
+
+---
+
+## 2.3 Pourquoi `pytest` ? La Disséction d'Assertions
+
+Contrairement à l'ancien module standard `unittest` hérité de Java (qui imposait d'écrire des classes dérivant de `TestCase` et des méthodes verbeuses comme `self.assertEqual`), **`pytest`** repose sur des fonctions Python simples et l'instruction native `assert`.
+
+### La force de la réécriture d'AST
+
+Quand vous lancez un script Python avec un `assert` défaillant, vous obtenez un simple `AssertionError`.
+
+`pytest`, lui, intercepte l'arbre syntaxique abstrait (AST) avant exécution. En cas d'échec, il affiche une dissection des opérandes :
+
+```text
+>       assert krilin.hp == 80
+E       AssertionError: assert 70 == 80
+E        +  where 70 = <BaseWarrior Krilin>.hp
+
+```
+
+On visualise immédiatement quelle valeur a été calculée et pourquoi elle diverge de l'attendu.
+
+---
+
+## 2.4 Le Cas Nominal (*Happy Path*) : Premiers Tests sur `BaseWarrior`
+
+On commence **toujours** par vérifier le cas où tout se déroule normalement (*Happy Path*) avant de chercher les cas d'erreur.
+
+Créez le fichier `tests/test_warriors.py` :
+
+```python
+# tests/test_warriors.py
+from zarena.warriors import BaseWarrior
+
+
+def test_base_warrior_creation_nominal() -> None:
+    # 1. Arrange & Act
+    krilin = BaseWarrior(name="Krilin", hp=100, ki=50, attack_power=30)
+
+    # 3. Assert
+    assert krilin.name == "Krilin"
+    assert krilin.hp == 100
+    assert krilin.max_hp == 100
+    assert krilin.ki == 50
+    assert krilin.attack_power == 30
+    assert krilin.is_alive is True
+    assert krilin.is_defeated is False
+
+
+def test_base_warrior_take_damage_nominal() -> None:
+    # 1. Arrange
+    warrior = BaseWarrior(name="Krilin", hp=100, ki=50, attack_power=30)
+
+    # 2. Act
+    warrior.take_damage(35)
+
+    # 3. Assert
+    assert warrior.hp == 65
+
+```
+
+Exécutez vos tests dans votre terminal :
+
+```bash
+pytest
+
+```
+
+Pytest découvre automatiquement le fichier `test_warriors.py`, exécute les deux fonctions de test et affiche deux points verts :
+
+`tests/test_warriors.py .. [100%]`
+
+---
+
+# Partie 3 : Tester les Anomalies avec `pytest.raises` (30 min)
+
+## 3.1 Le Cas d'Erreur (*Sad Path*) : Pourquoi et Comment le Tester ?
+
+Un logiciel robuste ne se contente pas de fonctionner avec des données valides : **il doit refuser d'opérer lorsque les données violent ses invariants**.
+
+Comment tester qu'une méthode refuse une action et lève bien l'exception attendue ?
+
+Si nous utilisions un bloc `try / except` manuel, le code de test deviendrait lourd et verbeux. `pytest` fournit un gestionnaire de contexte dédié : **`pytest.raises`**.
+
+```python
+import pytest
+from zarena.exceptions import InvalidStatError
+from zarena.warriors import BaseWarrior
+
+
+def test_base_warrior_rejects_negative_hp() -> None:
+    # On affirme que le bloc ci-dessous DOIT lever InvalidStatError
+    with pytest.raises(InvalidStatError) as exc_info:
+        BaseWarrior(name="Goku", hp=-50, ki=50, attack_power=30)
+
+    # Vérification optionnelle mais recommandée du message associé
+    assert "Statistiques initiales invalides" in str(exc_info.value)
+
+```
+
+### Mécanique de `pytest.raises` :
+
+* Si le code à l'intérieur du bloc `with` lève effectivement l'exception spécifiée, le test **réussit**.
+* Si le code s'exécute sans lever d'erreur, le test **échoue** avec le message : `Failed: DID NOT RAISE <class 'InvalidStatError'>`.
+* Si le code lève une autre exception inattendue (ex. `TypeError`), le test **échoue** en affichant la trace d'erreur.
+
+---
+
+## 3.2 Exercice 2 : Compléter la Suite de Tests de `BaseWarrior` [Guidage Fort]
+
+Dans `tests/test_warriors.py`, complétez la suite de tests pour couvrir les invariants et les cas aux limites (*boundary conditions*).
+
+### Cahier des charges
+
+Ajoutez les fonctions suivantes à la suite des tests précédents :
+
+1. `test_base_warrior_invalid_initial_stats_raises()` :
+* Vérifie avec `pytest.raises(InvalidStatError)` que créer un combattant avec `hp=0` échoue.
+* Vérifie que créer un combattant avec `attack_power=0` ou `ki=-5` lève également `InvalidStatError`.
+
+
+2. `test_base_warrior_take_damage_clamping_at_zero()` :
+* Crée un guerrier de 100 PV et lui inflige 150 dégâts.
+* Vérifie que `warrior.hp` vaut exactement 0 (bornage par le setter), que `warrior.is_alive` devient `False` et que `warrior.is_defeated` devient `True`.
+
+
+3. `test_base_warrior_take_damage_when_already_defeated_raises()` :
+* Amène un combattant à 0 PV.
+* Vérifie avec `pytest.raises(FighterFaintedError)` que porter un nouveau coup de 10 dégâts est refusé.
+
+
+
+::: {.content-visible when-profile="student"}
+
+### Squelette à compléter dans `tests/test_warriors.py` :
+
+```python
+# Compléter tests/test_warriors.py
+import pytest
+from zarena.exceptions import FighterFaintedError, InvalidStatError
+from zarena.warriors import BaseWarrior
+
+# (Garder les deux tests nominaux précédents...)
+
+
+def test_base_warrior_invalid_initial_stats_raises() -> None:
+    # TODO: Tester hp=0, ki=-5 et attack_power=0 avec pytest.raises(InvalidStatError)
+    pass
+
+
+def test_base_warrior_take_damage_clamping_at_zero() -> None:
+    # TODO: Infliger des dégâts supérieurs aux PV et vérifier le plancher à 0
+    pass
+
+
+def test_base_warrior_take_damage_when_already_defeated_raises() -> None:
+    # TODO: Amener le guerrier à 0 PV, puis vérifier la levée de FighterFaintedError
+    pass
+
+```
+
+:::
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`tests/test_warriors.py`) :
+
+```python
+# Solution tests/test_warriors.py
+import pytest
+from zarena.exceptions import FighterFaintedError, InvalidStatError
+from zarena.warriors import BaseWarrior
+
+
+def test_base_warrior_creation_nominal() -> None:
+    krilin = BaseWarrior(name="Krilin", hp=100, ki=50, attack_power=30)
+    assert krilin.name == "Krilin"
+    assert krilin.hp == 100
+    assert krilin.max_hp == 100
+    assert krilin.ki == 50
+    assert krilin.attack_power == 30
+    assert krilin.is_alive is True
+    assert krilin.is_defeated is False
+
+
+def test_base_warrior_take_damage_nominal() -> None:
+    warrior = BaseWarrior(name="Krilin", hp=100, ki=50, attack_power=30)
+    warrior.take_damage(35)
+    assert warrior.hp == 65
+
+
+def test_base_warrior_invalid_initial_stats_raises() -> None:
+    with pytest.raises(InvalidStatError):
+        BaseWarrior(name="Invalide", hp=0, ki=10, attack_power=20)
+
+    with pytest.raises(InvalidStatError):
+        BaseWarrior(name="Invalide", hp=50, ki=-5, attack_power=20)
+
+    with pytest.raises(InvalidStatError):
+        BaseWarrior(name="Invalide", hp=50, ki=10, attack_power=0)
+
+
+def test_base_warrior_take_damage_clamping_at_zero() -> None:
+    warrior = BaseWarrior(name="Krilin", hp=100, ki=50, attack_power=30)
+    warrior.take_damage(150)
+    assert warrior.hp == 0
+    assert warrior.is_alive is False
+    assert warrior.is_defeated is True
+
+
+def test_base_warrior_take_damage_when_already_defeated_raises() -> None:
+    warrior = BaseWarrior(name="Krilin", hp=50, ki=40, attack_power=30)
+    warrior.take_damage(50)
+    assert warrior.hp == 0
+
+    with pytest.raises(FighterFaintedError, match="déjà K.-O."):
+        warrior.take_damage(10)
+
+```
+
+:::
+
+Lancez la suite de tests pour vérifier la bonne exécution des cinq tests :
+
+```bash
+pytest tests/test_warriors.py
+
+```
+
+---
+
+> *Transition : Réinstancier BaseWarrior(name="Krilin", hp=100, ...) au début de chaque fonction de test alourdit inutilement le code. Découvrons comment factoriser et injecter nos données de test avec les Fixtures.*
+
+---
+
+# Partie 4 : Isolation d'État : Les Fixtures Pytest & `conftest.py` (35 min)
+
+## 4.1 Pourquoi les Fixtures ?
+
+En test logiciel, l'étape de préparation des objets s'appelle le **Setup** (*Arrange*).
+
+Si dix tests distincts manipulent un `SaiyanWarrior`, copier-coller sa création dans chaque fonction entraîne deux problèmes :
+
+1. **Maintenance lourde :** si la signature du constructeur évolue, dix fonctions doivent être mises à jour.
+2. **Risque de pollution d'état :** si les fonctions se partageaient une variable globale `VEGETA`, le premier test qui lui inflige des dégâts fausserait les assertions des tests suivants.
+
+Une **Fixture** (`@pytest.fixture`) est une fonction décorée qui **fabrique et fournit un objet prêt à l'emploi** à chaque test qui en fait la demande en déclarant son nom en paramètre :
+
+```python
+import pytest
+from zarena.warriors import BaseWarrior
+
+
+@pytest.fixture
+def fresh_krilin() -> BaseWarrior:
+    """Fournit une instance neuve de Krilin à chaque appel de test."""
+    return BaseWarrior(name="Krilin", hp=100, ki=50, attack_power=30)
+
+
+def test_attaque_krilin(fresh_krilin: BaseWarrior) -> None:
+    # fresh_krilin est injecté automatiquement par pytest
+    assert fresh_krilin.compute_damage() == 30
+
+```
+
+Par défaut, les fixtures ont une portée dite `scope="function"` : **pytest réexécute la fixture avant chaque fonction de test**, garantissant que chaque test travaille sur une instance indépendante.
+
+---
+
+## 4.2 Centralisation dans `tests/conftest.py`
+
+Lorsqu'une fixture doit être partagée entre plusieurs fichiers de test de votre projet, Python permet de la déclarer dans un fichier spécial nommé **`tests/conftest.py`**.
+
+Pytest inspecte automatiquement ce fichier : **toutes les fixtures déclarées dans `conftest.py` deviennent immédiatement utilisables dans n'importe quel fichier `test_*.py` sans aucun import.**
+
+---
+
+## 4.3 Exercice 3 : Fixtures Communes & Tests de `SaiyanWarrior` [Semi-Autonomie]
+
+### 1. Déclarer les fixtures partagées dans `tests/conftest.py`
+
+Créez le fichier `tests/conftest.py` et déclarez trois profils de test représentatifs :
+
+```python
+# tests/conftest.py
+import pytest
+from zarena.warriors import BaseWarrior, Cyborg, SaiyanWarrior
+
+
+@pytest.fixture
+def sample_warrior() -> BaseWarrior:
+    """Combattant standard Yamcha."""
+    return BaseWarrior(name="Yamcha", hp=80, ki=30, attack_power=25)
+
+
+@pytest.fixture
+def saiyan_vegeta() -> SaiyanWarrior:
+    """Guerrier Saiyan Vegeta doté d'un multiplicateur de rage 2.0."""
+    return SaiyanWarrior(
+        name="Vegeta",
+        hp=100,
+        ki=50,
+        attack_power=40,
+        rage_multiplier=2.0,
+    )
+
+
+@pytest.fixture
+def android_17() -> Cyborg:
+    """Cyborg C-17 doté d'un bouclier mécanique de 15 points."""
+    return Cyborg(name="C-17", hp=100, power=50, shield=15)
+
+```
+
+### 2. Écrire la suite de tests du Saiyan dans `tests/test_saiyan.py`
+
+Créez `tests/test_saiyan.py` pour valider les mécaniques de `SaiyanWarrior` en exploitant directement la fixture `saiyan_vegeta`.
+
+### Cahier des charges
+
+1. `test_saiyan_nominal_damage(saiyan_vegeta)` : vérifie qu'avec 100 PV, son attaque physique renvoie sa valeur nominale (40).
+2. `test_saiyan_zenkai_rage_activation(saiyan_vegeta)` :
+* Inflige 80 dégâts à Vegeta (le faisant tomber à 20 PV, soit $\le 25\%$ de ses PV max).
+* Vérifie que `saiyan_vegeta.in_critical_state` passe à `True`.
+* Vérifie que `compute_damage()` renvoie exactement 80 dégâts ($40 \times 2{,}0$, effet Zenkai activé).
+
+
+3. `test_saiyan_blast_attack_nominal(saiyan_vegeta)` :
+* Exécute `degats = saiyan_vegeta.blast_attack()`.
+* Vérifie que les dégâts renvoyés valent 80 ($40 \times 2$).
+* Vérifie que sa réserve de Ki a diminué de 20 points (passant de 50 à 30).
+
+
+4. `test_saiyan_blast_attack_insufficient_ki_raises(saiyan_vegeta)` :
+* Fixe manuellement le Ki de Vegeta à 10 (`saiyan_vegeta.ki = 10`).
+* Vérifie avec `pytest.raises(NotEnoughKiError, match="Ki insuffisant")` que l'attaque échoue.
+
+
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`tests/test_saiyan.py`) :
+
+```python
+# tests/test_saiyan.py
+import pytest
+from zarena.exceptions import NotEnoughKiError
+from zarena.warriors import SaiyanWarrior
+
+
+def test_saiyan_nominal_damage(saiyan_vegeta: SaiyanWarrior) -> None:
+    assert saiyan_vegeta.compute_damage() == 40
+
+
+def test_saiyan_zenkai_rage_activation(saiyan_vegeta: SaiyanWarrior) -> None:
+    saiyan_vegeta.take_damage(80)  # Tombe à 20 PV (<= 25 PV max)
+    assert saiyan_vegeta.in_critical_state is True
+    # 40 * 2.0 = 80
+    assert saiyan_vegeta.compute_damage() == 80
+
+
+def test_saiyan_blast_attack_nominal(saiyan_vegeta: SaiyanWarrior) -> None:
+    degats = saiyan_vegeta.blast_attack()
+    assert degats == 80  # 40 * 2
+    assert saiyan_vegeta.ki == 30  # 50 - 20
+
+
+def test_saiyan_blast_attack_insufficient_ki_raises(
+    saiyan_vegeta: SaiyanWarrior,
+) -> None:
+    saiyan_vegeta.ki = 10
+    assert saiyan_vegeta.can_blast is False
+
+    with pytest.raises(NotEnoughKiError, match="Ki insuffisant"):
+        saiyan_vegeta.blast_attack()
+
+```
+
+:::
+
+Lancez la suite de tests pour valider l'injection automatique de la fixture :
+
+```bash
+pytest tests/test_saiyan.py
+
+```
+
+---
+
+> *Transition : Les fixtures garantissent l'isolation de nos objets. Mais que faire lorsque l'on souhaite éprouver un calcul mathématique sur une matrice complète de valeurs d'entrée (par exemple, tester le bouclier d'un Cyborg face à des coups faibles, égaux ou destructeurs) sans dupliquer dix fonctions de test identiques ?*
+
+---
+
+# Partie 5 : Tests Paramétrés aux Limites (`@pytest.mark.parametrize`) (25 min)
+
+## 5.1 Motivation : La Table de Vérité Logicielle
+
+Considérons l'absorption de dégâts du `Cyborg` dans `src/zarena/warriors.py` :
+
+
+$$\text{degats\_reels} = \max(0, \text{amount} - \text{shield})$$
+
+Pour garantir formellement l'absence d'effet de bord, nous devons tester l'ensemble des régimes physiques aux limites (*Boundary Value Testing*) :
+
+1. **Attaque inférieure au bouclier :** (attaque = 10, bouclier = 15) $\longrightarrow$ 0 dégât effectif (absorption intégrale).
+2. **Attaque égale au bouclier :** (attaque = 15, bouclier = 15) $\longrightarrow$ 0 dégât effectif.
+3. **Attaque supérieure au bouclier :** (attaque = 35, bouclier = 15) $\longrightarrow$ 20 dégâts effectifs.
+4. **Attaque destructrice :** (attaque = 200, bouclier = 15) $\longrightarrow$ 185 dégâts calculés, santé plafonnée à 0.
+
+Écrire quatre fonctions de test distinctes pour cela alourdirait inutilement la base de code. Le décorateur **`@pytest.mark.parametrize`** permet d'exécuter **une même fonction de test sur une matrice complète d'arguments**.
+
+---
+
+## 5.2 Syntaxe de Paramétrisation
+
+```python
+import pytest
+
+
+@pytest.mark.parametrize(
+    "degats_entrants, degats_attendus, hp_attendus",
+    [
+        (10, 0, 100),
+        (15, 0, 100),
+        (35, 20, 80),
+        (200, 185, 0),
+    ],
+)
+def test_simulation(
+    degats_entrants: int, degats_attendus: int, hp_attendus: int
+) -> None:
+    # Ce test sera exécuté 4 fois indépendamment par pytest
+    pass
+
+```
+
+---
+
+## 5.3 Exercice 4 : Validation Paramétrée du Cyborg [Autonomie Complète]
+
+Dans un fichier `tests/test_cyborg.py`, concevez la suite de tests du `Cyborg` sans aucun squelette fourni.
+
+### Cahier des charges
+
+1. Rédigez un test paramétré `test_cyborg_shield_absorption(android_17, incoming_damage, expected_hp)` :
+
+* Utilisez la fixture `android_17` (100 PV, bouclier de 15).
+* Injectez la table des quatre régimes de dégâts décrits ci-dessus.
+* Appelez `android_17.take_damage(incoming_damage)` et vérifiez que `android_17.hp` vaut exactement `expected_hp`.
+
+
+2. Rédigez un test unitaire `test_cyborg_dunder_methods(android_17)` vérifiant les méthodes spéciales :
+
+* `str(android_17)` doit produire rigoureusement `"[C-17 | PV: 100/100]"`.
+* L'évaluation de l'instance comme fonction appelable `android_17()` doit renvoyer sa puissance offensive (50).
+* Deux instances distinctes ayant les mêmes caractéristiques doivent être jugées égales (`c1 == c2`).
+
+
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`tests/test_cyborg.py`) :
+
+```python
+# tests/test_cyborg.py
+import pytest
+from zarena.warriors import Cyborg
+
+
+@pytest.mark.parametrize(
+    "incoming_damage, expected_hp",
+    [
+        (10, 100),  # 10 <= 15 -> 0 degat
+        (15, 100),  # 15 == 15 -> 0 degat
+        (35, 80),  # 35 - 15 = 20 degats reels -> 80 PV
+        (200, 0),  # 200 - 15 = 185 degats -> 0 PV (ecretage a zero)
+    ],
+)
+def test_cyborg_shield_absorption(
+    android_17: Cyborg,
+    incoming_damage: int,
+    expected_hp: int,
+) -> None:
+    android_17.take_damage(incoming_damage)
+    assert android_17.hp == expected_hp
+
+
+def test_cyborg_dunder_methods(android_17: Cyborg) -> None:
+    # 1. Representation textuelle
+    assert str(android_17) == "[C-17 | PV: 100/100]"
+
+    # 2. Instance appelable
+    assert android_17() == 50
+
+    # 3. Egalite semantique
+    clone = Cyborg(name="C-17", hp=100, power=50, shield=15)
+    autre = Cyborg(name="C-18", hp=100, power=50, shield=15)
+
+    assert android_17 == clone
+    assert android_17 != autre
+
+```
+
+:::
+
+Lancez l'ensemble des tests de votre projet :
+
+```bash
+pytest
+
+```
+
+---
+
+> *Transition : Jusqu'ici, l'ensemble de nos tests reposait sur un paradigme déterministe : une entrée $x$ produit invariablement la sortie $y$. Or, dans un simulateur d'arène (comme dans tout système multi-agents ou modèle de Data Science), les combats introduisent du hasard : jets d'initiative, variations d'amplitude de frappe, simulations de Monte Carlo. Comment tester un code probabiliste sans fabriquer des tests instables qui font échouer la CI de façon imprévisible ?*
+
+---
+
+# Partie 6 : Tester le Hasard & les Simulations Stochastiques (30 min)
+
+## 6.1 Le Danger des Tests Intermittents (*Flaky Tests*)
+
+Si un test unitaire exécute un tirage aléatoire sans contrôle :
+
+```python
+def test_combat_aleatoire() -> None:
+    vainqueur = simuler_match_aleatoire(goku, vegeta)
+    assert vainqueur.name == "Goku"  # Echoue 1 fois sur 2 !
+
+```
+
+Un test qui réussit ou échoue sans que le code source n'ait changé s'appelle un **test intermittent (*flaky test*)**. C'est le fléau des chaînes d'intégration continue : il paralyse les déploiements et détruit la confiance des équipes dans les tests automatisés.
+
+Pour tester du code stochastique, on applique **trois techniques d'ingénierie logicielle** :
+
+1. **Rendre l'aléa déterministe via la graine (`seed`) :** pour valider la logique pas à pas.
+2. **Tester les invariants mathématiques structurels (*Property-Based*) :** vrais quel que soit le tirage.
+3. **Asserts statistiques tolérants (`pytest.approx`) :** pour vérifier la loi des grands nombres.
+
+---
+
+## 6.2 Implémentation du Moteur Stochastique (`src/zarena/battle.py`)
+
+Créez le fichier `src/zarena/battle.py`. Nous y implémentons un moteur de duel au tour par tour où les attaques physiques oscillent avec une amplitude uniforme de $\pm 15\%$ ($U \sim \mathcal{U}[0{,}85 \,;\, 1{,}15]$) :
+
+```python
+# src/zarena/battle.py
+from dataclasses import dataclass
+from typing import Callable
+import numpy as np
+from zarena.warriors import ArenaFighter
+
+
+@dataclass(frozen=True)
+class DuelResult:
+    """Synthese immuable d'un affrontement dans Z-Arena."""
+
+    winner: ArenaFighter
+    loser: ArenaFighter
+    turns: int
+    remaining_hp: int
+
+
+def simulate_duel(
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+    seed: int | None = None,
+) -> DuelResult:
+    """Simule un duel stochastique tour par tour jusqu'au K.-O."""
+    rng = np.random.default_rng(seed)
+    turns = 0
+
+    while not f1.is_defeated and not f2.is_defeated:
+        turns += 1
+
+        # 1. Attaque de f1 avec facteur d'alea physique U ~ [0.85, 1.15]
+        u1 = rng.uniform(0.85, 1.15)
+        degats_f1 = int(f1.execute_attack() * u1)
+        f2.take_damage(degats_f1)
+
+        if f2.is_defeated:
+            break
+
+        # 2. Riposte de f2 avec facteur d'alea
+        u2 = rng.uniform(0.85, 1.15)
+        degats_f2 = int(f2.execute_attack() * u2)
+        f1.take_damage(degats_f2)
+
+    winner = f1 if not f1.is_defeated else f2
+    loser = f2 if winner == f1 else f1
+
+    return DuelResult(
+        winner=winner,
+        loser=loser,
+        turns=turns,
+        remaining_hp=winner.hp,
+    )
+
+
+def run_monte_carlo(
+    f1_factory: Callable[[], ArenaFighter],
+    f2_factory: Callable[[], ArenaFighter],
+    n_simulations: int = 1000,
+    seed: int | None = None,
+) -> dict[str, float]:
+    """Estime le winrate de f1 par simulations de Monte Carlo."""
+    rng = np.random.default_rng(seed)
+    f1_wins = 0
+    total_turns = 0
+
+    for _ in range(n_simulations):
+        # On fabrique des combattants frais pour chaque iteration
+        f1 = f1_factory()
+        f2 = f2_factory()
+        # On derive une graine unique par duel pour isoler le tirage
+        duel_seed = int(rng.integers(0, 1_000_000))
+        result = simulate_duel(f1, f2, seed=duel_seed)
+
+        if result.winner.name == f1.name:
+            f1_wins += 1
+        total_turns += result.turns
+
+    winrate = f1_wins / n_simulations
+    return {
+        "winrate": winrate,
+        "turns_mean": total_turns / n_simulations,
+    }
+
+```
+
+::: {.callout-note}
+
+### Focus 1 : Qu'est-ce qu'une `@dataclass(frozen=True)` ?
+
+Jusqu'à présent, pour créer un objet, nous écrivions systématiquement `__init__`, `self.x = x`, puis `__repr__` et `__eq__`. Lorsque l'unique but d'une classe est de **stocker des données sans logique métier complexe** (un simple enregistrement ou *record*), ce code est verbeux et répétitif.
+
+Le décorateur **`@dataclass`** (module standard `dataclasses`) génère automatiquement pour vous le constructeur `__init__`, l'affichage `__repr__` et l'égalité `__eq__` à partir de vos annotations de type.
+
+L'argument **`frozen=True`** verrouille l'objet :
+
+* **Immuabilité stricte :** une fois l'instance `DuelResult` créée à la fin du match, toute tentative d'altération (`result.turns = 10`) lève immédiatement une exception `FrozenInstanceError`.
+* **Sanctuarisation de l'historique :** le bilan d'un combat est une archive figée dans le temps qui ne doit jamais pouvoir être falsifiée a posteriori. C'est exactement ce que requiert le cahier des charges de `BattleResult` dans le projet *PyArena*.
+
+:::
+
+
+
+::: {.callout-note}
+
+### Focus 2 : Le typage `Callable` et le patron de Fabrique (*Factory Pattern*)
+
+Dans la fonction `run_monte_carlo`, observez le typage du paramètre :
+
+`f1_factory: Callable[[], ArenaFighter]`.
+
+* **Le type `Callable[[Args], Retour]` :** issu du module `typing`, il indique que le paramètre attendu n'est pas un objet statique, mais **une fonction exécutable**. Ici, `Callable[[], ArenaFighter]` désigne une fonction qui ne prend aucun argument (`[]`) et qui renvoie un nouveau combattant (`ArenaFighter`).
+* **Pourquoi ne pas passer directement `f1: ArenaFighter` ?**
+C'est le piège numéro un en simulation multi-agents : si vous passez l'objet `goku` directement dans la boucle de simulation, il subit des dégâts dès le tour 1 et termine le premier match K.-O. Au duel numéro 2, vous réutiliseriez le même combattant avec 0 PV !
+* **La solution : la Fabrique (*Factory*) :** au lieu de transmettre un guerrier déjà blessé, on transmet la « recette » pour fabriquer un guerrier neuf à chaque itération de la boucle de Monte Carlo via l'appel `f1 = f1_factory()`.
+
+:::
+
+### Bonne pratique NumPy moderne : `default_rng`
+
+Ne faites **pas** appel à l'ancien module global `np.random.seed(42)`. Il modifie l'état global du processus Python et contamine silencieusement les autres tests. Utilisez exclusivement un générateur d'échantillons local et isolé : `rng = np.random.default_rng(seed)`.
+
+---
+
+## 6.3 Exercice 5 : Suite de Tests Stochastiques (`tests/test_battle.py`) [Guidage Moyen]
+
+Dans `tests/test_battle.py`, vous allez concevoir les tests validant ce moteur sans générer aucun test instable.
+
+### Cahier des charges
+
+1. **Test de Déterminisme (`test_duel_determinism_with_seed`) :**
+* Instanciez deux paires identiques de combattants `BaseWarrior("Goku", 100, attack_power=30)` et `BaseWarrior("Vegeta", 100, attack_power=30)`.
+* Simulez les deux duels avec la même graine `seed=42`.
+* Vérifiez que le vainqueur, le nombre de tours et les PV résiduels sont rigoureusement identiques au bit près.
+
+
+2. **Test d'Invariants Structurels (`test_duel_structural_invariants`) :**
+* Lancez un duel **sans graine fixée** (`seed=None`).
+* Vérifiez que le perdant a toujours 0 PV (`res.loser.hp == 0`), que le vainqueur est en vie (`res.winner.hp > 0`) et que le nombre de tours est strictement positif (`res.turns > 0`).
+
+
+3. **Test Statistique Tolérant (`test_monte_carlo_statistical_convergence`) :**
+* Organisez une simulation de Monte Carlo de $500$ combats entre un combattant surpuissant `BaseWarrior("Goku SSJ", 300, attack_power=80)` et un combattant modeste `BaseWarrior("Saibaman", 40, attack_power=10)`.
+* Vérifiez avec `pytest.approx` que le taux de victoire de Goku converge vers $1{,}0$ :
+`assert res["winrate"] == pytest.approx(1.0, abs=0.01)`
+
+
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`tests/test_battle.py`) :
+
+```python
+# tests/test_battle.py
+import pytest
+from zarena.battle import run_monte_carlo, simulate_duel
+from zarena.warriors import BaseWarrior
+
+
+def test_duel_determinism_with_seed() -> None:
+    f1_a = BaseWarrior("Goku", hp=100, attack_power=30)
+    f2_a = BaseWarrior("Vegeta", hp=100, attack_power=30)
+    res_a = simulate_duel(f1_a, f2_a, seed=42)
+
+    f1_b = BaseWarrior("Goku", hp=100, attack_power=30)
+    f2_b = BaseWarrior("Vegeta", hp=100, attack_power=30)
+    res_b = simulate_duel(f1_b, f2_b, seed=42)
+
+    assert res_a.winner.name == res_b.winner.name
+    assert res_a.turns == res_b.turns
+    assert res_a.remaining_hp == res_b.remaining_hp
+
+
+def test_duel_structural_invariants() -> None:
+    f1 = BaseWarrior("Goku", hp=100, attack_power=30)
+    f2 = BaseWarrior("Vegeta", hp=100, attack_power=30)
+    res = simulate_duel(f1, f2, seed=None)
+
+    assert res.winner.is_alive is True
+    assert res.loser.is_defeated is True
+    assert res.loser.hp == 0
+    assert res.turns > 0
+    assert res.remaining_hp == res.winner.hp
+
+
+def test_monte_carlo_statistical_convergence() -> None:
+    def make_goku():
+        return BaseWarrior("Goku SSJ", hp=300, attack_power=80)
+
+    def make_saibaman():
+        return BaseWarrior("Saibaman", hp=40, attack_power=10)
+
+    res = run_monte_carlo(
+        make_goku, make_saibaman, n_simulations=500, seed=123
+    )
+    assert res["winrate"] == pytest.approx(1.0, abs=0.01)
+    assert res["turns_mean"] > 0
+
+```
+
+:::
+
+Lancez vos tests stochastiques :
+
+```bash
+pytest tests/test_battle.py
+
+```
+
+---
+
+> *Transition : Les simulations numériques s'accompagnent fréquemment d'écritures de journaux de combat ou de fichiers de cache sur le disque. Comment tester ces opérations d'entrée/sortie sans polluer notre dépôt Git ? Et comment isoler les simulations lentes ?*
+
+---
+
+# Partie 7 : Pratiques Data Science — I/O, Cache & Marqueurs Avancés (20 min)
+
+## 7.1 Tester les Entrées/Sorties Disque sans Pollution : La Fixture `tmp_path`
+
+En Data Science, on doit fréquemment tester des fonctions qui écrivent des fichiers sur le disque (exports JSON, caches de données, sauvegardes de modèles).
+
+::: {.callout-warning}
+
+### Mauvaise Pratique : Écrire dans le Répertoire de Travail
+
+Écrire en dur `open("data/resultat.json", "w")` dans un test est dangereux : cela pollue votre dépôt Git, risque d'écraser des données de production et pose des conflits lors des exécutions parallèles.
+:::
+
+Pytest fournit la fixture native intégrée **`tmp_path`** :
+
+* Elle injecte automatiquement un objet `pathlib.Path` pointant vers un dossier temporaire unique dédié au test en cours.
+* Dès la fin de la session de test, le dossier temporaire est nettoyé automatiquement par le système d'exploitation.
+
+### Module métier d'exportation (`src/zarena/records.py`) :
+
+Créez `src/zarena/records.py` :
+
+```python
+# src/zarena/records.py
+import json
+from pathlib import Path
+from zarena.battle import DuelResult
+
+
+def export_duel_summary(result: DuelResult, filepath: Path | str) -> None:
+    """Sauvegarde le bilan d'un affrontement dans un fichier JSON."""
+    data = {
+        "winner": result.winner.name,
+        "loser": result.loser.name,
+        "turns": result.turns,
+        "remaining_hp": result.remaining_hp,
+    }
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+```
+
+---
+
+## 7.2 Marqueurs Personnalisés : Filtrer les Tests Lourds avec `@pytest.mark.slow`
+
+Une simulation de Monte Carlo avec $10\,000$ itérations peut prendre dix secondes. En phase de développement actif, vous ne voulez pas attendre dix secondes à chaque modification de code pour vérifier si votre syntaxe est valide.
+
+Le décorateur **`@pytest.mark.slow`** permet d'étiqueter les tests gourmands en calcul :
+
+```python
+import pytest
+
+
+@pytest.mark.slow
+def test_simulation_massive() -> None:
+    # Calcul lourd simulant 10 000 tirages
+    pass
+
+```
+
+Vous pouvez ensuite filtrer dynamiquement vos tests depuis la ligne de commande :
+
+* Exécuter **uniquement les tests rapides du quotidien** (exclut les tests lents) :
+```bash
+pytest -m "not slow"
+
+```
+
+
+* Exécuter **exclusivement les tests de simulation lourde** :
+```bash
+pytest -m "slow"
+
+```
+
+
+
+---
+
+## 7.3 Exercice 6 : Test d'I/O Sécurisé et Test Lourd (`tests/test_records.py`) [Semi-Autonomie]
+
+Dans `tests/test_records.py`, rédigez les tests de journalisation et de calcul intensif.
+
+### Cahier des charges
+
+1. `test_export_duel_summary(tmp_path)` :
+* Simulez un duel entre deux guerriers.
+* Définissez un chemin temporaire : `target_file = tmp_path / "logs" / "match.json"`.
+* Appelez `export_duel_summary(res, target_file)`.
+* Vérifiez que le fichier existe (`target_file.exists() is True`).
+* Ouvrez-le et vérifiez que le champ `"winner"` correspond bien au vainqueur du match.
+
+
+2. `test_massive_monte_carlo_tagged_slow()` :
+* Décorez la fonction avec `@pytest.mark.slow`.
+* Exécutez `run_monte_carlo` sur $5\,000$ duels entre Krilin et C-17.
+* Validez que le résultat contient un winrate compris entre $0{,}0$ et $1{,}0$.
+
+
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (`tests/test_records.py`) :
+
+```python
+# tests/test_records.py
+import json
+from pathlib import Path
+import pytest
+from zarena.battle import run_monte_carlo, simulate_duel
+from zarena.records import export_duel_summary
+from zarena.warriors import BaseWarrior, Cyborg
+
+
+def test_export_duel_summary(tmp_path: Path) -> None:
+    f1 = BaseWarrior("Goku", hp=100, attack_power=40)
+    f2 = BaseWarrior("Vegeta", hp=100, attack_power=30)
+    result = simulate_duel(f1, f2, seed=42)
+
+    export_path = tmp_path / "archives" / "duel.json"
+    export_duel_summary(result, export_path)
+
+    assert export_path.exists() is True
+
+    with open(export_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    assert data["winner"] == result.winner.name
+    assert data["turns"] == result.turns
+    assert data["remaining_hp"] == result.remaining_hp
+
+
+@pytest.mark.slow
+def test_massive_monte_carlo_tagged_slow() -> None:
+    def make_krilin():
+        return BaseWarrior("Krilin", hp=100, attack_power=35)
+
+    def make_c17():
+        return Cyborg("C-17", hp=100, power=40, shield=10)
+
+    res = run_monte_carlo(
+        make_krilin, make_c17, n_simulations=5000, seed=999
+    )
+    assert 0.0 <= res["winrate"] <= 1.0
+    assert res["turns_mean"] > 0
+
+```
+
+:::
+
+Testez le filtrage dans votre terminal :
+
+```bash
+# Verification rapide excluant le test lourd
+pytest -m "not slow"
+
+```
+
+---
+
+> *Transition : Nos tests unitaires, stochastiques et d'entrées/sorties fonctionnent. Mais avons-nous pensé à tester toutes les branches et conditions de nos fichiers sources ? Comment mesurer objectivement la part réelle de code éprouvée par nos tests ? C'est le rôle de la couverture de code.*
+
+---
+
+# Partie 8 : Couverture de Code (`pytest-cov`) & Branches Mortes (15 min)
+
+## 8.1 Qu'est-ce que le Code Coverage ?
+
+La **couverture de code (*code coverage*)** mesure le pourcentage d'instructions de votre code source exécutées lors du lancement de votre suite de tests :
+
+
+$$\text{Couverture} = \frac{\text{Lignes de code exécutées par la suite de tests}}{\text{Nombre total de lignes de code exécutables}} \times 100$$
+
+Dans l'industrie logicielle comme dans les projets académiques, un seuil minimal de couverture (typiquement $\ge 85\%$) est exigé pour valider l'intégration d'une fonctionnalité dans la branche principale.
+
+---
+
+## 8.2 Générer le Rapport de Couverture
+
+Exécutez `pytest` en demandant l'analyse de couverture du paquet `zarena` avec localisation des lignes non testées :
+
+```bash
+pytest --cov=zarena --cov-report=term-missing
+#ou
+pytest --cov=src/zarena --cov-report=term-missing # pour la totalité du dossier
+```
+
+### Structure du rapport terminal :
+
+* **`Stmts` :** nombre total d'instructions exécutables dans le module.
+* **`Miss` :** nombre d'instructions qui n'ont **jamais été exécutées** par aucun test.
+* **`Cover` :** pourcentage d'instructions couvertes.
+* **`Missing` :** numéros précis des lignes non traversées (ex. `78-82`).
+
+Si une ligne apparaît dans la colonne `Missing` (par exemple, la méthode `recharge_ki` de `BaseWarrior` ou le cas `InvalidStatError` de `safe_attack_round`), cela signifie qu'un bug pourrait s'y cacher sans qu'aucun test ne donne l'alerte !
+
+---
+
+## 8.3 Exercice 7 : La Traque des 95 % de Couverture [Autonomie]
+
+1. Observez les lignes listées dans la colonne `Missing` du rapport.
+2. Créez un fichier `tests/test_referee.py` pour tester la fonction `safe_attack_round` conçue en Partie 1 (en testant le cas nominal, le cas `FighterFaintedError` et le cas `InvalidStatError`).
+3. Ajoutez les assertions nécessaires dans `tests/test_warriors.py` pour tester `recharge_ki`.
+4. Relancez `pytest --cov=zarena --cov-report=term-missing` jusqu'à obtenir un taux de couverture **supérieur ou égal à $95\%$** sur l'ensemble du paquet `zarena`.
+
+---
+
+::: {.content-visible when-profile="solution"}
+
+### Solution Enseignant (Exercice 7 : Atteindre 95 % de Couverture)
+
+#### 1. Tests d'arbitrage dans `tests/test_referee.py`
+
+```python
+# tests/test_referee.py
+from zarena.referee import safe_attack_round
+from zarena.warriors import BaseWarrior
+
+
+def test_safe_attack_round_nominal() -> None:
+    # Cas nominal (bloc else)
+    goku = BaseWarrior("Goku", hp=100, attack_power=30)
+    vegeta = BaseWarrior("Vegeta", hp=100, attack_power=25)
+
+    msg = safe_attack_round(attacker=goku, defender=vegeta)
+    assert msg == "Assaut réussi : 30 dégâts infligés."
+    assert vegeta.hp == 70
+
+
+def test_safe_attack_round_defender_already_fainted() -> None:
+    # Cas cible K.-O. (bloc except FighterFaintedError)
+    goku = BaseWarrior("Goku", hp=100, attack_power=30)
+    vegeta = BaseWarrior("Vegeta", hp=10, attack_power=25)
+    vegeta.take_damage(10)  # vegeta tombe à 0 PV
+
+    msg = safe_attack_round(attacker=goku, defender=vegeta)
+    assert msg == "Coup impossible : défenseur déjà hors combat."
+
+
+def test_safe_attack_round_invalid_damage_raises_stat_error() -> None:
+    # Cas anomalie statistique (bloc except InvalidStatError)
+    class CorruptedWarrior(BaseWarrior):
+
+        def execute_attack(self) -> int:
+            return -50  # Dégâts négatifs illégaux
+
+    glitch = CorruptedWarrior("Glitch", hp=100, attack_power=10)
+    vegeta = BaseWarrior("Vegeta", hp=100, attack_power=25)
+
+    msg = safe_attack_round(attacker=glitch, defender=vegeta)
+    assert msg == "Anomalie de combat : statistiques invalides."
+
+```
+
+#### 2. Complément dans `tests/test_warriors.py` pour `recharge_ki`
+
+```python
+# À ajouter à la fin de tests/test_warriors.py
+import pytest
+from zarena.exceptions import InvalidStatError
+from zarena.warriors import BaseWarrior
+
+
+def test_base_warrior_recharge_ki_nominal() -> None:
+    krilin = BaseWarrior(name="Krilin", hp=100, ki=30, attack_power=20)
+    krilin.recharge_ki(25)
+    assert krilin.ki == 55
+
+
+def test_base_warrior_recharge_ki_clamping_at_max() -> None:
+    krilin = BaseWarrior(name="Krilin", hp=100, ki=90, attack_power=20)
+    krilin.recharge_ki(50)  # 90 + 50 = 140 -> plafonné à max_ki (100)
+    assert krilin.ki == 100
+
+
+def test_base_warrior_recharge_ki_negative_amount_raises() -> None:
+    krilin = BaseWarrior(name="Krilin", hp=100, ki=50, attack_power=20)
+    with pytest.raises(InvalidStatError, match="positif"):
+        krilin.recharge_ki(-10)
+
+```
+
+:::
+
+# Devoir Maison Guidé : Suite de Tests pour `PyArena` (Jalon 2)
+
+*Ce travail est à réaliser en équipe d'ici le prochain TP sur votre dépôt officiel de projet (`pyarena-groupe-XX`). Il concrétise les attendus de testabilité du **Jalon 2** stipulés dans le cahier des charges.*
+
+### Objectif
+
+Lors de la séance précédente, vous avez implémenté le modèle contractuel du projet officiel : l'arène de combat Pokémon sous `src/pyarena/core/` (`BaseFighter`, `Fighter`, `BattleResult` et les exceptions métier).
+
+Vous allez maintenant concevoir la **suite de tests unitaires automatisés** qui validera formellement votre implémentation avant d'ouvrir la Pull Request.
+
+::: {.callout-important}
+
+### Avertissement Pédagogique : Non-Exhaustivité du Cahier des Charges
+
+La liste de vérifications ci-après constitue un **socle contractuel minimal**, absolument pas une liste exhaustive.
+
+Les workflows GitHub Actions du dépôt exécutent la commande :
+
+```bash
+pytest --cov=pyarena --cov-fail-under=85
+
+```
+
+Pour franchir le seuil strict de **$85\%$ de couverture** imposé par la CI, chaque équipe doit concevoir ses propres tests complémentaires : cas aux limites, Pokémon mono-types (`type_2=None`), comportement de `reset_stats()` sur cible K.-O., arrondis mathématiques, etc.
+:::
+
+---
+
+### Étape 1 : Branche de Travail Git
+
+Chaque équipe se place sur `dev`, synchronise le dépôt distant et ouvre une branche de test :
+
+```bash
+cd ~/pyarena-officiel
+git switch dev
+git pull origin dev
+git switch -c feat/tests-models
+
+```
+
+---
+
+### Étape 2 : Fixtures Centralisées (`tests/conftest.py`)
+
+Dans le fichier `tests/conftest.py` de votre projet officiel, déclarez des profils de test représentatifs dont voici un exemple:
+
+```python
+# tests/conftest.py
+import pytest
+from pyarena.core.models import Fighter
+
+
+@pytest.fixture
+def pikachu() -> Fighter:
+    """Combattant mono-type Électrik normalisé au Niveau 50."""
+    return Fighter(
+        id=25,
+        name="Pikachu",
+        type_1="Électrik",
+        type_2=None,
+        hp_base=35,
+        attack_base=55,
+        defense_base=40,
+        speed_base=90,
+    )
+
+
+@pytest.fixture
+def dracaufeu() -> Fighter:
+    """Combattant double-type Feu / Vol normalisé au Niveau 50."""
+    return Fighter(
+        id=6,
+        name="Dracaufeu",
+        type_1="Feu",
+        type_2="Vol",
+        hp_base=78,
+        attack_base=84,
+        defense_base=78,
+        speed_base=100,
+    )
+
+```
+
+---
+
+### Étape 3 : Conception de la Suite de Tests des Modèles (`tests/test_models.py`)
+
+Rédigez la suite de tests sous `tests/test_models.py` en couvrant les spécifications de l'Annexe Technique. Voici des exemples de test:
+
+1. **Normalisation au Niveau 50 (Happy Path) :**
+
+* Vérifiez les formules contractuelles sur `pikachu` :
+
+
+
+$$\text{max\_hp} = 35 + 60 = 95, \quad \text{attack} = 55 + 5 = 60$$
+
+
+
+$$\text{defense} = 40 + 5 = 45, \quad \text{speed} = 90 + 5 = 95$$
+
+
+
+* Vérifiez que `hp` est initialisé à `max_hp` et que `is_alive()` renvoie `True`.
+
+
+
+
+2. **Protection des Invariants (Sad Path) :**
+
+* Utilisez `@pytest.mark.parametrize` pour tester l'instanciation d'entités avec des statistiques illégales ($\le 0$ sur chaque composante).
+
+
+* Vérifiez que `InvalidStatError` est systématiquement levée avec `pytest.raises`.
+
+
+
+
+3. **Encapsulation & Plancher de Santé :**
+* Infligez des dégâts partiels et contrôlez la valeur résiduelle exacte.
+
+
+* Infligez des dégâts massifs ($> \text{max\_hp}$) et vérifiez que les points de vie s'arrêtent à 0 sans jamais devenir négatifs.
+
+
+
+
+4. **Interdiction d'Assaut sur Cible K.-O. :**
+* Réduisez un combattant à 0 PV, puis vérifiez qu'un nouvel appel à `take_damage()` lève immédiatement `FighterFaintedError`.
+
+
+
+
+5. **Restauration des Statistiques :**
+* Blessez un combattant, appelez `reset_stats()` et vérifiez que `hp` est réinitialisé exactement à `max_hp`.
+
+
+
+
+6. **Méthodes Spéciales (*Dunders*) :**
+* Vérifiez que `str(pikachu)` renvoie `"Pikachu (Électrik) - PV: 95/95"`.
+
+
+* Vérifiez l'égalité sémantique (`__eq__`) basée sur l'identité stricte de l'attribut `id` entre deux instances de combattants.
+
+
+
+
+7. **Structure Immuable `BattleResult` :**
+
+* Instanciez un `BattleResult(winner=pikachu, loser=dracaufeu, turns=3, remaining_hp=20)`.
+
+
+* Tentez d'écraser un attribut (`result.turns = 5`) dans un bloc `with pytest.raises(dataclasses.FrozenInstanceError):` pour valider l'immuabilité contractuelle de la structure.
+
+
+
+---
+
+### Étape 4 : Anticipation des Tests Stochastiques et d'I/O (`tests/test_simulation.py` & `tests/test_io.py`)
+
+Pour préparer la validation du moteur de combat et des clients d'ingestion des jalons suivants :
+
+1. **Tests d'Aléatoire pour `simulate_battle` :** préparez un test de déterminisme avec `seed=42` pour valider la reproductibilité des duels.
+
+
+2. **Tests de Monte Carlo (`@pytest.mark.slow`) :** étiquetez vos tests de convergence de `run_monte_carlo` pour éviter de ralentir vos commits locaux.
+
+
+3. **Tests de Cache avec `tmp_path` :** lorsque vous implémenterez `DataFetcher` (`pyarena.io.fetcher`), instanciez-le en lui passant un dossier temporaire (`DataFetcher(cache_dir=tmp_path)`) pour valider l'écriture du cache sans impacter le dossier `data/` de votre dépôt.
+
+
+
+---
+
+### Étape 5 : Validation Qualité, Audit de Couverture & Pull Request
+
+1. Lancez la suite de tests et assurez-vous d'atteindre le seuil réglementaire de $85\%$ :
+```bash
+pytest --cov=pyarena --cov-report=term-missing
+
+```
+
+
+2. Formatez et auditez votre code avec Ruff :
+```bash
+ruff check tests/
+ruff format tests/
+
+```
+
+
+3. Commitez et poussez votre branche sur GitHub :
+```bash
+git add tests/
+git commit -m "test(core): suite de tests unitaires pour Fighter, BaseFighter et BattleResult"
+git push -u origin feat/tests-models
+
+```
+
+
+4. Ouvrez votre **Pull Request** sur GitHub ciblant `dev`. Vérifiez que le pipeline d'intégration continue GitHub Actions s'exécute avec succès (`All checks have passed`) avant de requérir l'approbation de votre équipe pour la fusion.
+
+
+
+```
+
+```
