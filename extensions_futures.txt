@@ -1,0 +1,78 @@
+Stratégie anti-plagiat et refonte pour la promotion SSD + MANUChanger simplement la génération Pokémon serait en effet insuffisant : l'architecture globale, les scripts de tests et les pages Streamlit pourraient être réemployés avec un simple remplacement de variables.Pour la cohorte mixte SSD (Data / Stats) + MANU (Modélisation / Analyse Numérique), voici une stratégie de refonte structurelle en trois axes :Axe 1 : Remplacer le tour par tour discret par des EDO (La passerelle parfaite SSD / MANU)Dans les versions modernes ou les jeux de stratégie (type Warcraft ou Auto-Battler), le combat n'est pas un tour par tour figé, mais un système dynamique continu à temps actif (Active Time Battle) :Les points de vie deviennent une fonction différentiable du temps $\text{PV}(t)$.Le duel est gouverné par un système d'EDO couplées inspiré des lois de combat de Lanchester ou de systèmes proie-prédateur :$$\frac{d\,\text{PV}_1(t)}{dt} = - \lambda_2 \cdot \frac{A_2}{D_1} \cdot \text{PV}_2(t) + \rho_1(t)$$$$\frac{d\,\text{PV}_2(t)}{dt} = - \lambda_1 \cdot \frac{A_1}{D_2} \cdot \text{PV}_1(t) + \rho_2(t)$$où $\lambda_i$ dépend de la vitesse d'attaque, et $\rho_i(t)$ modélise une régénération continue.Intérêt pour les MANU : Discrétisation par schémas d'Euler explicite vs Runge-Kutta 4 (RK4), analyse de stabilité numérique, gestion des pas de temps $\Delta t$ raides (stiff systems).Intérêt pour les SSD : Intégration d'un terme stochastique brownien $\sigma dW_t$ (Équations Différentielles Stochastiques - EDS) et calibration par Monte-Carlo continu du temps d'atteinte du premier zéro ($\tau = \inf \{ t \mid \text{PV}(t) = 0 \}$).Axe 2 : Le « Mini-Moveset » officiel (4 vraies capacités)Au lieu d'attaques synthétiques génériques :Fournir un fichier de métadonnées propre moves.json contenant exactement 30 capacités officielles emblématiques bien documentées (ex. Tonnerre, Séisme, Surf, Lance-Flammes, Danse-Lames...).Chaque créature se voit attribuer deux capacités fixes prédéfinies dans le catalogue initial, éliminant ainsi le problème des 800 requêtes API tout en rendant le code de cette année incompatible.Axe 3 : Rotation des 10 extensionsEn conserver cinq parmi les plus généralistes (Numba, Haversine/TSP, Méta-jeu, Objets, Climat) et remplacer les cinq autres par des thématiques taillées pour MANU/SSD :Résolution numérique RK4 vs Euler (analyse d'erreur de consistance sur la jauge de santé).Contrôle optimal / Politiques d'action (quand consommer une potion de soin en temps continu).Modèle proie-prédateur d'arène à 4 combattants simultanés (équilibres stationnaires de Lotka-Volterra).4. Préparer les questions d'oral : comment cibler juste sans tout relire ?Pour interroger efficacement sans passer des heures dans le code des 10 groupes, voici une grille de questions prêtes à l'emploi. Il suffit d'ouvrir le fichier correspondant pendant qu'ils installent leur vidéo-projecteur :Question POO / Core (src/pyarena/core/models.py) :« Montrez-moi où vous avez défini le setter de santé @hp.setter. Que se passe-t-il si j'instancie un combattant avec des PV négatifs ou si je lui applique un soin supérieur à ses PV max ? Quelle exception est levée ? »Question Architecture / Exceptions (src/pyarena/core/exceptions.py) :« Pourquoi avoir créé une classe mère PyArenaException plutôt que d'utiliser directement ValueError de Python dans tout votre code ? »Question Parallélisation (src/pyarena/simulation/monte_carlo.py) :« Dans votre simulation Monte-Carlo, comment avez-vous géré la graine aléatoire (seed) entre les différents processus cœurs pour éviter qu'ils n'exécutent exactement les mêmes tirages en parallèle ? »Question DevOps / CI (.github/workflows/ci.yml) :« Si un membre de l'équipe pousse un code sans test unitaire qui fait chuter la couverture sous la barre fixée, que fait exactement la GitHub Action ? Montrez-moi le badge dans votre README. »Question Métier sur l'Extension (selon le module dans extensions/) :« Montrez-moi le test unitaire dans test_extension.py qui valide le comportement aux limites de votre extension. Pourquoi avoir choisi cette assertion précise ? »
+
+Le piège classique à éviter est de compter le nombre brut de lignes de code (LOC) ajoutées :Un étudiant qui ajoute un fichier GeoJSON de 3 000 lignes ou qui copie un gros dictionnaire semble avoir fait $80\%$ du projet.Un étudiant qui conçoit une fonction vectorisée Numba élégante de 15 lignes ou qui refactorise proprement du code apparaît comme inactif.  Les 4 métriques objectives et automatisables :L'atomicité et l'existence des PRs mergées : L'étudiant a-t-il ouvert au moins 2 PRs substantielles qui ont été relues et fusionnées sur main ?  L'implication dans les tests unitaires : L'étudiant a-t-il lui-même commité du code dans le répertoire tests/ ? (On vérifie avec git log --author="login" -- tests/).  L'activité de relecture croisée (Reviewer) : A-t-il commenté ou approuvé formellement des PRs d'autrui sur GitHub ?La régularité temporelle : Ses commits sont-ils répartis sur plusieurs semaines, ou concentrés sur les dernières 48 heures ?
+
+for repo in $(cat liste_depots.txt); do
+    git clone $repo
+    cd pyarena && pip install -e . && pytest --cov=pyarena
+    cd ..
+done
+
+from collections import defaultdict
+import datetime
+import subprocess
+
+
+def audit_git_repo():
+    # 1. Analyse des commits, fichiers touchés et dates par auteur
+    cmd = [
+        "git",
+        "log",
+        "--pretty=format:%an|%ad|%s",
+        "--date=short",
+        "--numstat",
+    ]
+    res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+    author_stats = defaultdict(
+        lambda: {
+            "commits": 0,
+            "dates": set(),
+            "code_lines": 0,
+            "test_lines": 0,
+            "test_files": 0,
+        }
+    )
+
+    current_author = None
+    for line in res.stdout.splitlines():
+        if "|" in line and not line.startswith("\t"):
+            parts = line.split("|")
+            current_author = parts[0].strip()
+            date = parts[1].strip()
+            author_stats[current_author]["commits"] += 1
+            author_stats[current_author]["dates"].add(date)
+        elif line.strip() and current_author:
+            chunks = line.split()
+            if len(chunks) == 3 and chunks[0].isdigit() and chunks[1].isdigit():
+                added, deleted, filepath = (
+                    int(chunks[0]),
+                    int(chunks[1]),
+                    chunks[2],
+                )
+                # On ignore les fichiers de cache, données et lockfile
+                if any(
+                    x in filepath for x in ["data/", "cache/", "poetry.lock"]
+                ):
+                    continue
+                if "tests/" in filepath:
+                    author_stats[current_author]["test_lines"] += added
+                    author_stats[current_author]["test_files"] += 1
+                else:
+                    author_stats[current_author]["code_lines"] += added
+
+    # Affichage du diagnostic
+    print(
+        f"{'Auteur':<20} | {'Commits':<8} | {'Jours actifs':<12} | {'Lignes Code':<12} | {'Lignes Tests'}"
+    )
+    print("-" * 75)
+    for author, s in author_stats.items():
+        print(
+            f"{author:<20} | {s['commits']:<8} | {len(s['dates']):<12} | {s['code_lines']:<12} | {s['test_lines']} ({s['test_files']} fichiers)"
+        )
+
+
+if __name__ == "__main__":
+    audit_git_repo()
+    
+    

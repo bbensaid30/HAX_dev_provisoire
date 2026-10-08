@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Département d’Enseignement de Mathématiques — Université de Montpellier">
+
+<title>Guide Enseignant &amp; Corrigé Pédagogique Intégral — TP Git &amp; GitHub</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="correction_git_files/libs/clipboard/clipboard.min.js"></script>
+<script src="correction_git_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="correction_git_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="correction_git_files/libs/quarto-html/popper.min.js"></script>
+<script src="correction_git_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="correction_git_files/libs/quarto-html/anchor.min.js"></script>
+<link href="correction_git_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="correction_git_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="correction_git_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="correction_git_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="correction_git_files/libs/bootstrap/bootstrap-d514875d253cdd9cab89c04d34b023ce.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sommaire Enseignant</h2>
+   
+  <ul>
+  <li><a href="#cadre-général-gestion-du-temps-et-logistique-4h30" id="toc-cadre-général-gestion-du-temps-et-logistique-4h30" class="nav-link active" data-scroll-target="#cadre-général-gestion-du-temps-et-logistique-4h30"><span class="header-section-number">1</span> 1. Cadre Général, Gestion du Temps et Logistique (4h30)</a>
+  <ul class="collapse">
+  <li><a href="#répartition-temporelle-et-dynamique-de-séance" id="toc-répartition-temporelle-et-dynamique-de-séance" class="nav-link" data-scroll-target="#répartition-temporelle-et-dynamique-de-séance"><span class="header-section-number">1.1</span> 1.1 Répartition Temporelle et Dynamique de Séance</a></li>
+  <li><a href="#organisation-des-binômes-et-trinômes" id="toc-organisation-des-binômes-et-trinômes" class="nav-link" data-scroll-target="#organisation-des-binômes-et-trinômes"><span class="header-section-number">1.2</span> 1.2 Organisation des Binômes et Trinômes</a></li>
+  </ul></li>
+  <li><a href="#focus-pédagogique-approfondi-les-tags-git" id="toc-focus-pédagogique-approfondi-les-tags-git" class="nav-link" data-scroll-target="#focus-pédagogique-approfondi-les-tags-git"><span class="header-section-number">2</span> 2. Focus Pédagogique Approfondi : Les Tags Git</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-les-tags-sont-cruciaux-motivations-réelles" id="toc-pourquoi-les-tags-sont-cruciaux-motivations-réelles" class="nav-link" data-scroll-target="#pourquoi-les-tags-sont-cruciaux-motivations-réelles"><span class="header-section-number">2.1</span> 2.1 Pourquoi les Tags sont cruciaux (Motivations réelles)</a></li>
+  <li><a href="#tags-légers-vs-tags-annotés" id="toc-tags-légers-vs-tags-annotés" class="nav-link" data-scroll-target="#tags-légers-vs-tags-annotés"><span class="header-section-number">2.2</span> 2.2 Tags Légers vs Tags Annotés</a></li>
+  </ul></li>
+  <li><a href="#corrigé-pas-à-pas-et-guide-dintervention-par-partie" id="toc-corrigé-pas-à-pas-et-guide-dintervention-par-partie" class="nav-link" data-scroll-target="#corrigé-pas-à-pas-et-guide-dintervention-par-partie"><span class="header-section-number">3</span> 3. Corrigé Pas-à-Pas et Guide d’Intervention par Partie</a>
+  <ul class="collapse">
+  <li><a href="#partie-0-environnement-configuration-08h00-08h35" id="toc-partie-0-environnement-configuration-08h00-08h35" class="nav-link" data-scroll-target="#partie-0-environnement-configuration-08h00-08h35"><span class="header-section-number">3.1</span> Partie 0 : Environnement &amp; Configuration (08h00 – 08h35)</a>
+  <ul class="collapse">
+  <li><a href="#posture-de-lenseignant" id="toc-posture-de-lenseignant" class="nav-link" data-scroll-target="#posture-de-lenseignant"><span class="header-section-number">3.1.1</span> Posture de l’enseignant :</a></li>
+  <li><a href="#points-de-contrôle-visuel-sur-les-écrans-checkpoints" id="toc-points-de-contrôle-visuel-sur-les-écrans-checkpoints" class="nav-link" data-scroll-target="#points-de-contrôle-visuel-sur-les-écrans-checkpoints"><span class="header-section-number">3.1.2</span> Points de contrôle visuel sur les écrans (<em>Checkpoints</em>) :</a></li>
+  <li><a href="#pièges-fréquents-solutions-immédiates" id="toc-pièges-fréquents-solutions-immédiates" class="nav-link" data-scroll-target="#pièges-fréquents-solutions-immédiates"><span class="header-section-number">3.1.3</span> Pièges fréquents &amp; Solutions immédiates :</a></li>
+  </ul></li>
+  <li><a href="#partie-1-le-cœur-de-git-en-local-08h35-09h15" id="toc-partie-1-le-cœur-de-git-en-local-08h35-09h15" class="nav-link" data-scroll-target="#partie-1-le-cœur-de-git-en-local-08h35-09h15"><span class="header-section-number">3.2</span> Partie 1 : Le Cœur de Git en Local (08h35 – 09h15)</a>
+  <ul class="collapse">
+  <li><a href="#message-pédagogique-au-tableau" id="toc-message-pédagogique-au-tableau" class="nav-link" data-scroll-target="#message-pédagogique-au-tableau"><span class="header-section-number">3.2.1</span> Message pédagogique au tableau :</a></li>
+  <li><a href="#corrigé-des-commandes-de-lexercice-1" id="toc-corrigé-des-commandes-de-lexercice-1" class="nav-link" data-scroll-target="#corrigé-des-commandes-de-lexercice-1"><span class="header-section-number">3.2.2</span> Corrigé des commandes de l’Exercice 1 :</a></li>
+  <li><a href="#ce-quil-faut-vérifier-sur-leurs-écrans" id="toc-ce-quil-faut-vérifier-sur-leurs-écrans" class="nav-link" data-scroll-target="#ce-quil-faut-vérifier-sur-leurs-écrans"><span class="header-section-number">3.2.3</span> Ce qu’il faut vérifier sur leurs écrans :</a></li>
+  </ul></li>
+  <li><a href="#partie-2-branches-merge-vs-rebase-09h15-10h05" id="toc-partie-2-branches-merge-vs-rebase-09h15-10h05" class="nav-link" data-scroll-target="#partie-2-branches-merge-vs-rebase-09h15-10h05"><span class="header-section-number">3.3</span> Partie 2 : Branches, Merge vs Rebase (09h15 – 10h05)</a>
+  <ul class="collapse">
+  <li><a href="#message-pédagogique-au-tableau-1" id="toc-message-pédagogique-au-tableau-1" class="nav-link" data-scroll-target="#message-pédagogique-au-tableau-1"><span class="header-section-number">3.3.1</span> Message pédagogique au tableau :</a></li>
+  <li><a href="#corrigé-de-lexercice-2a-merge-conflit" id="toc-corrigé-de-lexercice-2a-merge-conflit" class="nav-link" data-scroll-target="#corrigé-de-lexercice-2a-merge-conflit"><span class="header-section-number">3.3.2</span> Corrigé de l’Exercice 2A (Merge &amp; Conflit) :</a></li>
+  <li><a href="#intervention-sur-le-conflit" id="toc-intervention-sur-le-conflit" class="nav-link" data-scroll-target="#intervention-sur-le-conflit"><span class="header-section-number">3.3.3</span> Intervention sur le conflit :</a></li>
+  <li><a href="#corrigé-de-lexercice-2b-rebase-linéaire" id="toc-corrigé-de-lexercice-2b-rebase-linéaire" class="nav-link" data-scroll-target="#corrigé-de-lexercice-2b-rebase-linéaire"><span class="header-section-number">3.3.4</span> Corrigé de l’Exercice 2B (Rebase linéaire) :</a></li>
+  </ul></li>
+  <li><a href="#pause-pédagogique-10h05-10h15" id="toc-pause-pédagogique-10h05-10h15" class="nav-link" data-scroll-target="#pause-pédagogique-10h05-10h15"><span class="header-section-number">3.4</span> PAUSE PÉDAGOGIQUE (10h05 – 10h15)</a></li>
+  <li><a href="#partie-3-voyage-dans-le-temps-10h15-10h55" id="toc-partie-3-voyage-dans-le-temps-10h15-10h55" class="nav-link" data-scroll-target="#partie-3-voyage-dans-le-temps-10h15-10h55"><span class="header-section-number">3.5</span> Partie 3 : Voyage dans le Temps (10h15 – 10h55)</a></li>
+  <li><a href="#objectifs-pédagogiques-et-posture" id="toc-objectifs-pédagogiques-et-posture" class="nav-link" data-scroll-target="#objectifs-pédagogiques-et-posture"><span class="header-section-number">3.6</span> 3.1 Objectifs Pédagogiques et Posture</a>
+  <ul class="collapse">
+  <li><a href="#le-principe-clé-à-expliciter-au-tableau" id="toc-le-principe-clé-à-expliciter-au-tableau" class="nav-link" data-scroll-target="#le-principe-clé-à-expliciter-au-tableau"><span class="header-section-number">3.6.1</span> Le principe clé à expliciter au tableau :</a></li>
+  </ul></li>
+  <li><a href="#déroulé-et-gestion-du-rythme-40-minutes" id="toc-déroulé-et-gestion-du-rythme-40-minutes" class="nav-link" data-scroll-target="#déroulé-et-gestion-du-rythme-40-minutes"><span class="header-section-number">3.7</span> 3.2 Déroulé et Gestion du Rythme (40 minutes)</a></li>
+  <li><a href="#points-de-contrôle-visuel-sur-les-écrans-checkpoints-1" id="toc-points-de-contrôle-visuel-sur-les-écrans-checkpoints-1" class="nav-link" data-scroll-target="#points-de-contrôle-visuel-sur-les-écrans-checkpoints-1"><span class="header-section-number">3.8</span> 3.3 Points de Contrôle Visuel sur les Écrans (<em>Checkpoints</em>)</a></li>
+  <li><a href="#corrigé-intégral-des-commandes-scriptées" id="toc-corrigé-intégral-des-commandes-scriptées" class="nav-link" data-scroll-target="#corrigé-intégral-des-commandes-scriptées"><span class="header-section-number">3.9</span> 3.4 Corrigé Intégral des Commandes Scriptées</a></li>
+  <li><a href="#dépannage-express-sur-la-partie-3" id="toc-dépannage-express-sur-la-partie-3" class="nav-link" data-scroll-target="#dépannage-express-sur-la-partie-3"><span class="header-section-number">3.10</span> 3.5 Dépannage Express sur la Partie 3</a></li>
+  <li><a href="#partie-4-dépôt-distant-issues-prs-ci-tags-10h55-11h40" id="toc-partie-4-dépôt-distant-issues-prs-ci-tags-10h55-11h40" class="nav-link" data-scroll-target="#partie-4-dépôt-distant-issues-prs-ci-tags-10h55-11h40"><span class="header-section-number">3.11</span> Partie 4 : Dépôt Distant, Issues, PRs, CI &amp; Tags (10h55 – 11h40)</a>
+  <ul class="collapse">
+  <li><a href="#rôle-de-lenseignant" id="toc-rôle-de-lenseignant" class="nav-link" data-scroll-target="#rôle-de-lenseignant"><span class="header-section-number">3.11.1</span> Rôle de l’enseignant :</a></li>
+  <li><a href="#corrigé-du-workflow-collaboratif" id="toc-corrigé-du-workflow-collaboratif" class="nav-link" data-scroll-target="#corrigé-du-workflow-collaboratif"><span class="header-section-number">3.11.2</span> Corrigé du workflow collaboratif :</a></li>
+  <li><a href="#corrigé-du-workflow-de-ci-.githubworkflowsci.yml" id="toc-corrigé-du-workflow-de-ci-.githubworkflowsci.yml" class="nav-link" data-scroll-target="#corrigé-du-workflow-de-ci-.githubworkflowsci.yml"><span class="header-section-number">3.11.3</span> Corrigé du Workflow de CI (<code>.github/workflows/ci.yml</code>) :</a></li>
+  </ul></li>
+  <li><a href="#partie-5-le-grand-défi-darène-en-autonomie-11h40-12h30" id="toc-partie-5-le-grand-défi-darène-en-autonomie-11h40-12h30" class="nav-link" data-scroll-target="#partie-5-le-grand-défi-darène-en-autonomie-11h40-12h30"><span class="header-section-number">3.12</span> Partie 5 : Le Grand Défi d’Arène en Autonomie (11h40 – 12h30)</a>
+  <ul class="collapse">
+  <li><a href="#rôle-de-lenseignant-1" id="toc-rôle-de-lenseignant-1" class="nav-link" data-scroll-target="#rôle-de-lenseignant-1"><span class="header-section-number">3.12.1</span> Rôle de l’enseignant :</a></li>
+  <li><a href="#corrigé-complet-du-défi" id="toc-corrigé-complet-du-défi" class="nav-link" data-scroll-target="#corrigé-complet-du-défi"><span class="header-section-number">3.12.2</span> Corrigé complet du Défi :</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#la-trousse-de-secours-de-lenseignant-dépannage-express" id="toc-la-trousse-de-secours-de-lenseignant-dépannage-express" class="nav-link" data-scroll-target="#la-trousse-de-secours-de-lenseignant-dépannage-express"><span class="header-section-number">4</span> 4. La Trousse de Secours de l’Enseignant (Dépannage Express)</a>
+  <ul class="collapse">
+  <li><a href="#cas-1-mon-commit-est-uniquement-local-pas-de-git-push" id="toc-cas-1-mon-commit-est-uniquement-local-pas-de-git-push" class="nav-link" data-scroll-target="#cas-1-mon-commit-est-uniquement-local-pas-de-git-push"><span class="header-section-number">4.1</span> Cas 1 : Mon commit est uniquement LOCAL (Pas de <code>git push</code>)</a>
+  <ul class="collapse">
+  <li><a href="#procédure-de-sauvetage" id="toc-procédure-de-sauvetage" class="nav-link" data-scroll-target="#procédure-de-sauvetage"><span class="header-section-number">4.1.1</span> Procédure de sauvetage :</a></li>
+  <li><a href="#résultat" id="toc-résultat" class="nav-link" data-scroll-target="#résultat"><span class="header-section-number">4.1.2</span> Résultat</a></li>
+  </ul></li>
+  <li><a href="#cas-2-mon-commit-est-déjà-en-ligne-déjà-poussé-sur-github" id="toc-cas-2-mon-commit-est-déjà-en-ligne-déjà-poussé-sur-github" class="nav-link" data-scroll-target="#cas-2-mon-commit-est-déjà-en-ligne-déjà-poussé-sur-github"><span class="header-section-number">4.2</span> Cas 2 : Mon commit est déjà EN LIGNE (Déjà poussé sur GitHub) ⚠️</a>
+  <ul class="collapse">
+  <li><a href="#procédure-de-sauvetage-1" id="toc-procédure-de-sauvetage-1" class="nav-link" data-scroll-target="#procédure-de-sauvetage-1"><span class="header-section-number">4.2.1</span> Procédure de sauvetage :</a></li>
+  <li><a href="#résultat-final" id="toc-résultat-final" class="nav-link" data-scroll-target="#résultat-final"><span class="header-section-number">4.2.2</span> Résultat final</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Guide Enseignant &amp; Corrigé Pédagogique Intégral — TP Git &amp; GitHub</h1>
+<p class="subtitle lead">Conducteur de séance, Corrigés pas-à-pas, Pièges fréquents et Dépannage express (4h30)</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Département d’Enseignement de Mathématiques — Université de Montpellier </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">1 septembre 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="cadre-général-gestion-du-temps-et-logistique-4h30" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> 1. Cadre Général, Gestion du Temps et Logistique (4h30)</h1>
+<section id="répartition-temporelle-et-dynamique-de-séance" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="répartition-temporelle-et-dynamique-de-séance"><span class="header-section-number">1.1</span> 1.1 Répartition Temporelle et Dynamique de Séance</h2>
+<p>La séance est calibrée pour <strong>4 heures 15 à 4 heures 30</strong> réelles. Voici le minutage constaté en salle machine avec des étudiants de Master 1 :</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 18%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Phase</th>
+<th style="text-align: center;">Durée</th>
+<th style="text-align: center;">Horaires (exemple 8h-12h30)</th>
+<th style="text-align: left;">Activité principale</th>
+<th style="text-align: left;">Points de friction attendus</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 0</strong></td>
+<td style="text-align: center;">35 min</td>
+<td style="text-align: center;">08h00 – 08h35</td>
+<td style="text-align: left;">VS Code, Git, Clés SSH, config</td>
+<td style="text-align: left;">Clés SSH mal copiées, Windows WSL</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 1</strong></td>
+<td style="text-align: center;">40 min</td>
+<td style="text-align: center;">08h35 – 09h15</td>
+<td style="text-align: left;">Les 3 zones, commit, .gitignore</td>
+<td style="text-align: left;">Différence staged vs unstaged</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 2</strong></td>
+<td style="text-align: center;">50 min</td>
+<td style="text-align: center;">09h15 – 10h05</td>
+<td style="text-align: left;">Merge vs Rebase, conflits locaux</td>
+<td style="text-align: left;">Peur d’éditer les balises <code>&lt;&lt;&lt;</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Pause</strong></td>
+<td style="text-align: center;">10 min</td>
+<td style="text-align: center;">10h05 – 10h15</td>
+<td style="text-align: left;"><em>Pause pédagogique</em></td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 3</strong></td>
+<td style="text-align: center;">40 min</td>
+<td style="text-align: center;">10h15 – 10h55</td>
+<td style="text-align: left;">Voyage dans le temps (detach, reset, revert)</td>
+<td style="text-align: left;">Comprendre l’impact des drapeaux reset</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 4</strong></td>
+<td style="text-align: center;">45 min</td>
+<td style="text-align: center;">10h55 – 11h40</td>
+<td style="text-align: left;">GitHub à deux, Issues, PR, CI &amp; Tags</td>
+<td style="text-align: left;">Cible de PR erronée (main au lieu de dev)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 5</strong></td>
+<td style="text-align: center;">50 min</td>
+<td style="text-align: center;">11h40 – 12h30</td>
+<td style="text-align: left;">Le Grand Défi d’Arène en autonomie</td>
+<td style="text-align: left;">Conflit concurrent sur config.py, CI rouge</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="organisation-des-binômes-et-trinômes" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="organisation-des-binômes-et-trinômes"><span class="header-section-number">1.2</span> 1.2 Organisation des Binômes et Trinômes</h2>
+<ul>
+<li><p><strong>Binômes (Cas standard) :</strong> Deux étudiants côte à côte, chacun sur son ordinateur portable ou machine de salle.</p></li>
+<li><p><strong>Trinômes (Si effectif impair) :</strong> Rôle du <strong>Lead Reviewer &amp; Release Manager</strong> :</p>
+<ul>
+<li>Étudiant A et Étudiant B développent les fonctionnalités sur leurs branches respectives.</li>
+<li>Étudiant C administre le dépôt distant : il valide les Issues, est désigné comme relecteur obligatoire (<em>Reviewer</em>) sur toutes les PRs, vérifie la CI, et exécute les merges vers <code>dev</code> et les releases vers <code>main</code>.</li>
+<li><strong>Rotation :</strong> Inverser les rôles à la Partie 4 puis à la Partie 5.</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="focus-pédagogique-approfondi-les-tags-git" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> 2. Focus Pédagogique Approfondi : Les Tags Git</h1>
+<section id="pourquoi-les-tags-sont-cruciaux-motivations-réelles" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="pourquoi-les-tags-sont-cruciaux-motivations-réelles"><span class="header-section-number">2.1</span> 2.1 Pourquoi les Tags sont cruciaux (Motivations réelles)</h2>
+<p>Un tag Git n’est pas une simple étiquette décorative. En entreprise et en recherche, il remplit quatre missions critiques :</p>
+<ol type="1">
+<li><p><strong>La Reproductibilité Scientifique (Crucial en Data Science / M1 SSD &amp; MANU) :</strong> Dans une publication scientifique ou un rapport de Master, faire référence à la branche <code>main</code> est une aberration méthodologique : <code>main</code> évolue tous les jours. Citer un commit SHA-1 (<code>3a8f9b2</code>) est exact mais illisible. Un tag sémantique (<code>v1.0.0</code> ou <code>benchmark-icml2026</code>) ancre un état <strong>rigoureusement immuable</strong>. N’importe quel chercheur peut exécuter <code>git checkout v1.0.0</code> et reproduire les tables statistiques au bit près.</p></li>
+<li><p><strong>La Gestion des Dépendances et Packaging Python (<code>pip</code>) :</strong> Dans l’écosystème Python, les outils comme <code>pip</code> ou <code>poetry</code> peuvent installer un paquet directement depuis GitHub en ciblant un tag :</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+<span class="pp">[</span><span class="ss">https://github.com/mon</span><span class="pp">-</span><span class="ss">groupe/pyarena.git@v1.0.0</span><span class="pp">]</span><span class="er">(</span><span class="ex">https://github.com/mon-groupe/pyarena.git@v1.0.0</span><span class="kw">)</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Si un utilisateur pointe sur une branche vivante (<code>@main</code>), son code risque de casser dès le commit suivant. Pointer sur un tag garantit la pérennité du code client.</p></li>
+<li><p><strong>Le Versionnement Sémantique (Norme SemVer 2.0.0) :</strong> Le standard industriel <code>vMAJOR.MINOR.PATCH</code> structure le cycle de vie :</p>
+<ul>
+<li><code>MAJOR</code> (ex. 2.0.0) : Changement d’architecture rompant la rétrocompatibilité (ex. refonte complète de la formule de dégâts).</li>
+<li><code>MINOR</code> (ex. 1.1.0) : Ajout d’une fonctionnalité rétrocompatible (ex. nouvel objet passif, nouveau combattant).</li>
+<li><code>PATCH</code> (ex. 1.0.1) : Correction de bogue sans modification de l’interface (ex. correction d’un arrondi).</li>
+</ul></li>
+<li><p><strong>La Publication de Releases GitHub :</strong> Pousser un tag sur GitHub permet de générer automatiquement une <strong>Release</strong> officielle avec téléchargement d’un fichier ZIP source et génération du journal des modifications (<em>Changelog</em>).</p></li>
+</ol>
+</section>
+<section id="tags-légers-vs-tags-annotés" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="tags-légers-vs-tags-annotés"><span class="header-section-number">2.2</span> 2.2 Tags Légers vs Tags Annotés</h2>
+<p>Expliquez la nuance au tableau :</p>
+<ul>
+<li><p><strong>Tag léger (<em>lightweight</em>) :</strong> Une simple étiquette posée sur un commit (<code>git tag v1.0</code>). Il ne contient aucune métadonnée propre.</p></li>
+<li><p><strong>Tag annoté (<em>annotated</em>) — OBLIGATOIRE EN PROJET :</strong> Un objet Git à part entière, doté d’une somme de contrôle, contenant le nom de l’auteur, la date, un message explicatif et pouvant être signé cryptographiquement par GPG :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag <span class="at">-a</span> v1.0.0 <span class="at">-m</span> <span class="st">"Release certifiee pour le Jalon 1"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="corrigé-pas-à-pas-et-guide-dintervention-par-partie" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> 3. Corrigé Pas-à-Pas et Guide d’Intervention par Partie</h1>
+<section id="partie-0-environnement-configuration-08h00-08h35" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="partie-0-environnement-configuration-08h00-08h35"><span class="header-section-number">3.1</span> Partie 0 : Environnement &amp; Configuration (08h00 – 08h35)</h2>
+<section id="posture-de-lenseignant" class="level3" data-number="3.1.1">
+<h3 data-number="3.1.1" class="anchored" data-anchor-id="posture-de-lenseignant"><span class="header-section-number">3.1.1</span> Posture de l’enseignant :</h3>
+<p>Tourner activement dans les rangs pour débloquer les problèmes d’installation. Ne commencez pas le cours magistral tant que 100% des étudiants n’ont pas un terminal fonctionnel.</p>
+</section>
+<section id="points-de-contrôle-visuel-sur-les-écrans-checkpoints" class="level3" data-number="3.1.2">
+<h3 data-number="3.1.2" class="anchored" data-anchor-id="points-de-contrôle-visuel-sur-les-écrans-checkpoints"><span class="header-section-number">3.1.2</span> Points de contrôle visuel sur les écrans (<em>Checkpoints</em>) :</h3>
+<ol type="1">
+<li>Taper <code>git --version</code> : doit renvoyer <span class="math inline">\(\ge 2.30\)</span>.</li>
+<li>Taper <code>git config --global core.editor</code> : doit renvoyer <code>code --wait</code>.</li>
+<li>Taper <code>ssh -T git@github.com</code> : doit afficher le message de bienvenue avec le pseudo de l’étudiant.</li>
+</ol>
+</section>
+<section id="pièges-fréquents-solutions-immédiates" class="level3" data-number="3.1.3">
+<h3 data-number="3.1.3" class="anchored" data-anchor-id="pièges-fréquents-solutions-immédiates"><span class="header-section-number">3.1.3</span> Pièges fréquents &amp; Solutions immédiates :</h3>
+<ul>
+<li><p><strong>Piège 1 (Windows) :</strong> L’étudiant a ouvert Git Bash au lieu de WSL.<br>
+<em>Solution :</em> Fermer Git Bash. Ouvrir le terminal Windows, lancer <code>wsl</code>, vérifier que l’invite affiche <code>utilisateur@machine:~$</code>.</p></li>
+<li><p><strong>Piège 2 : Permissions SSH trop ouvertes sous Linux/WSL.</strong><br>
+<em>Message d’erreur :</em> <code>Permissions 0644 for '/home/.../.ssh/id_ed25519' are too open.</code><br>
+<em>Solution immédiate :</em> Taper dans son terminal :<br>
+<code>chmod 600 ~/.ssh/id_ed25519 &amp;&amp; chmod 644 ~/.ssh/id_ed25519.pub</code>.</p></li>
+<li><p><strong>Piège 3 : Clé publique mal copiée sur GitHub.</strong></p>
+<p><em>Symptôme :</em> GitHub indique « Key is invalid » ou la connexion SSH est refusée (<em>Permission denied (publickey)</em>).<br>
+<em>Solution :</em> L’étudiant a souvent copié la clé privée (<code>id_ed25519</code>) au lieu de la clé publique (<code>id_ed25519.pub</code>), ou a tronqué la ligne. Vérifier que la commande exécutée est bien <code>cat ~/.ssh/id_ed25519.pub</code>.</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="partie-1-le-cœur-de-git-en-local-08h35-09h15" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="partie-1-le-cœur-de-git-en-local-08h35-09h15"><span class="header-section-number">3.2</span> Partie 1 : Le Cœur de Git en Local (08h35 – 09h15)</h2>
+<section id="message-pédagogique-au-tableau" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="message-pédagogique-au-tableau"><span class="header-section-number">3.2.1</span> Message pédagogique au tableau :</h3>
+<p>Dessinez les trois colonnes : <strong>Working Directory</strong>, <strong>Staging Area</strong>, <strong>Dépôt Local</strong>.<br>
+Insistez : <em>« Git ne fait rien automatiquement. Si vous modifiez un fichier, Git attend que vous le placiez explicitement dans le sas avec <code>git add</code> avant de prendre la photo avec <code>git commit</code>. »</em></p>
+</section>
+<section id="corrigé-des-commandes-de-lexercice-1" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="corrigé-des-commandes-de-lexercice-1"><span class="header-section-number">3.2.2</span> Corrigé des commandes de l’Exercice 1 :</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> tp-git-solo <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> tp-git-solo</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&lt;&lt; 'EOF'</span> <span class="op">&gt;</span> moteur.py</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">def initialiser_arene(nom: str):</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">    return {"nom": nom, "combattants": []}</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">print("Moteur de jeu charge.")</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: initialisation du moteur d'arene"</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Démonstration de la double réalité (staged et unstaged)</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">'print("Systeme pret.")'</span> <span class="op">&gt;&gt;</span> moteur.py</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status          <span class="co"># Montrer que moteur.py apparaît en vert ET en rouge</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff            <span class="co"># Montre la nouvelle ligne en vert</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff <span class="at">--staged</span>   <span class="co"># Montre ce qui était déjà indexé</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: finalisation du demarrage moteur"</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajout du gitignore</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&lt;&lt; 'EOF'</span> <span class="op">&gt;</span> .gitignore</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="st">*.log</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="st">__pycache__/</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="st">*.py[cod]</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="st">.pytest_cache/</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="st">.DS_Store</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .gitignore</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"chore: configuration des exclusions gitignore"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="ce-quil-faut-vérifier-sur-leurs-écrans" class="level3" data-number="3.2.3">
+<h3 data-number="3.2.3" class="anchored" data-anchor-id="ce-quil-faut-vérifier-sur-leurs-écrans"><span class="header-section-number">3.2.3</span> Ce qu’il faut vérifier sur leurs écrans :</h3>
+<p>Tapez <code>git status</code> sur leur machine : l’arbre de travail doit être <strong>parfaitement propre</strong> (<code>nothing to commit, working tree clean</code>).</p>
+<hr>
+</section>
+</section>
+<section id="partie-2-branches-merge-vs-rebase-09h15-10h05" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="partie-2-branches-merge-vs-rebase-09h15-10h05"><span class="header-section-number">3.3</span> Partie 2 : Branches, Merge vs Rebase (09h15 – 10h05)</h2>
+<section id="message-pédagogique-au-tableau-1" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="message-pédagogique-au-tableau-1"><span class="header-section-number">3.3.1</span> Message pédagogique au tableau :</h3>
+<p>Montrez qu’une branche n’est qu’une étiquette mobile.<br>
+Dessinez la divergence :</p>
+<ul>
+<li><code>git merge</code> crée un commit avec 2 flèches vers l’arrière (conserve la trace de la branche).</li>
+<li><code>git rebase</code> réécrit l’histoire pour aligner les commits sur une seule ligne droite.</li>
+</ul>
+</section>
+<section id="corrigé-de-lexercice-2a-merge-conflit" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="corrigé-de-lexercice-2a-merge-conflit"><span class="header-section-number">3.3.2</span> Corrigé de l’Exercice 2A (Merge &amp; Conflit) :</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Branche Charge</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/attaque-charge</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&lt;&lt; 'EOF'</span> <span class="op">&gt;&gt;</span> moteur.py</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">def attaque_charge():</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="st">    return "Charge inflige 20 degats"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: ajout de l'attaque Charge"</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Conflit sur main</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&lt;&lt; 'EOF'</span> <span class="op">&gt;&gt;</span> moteur.py</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="st">def attaque_griffe():</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="st">    return "Griffe inflige 25 degats"</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: ajout de l'attaque Griffe sur main"</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Tentative de merge (déclenche le conflit)</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge feat/attaque-charge</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="intervention-sur-le-conflit" class="level3" data-number="3.3.3">
+<h3 data-number="3.3.3" class="anchored" data-anchor-id="intervention-sur-le-conflit"><span class="header-section-number">3.3.3</span> Intervention sur le conflit :</h3>
+<p>L’étudiant appelle au secours : <em>« Monsieur, il y a des symboles bizarres dans mon code ! »</em>.<br>
+Faites-lui ouvrir le fichier dans VS Code. Montrez-lui :</p>
+<ol type="1">
+<li>Les balises <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> (sa version sur main).</li>
+<li>La balise séparatrice <code>=======</code>.</li>
+<li>Les balises <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/attaque-charge</code> (la version de la branche).<br>
+Montrez-lui les boutons au-dessus : <strong>Accept Both Changes</strong>.<br>
+Après clic, faites-lui constater la disparition des balises. Terminez avec :</li>
+</ol>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"merge: conciliation des attaques Charge et Griffe"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-d</span> feat/attaque-charge</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="corrigé-de-lexercice-2b-rebase-linéaire" class="level3" data-number="3.3.4">
+<h3 data-number="3.3.4" class="anchored" data-anchor-id="corrigé-de-lexercice-2b-rebase-linéaire"><span class="header-section-number">3.3.4</span> Corrigé de l’Exercice 2B (Rebase linéaire) :</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/potion</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> <span class="op">&lt;&lt; 'EOF'</span> <span class="op">&gt;&gt;</span> moteur.py</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="st">def boire_potion(points: int = 30):</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="st">    return f"Soin de {points} PV"</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="op">EOF</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: ajout de la fonction potion"</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Commit indépendant sur main</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"# Documentation du Moteur"</span> <span class="op">&gt;</span> README.md</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add README.md</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"docs: ajout du README"</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Rebase de la branche</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch feat/potion</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> rebase main</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Fast-forward final sur main</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge feat/potion</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-d</span> feat/potion</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Faites taper <code>git graph</code> : admirez avec eux la <strong>ligne droite parfaite sans aucun nœud de croisement</strong>.</p>
+<hr>
+</section>
+</section>
+<section id="pause-pédagogique-10h05-10h15" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="pause-pédagogique-10h05-10h15"><span class="header-section-number">3.4</span> PAUSE PÉDAGOGIQUE (10h05 – 10h15)</h2>
+<hr>
+</section>
+<section id="partie-3-voyage-dans-le-temps-10h15-10h55" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="partie-3-voyage-dans-le-temps-10h15-10h55"><span class="header-section-number">3.5</span> Partie 3 : Voyage dans le Temps (10h15 – 10h55)</h2>
+</section>
+<section id="objectifs-pédagogiques-et-posture" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="objectifs-pédagogiques-et-posture"><span class="header-section-number">3.6</span> 3.1 Objectifs Pédagogiques et Posture</h2>
+<p>Cette séquence de 40 minutes permet de dépasser l’appréhension de casser le code chez les étudiants de Master 1.<br>
+Votre rôle consiste à leur démontrer par l’expérience que <strong>Git ne détruit presque jamais de données sans confirmation explicite</strong>, et qu’à chaque intention correspond un outil adapté.</p>
+<section id="le-principe-clé-à-expliciter-au-tableau" class="level3" data-number="3.6.1">
+<h3 data-number="3.6.1" class="anchored" data-anchor-id="le-principe-clé-à-expliciter-au-tableau"><span class="header-section-number">3.6.1</span> Le principe clé à expliciter au tableau :</h3>
+<blockquote class="blockquote">
+<p><em>« En local sur votre machine, vous êtes chez vous : vous pouvez toiletter vos brouillons avec <code>reset</code>. Mais dès qu’un commit a été partagé sur GitHub, l’histoire devient sacrée : on n’efface rien, on compense avec <code>revert</code>. »</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="déroulé-et-gestion-du-rythme-40-minutes" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="déroulé-et-gestion-du-rythme-40-minutes"><span class="header-section-number">3.7</span> 3.2 Déroulé et Gestion du Rythme (40 minutes)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 29%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Phase</th>
+<th style="text-align: center;">Durée</th>
+<th style="text-align: left;">Activité des étudiants</th>
+<th style="text-align: left;">Rôle et interventions de l’enseignant</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>3.2 Exploration</strong></td>
+<td style="text-align: center;">8 min</td>
+<td style="text-align: left;"><code>switch --detach</code> et <code>restore --source</code></td>
+<td style="text-align: left;">Faire constater que les fichiers sur le disque changent en temps réel dans VS Code.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>3.3 Stash</strong></td>
+<td style="text-align: center;">7 min</td>
+<td style="text-align: left;">Casier temporaire <code>git stash</code></td>
+<td style="text-align: left;">Expliquer pourquoi on ne committe jamais de code cassé sur une branche partagée.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>3.4 Reset</strong></td>
+<td style="text-align: center;">12 min</td>
+<td style="text-align: left;">Pratique comparative <code>--soft</code>, <code>--mixed</code>, <code>--hard</code></td>
+<td style="text-align: left;">Faire exécuter <code>git status</code> après chaque drapeau pour créer le déclic visuel.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>3.5 Revert</strong></td>
+<td style="text-align: center;">8 min</td>
+<td style="text-align: left;">Annulation publique sans réécriture</td>
+<td style="text-align: left;">Souligner l’apparition du commit inverse dans Git Graph.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>3.6 Reflog</strong></td>
+<td style="text-align: center;">5 min</td>
+<td style="text-align: left;">Résurrection après reset hard destructeur</td>
+<td style="text-align: left;">Démonstration au projecteur pour dédramatiser les fausses manipulations.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="points-de-contrôle-visuel-sur-les-écrans-checkpoints-1" class="level2" data-number="3.8">
+<h2 data-number="3.8" class="anchored" data-anchor-id="points-de-contrôle-visuel-sur-les-écrans-checkpoints-1"><span class="header-section-number">3.8</span> 3.3 Points de Contrôle Visuel sur les Écrans (<em>Checkpoints</em>)</h2>
+<ol type="1">
+<li><p><strong>Checkpoint <code>switch --detach</code> :</strong><br>
+Vérifiez que le terminal affiche bien <code>HEAD detached at &lt;sha1&gt;</code>. Rassurez les étudiants : ce n’est pas un message d’erreur, c’est le mode consultation en lecture seule. Vérifiez qu’ils savent revenir au présent avec <code>git switch main</code>.</p></li>
+<li><p><strong>Checkpoint <code>git reset --soft</code> vs <code>--mixed</code> :</strong><br>
+Faites-leur taper <code>git status</code> :</p>
+<ul>
+<li>En mode <code>--soft</code> : le fichier doit impérativement apparaître en <strong>VERT</strong> (conservé dans la Staging Area).</li>
+<li>En mode <code>--mixed</code> : le fichier doit impérativement apparaître en <strong>ROUGE</strong> (conservé sur le disque mais sorti du sas).</li>
+<li>C’est le déclic visuel fondamental pour assimiler les 3 zones.</li>
+</ul></li>
+<li><p><strong>Checkpoint <code>git reflog</code> :</strong><br>
+Pendant la simulation de catastrophe, vérifiez qu’aucun étudiant ne panique. Montrez-lui la syntaxe <code>HEAD@{1}</code> et guidez la frappe de <code>git reset --hard HEAD@{1}</code>.</p></li>
+</ol>
+<hr>
+</section>
+<section id="corrigé-intégral-des-commandes-scriptées" class="level2" data-number="3.9">
+<h2 data-number="3.9" class="anchored" data-anchor-id="corrigé-intégral-des-commandes-scriptées"><span class="header-section-number">3.9</span> 3.4 Corrigé Intégral des Commandes Scriptées</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Exercice 3A : Exploration et emprunt ---</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> graph                               <span class="co"># Repérer un SHA-1 ancien (ex. e4f1a2b)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">--detach</span> e4f1a2b             <span class="co"># Entrée dans la capsule temporelle</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> moteur.py                        <span class="co"># Vérification du comportement historique</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main                         <span class="co"># Retour instantané au présent</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> restore <span class="at">--source</span><span class="op">=</span>e4f1a2b moteur.py  <span class="co"># Emprunt d'un fichier du passé</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status                              <span class="co"># Constater la modification locale</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> restore moteur.py                   <span class="co"># Annulation de l'emprunt</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Exercice 3B : Casier Stash ---</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"calcul incomplet = 10 +"</span> <span class="op">&gt;&gt;</span> moteur.py</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status                              <span class="co"># Fichier modifié non committable</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> stash                               <span class="co"># Le dossier de travail redevient propre</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Note urgente"</span> <span class="op">&gt;&gt;</span> README.md</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add README.md <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"docs: note urgente"</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> stash pop                           <span class="co"># Récupération du calcul incomplet</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> restore moteur.py                   <span class="co"># Nettoyage de la ligne de test</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Exercice 3C : Les 3 modes de Reset ---</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Mode Soft (Conserve l'Index)</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"PARAM_VITESSE = 10"</span> <span class="op">&gt;&gt;</span> moteur.py</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: commit pour test soft"</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reset <span class="at">--soft</span> HEAD~1                 <span class="co"># Le fichier reste indexé en VERT</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Mode Mixed (Vide l'Index, garde le disque)</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: commit pour test mixed"</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reset <span class="at">--mixed</span> HEAD~1                <span class="co"># Le fichier passe en ROUGE sur le disque</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Mode Hard (Détruit tout)</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reset <span class="at">--hard</span> HEAD                   <span class="co"># Dossier de travail propre, code purgé</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Exercice 3D : Revert public ---</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"TAUX_CRITIQUE_PAR_DEFAUT = -999.0"</span> <span class="op">&gt;&gt;</span> moteur.py</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add moteur.py <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"feat: ajout du multiplicateur de critique"</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> revert HEAD <span class="at">--no-edit</span>               <span class="co"># Crée le commit d'annulation sans éditeur</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Exercice 3E : Résurrection Reflog ---</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reset <span class="at">--hard</span> HEAD~2                 <span class="co"># Catastrophe simulée : commits disparus</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reflog                              <span class="co"># Repérage de l'index avant le reset</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reset <span class="at">--hard</span> HEAD@{1}               <span class="co"># Résurrection complète et immédiate</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+<section id="dépannage-express-sur-la-partie-3" class="level2" data-number="3.10">
+<h2 data-number="3.10" class="anchored" data-anchor-id="dépannage-express-sur-la-partie-3"><span class="header-section-number">3.10</span> 3.5 Dépannage Express sur la Partie 3</h2>
+<ul>
+<li><strong>L’étudiant est coincé dans un état de revert conflictuel :</strong><br>
+Si un <code>revert</code> entre en conflit avec une modification effectuée entre-temps, Git suspend l’opération.<br>
+<em>Remède :</em> Taper <code>git revert --abort</code> pour revenir instantanément à l’état initial sans risque.</li>
+<li><strong>L’étudiant a tapé <code>git stash pop</code> et obtient un conflit :</strong><br>
+Cela survient s’il a modifié les mêmes lignes pendant son intervention urgente.<br>
+<em>Remède :</em> Faire résoudre le conflit dans VS Code comme un merge ordinaire, ou taper <code>git reset --hard HEAD</code> puis <code>git stash apply</code>.</li>
+<li><strong>L’étudiant a fait des commits en état de <code>HEAD detached</code> :</strong><br>
+Il a committé dans le vide et veut récupérer son travail sur une vraie branche.<br>
+<em>Remède :</em> Taper immédiatement <code>git switch -c feat/sauvetage-travail</code> (cela ancre ses commits sur une nouvelle branche propre).</li>
+</ul>
+<hr>
+</section>
+<section id="partie-4-dépôt-distant-issues-prs-ci-tags-10h55-11h40" class="level2" data-number="3.11">
+<h2 data-number="3.11" class="anchored" data-anchor-id="partie-4-dépôt-distant-issues-prs-ci-tags-10h55-11h40"><span class="header-section-number">3.11</span> Partie 4 : Dépôt Distant, Issues, PRs, CI &amp; Tags (10h55 – 11h40)</h2>
+<section id="rôle-de-lenseignant" class="level3" data-number="3.11.1">
+<h3 data-number="3.11.1" class="anchored" data-anchor-id="rôle-de-lenseignant"><span class="header-section-number">3.11.1</span> Rôle de l’enseignant :</h3>
+<p>Faire ranger les ordinateurs individuels pour ne laisser allumés que les deux postes du binôme. Vérifier que chaque binôme a bien un Étudiant A et un Étudiant B identifiés.</p>
+</section>
+<section id="corrigé-du-workflow-collaboratif" class="level3" data-number="3.11.2">
+<h3 data-number="3.11.2" class="anchored" data-anchor-id="corrigé-du-workflow-collaboratif"><span class="header-section-number">3.11.2</span> Corrigé du workflow collaboratif :</h3>
+<ol type="1">
+<li><p><strong>Étudiant A :</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin git@github.com:<span class="op">&lt;</span>pseudo-A<span class="op">&gt;</span>/arene-collaborative.git</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> dev</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin dev</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Étudiant B :</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone git@github.com:<span class="op">&lt;</span>pseudo-A<span class="op">&gt;</span>/arene-collaborative.git</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> arene-collaborative</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Sur GitHub :</strong></p>
+<ul>
+<li>Étudiant A crée l’Issue <code>#1</code> : <em>« Calcul de l’initiative »</em>.</li>
+<li>Étudiant B crée la branche <code>feat/1-initiative</code> depuis <code>dev</code>, code la fonction, committe, pousse, ouvre la PR vers <code>dev</code> avec <code>Closes #1</code>.</li>
+<li>Étudiant A relit dans <strong>Files changed</strong>, clique sur <strong>Review changes</strong> <span class="math inline">\(\rightarrow\)</span> <strong>Approve</strong>, puis <strong>Squash and merge</strong>.</li>
+<li>Les deux font <code>git pull origin dev</code> en local.</li>
+</ul></li>
+</ol>
+</section>
+<section id="corrigé-du-workflow-de-ci-.githubworkflowsci.yml" class="level3" data-number="3.11.3">
+<h3 data-number="3.11.3" class="anchored" data-anchor-id="corrigé-du-workflow-de-ci-.githubworkflowsci.yml"><span class="header-section-number">3.11.3</span> Corrigé du Workflow de CI (<code>.github/workflows/ci.yml</code>) :</h3>
+<p>Déposer ce fichier sur la branche <code>dev</code> :</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> Verification-CI</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">pull_request</span><span class="kw">:</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">branches</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at"> dev</span><span class="kw">,</span><span class="at"> main </span><span class="kw">]</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">controle-qualite</span><span class="kw">:</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Cloner le depot</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v4</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Configurer Python</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/setup-python@v5</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">python-version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.11"</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> Verifier la syntaxe</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>          python -m py_compile moteur.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+</section>
+</section>
+<section id="partie-5-le-grand-défi-darène-en-autonomie-11h40-12h30" class="level2" data-number="3.12">
+<h2 data-number="3.12" class="anchored" data-anchor-id="partie-5-le-grand-défi-darène-en-autonomie-11h40-12h30"><span class="header-section-number">3.12</span> Partie 5 : Le Grand Défi d’Arène en Autonomie (11h40 – 12h30)</h2>
+<section id="rôle-de-lenseignant-1" class="level3" data-number="3.12.1">
+<h3 data-number="3.12.1" class="anchored" data-anchor-id="rôle-de-lenseignant-1"><span class="header-section-number">3.12.1</span> Rôle de l’enseignant :</h3>
+<p>Adopter une posture d’observateur. Ne pas donner la solution immédiatement. Renvoyer les étudiants à leur binôme : <em>« Regardez le message d’erreur de Git, que dit-il ? »</em>.</p>
+</section>
+<section id="corrigé-complet-du-défi" class="level3" data-number="3.12.2">
+<h3 data-number="3.12.2" class="anchored" data-anchor-id="corrigé-complet-du-défi"><span class="header-section-number">3.12.2</span> Corrigé complet du Défi :</h3>
+<section id="étape-1-codage-parallèle" class="level4" data-number="3.12.2.1">
+<h4 data-number="3.12.2.1" class="anchored" data-anchor-id="étape-1-codage-parallèle"><span class="header-section-number">3.12.2.1</span> Étape 1 : Codage parallèle</h4>
+<ul>
+<li><p><strong>Étudiant A (<code>feat/arene</code>) :</strong></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># arene.py</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lancer_duel(nom_a: <span class="bu">str</span>, nom_b: <span class="bu">str</span>):</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"Duel entre </span><span class="sc">{</span>nom_a<span class="sc">}</span><span class="ss"> et </span><span class="sc">{</span>nom_b<span class="sc">}</span><span class="ss">"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># config.py</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>NOM_ARENE <span class="op">=</span> <span class="st">"Colisee de Montpellier"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>MAX_TOURS <span class="op">=</span> <span class="dv">10</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Commit et push sur <code>feat/arene</code>.</p></li>
+<li><p><strong>Étudiant B (<code>feat/rapport</code>) :</strong></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rapport.py</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> afficher_score(victoires_a: <span class="bu">int</span>, victoires_b: <span class="bu">int</span>):</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"Score : </span><span class="sc">{</span>victoires_a<span class="sc">}</span><span class="ss"> - </span><span class="sc">{</span>victoires_b<span class="sc">}</span><span class="ss">"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># config.py (LE CONFLIT)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>NOM_ARENE <span class="op">=</span> <span class="st">"Stadium Occitanie"</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>MAX_TOURS <span class="op">=</span> <span class="dv">25</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Commit et push sur <code>feat/rapport</code>.</p></li>
+</ul>
+</section>
+<section id="étape-2-résolution-du-conflit-de-pr-par-létudiant-b" class="level4" data-number="3.12.2.2">
+<h4 data-number="3.12.2.2" class="anchored" data-anchor-id="étape-2-résolution-du-conflit-de-pr-par-létudiant-b"><span class="header-section-number">3.12.2.2</span> Étape 2 : Résolution du conflit de PR par l’Étudiant B</h4>
+<ol type="1">
+<li><p>Étudiant A a mergé sa PR sur <code>dev</code>.</p></li>
+<li><p>La PR d’Étudiant B est bloquée en rouge sur GitHub.</p></li>
+<li><p><strong>Commandes exactes exécutées par l’Étudiant B dans son terminal :</strong></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin dev</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch feat/rapport</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge dev</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Conflit sur <code>config.py</code>. VS Code affiche les deux versions.</p></li>
+<li><p>Concertation du binôme <span class="math inline">\(\rightarrow\)</span> Ils éditent <code>config.py</code> :</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>NOM_ARENE <span class="op">=</span> <span class="st">"Colisee d'Occitanie (Montpellier)"</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>MAX_TOURS <span class="op">=</span> <span class="dv">15</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>Finalisation du merge et envoi :</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add config.py</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"fix: resolution du conflit de configuration"</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin feat/rapport</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>La PR repasse au vert sur GitHub ! Étudiant A approuve et merge.</p></li>
+</ol>
+</section>
+<section id="étape-3-résolution-du-crash-ci" class="level4" data-number="3.12.2.3">
+<h4 data-number="3.12.2.3" class="anchored" data-anchor-id="étape-3-résolution-du-crash-ci"><span class="header-section-number">3.12.2.3</span> Étape 3 : Résolution du crash CI</h4>
+<ol type="1">
+<li><p>Étudiant B crée <code>main.py</code> avec une erreur de syntaxe volontaire (parenthèse manquante).</p></li>
+<li><p>La PR vers <code>dev</code> déclenche l’action GitHub : <strong>Croix Rouge !</strong></p></li>
+<li><p>Étudiant B regarde l’onglet <strong>Actions</strong> sur GitHub, repère <code>SyntaxError</code>.</p></li>
+<li><p>En local, il corrige la parenthèse, committe et repousse :</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add main.py</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"fix: fermeture de la parenthese dans main.py"</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin fix/assemblage</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>La pastille passe au vert. La PR est mergée sur <code>dev</code>.</p></li>
+</ol>
+</section>
+<section id="étape-4-release-et-tag-officiel-sur-main" class="level4" data-number="3.12.2.4">
+<h4 data-number="3.12.2.4" class="anchored" data-anchor-id="étape-4-release-et-tag-officiel-sur-main"><span class="header-section-number">3.12.2.4</span> Étape 4 : Release et Tag officiel sur <code>main</code></h4>
+<ol type="1">
+<li><p>Étudiant A ouvre la PR <code>dev</code> <span class="math inline">\(\rightarrow\)</span> <code>main</code>. Titre : <code>Release v1.0.0</code>.</p></li>
+<li><p>Étudiant B valide et fusionne.</p></li>
+<li><p><strong>Pose du tag sur la machine locale :</strong></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin main</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> tag <span class="at">-a</span> v1.0.0 <span class="at">-m</span> <span class="st">"Version 1.0.0 certifiee par la CI"</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin v1.0.0</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Vérification finale :</strong> Sur GitHub, onglet <strong>Releases / Tags</strong> : le tag <code>v1.0.0</code> apparaît avec son archive ZIP téléchargeable.</p></li>
+</ol>
+<hr>
+</section>
+</section>
+</section>
+</section>
+<section id="la-trousse-de-secours-de-lenseignant-dépannage-express" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> 4. La Trousse de Secours de l’Enseignant (Dépannage Express)</h1>
+<p>Quand un étudiant vous appelle en panique avec un terminal bloqué ou un état incohérent, voici les commandes magiques à taper pour rétablir la situation en 10 secondes :</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Problème constaté</th>
+<th style="text-align: left;">Diagnostic</th>
+<th style="text-align: left;">Commande de sauvetage immédiate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Terminal figé sur <code>Waiting for editor...</code></strong></td>
+<td style="text-align: left;">VS Code attend la fermeture d’un onglet</td>
+<td style="text-align: left;">Enregistrer et fermer l’onglet dans VS Code, ou tuer avec <strong>Ctrl+C</strong>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Terminal coincé dans Vim (<code>:</code>, <code>-- INSERT --</code>)</strong></td>
+<td style="text-align: left;">Git a ouvert Vim par défaut</td>
+<td style="text-align: left;">Taper Échap, puis <code>:q!</code> puis Entrée (quitter sans sauver). Configurer VS Code.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong><code>HEAD detached at ...</code></strong></td>
+<td style="text-align: left;">L’étudiant a checkout un commit passé</td>
+<td style="text-align: left;">Taper <code>git switch main</code> (ou <code>dev</code>).</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong><code>error: you need to resolve your current index first</code></strong></td>
+<td style="text-align: left;">Rebase ou merge interrompu en cours</td>
+<td style="text-align: left;">Taper <code>git merge --abort</code> ou <code>git rebase --abort</code>.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong><code>error: cannot pull: You have unstaged changes</code></strong></td>
+<td style="text-align: left;">Fichiers non committés bloquant le pull</td>
+<td style="text-align: left;">Taper <code>git stash</code>, puis <code>git pull</code>, puis <code>git stash pop</code>.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>L’étudiant a committé sur <code>main</code> au lieu de <code>dev</code></strong></td>
+<td style="text-align: left;">Erreur d’inattention classique</td>
+<td style="text-align: left;"><code>git branch feat/sauve</code> puis <code>git reset --hard HEAD~1</code> sur main.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Tout le code a disparu après une fausse manip</strong></td>
+<td style="text-align: left;">Reset hard intempestif</td>
+<td style="text-align: left;">Taper <code>git reflog</code>, repérer le commit et taper <code>git reset --hard &lt;sha1&gt;</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Pas de panique !
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>C’est l’erreur d’inattention la plus classique de Git. Rien n’est perdu. Avant de taper la moindre commande, <strong>vérifiez si vous avez déjà poussé (<em>push</em>) votre code sur GitHub</strong>.</p>
+</div>
+</div>
+<section id="cas-1-mon-commit-est-uniquement-local-pas-de-git-push" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="cas-1-mon-commit-est-uniquement-local-pas-de-git-push"><span class="header-section-number">4.1</span> Cas 1 : Mon commit est uniquement LOCAL (Pas de <code>git push</code>)</h2>
+<p>Vous avez cliqué sur <strong>Commit</strong> (ou tapé <code>git commit</code>), mais vous n’avez <strong>PAS</strong> fait de <code>git push</code>. Votre erreur n’est que sur votre machine.</p>
+<p>L’objectif est de déplacer votre commit vers une nouvelle branche propre, puis de faire reculer <code>main</code> dans le passé.</p>
+<section id="procédure-de-sauvetage" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="procédure-de-sauvetage"><span class="header-section-number">4.1.1</span> Procédure de sauvetage :</h3>
+<p>Dans votre terminal, exécutez précisément ces 3 commandes :</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Créez une nouvelle branche de fonctionnalité là où vous en êtes et basculez dessus</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/ma-fonctionnalite</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Revenez sur la branche main</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Forcez la branche main locale à reculer d'un commit</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> reset <span class="at">--hard</span> HEAD~1</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="résultat" class="level3 callout-success" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="résultat"><span class="header-section-number">4.1.2</span> Résultat</h3>
+<ul>
+<li>Votre branche <code>main</code> est redevenue parfaitement propre (comme avant l’erreur).</li>
+<li>Votre travail est sain et sauf sur la branche <code>feat/ma-fonctionnalite</code>. Vous pouvez continuer à coder dessus, puis la pousser pour ouvrir votre Pull Request !</li>
+</ul>
+</section>
+<hr>
+</section>
+<section id="cas-2-mon-commit-est-déjà-en-ligne-déjà-poussé-sur-github" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="cas-2-mon-commit-est-déjà-en-ligne-déjà-poussé-sur-github"><span class="header-section-number">4.2</span> Cas 2 : Mon commit est déjà EN LIGNE (Déjà poussé sur GitHub) ⚠️</h2>
+<p>Vous avez fait un <code>git push origin main</code> et votre commit d’erreur apparaît sur GitHub.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Règle d’or en équipe
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Interdiction</strong> d’utiliser <code>git reset --hard</code> et de forcer le push sur une branche partagée (<code>main</code> ou <code>dev</code>). Cela casserait l’historique de vos camarades. On utilise la méthode propre : <strong><code>git revert</code></strong> combiné à un <strong><code>git cherry-pick</code></strong> pour sauver votre code.</p>
+</div>
+</div>
+<p>L’objectif est d’annuler l’erreur sur <code>main</code>, puis de transférer chirurgicalement votre code sur une bonne branche sans avoir à le retaper.</p>
+<section id="procédure-de-sauvetage-1" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="procédure-de-sauvetage-1"><span class="header-section-number">4.2.1</span> Procédure de sauvetage :</h3>
+<section id="étape-a-sauver-lhistorique-sur-votre-machine" class="level4" data-number="4.2.1.1">
+<h4 data-number="4.2.1.1" class="anchored" data-anchor-id="étape-a-sauver-lhistorique-sur-votre-machine"><span class="header-section-number">4.2.1.1</span> Étape A : Sauver l’historique (Sur votre machine)</h4>
+<p>Avant d’annuler quoi que ce soit, repérez le <strong>hash</strong> (l’identifiant à 7 caractères) de votre commit d’erreur en tapant <code>git log --oneline</code>. <em>Disons que votre hash est <code>a1b2c3d</code>.</em></p>
+</section>
+<section id="étape-b-sécuriser-le-code-sur-la-bonne-branche-le-cherry-pick" class="level4" data-number="4.2.1.2">
+<h4 data-number="4.2.1.2" class="anchored" data-anchor-id="étape-b-sécuriser-le-code-sur-la-bonne-branche-le-cherry-pick"><span class="header-section-number">4.2.1.2</span> Étape B : Sécuriser le code sur la bonne branche (Le Cherry-Pick)</h4>
+<p>Nous allons créer la bonne branche et demander à Git d’aller “cueillir” (<em>cherry-pick</em>) votre commit pour l’y appliquer :</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Créez la bonne branche à partir de la version saine actuelle et basculez dessus</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/ma-fonctionnalite</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Copiez votre commit d'erreur sur cette nouvelle branche</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> cherry-pick a1b2c3d</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><em>(Votre code est désormais en sécurité sur la bonne branche, prêt à être poussé via une PR !)</em></p>
+</section>
+<section id="étape-c-nettoyer-la-branche-commune-main" class="level4" data-number="4.2.1.3">
+<h4 data-number="4.2.1.3" class="anchored" data-anchor-id="étape-c-nettoyer-la-branche-commune-main"><span class="header-section-number">4.2.1.3</span> Étape C : Nettoyer la branche commune <code>main</code></h4>
+<p>Maintenant, il faut réparer la bêtise commise sur la branche partagée :</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Revenez sur main</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch main</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Créez le commit d'annulation (fermez l'éditeur de texte qui s'ouvre pour valider)</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> revert HEAD</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Envoyez l'annulation sur GitHub pour l'équipe</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin main</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="résultat-final" class="level3 callout-success" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="résultat-final"><span class="header-section-number">4.2.2</span> Résultat final</h3>
+<ul>
+<li>Sur GitHub, la branche <code>main</code> est propre. L’historique affiche proprement votre commit d’erreur, suivi du commit <code>Revert "..."</code>.</li>
+<li>Sur votre machine, votre code est intact sur <code>feat/ma-fonctionnalite</code>. Vous n’avez rien perdu ni réécrit à la main !</li>
+</ul>
+</section>
+<hr>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Astuce pour l’avenir : Verrouiller la branche <code>main</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Pour vous éviter cette frayeur, demandez à l’administrateur du dépôt (votre enseignant) de protéger la branche sur GitHub :<br>
+<em>Settings → Branches → Add branch protection rule → Sélectionner <code>main</code> → Cocher <strong>Require a pull request before merging</strong></em>.<br>
+Git vous interdira alors automatiquement de pousser directement sur <code>main</code> !</p>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

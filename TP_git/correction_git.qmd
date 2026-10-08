@@ -1,0 +1,590 @@
+---
+title: "Guide Enseignant & Corrigé Pédagogique Intégral — TP Git & GitHub"
+subtitle: "Conducteur de séance, Corrigés pas-à-pas, Pièges fréquents et Dépannage express (4h30)"
+author: "Département d'Enseignement de Mathématiques — Université de Montpellier"
+date: "Septembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire Enseignant"
+    number-sections: true
+    theme: cosmo
+    code-copy: true
+---
+
+# 1. Cadre Général, Gestion du Temps et Logistique (4h30)
+
+## 1.1 Répartition Temporelle et Dynamique de Séance
+
+La séance est calibrée pour **4 heures 15 à 4 heures 30** réelles. Voici le minutage constaté en salle machine avec des étudiants de Master 1 :
+
+| Phase | Durée | Horaires (exemple 8h-12h30) | Activité principale | Points de friction attendus |
+| :--- | :---: | :---: | :--- | :--- |
+| **Partie 0** | 35 min | 08h00 – 08h35 | VS Code, Git, Clés SSH, config | Clés SSH mal copiées, Windows WSL |
+| **Partie 1** | 40 min | 08h35 – 09h15 | Les 3 zones, commit, .gitignore | Différence staged vs unstaged |
+| **Partie 2** | 50 min | 09h15 – 10h05 | Merge vs Rebase, conflits locaux | Peur d'éditer les balises `<<<` |
+| **Pause** | 10 min | 10h05 – 10h15 | *Pause pédagogique* | - |
+| **Partie 3** | 40 min | 10h15 – 10h55 | Voyage dans le temps (detach, reset, revert) | Comprendre l'impact des drapeaux reset |
+| **Partie 4** | 45 min | 10h55 – 11h40 | GitHub à deux, Issues, PR, CI & Tags | Cible de PR erronée (main au lieu de dev) |
+| **Partie 5** | 50 min | 11h40 – 12h30 | Le Grand Défi d'Arène en autonomie | Conflit concurrent sur config.py, CI rouge |
+
+## 1.2 Organisation des Binômes et Trinômes
+
+* **Binômes (Cas standard) :** Deux étudiants côte à côte, chacun sur son ordinateur portable ou machine de salle.
+* **Trinômes (Si effectif impair) :** Rôle du **Lead Reviewer & Release Manager** :
+
+  * Étudiant A et Étudiant B développent les fonctionnalités sur leurs branches respectives.
+  * Étudiant C administre le dépôt distant : il valide les Issues, est désigné comme relecteur obligatoire (*Reviewer*) sur toutes les PRs, vérifie la CI, et exécute les merges vers `dev` et les releases vers `main`.
+  * **Rotation :** Inverser les rôles à la Partie 4 puis à la Partie 5.
+
+---
+
+# 2. Focus Pédagogique Approfondi : Les Tags Git
+
+## 2.1 Pourquoi les Tags sont cruciaux (Motivations réelles)
+
+Un tag Git n'est pas une simple étiquette décorative. En entreprise et en recherche, il remplit quatre missions critiques :
+
+1. **La Reproductibilité Scientifique (Crucial en Data Science / M1 SSD & MANU) :**
+   Dans une publication scientifique ou un rapport de Master, faire référence à la branche `main` est une aberration méthodologique : `main` évolue tous les jours. Citer un commit SHA-1 (`3a8f9b2`) est exact mais illisible. Un tag sémantique (`v1.0.0` ou `benchmark-icml2026`) ancre un état **rigoureusement immuable**. N'importe quel chercheur peut exécuter `git checkout v1.0.0` et reproduire les tables statistiques au bit près.
+2. **La Gestion des Dépendances et Packaging Python (`pip`) :**
+   Dans l'écosystème Python, les outils comme `pip` ou `poetry` peuvent installer un paquet directement depuis GitHub en ciblant un tag :
+   ```bash
+   pip install git+[https://github.com/mon-groupe/pyarena.git@v1.0.0](https://github.com/mon-groupe/pyarena.git@v1.0.0)
+   ```
+   Si un utilisateur pointe sur une branche vivante (`@main`), son code risque de casser dès le commit suivant. Pointer sur un tag garantit la pérennité du code client.
+3. **Le Versionnement Sémantique (Norme SemVer 2.0.0) :**
+   Le standard industriel `vMAJOR.MINOR.PATCH` structure le cycle de vie :
+
+   * `MAJOR` (ex. 2.0.0) : Changement d'architecture rompant la rétrocompatibilité (ex. refonte complète de la formule de dégâts).
+   * `MINOR` (ex. 1.1.0) : Ajout d'une fonctionnalité rétrocompatible (ex. nouvel objet passif, nouveau combattant).
+   * `PATCH` (ex. 1.0.1) : Correction de bogue sans modification de l'interface (ex. correction d'un arrondi).
+
+4. **La Publication de Releases GitHub :**
+   Pousser un tag sur GitHub permet de générer automatiquement une **Release** officielle avec téléchargement d'un fichier ZIP source et génération du journal des modifications (*Changelog*).
+
+## 2.2 Tags Légers vs Tags Annotés
+
+Expliquez la nuance au tableau :
+
+* **Tag léger (*lightweight*) :** Une simple étiquette posée sur un commit (`git tag v1.0`). Il ne contient aucune métadonnée propre.
+* **Tag annoté (*annotated*) — OBLIGATOIRE EN PROJET :** Un objet Git à part entière, doté d'une somme de contrôle, contenant le nom de l'auteur, la date, un message explicatif et pouvant être signé cryptographiquement par GPG :
+  ```bash
+  git tag -a v1.0.0 -m "Release certifiee pour le Jalon 1"
+  ```
+
+---
+
+# 3. Corrigé Pas-à-Pas et Guide d'Intervention par Partie
+
+## Partie 0 : Environnement & Configuration (08h00 – 08h35)
+
+### Posture de l'enseignant :
+Tourner activement dans les rangs pour débloquer les problèmes d'installation. Ne commencez pas le cours magistral tant que 100% des étudiants n'ont pas un terminal fonctionnel.
+
+### Points de contrôle visuel sur les écrans (*Checkpoints*) :
+
+1. Taper `git --version` : doit renvoyer $\ge 2.30$.
+2. Taper `git config --global core.editor` : doit renvoyer `code --wait`.
+3. Taper `ssh -T git@github.com` : doit afficher le message de bienvenue avec le pseudo de l'étudiant.
+
+### Pièges fréquents & Solutions immédiates :
+
+* **Piège 1 (Windows) :** L'étudiant a ouvert Git Bash au lieu de WSL.  
+  *Solution :* Fermer Git Bash. Ouvrir le terminal Windows, lancer `wsl`, vérifier que l'invite affiche `utilisateur@machine:~$`.
+* **Piège 2 : Permissions SSH trop ouvertes sous Linux/WSL.**  
+  *Message d'erreur :* `Permissions 0644 for '/home/.../.ssh/id_ed25519' are too open.`  
+  *Solution immédiate :* Taper dans son terminal :  
+  `chmod 600 ~/.ssh/id_ed25519 && chmod 644 ~/.ssh/id_ed25519.pub`.
+* **Piège 3 : Clé publique mal copiée sur GitHub.**  
+
+  *Symptôme :* GitHub indique « Key is invalid » ou la connexion SSH est refusée (*Permission denied (publickey)*).  
+  *Solution :* L'étudiant a souvent copié la clé privée (`id_ed25519`) au lieu de la clé publique (`id_ed25519.pub`), ou a tronqué la ligne. Vérifier que la commande exécutée est bien `cat ~/.ssh/id_ed25519.pub`.
+
+---
+
+## Partie 1 : Le Cœur de Git en Local (08h35 – 09h15)
+
+### Message pédagogique au tableau :
+Dessinez les trois colonnes : **Working Directory**, **Staging Area**, **Dépôt Local**.  
+Insistez : *« Git ne fait rien automatiquement. Si vous modifiez un fichier, Git attend que vous le placiez explicitement dans le sas avec `git add` avant de prendre la photo avec `git commit`. »*
+
+### Corrigé des commandes de l'Exercice 1 :
+
+```bash
+mkdir tp-git-solo && cd tp-git-solo
+git init
+cat << 'EOF' > moteur.py
+def initialiser_arene(nom: str):
+    return {"nom": nom, "combattants": []}
+
+print("Moteur de jeu charge.")
+EOF
+
+git add moteur.py
+git commit -m "feat: initialisation du moteur d'arene"
+
+# Démonstration de la double réalité (staged et unstaged)
+echo 'print("Systeme pret.")' >> moteur.py
+git status          # Montrer que moteur.py apparaît en vert ET en rouge
+git diff            # Montre la nouvelle ligne en vert
+git diff --staged   # Montre ce qui était déjà indexé
+
+git add moteur.py
+git commit -m "feat: finalisation du demarrage moteur"
+
+# Ajout du gitignore
+cat << 'EOF' > .gitignore
+*.log
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+EOF
+
+git add .gitignore
+git commit -m "chore: configuration des exclusions gitignore"
+```
+
+### Ce qu'il faut vérifier sur leurs écrans :
+Tapez `git status` sur leur machine : l'arbre de travail doit être **parfaitement propre** (`nothing to commit, working tree clean`).
+
+---
+
+## Partie 2 : Branches, Merge vs Rebase (09h15 – 10h05)
+
+### Message pédagogique au tableau :
+Montrez qu'une branche n'est qu'une étiquette mobile.  
+Dessinez la divergence :
+
+* `git merge` crée un commit avec 2 flèches vers l'arrière (conserve la trace de la branche).
+* `git rebase` réécrit l'histoire pour aligner les commits sur une seule ligne droite.
+
+### Corrigé de l'Exercice 2A (Merge & Conflit) :
+```bash
+# Branche Charge
+git switch -c feat/attaque-charge
+cat << 'EOF' >> moteur.py
+
+def attaque_charge():
+    return "Charge inflige 20 degats"
+EOF
+git add moteur.py
+git commit -m "feat: ajout de l'attaque Charge"
+
+# Conflit sur main
+git switch main
+cat << 'EOF' >> moteur.py
+
+def attaque_griffe():
+    return "Griffe inflige 25 degats"
+EOF
+git add moteur.py
+git commit -m "feat: ajout de l'attaque Griffe sur main"
+
+# Tentative de merge (déclenche le conflit)
+git merge feat/attaque-charge
+```
+
+### Intervention sur le conflit :
+L'étudiant appelle au secours : *« Monsieur, il y a des symboles bizarres dans mon code ! »*.  
+Faites-lui ouvrir le fichier dans VS Code. Montrez-lui :
+
+1. Les balises `<<<<<<< HEAD` (sa version sur main).
+2. La balise séparatrice `=======`.
+3. Les balises `>>>>>>> feat/attaque-charge` (la version de la branche).  
+Montrez-lui les boutons au-dessus : **Accept Both Changes**.  
+Après clic, faites-lui constater la disparition des balises. Terminez avec :
+
+```bash
+git add moteur.py
+git commit -m "merge: conciliation des attaques Charge et Griffe"
+git branch -d feat/attaque-charge
+```
+
+### Corrigé de l'Exercice 2B (Rebase linéaire) :
+```bash
+git switch -c feat/potion
+cat << 'EOF' >> moteur.py
+
+def boire_potion(points: int = 30):
+    return f"Soin de {points} PV"
+EOF
+git add moteur.py
+git commit -m "feat: ajout de la fonction potion"
+
+# Commit indépendant sur main
+git switch main
+echo "# Documentation du Moteur" > README.md
+git add README.md
+git commit -m "docs: ajout du README"
+
+# Rebase de la branche
+git switch feat/potion
+git rebase main
+
+# Fast-forward final sur main
+git switch main
+git merge feat/potion
+git branch -d feat/potion
+```
+Faites taper `git graph` : admirez avec eux la **ligne droite parfaite sans aucun nœud de croisement**.
+
+---
+
+## PAUSE PÉDAGOGIQUE (10h05 – 10h15)
+
+---
+
+## Partie 3 : Voyage dans le Temps (10h15 – 10h55)
+
+## 3.1 Objectifs Pédagogiques et Posture
+
+Cette séquence de 40 minutes permet de dépasser l'appréhension de casser le code chez les étudiants de Master 1.  
+Votre rôle consiste à leur démontrer par l'expérience que **Git ne détruit presque jamais de données sans confirmation explicite**, et qu'à chaque intention correspond un outil adapté.
+
+### Le principe clé à expliciter au tableau :
+> *« En local sur votre machine, vous êtes chez vous : vous pouvez toiletter vos brouillons avec `reset`. Mais dès qu'un commit a été partagé sur GitHub, l'histoire devient sacrée : on n'efface rien, on compense avec `revert`. »*
+
+---
+
+## 3.2 Déroulé et Gestion du Rythme (40 minutes)
+
+| Phase | Durée | Activité des étudiants | Rôle et interventions de l'enseignant |
+| :--- | :---: | :--- | :--- |
+| **3.2 Exploration** | 8 min | `switch --detach` et `restore --source` | Faire constater que les fichiers sur le disque changent en temps réel dans VS Code. |
+| **3.3 Stash** | 7 min | Casier temporaire `git stash` | Expliquer pourquoi on ne committe jamais de code cassé sur une branche partagée. |
+| **3.4 Reset** | 12 min | Pratique comparative `--soft`, `--mixed`, `--hard` | Faire exécuter `git status` après chaque drapeau pour créer le déclic visuel. |
+| **3.5 Revert** | 8 min | Annulation publique sans réécriture | Souligner l'apparition du commit inverse dans Git Graph. |
+| **3.6 Reflog** | 5 min | Résurrection après reset hard destructeur | Démonstration au projecteur pour dédramatiser les fausses manipulations. |
+
+---
+
+## 3.3 Points de Contrôle Visuel sur les Écrans (*Checkpoints*)
+
+1. **Checkpoint `switch --detach` :**  
+   Vérifiez que le terminal affiche bien `HEAD detached at <sha1>`. Rassurez les étudiants : ce n'est pas un message d'erreur, c'est le mode consultation en lecture seule. Vérifiez qu'ils savent revenir au présent avec `git switch main`.
+2. **Checkpoint `git reset --soft` vs `--mixed` :**  
+   Faites-leur taper `git status` :
+
+   * En mode `--soft` : le fichier doit impérativement apparaître en **VERT** (conservé dans la Staging Area).
+   * En mode `--mixed` : le fichier doit impérativement apparaître en **ROUGE** (conservé sur le disque mais sorti du sas).
+   * C'est le déclic visuel fondamental pour assimiler les 3 zones.
+3. **Checkpoint `git reflog` :**  
+   Pendant la simulation de catastrophe, vérifiez qu'aucun étudiant ne panique. Montrez-lui la syntaxe `HEAD@{1}` et guidez la frappe de `git reset --hard HEAD@{1}`.
+
+---
+
+## 3.4 Corrigé Intégral des Commandes Scriptées
+
+```bash
+# --- Exercice 3A : Exploration et emprunt ---
+git graph                               # Repérer un SHA-1 ancien (ex. e4f1a2b)
+git switch --detach e4f1a2b             # Entrée dans la capsule temporelle
+python moteur.py                        # Vérification du comportement historique
+git switch main                         # Retour instantané au présent
+git restore --source=e4f1a2b moteur.py  # Emprunt d'un fichier du passé
+git status                              # Constater la modification locale
+git restore moteur.py                   # Annulation de l'emprunt
+
+# --- Exercice 3B : Casier Stash ---
+echo "calcul incomplet = 10 +" >> moteur.py
+git status                              # Fichier modifié non committable
+git stash                               # Le dossier de travail redevient propre
+echo "Note urgente" >> README.md
+git add README.md && git commit -m "docs: note urgente"
+git stash pop                           # Récupération du calcul incomplet
+git restore moteur.py                   # Nettoyage de la ligne de test
+
+# --- Exercice 3C : Les 3 modes de Reset ---
+# 1. Mode Soft (Conserve l'Index)
+echo "PARAM_VITESSE = 10" >> moteur.py
+git add moteur.py && git commit -m "feat: commit pour test soft"
+git reset --soft HEAD~1                 # Le fichier reste indexé en VERT
+
+# 2. Mode Mixed (Vide l'Index, garde le disque)
+git commit -m "feat: commit pour test mixed"
+git reset --mixed HEAD~1                # Le fichier passe en ROUGE sur le disque
+
+# 3. Mode Hard (Détruit tout)
+git reset --hard HEAD                   # Dossier de travail propre, code purgé
+
+# --- Exercice 3D : Revert public ---
+echo "TAUX_CRITIQUE_PAR_DEFAUT = -999.0" >> moteur.py
+git add moteur.py && git commit -m "feat: ajout du multiplicateur de critique"
+git revert HEAD --no-edit               # Crée le commit d'annulation sans éditeur
+
+# --- Exercice 3E : Résurrection Reflog ---
+git reset --hard HEAD~2                 # Catastrophe simulée : commits disparus
+git reflog                              # Repérage de l'index avant le reset
+git reset --hard HEAD@{1}               # Résurrection complète et immédiate
+```
+
+---
+
+## 3.5 Dépannage Express sur la Partie 3
+
+* **L'étudiant est coincé dans un état de revert conflictuel :**  
+  Si un `revert` entre en conflit avec une modification effectuée entre-temps, Git suspend l'opération.  
+  *Remède :* Taper `git revert --abort` pour revenir instantanément à l'état initial sans risque.
+* **L'étudiant a tapé `git stash pop` et obtient un conflit :**  
+  Cela survient s'il a modifié les mêmes lignes pendant son intervention urgente.  
+  *Remède :* Faire résoudre le conflit dans VS Code comme un merge ordinaire, ou taper `git reset --hard HEAD` puis `git stash apply`.
+* **L'étudiant a fait des commits en état de `HEAD detached` :**  
+  Il a committé dans le vide et veut récupérer son travail sur une vraie branche.  
+  *Remède :* Taper immédiatement `git switch -c feat/sauvetage-travail` (cela ancre ses commits sur une nouvelle branche propre).
+
+---
+
+## Partie 4 : Dépôt Distant, Issues, PRs, CI & Tags (10h55 – 11h40)
+
+### Rôle de l'enseignant :
+Faire ranger les ordinateurs individuels pour ne laisser allumés que les deux postes du binôme. Vérifier que chaque binôme a bien un Étudiant A et un Étudiant B identifiés.
+
+### Corrigé du workflow collaboratif :
+
+1. **Étudiant A :**
+
+   ```bash
+   git remote add origin git@github.com:<pseudo-A>/arene-collaborative.git
+   git push -u origin main
+   git switch -c dev
+   git push -u origin dev
+   ```
+
+2. **Étudiant B :**
+
+   ```bash
+   git clone git@github.com:<pseudo-A>/arene-collaborative.git
+   cd arene-collaborative
+   git switch dev
+   ```
+
+3. **Sur GitHub :**
+
+   * Étudiant A crée l'Issue `#1` : *« Calcul de l'initiative »*.
+   * Étudiant B crée la branche `feat/1-initiative` depuis `dev`, code la fonction, committe, pousse, ouvre la PR vers `dev` avec `Closes #1`.
+   * Étudiant A relit dans **Files changed**, clique sur **Review changes** $\rightarrow$ **Approve**, puis **Squash and merge**.
+   * Les deux font `git pull origin dev` en local.
+
+### Corrigé du Workflow de CI (`.github/workflows/ci.yml`) :
+Déposer ce fichier sur la branche `dev` :
+```yaml
+name: Verification-CI
+
+on:
+  pull_request:
+    branches: [ dev, main ]
+
+jobs:
+  controle-qualite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloner le depot
+        uses: actions/checkout@v4
+
+      - name: Configurer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verifier la syntaxe
+        run: |
+          python -m py_compile moteur.py
+```
+
+---
+
+## Partie 5 : Le Grand Défi d'Arène en Autonomie (11h40 – 12h30)
+
+### Rôle de l'enseignant :
+Adopter une posture d'observateur. Ne pas donner la solution immédiatement. Renvoyer les étudiants à leur binôme : *« Regardez le message d'erreur de Git, que dit-il ? »*.
+
+### Corrigé complet du Défi :
+
+#### Étape 1 : Codage parallèle
+
+* **Étudiant A (`feat/arene`) :**
+  ```python
+  # arene.py
+  def lancer_duel(nom_a: str, nom_b: str):
+      return f"Duel entre {nom_a} et {nom_b}"
+  ```
+  ```python
+  # config.py
+  NOM_ARENE = "Colisee de Montpellier"
+  MAX_TOURS = 10
+  ```
+  Commit et push sur `feat/arene`.
+
+* **Étudiant B (`feat/rapport`) :**
+  ```python
+  # rapport.py
+  def afficher_score(victoires_a: int, victoires_b: int):
+      return f"Score : {victoires_a} - {victoires_b}"
+  ```
+  ```python
+  # config.py (LE CONFLIT)
+  NOM_ARENE = "Stadium Occitanie"
+  MAX_TOURS = 25
+  ```
+  Commit et push sur `feat/rapport`.
+
+#### Étape 2 : Résolution du conflit de PR par l'Étudiant B
+
+1. Étudiant A a mergé sa PR sur `dev`.
+2. La PR d'Étudiant B est bloquée en rouge sur GitHub.
+3. **Commandes exactes exécutées par l'Étudiant B dans son terminal :**
+   ```bash
+   git switch dev
+   git pull origin dev
+   git switch feat/rapport
+   git merge dev
+   ```
+4. Conflit sur `config.py`. VS Code affiche les deux versions.
+5. Concertation du binôme $\rightarrow$ Ils éditent `config.py` :
+   ```python
+   NOM_ARENE = "Colisee d'Occitanie (Montpellier)"
+   MAX_TOURS = 15
+   ```
+6. Finalisation du merge et envoi :
+   ```bash
+   git add config.py
+   git commit -m "fix: resolution du conflit de configuration"
+   git push origin feat/rapport
+   ```
+7. La PR repasse au vert sur GitHub ! Étudiant A approuve et merge.
+
+#### Étape 3 : Résolution du crash CI
+
+1. Étudiant B crée `main.py` avec une erreur de syntaxe volontaire (parenthèse manquante).
+2. La PR vers `dev` déclenche l'action GitHub : **Croix Rouge !**
+3. Étudiant B regarde l'onglet **Actions** sur GitHub, repère `SyntaxError`.
+4. En local, il corrige la parenthèse, committe et repousse :
+   ```bash
+   git add main.py
+   git commit -m "fix: fermeture de la parenthese dans main.py"
+   git push origin fix/assemblage
+   ```
+5. La pastille passe au vert. La PR est mergée sur `dev`.
+
+#### Étape 4 : Release et Tag officiel sur `main`
+
+1. Étudiant A ouvre la PR `dev` $\rightarrow$ `main`. Titre : `Release v1.0.0`.
+2. Étudiant B valide et fusionne.
+3. **Pose du tag sur la machine locale :**
+   ```bash
+   git switch main
+   git pull origin main
+   git tag -a v1.0.0 -m "Version 1.0.0 certifiee par la CI"
+   git push origin v1.0.0
+   ```
+4. **Vérification finale :**
+   Sur GitHub, onglet **Releases / Tags** : le tag `v1.0.0` apparaît avec son archive ZIP téléchargeable.
+
+---
+
+# 4. La Trousse de Secours de l'Enseignant (Dépannage Express)
+
+Quand un étudiant vous appelle en panique avec un terminal bloqué ou un état incohérent, voici les commandes magiques à taper pour rétablir la situation en 10 secondes :
+
+| Problème constaté | Diagnostic | Commande de sauvetage immédiate |
+| :--- | :--- | :--- |
+| **Terminal figé sur `Waiting for editor...`** | VS Code attend la fermeture d'un onglet | Enregistrer et fermer l'onglet dans VS Code, ou tuer avec **Ctrl+C**. |
+| **Terminal coincé dans Vim (`:`, `-- INSERT --`)** | Git a ouvert Vim par défaut | Taper Échap, puis `:q!` puis Entrée (quitter sans sauver). Configurer VS Code. |
+| **`HEAD detached at ...`** | L'étudiant a checkout un commit passé | Taper `git switch main` (ou `dev`). |
+| **`error: you need to resolve your current index first`** | Rebase ou merge interrompu en cours | Taper `git merge --abort` ou `git rebase --abort`. |
+| **`error: cannot pull: You have unstaged changes`** | Fichiers non committés bloquant le pull | Taper `git stash`, puis `git pull`, puis `git stash pop`. |
+| **L'étudiant a committé sur `main` au lieu de `dev`** | Erreur d'inattention classique | `git branch feat/sauve` puis `git reset --hard HEAD~1` sur main. |
+| **Tout le code a disparu après une fausse manip** | Reset hard intempestif | Taper `git reflog`, repérer le commit et taper `git reset --hard <sha1>`. |
+
+::: {.callout-important}
+### Pas de panique !
+C'est l'erreur d'inattention la plus classique de Git. Rien n'est perdu. 
+Avant de taper la moindre commande, **vérifiez si vous avez déjà poussé (*push*) votre code sur GitHub**.
+:::
+
+## Cas 1 : Mon commit est uniquement LOCAL (Pas de `git push`)
+
+Vous avez cliqué sur **Commit** (ou tapé `git commit`), mais vous n'avez **PAS** fait de `git push`. Votre erreur n'est que sur votre machine.
+
+L'objectif est de déplacer votre commit vers une nouvelle branche propre, puis de faire reculer `main` dans le passé.
+
+### Procédure de sauvetage :
+Dans votre terminal, exécutez précisément ces 3 commandes :
+
+```bash
+# 1. Créez une nouvelle branche de fonctionnalité là où vous en êtes et basculez dessus
+git switch -c feat/ma-fonctionnalite
+
+# 2. Revenez sur la branche main
+git switch main
+
+# 3. Forcez la branche main locale à reculer d'un commit
+git reset --hard HEAD~1
+```
+
+::: {.callout-success}
+### Résultat
+* Votre branche `main` est redevenue parfaitement propre (comme avant l'erreur).
+* Votre travail est sain et sauf sur la branche `feat/ma-fonctionnalite`. Vous pouvez continuer à coder dessus, puis la pousser pour ouvrir votre Pull Request !
+:::
+
+---
+
+## Cas 2 : Mon commit est déjà EN LIGNE (Déjà poussé sur GitHub) ⚠️
+
+Vous avez fait un `git push origin main` et votre commit d'erreur apparaît sur GitHub. 
+
+::: {.callout-warning}
+### Règle d'or en équipe
+**Interdiction** d'utiliser `git reset --hard` et de forcer le push sur une branche partagée (`main` ou `dev`). Cela casserait l'historique de vos camarades. On utilise la méthode propre : **`git revert`** combiné à un **`git cherry-pick`** pour sauver votre code.
+:::
+
+L'objectif est d'annuler l'erreur sur `main`, puis de transférer chirurgicalement votre code sur une bonne branche sans avoir à le retaper.
+
+### Procédure de sauvetage :
+
+#### Étape A : Sauver l'historique (Sur votre machine)
+Avant d'annuler quoi que ce soit, repérez le **hash** (l'identifiant à 7 caractères) de votre commit d'erreur en tapant `git log --oneline`. *Disons que votre hash est `a1b2c3d`.*
+
+#### Étape B : Sécuriser le code sur la bonne branche (Le Cherry-Pick)
+Nous allons créer la bonne branche et demander à Git d'aller "cueillir" (*cherry-pick*) votre commit pour l'y appliquer :
+```bash
+# 1. Créez la bonne branche à partir de la version saine actuelle et basculez dessus
+git switch -c feat/ma-fonctionnalite
+
+# 2. Copiez votre commit d'erreur sur cette nouvelle branche
+git cherry-pick a1b2c3d
+```
+*(Votre code est désormais en sécurité sur la bonne branche, prêt à être poussé via une PR !)*
+
+#### Étape C : Nettoyer la branche commune `main`
+Maintenant, il faut réparer la bêtise commise sur la branche partagée :
+```bash
+# 1. Revenez sur main
+git switch main
+
+# 2. Créez le commit d'annulation (fermez l'éditeur de texte qui s'ouvre pour valider)
+git revert HEAD
+
+# 3. Envoyez l'annulation sur GitHub pour l'équipe
+git push origin main
+```
+
+::: {.callout-success}
+### Résultat final
+* Sur GitHub, la branche `main` est propre. L'historique affiche proprement votre commit d'erreur, suivi du commit `Revert "..."`.
+* Sur votre machine, votre code est intact sur `feat/ma-fonctionnalite`. Vous n'avez rien perdu ni réécrit à la main !
+:::
+
+---
+
+::: {.callout-tip}
+### Astuce pour l'avenir : Verrouiller la branche `main`
+Pour vous éviter cette frayeur, demandez à l'administrateur du dépôt (votre enseignant) de protéger la branche sur GitHub :  
+*Settings → Branches → Add branch protection rule → Sélectionner `main` → Cocher **Require a pull request before merging***.  
+Git vous interdira alors automatiquement de pousser directement sur `main` !
+:::

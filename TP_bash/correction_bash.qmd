@@ -1,0 +1,438 @@
+---
+title: "Correction Détaillée — TP 1 Bash & Linux"
+subtitle: "HAX712X — Développement Logiciel (M1 SSD)"
+author: "Bensaid Bilel"
+date: "Septembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Navigation du Corrigé"
+    number-sections: true
+    theme: cosmo
+    code-copy: true
+  pdf:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    geometry:
+      - top=20mm
+      - bottom=20mm
+      - left=20mm
+      - right=20mm
+---
+
+# Guide Général de l'Enseignant
+
+Ce document rassemble la correction intégrale, les sorties textuelles attendues ainsi que les explications techniques associées à chaque question du TP 1.
+
+### Objectifs pédagogiques de la séance
+* Casser la peur du terminal en installant des réflexes mécaniques d'auto-complétion (`Tab`) et de gestion des processus (`Ctrl+C`).
+* Démystifier la notion d'arborescence : passage maîtrisé des chemins relatifs aux chemins absolus.
+* Comprendre le modèle de sécurité Unix (triplet utilisateur / groupe / autres en lecture, écriture, exécution).
+* Maîtriser le paradigme de composition Unix : canaliser la sortie d'un outil simple pour alimenter le suivant via un tube (`|`).
+
+---
+
+# Exercice 1 : Gymnastique de Navigation & Arborescence
+
+Cet exercice se déroule directement dans l'environnement local de la machine étudiante, avant toute décompression d'archive.
+
+### Question 1 : Emplacement initial
+```bash
+pwd
+```
+* **Sortie type :** `/home/etudiant` (ou `/Users/nom` sous macOS).
+* **Point pédagogique :** Montrer que le terminal démarre par défaut dans le répertoire personnel de l'utilisateur, abrégé par le tilde `~`.
+
+### Question 2 : Navigation vers la racine absolue
+```bash
+cd /
+pwd
+ls -l
+```
+* **Sortie type de `pwd` :** `/`
+* **Sortie de `ls -l` :**
+  ```text
+  drwxr-xr-x   2 root root  4096 août 28 14:02 bin
+  drwxr-xr-x 130 root root 12288 sept  8 09:15 etc
+  drwxr-xr-x   3 root root  4096 sept  2 10:00 home
+  drwxr-xr-x  14 root root  4096 août 12 11:22 var
+  ```
+* **Piège fréquent :** Confondre la racine `/` (*root directory*) avec le dossier personnel de l'administrateur `/root`. Expliquer que `/` est le socle absolu de tout le système de fichiers.
+
+### Question 3 : Entrée en chemin relatif dans `etc/`
+```bash
+cd etc
+pwd
+```
+* **Sortie attendue :** `/etc`
+* **Point pédagogique :** Faire remarquer l'absence de slash initial. `cd etc` signifie « descendre dans le dossier `etc` qui se trouve là où je suis ». Si l'étudiant tape `cd /etc`, il utilise un chemin absolu (le résultat est le même ici car on part de `/`, mais la mécanique conceptuelle est différente).
+
+### Question 4 : Remonter d'un cran dans l'arborescence
+```bash
+cd ..
+pwd
+```
+* **Sortie attendue :** `/`
+* **Explication :** Le pseudo-répertoire `..` pointe systématiquement vers le répertoire parent direct. Tenter de faire `cd ..` depuis `/` n'a aucun effet (la racine est son propre parent).
+
+### Question 5 : Retourner au répertoire personnel en 2 caractères
+```bash
+cd
+# ou bien :
+cd ~
+```
+* **Vérification :** `pwd` renvoie à nouveau `/home/etudiant`.
+* **Point pédagogique :** La commande `cd` invoquée sans aucun argument ramène automatiquement à la maison (`$HOME`).
+
+### Question 6 : Révéler les fichiers cachés
+```bash
+ls -a
+# ou avec détails :
+ls -la
+```
+* **Sortie type :**
+  ```text
+  .   ..   .bash_history   .bashrc   .profile   .gitconfig   Documents   Downloads
+  ```
+* **Explication :** Sous Linux, un fichier est rendu « caché » par convention dès lors que son nom commence par un point `.`. Ce ne sont pas des fichiers cryptés : ce sont simplement des fichiers de configuration logicielle masqués pour ne pas encombrer l'affichage quotidien.
+
+---
+
+# Préparation : Décompression de l'Archive de Travail
+
+```bash
+tar -xzvf tp1_linux.tar.gz
+cd tp1_linux
+pwd
+```
+* **Décryptage des options de `tar` :**
+  * `-x` : *extract* (extraire les fichiers de l'archive).
+  * `-z` : *gzip* (décompresser le flux compressé avec l'algorithme gzip).
+  * `-v` : *verbose* (lister à l'écran les fichiers au fur et à mesure de l'extraction).
+  * `-f` : *file* (spécifier le nom du fichier archive cible — cette option doit toujours être placée immédiatement avant le nom de l'archive).
+
+---
+
+# Exercice 2 : Manipulation de Fichiers & Jokers (*Wildcards*)
+
+Positionnement initial :
+```bash
+cd exercice_1
+ls -l vrac/
+```
+
+### Question 1 : Déplacer tous les fichiers `.png` en une seule commande
+```bash
+mv vrac/*.png documents/images/
+```
+* **Mécanisme sous-jacent (*Globbing*) :** Ce n'est pas la commande `mv` qui comprend le caractère `*`. C'est l'interpréteur Bash qui, **avant d'exécuter la commande**, remplace `vrac/*.png` par la liste explicite `vrac/figure_test.png vrac/photo_01.png vrac/photo_02.png vrac/photo_03.png`.
+* **Vérification :** `ls documents/images/` doit afficher les 4 images.
+
+### Question 2 : Déplacer tous les fichiers `.txt`
+```bash
+mv vrac/*.txt documents/textes/
+```
+* **Vérification :** `ls documents/textes/` doit afficher `notes.txt` et `rapport.txt`.
+
+### Question 3 : Création du dossier `code/`
+```bash
+mkdir code
+```
+* **Erreur fréquente :** Taper `mkdir /code`. Cela tente de créer un dossier à la racine absolue du système, ce qui échouera immédiatement par un message `Permission denied`. Rappeler l'importance de l'absence de `/` pour travailler dans le dossier courant.
+
+### Question 4 : Copie de `script.py` vers `code/`
+```bash
+cp vrac/script.py code/
+```
+* **Point pédagogique :** Bien insister sur la différence sémantique : `cp` duplique les octets sur le disque (le fichier source existe toujours dans `vrac/`), alors que `mv` déplace le pointeur d'indexation sans dupliquer la donnée.
+
+### Question 5 : Suppression du dossier `vrac/`
+```bash
+rm -r vrac/
+```
+* **Explication de l'option `-r` :** Par défaut, la commande `rm` refuse de supprimer un dossier pour éviter les désastres accidentels (`rm: cannot remove 'vrac/': Is a directory`). L'option récursive `-r` ordonne la suppression de tous les fichiers contenus à l'intérieur puis du dossier lui-même.
+* **Avertissement de sécurité :** Rappeler qu'il n'existe aucune commande `undo` ni aucune corbeille sous Linux. Tout ce qui est supprimé par `rm` est définitivement rayé du système de fichiers.
+
+---
+
+# Exercice 3 : Droits d'Accès et Permissions Linux
+
+Positionnement initial :
+```bash
+cd ../exercice_2
+ls -l scripts/
+```
+
+### Question 1 & 2 : Constat du blocage d'exécution
+```bash
+./scripts/backup.sh
+```
+* **Message renvoyé :** `bash: ./scripts/backup.sh: Permission denied`
+* **Explication :** En tapant `ls -l scripts/backup.sh`, on observe les droits :
+  `-rw-r--r-- 1 etudiant etudiant 215 sept 10 08:00 scripts/backup.sh`
+  Bien que l'utilisateur soit le propriétaire légitime du fichier, **le bit d'exécution `x` est absent**. Sous Unix, l'extension `.sh` ou `.exe` n'accorde aucun privilège : seul l'état des bits de permissions détermine si un fichier a le droit d'être chargé en mémoire comme un programme exécutable.
+
+### Question 3 : Rendre le script exécutable et le lancer
+```bash
+chmod +x scripts/backup.sh
+# Variante stricte pour le propriétaire seul :
+# chmod u+x scripts/backup.sh
+
+./scripts/backup.sh
+```
+* **Sortie affichée dans le terminal :**
+  ```text
+  =========================================================
+  [SUCCÈS] Le script de sauvegarde s'est exécuté sans erreur !
+  Tous les instantanés système ont été synchronisés.
+  =========================================================
+  ```
+
+### Question 4 & 5 : Sécurisation du fichier d'identifiants `secret.conf`
+État initial : `chmod 666` (`-rw-rw-rw-`). N'importe quel processus de la machine peut lire et écraser les clés secrètes.
+
+Commande de restriction octale attendue :
+```bash
+chmod 600 scripts/secret.conf
+```
+* **Vérification obligatoire :**
+  ```bash
+  ls -l scripts/secret.conf
+  ```
+  La sortie doit afficher rigoureusement :
+  `-rw------- 1 etudiant etudiant 115 sept 10 08:00 scripts/secret.conf`
+
+* **Détail du calcul octal :**
+  * **Utilisateur (Propriétaire) = 6** : Lecture ($4$) + Écriture ($2$) = $6$.
+  * **Groupe = 0** : Aucun droit ($0$).
+  * **Autres = 0** : Aucun droit ($0$).
+* **Variante symbolique équivalente :**
+  ```bash
+  chmod go-rw scripts/secret.conf
+  ```
+  *(retirer la lecture et l'écriture au groupe `g` et aux autres `o`)*.
+
+---
+
+# Exercice 4 : Redirections, Filtres et Pipelines (`|`)
+
+Positionnement initial :
+```bash
+cd ../exercice_3/logs
+```
+
+### Question 1 : Afficher les 5 premières lignes
+```bash
+head -n 5 connexions.log
+```
+* **Sortie attendue :**
+  ```text
+  2026-09-10 08:01:12 user=alice ip=192.168.1.10 status=SUCCESS
+  2026-09-10 08:02:45 user=bob ip=192.168.1.15 status=FAILED
+  2026-09-10 08:05:01 user=charlie ip=192.168.1.20 status=SUCCESS
+  2026-09-10 08:12:33 user=bob ip=192.168.1.15 status=FAILED
+  2026-09-10 08:14:10 user=alice ip=192.168.1.10 status=SUCCESS
+  ```
+* **Complément :** Rappeler que la commande symétrique pour la fin de fichier est `tail -n 5 connexions.log`.
+
+### Question 2 : Filtrer les échecs de connexion
+```bash
+grep "status=FAILED" connexions.log
+# ou simplement :
+grep "FAILED" connexions.log
+```
+* **Explication :** `grep` parcourt le fichier ligne par ligne et n'imprime sur la sortie standard que celles qui contiennent le motif textuel exact.
+
+### Question 3 : Compter le nombre total d'échecs en une ligne
+```bash
+grep "FAILED" connexions.log | wc -l
+```
+* **Résultat numérique affiché :** `6`
+* **Mécanisme du pipe `|` :**
+  1. `grep "FAILED"` écrit les 6 lignes trouvées dans son flux `stdout`.
+  2. Le tube `|` intercepte ce flux et le branche directement sur le `stdin` de la commande `wc -l`.
+  3. `wc -l` (*word count lines*) compte le nombre de sauts de ligne reçus et affiche `6`.
+* **Variante native :** `grep -c "FAILED" connexions.log` produit directement le même décompte sans tube.
+
+### Question 4 : Redirection vers un nouveau fichier
+```bash
+grep "user=alice" connexions.log > rapport_alice.txt
+```
+* **Vérification :**
+  ```bash
+  cat rapport_alice.txt
+  ```
+  Le fichier contient les 3 lignes associées aux connexions d'Alice.
+* **Point pédagogique :** Insister sur la différence critique entre `>` (qui détruit le fichier de destination s'il existait déjà avant d'écrire) et `>>` (qui concatène à la fin).
+
+### Question 5 : Pipeline complet d'analyse décisionnelle
+On cherche à produire la distribution des échecs d'authentification par utilisateur.
+
+```bash
+grep "FAILED" connexions.log | cut -d " " -f 3 | sort | uniq -c
+```
+* **Sortie exacte obtenue :**
+  ```text
+        3 user=bob
+        2 user=eve
+        1 user=mallory
+  ```
+
+* **Décomposition pas-à-pas du pipeline :**
+  1. `grep "FAILED"` : sélectionne uniquement les 6 lignes d'échec.
+  2. `cut -d " " -f 3` : découpe chaque ligne selon l'espace (`-d " "`) et extrait le 3^e^ champ (`-f 3`), c'est-à-dire `user=...`.
+  3. `sort` : trie les chaînes par ordre alphabétique (`user=bob`, `user=bob`, `user=bob`, `user=eve`, `user=eve`, `user=mallory`).
+  4. `uniq -c` : regroupe les occurrences identiques adjacentes et affiche leur effectif.
+* **Piège capital à expliciter :** La commande `uniq` ne compare **que les lignes consécutives**. Si l'on oublie `sort`, `uniq -c` ne regroupera pas les occurrences dispersées dans le fichier. Le passage par `sort` avant `uniq` est obligatoire sous Unix.
+
+---
+
+# Le Défi Récapitulatif : Recherche Opérationnelle
+
+Positionnement initial :
+```bash
+cd ../../defi
+```
+
+### La solution canonique en une seule commande :
+```bash
+grep -r "INDICE_FINAL" serveurs/
+```
+* **Sortie immédiate :**
+  ```text
+  serveurs/beta/proc_7.log:2026-09-10 host=beta pid=1007 ALERT INDICE_FINAL : [LINUX_MASTER_2026]
+  ```
+
+### Réponses attendues :
+1. **Serveur concerné :** `serveur beta`
+2. **Fichier exact :** `serveurs/beta/proc_7.log`
+3. **Valeur de l'empreinte :** `LINUX_MASTER_2026`
+
+### Variante alternative combinant `find` et `xargs` :
+```bash
+find serveurs/ -type f -name "*.log" -exec grep -H "INDICE_FINAL" {} +
+```
+* **Point pédagogique :** L'option `-r` (ou `-R`) de `grep` permet une recherche récursive ultra-rapide dans tous les sous-dossiers. C'est l'équivalent textuel instantané de `Ctrl+Shift+F` dans un IDE moderne.
+
+---
+
+# Correction Détaillée des Défis Avancés (Optionnels)
+
+Ces trois défis permettent d'évaluer la capacité des étudiants rapides à réinvestir les concepts vus en séance (composition de flux, logique booléenne des filtres et navigation récursive) sans introduire de syntaxe extérieure au cours.
+
+---
+
+### Défi A : Extraction du « Top 1 » des attaquants (Pipeline strict)
+
+**Objectif :** Isoler le nom exact du compte ayant généré le plus d'échecs de connexion, sans afficher de métadonnées parasites (pas de chiffres, pas de préfixe `user=`).
+
+#### Commande canonique :
+```bash
+grep "FAILED" connexions.log | cut -d " " -f 3 | sort | uniq -c | sort -n | tail -n 1 | cut -d "=" -f 2
+```
+
+#### Variante avec tri décroissant :
+```bash
+grep "FAILED" connexions.log | cut -d " " -f 3 | sort | uniq -c | sort -nr | head -n 1 | cut -d "=" -f 2
+```
+
+#### Résultat textuel attendu sur la sortie standard :
+```text
+bob
+```
+
+#### Décomposition pas-à-pas du flux de données :
+
+1. `grep "FAILED" connexions.log` : extrait les 6 lignes d'échec.
+2. `cut -d " " -f 3` : isole la 3^e^ colonne délimitée par un espace $\rightarrow$ produit une liste de 6 lignes `user=bob`, `user=eve`, etc.
+3. `sort` : regroupe les occurrences identiques pour rendre possible le décompte par `uniq`.
+4. `uniq -c` : compte les occurrences consécutives :
+   ```text
+         3 user=bob
+         2 user=eve
+         1 user=mallory
+   ```
+5. `sort -n` : effectue un **tri numérique** (`-n`) sur la première colonne (les effectifs). Par défaut, le tri est ascendant : la valeur maximale se retrouve sur la dernière ligne.
+6. `tail -n 1` : ne conserve que la dernière ligne (`      3 user=bob`).
+7. `cut -d "=" -f 2` : découpe la ligne selon le séparateur `=` et conserve le 2^e^ champ. Les espaces situés avant `user` restent dans le champ 1, le champ 2 renvoie rigoureusement la chaîne pure `bob`.
+
+::: {.callout-note}
+#### Piège fréquent des étudiants
+L'oubli de l'option `-n` dans le second `sort`. Par défaut, `sort` effectue un tri lexicographique (alphabétique). Avec des effectifs importants, `10` serait classé avant `2`. L'option `-n` (*numeric sort*) est obligatoire dès que l'on compare des compteurs d'occurrences.
+:::
+
+---
+
+### Défi B : Filtrage temporel avec Expressions Régulières (`grep -E`)
+
+**Objectif :** Afficher les événements survenus dans la tranche horaire comprise entre **08h20** et **08h39** inclus.
+
+#### Commande canonique :
+```bash
+grep -E "08:[23][0-9]" connexions.log
+```
+
+#### Variante équivalente :
+```bash
+grep -E "08:[2-3][0-9]:[0-9]{2}" connexions.log
+```
+
+#### Sortie attendue :
+```text
+2026-09-10 08:20:00 user=eve ip=10.0.0.99 status=FAILED
+2026-09-10 08:22:18 user=bob ip=192.168.1.15 status=FAILED
+2026-09-10 08:30:45 user=charlie ip=192.168.1.20 status=SUCCESS
+2026-09-10 08:31:02 user=eve ip=10.0.0.99 status=FAILED
+2026-09-10 08:35:19 user=david ip=192.168.1.35 status=SUCCESS
+```
+
+#### Explication technique :
+* L'option `-E` (*Extended Regular Expressions*) permet d'utiliser les opérateurs modernes d'expressions régulières sans devoir les échapper avec des antislashs.
+* `08:` cible l'heure fixe.
+* `[23]` (ou `[2-3]`) est une classe de caractères qui valide **soit** le chiffre 2 (pour les minutes 20 à 29), **soit** le chiffre 3 (pour les minutes 30 à 39).
+* `[0-9]` valide n'importe quelle unité de minute (de 0 à 9).
+* Ce motif couvre donc exactement l'intervalle $[08:20:00 \,;\, 08:39:59]$.
+
+::: {.callout-tip}
+#### Point pédagogique
+Montrer aux étudiants la différence entre chercher deux motifs avec un « OU » logique (`grep -E "08:2|08:3"`) et l'élégance de la classe de caractères `[23]`. Le « OU » non maîtrisé risque de matcher une adresse IP contenant `08:2` si l'expression n'est pas bornée.
+:::
+
+---
+
+### Défi C : Détection de fichiers suspects par date (`find`)
+
+**Objectif :** Dans le répertoire `defi/`, repérer les fichiers qui ont été créés ou modifiés récemment (au cours de la dernière heure).
+
+#### Commande canonique :
+```bash
+find defi/ -type f -mmin -60
+```
+
+#### Sortie attendue :
+La liste des chemins relatifs de tous les fichiers `.log` extraits lors du TP dans l'arborescence des serveurs :
+```text
+defi/serveurs/alpha/proc_1.log
+defi/serveurs/alpha/proc_2.log
+...
+defi/serveurs/beta/proc_7.log
+...
+defi/serveurs/gamma/proc_15.log
+```
+
+#### Explication des options :
+
+* `defi/` : le point de départ de la recherche (l'arborescence est parcourue récursivement).
+* `-type f` : restreint la recherche aux **fichiers réguliers** (*files*), évitant ainsi d'afficher les noms des dossiers intermédiaires (`defi/serveurs/alpha`, etc.).
+* `-mmin -60` : filtre sur la date de dernière modification (*modification time in minutes*) :
+  * `-mmin -60` signifie : modifié il y a **strictement moins de** 60 minutes.
+  * `-mmin +60` signifierait : modifié il y a **plus de** 60 minutes.
+  * `-mmin 60` signifierait : modifié il y a **exactement** 60 minutes.
+
+::: {.callout-note}
+#### Pourquoi `find` plutôt que `ls` ?
+Expliquer aux étudiants qu'en ingénierie logicielle et en administration système, on n'utilise jamais `ls` dans des scripts d'automatisation. `ls` est conçu pour l'œil humain (problèmes d'espaces, de retours à la ligne et d'encodage). La commande `find` est le standard Unix pour explorer et agir de manière fiable sur des arborescences de fichiers.
+:::

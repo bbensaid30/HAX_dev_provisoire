@@ -1,0 +1,43 @@
+# 1. Compilation du site standard (version étudiante)
+quarto render --profile student
+
+# 2. Compilation ciblée du fichier en profil solution sous un autre nom
+quarto render cours_tp_poo_dbz.qmd --profile solution --output cours_tp_poo_dbz_solution.html
+
+# 3. Déplacement du corrigé dans le dossier du site (ici _site, ou docs selon ton projet)
+mv cours_tp_poo_dbz_solution.html _site/
+
+name: Rendu et Publication Quarto
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Python et dépendances
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Installer Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Compiler la version étudiante
+        run: quarto render --profile student
+
+      - name: Compiler et injecter la correction
+        run: |
+          quarto render cours_tp_poo_dbz.qmd --profile solution --output cours_tp_poo_dbz_solution.html
+          mv cours_tp_poo_dbz_solution.html _site/
+
+      - name: Déployer sur GitHub Pages
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
