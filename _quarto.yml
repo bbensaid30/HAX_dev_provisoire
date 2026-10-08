@@ -12,6 +12,7 @@ project:
     - installation_wsl.qmd
     - TP_packaging/enonce_packaging.qmd
     - TP_POO/enonce_poo.qmd
+    - TP_Test/enonce_test.qmd
     # Les fichiers de correction ne sont pas mentionnés ici
 
 website:
@@ -38,6 +39,8 @@ website:
             text: "Module et packaging"
           - href: TP_POO/enonce_poo.qmd
             text: "Orienté objet"
+          - href: TP_Test/enonce_test.qmd
+            text: "Exceptions et Tests unitaires"
       - text: "Installations"
         menu:
           - href: installation_wsl.qmd

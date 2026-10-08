@@ -11,6 +11,7 @@ Bienvenue sur le site du cours de Développement Logiciel.
 * [Cours-TP 2 : Git](TP_git/enonce_git.qmd)
 * [Cours-TP 3 : Module et Packaging](TP_packaging/enonce_packaging.qmd)
 * [Cours-TP 4 : POO](TP_POO/enonce_poo.qmd)
+* [Cours-TP 5 : Tests](TP_Test/enonce_test.qmd)
 * [Guide d'installation Windows (WSL 2 & VS Code)](installation_wsl.qmd)
 
 Lien vers l'ancien site du cours (utile pour des ressources complémentaires): [Ancien site](https://bbensaid30.github.io/Course-Software-Development-HAX712X/).
