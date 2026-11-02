@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,10 +10,16 @@
 
 <title>Cahier des Charges — Projet de Développement Logiciel (HAX712X) – HAX712X — Dev Logiciel</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -72,10 +78,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-825bced5da6ec9a9e85d5340fdc4ca06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-6a2b564723c042b0e428f357d9a015bd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,7 +111,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -118,7 +124,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -418,7 +424,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Égalité de Traitement sur les Extensions
+<span class="screen-reader-only">Important</span>Égalité de Traitement sur les Extensions
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -546,7 +552,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Règle Fondamentale de l’Attaque dans le Socle Commun
+<span class="screen-reader-only">Note</span>Règle Fondamentale de l’Attaque dans le Socle Commun
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -661,7 +667,7 @@ Règle Fondamentale de l’Attaque dans le Socle Commun
 <h2 class="anchored" data-anchor-id="packaging-et-intégration-continue-github-actions">Packaging et Intégration Continue (GitHub Actions)</h2>
 <ul>
 <li><p>Le dépôt doit être installable en mode éditable à la racine :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> .</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> .</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Le workflow <code>.github/workflows/ci.yml</code> s’exécute à chaque commit sur <code>main</code> et à chaque Pull Request :</p>
 <ol type="1">
 <li>Contrôle du style et du formatage avec <code>ruff check</code>.</li>
@@ -693,12 +699,12 @@ Règle Fondamentale de l’Attaque dans le Socle Commun
 <ul>
 <li><p>La fonction fondamentale <code>simulate_battle(f1, f2, seed=None)</code> permet l’injection d’une graine aléatoire pour reproduire un affrontement à l’identique.</p></li>
 <li><p>Le module <code>simulation/monte_carlo.py</code> expose la fonction :</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_monte_carlo(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_monte_carlo(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    f1: BaseFighter, </span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    f2: BaseFighter, </span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    n_simulations: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5000</span>, </span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    n_jobs: <span class="bu">int</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p><strong>Distribution multi-cœurs :</strong> Les <span class="math inline">\(n_{\text{simulations}}\)</span> duels doivent être distribués via <code>multiprocessing.Pool</code> ou <code>joblib.Parallel</code>.</p></li>
 <li><p><strong>Indicateurs retournés dans le dictionnaire de synthèse :</strong></p>
 <ol type="1">
@@ -771,7 +777,7 @@ Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span cl
 <li><p><strong>Spécifications logicielles et POO :</strong></p>
 <ul>
 <li><p>Concevoir une classe abstraite <code>BaseItem(ABC)</code> dotée par exemple de trois méthodes polymorphiques:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaseItem(ABC):</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BaseItem(ABC):</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> apply_passive(<span class="va">self</span>, fighter: BaseFighter) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Ajuste les attributs initiaux du combattant en début de duel."""</span></span>
@@ -787,7 +793,7 @@ Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span cl
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">@abstractmethod</span></span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> on_turn_end(<span class="va">self</span>, fighter: BaseFighter) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Exécute les effets séquentiels en clôture de tour (soin, contrecoup)."""</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">pass</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Implémenter obligatoirement au moins quatre classes concrètes d’objets:</p>
 <ol type="1">
 <li><code>FocusSash</code> (<em>Ceinture Force</em>) : Si <span class="math inline">\(\text{PV} = \text{PV}_{\max}\)</span> et que <span class="math inline">\(\text{Dégâts} \ge \text{PV}\)</span>, les dégâts entrants sont plafonnés à <span class="math inline">\(\text{PV}_{\max} - 1\)</span>, laissant le porteur à <span class="math inline">\(\text{PV} = 1\)</span>. Possède un attribut d’état <code>is_consumed: bool = False</code> qui bascule à <code>True</code> dès l’activation. L’objet devient inopérant pour le reste du match.</li>
@@ -825,7 +831,7 @@ Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span cl
 <li><p><strong>Spécifications logicielles et POO :</strong></p>
 <ul>
 <li><p>Concevoir une classe <code>Team</code> encapsulant une file (FIFO) de trois instances concrètes de <code>BaseFighter</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Team:</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Team:</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, fighters: <span class="bu">list</span>[BaseFighter]):</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(fighters) <span class="op">!=</span> <span class="dv">3</span>:</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Une équipe doit comporter exactement 3 combattants."</span>)</span>
@@ -838,7 +844,7 @@ Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span cl
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._queue.pop(<span class="dv">0</span>)</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> is_defeated(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>._queue) <span class="op">==</span> <span class="dv">0</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>._queue) <span class="op">==</span> <span class="dv">0</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Concevoir une classe <code>TeamBattle</code> orchestrant la rencontre:</p>
 <ul>
 <li>Les combattants en tête de file débutent le combat.</li>
@@ -847,12 +853,12 @@ Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span cl
 <li>Condition de victoire : l’affrontement cesse dès que l’une des deux équipes a ses 3 membres K.-O.</li>
 </ul></li>
 <li><p>Fonction d’optimisation d’ordre d’alignement :</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_team_order(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_team_order(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    my_team: <span class="bu">list</span>[BaseFighter],</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    opponent_team: <span class="bu">list</span>[BaseFighter],</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    n_simulations: <span class="bu">int</span> <span class="op">=</span> <span class="dv">1000</span>,</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">dict</span>[<span class="bu">tuple</span>, <span class="bu">float</span>]:</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Évalue les 3! = 6 permutations d'alignement de my_team face à l'adversaire."""</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Évalue les 3! = 6 permutations d'alignement de my_team face à l'adversaire."""</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 </ul></li>
 <li><p><strong>Cas aux limites et règles de gestion :</strong></p>
 <ul>
@@ -1026,13 +1032,13 @@ Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span cl
 <li><p>Projeter chaque combattant dans un tableau NumPy 1D contigu (<code>np.float64</code>): <span class="math display">\[\text{state} = [\text{PV}_{\max}, \text{PV}, A, D, V, \text{type\_id}]\]</span></p></li>
 <li><p>Encoder la table des multiplicateurs élémentaires sous forme d’une matrice NumPy 2D contiguë <code>type_matrix</code> de dimensions <span class="math inline">\(5 \times 5\)</span> (ou <span class="math inline">\(18 \times 18\)</span>).</p></li>
 <li><p>Réécrire la boucle complète de combat au sein d’une fonction numérique pure :</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(fastmath<span class="op">=</span><span class="va">True</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(fastmath<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_battle_numba(</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    s1: np.ndarray, s2: np.ndarray, type_matrix: np.ndarray, seed: <span class="bu">int</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Retourne 1 si le combattant 1 gagne, 0 sinon."""</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Retourne 1 si le combattant 1 gagne, 0 sinon."""</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Écrire la fonction de simulation par lots :</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(fastmath<span class="op">=</span><span class="va">True</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@njit</span>(fastmath<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_monte_carlo_numba(</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    s1: np.ndarray,</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    s2: np.ndarray,</span>
@@ -1040,7 +1046,7 @@ Calcule le pourcentage des 18 types adverses frappés avec un avantage (<span cl
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    n_sims: <span class="bu">int</span>,</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    base_seed: <span class="bu">int</span>,</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Exécute n_sims duels en code machine compilé et renvoie le winrate."""</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Exécute n_sims duels en code machine compilé et renvoie le winrate."""</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 </ul></li>
 <li><p>Mesurer le facteur d’accélération pour des tailles d’échantillons <span class="math inline">\(N \in [10^2, 10^6]\)</span>: <span class="math display">\[\text{Speedup}(N) = \frac{T_{\text{objet}}(N)}{T_{\text{numba}}(N)}\]</span></p></li>
 </ul></li>
@@ -1479,13 +1485,14 @@ Chaque membre doit documenter précisément ses livrables et la liste des PRs do
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

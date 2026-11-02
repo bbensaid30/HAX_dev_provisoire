@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Bensaid Bilel">
+
+<title>Cours-TP : Ingestion de Données, API REST, Cache Disque &amp; Mocking</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="enonce_io_files/libs/clipboard/clipboard.min.js"></script>
+<script src="enonce_io_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="enonce_io_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="enonce_io_files/libs/quarto-html/popper.min.js"></script>
+<script src="enonce_io_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="enonce_io_files/libs/quarto-html/anchor.min.js"></script>
+<link href="enonce_io_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="enonce_io_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="enonce_io_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="enonce_io_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="enonce_io_files/libs/bootstrap/bootstrap-496d54825f4a5d13459347af1c2e7183.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sommaire de la séance</h2>
+   
+  <ul>
+  <li><a href="#objectifs-et-démarche-pédagogique" id="toc-objectifs-et-démarche-pédagogique" class="nav-link active" data-scroll-target="#objectifs-et-démarche-pédagogique">Objectifs et Démarche Pédagogique</a>
+  <ul class="collapse">
+  <li><a href="#découpage-de-la-séance-progression" id="toc-découpage-de-la-séance-progression" class="nav-link" data-scroll-target="#découpage-de-la-séance-progression">Découpage de la Séance &amp; Progression</a></li>
+  </ul></li>
+  <li><a href="#partie-0-architecture-du-module-io-configuration" id="toc-partie-0-architecture-du-module-io-configuration" class="nav-link" data-scroll-target="#partie-0-architecture-du-module-io-configuration">Partie 0 : Architecture du Module <code>io/</code> &amp; Configuration</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-un-sous-paquet-io-dédié" id="toc-pourquoi-un-sous-paquet-io-dédié" class="nav-link" data-scroll-target="#pourquoi-un-sous-paquet-io-dédié">0.1 Pourquoi un Sous-Paquet <code>io/</code> Dédié ?</a></li>
+  <li><a href="#mise-à-jour-de-pyproject.toml" id="toc-mise-à-jour-de-pyproject.toml" class="nav-link" data-scroll-target="#mise-à-jour-de-pyproject.toml">0.2 Mise à Jour de <code>pyproject.toml</code></a></li>
+  </ul></li>
+  <li><a href="#partie-1-le-protocole-http-requêtes-rest-exceptions-réseau" id="toc-partie-1-le-protocole-http-requêtes-rest-exceptions-réseau" class="nav-link" data-scroll-target="#partie-1-le-protocole-http-requêtes-rest-exceptions-réseau">Partie 1 : Le Protocole HTTP, Requêtes REST &amp; Exceptions Réseau</a>
+  <ul class="collapse">
+  <li><a href="#motivation-comment-dialoguent-les-systèmes-modernes" id="toc-motivation-comment-dialoguent-les-systèmes-modernes" class="nav-link" data-scroll-target="#motivation-comment-dialoguent-les-systèmes-modernes">1.1 Motivation : Comment Dialoguent les Systèmes Modernes ?</a>
+  <ul class="collapse">
+  <li><a href="#les-codes-de-statut-indispensables-en-data-science" id="toc-les-codes-de-statut-indispensables-en-data-science" class="nav-link" data-scroll-target="#les-codes-de-statut-indispensables-en-data-science">Les Codes de Statut Indispensables en Data Science</a></li>
+  </ul></li>
+  <li><a href="#la-bibliothèque-requests-et-limpératif-industriel-du-timeout" id="toc-la-bibliothèque-requests-et-limpératif-industriel-du-timeout" class="nav-link" data-scroll-target="#la-bibliothèque-requests-et-limpératif-industriel-du-timeout">1.2 La Bibliothèque <code>requests</code> et l’Impératif Industriel du Timeout</a>
+  <ul class="collapse">
+  <li><a href="#règle-dor-en-production-toujours-définir-timeout" id="toc-règle-dor-en-production-toujours-définir-timeout" class="nav-link" data-scroll-target="#règle-dor-en-production-toujours-définir-timeout">Règle d’or en Production : Toujours définir <code>timeout</code></a></li>
+  </ul></li>
+  <li><a href="#encapsuler-les-pannes-réseau-dans-une-exception-métier" id="toc-encapsuler-les-pannes-réseau-dans-une-exception-métier" class="nav-link" data-scroll-target="#encapsuler-les-pannes-réseau-dans-une-exception-métier">1.3 Encapsuler les Pannes Réseau dans une Exception Métier</a></li>
+  <li><a href="#exercice-1-le-récepteur-http-distant-guidage-moyen" id="toc-exercice-1-le-récepteur-http-distant-guidage-moyen" class="nav-link" data-scroll-target="#exercice-1-le-récepteur-http-distant-guidage-moyen">1.4 Exercice 1 : Le Récepteur HTTP Distant [Guidage Moyen]</a>
+  <ul class="collapse">
+  <li><a href="#cahier-des-charges" id="toc-cahier-des-charges" class="nav-link" data-scroll-target="#cahier-des-charges">Cahier des charges</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#partie-2-stratégie-de-cache-disque-cache-aside-pattern" id="toc-partie-2-stratégie-de-cache-disque-cache-aside-pattern" class="nav-link" data-scroll-target="#partie-2-stratégie-de-cache-disque-cache-aside-pattern">Partie 2 : Stratégie de Cache Disque (<em>Cache-Aside Pattern</em>)</a>
+  <ul class="collapse">
+  <li><a href="#motivation-pourquoi-et-comment-mettre-en-cache" id="toc-motivation-pourquoi-et-comment-mettre-en-cache" class="nav-link" data-scroll-target="#motivation-pourquoi-et-comment-mettre-en-cache">2.1 Motivation : Pourquoi et Comment Mettre en Cache ?</a></li>
+  <li><a href="#gestion-des-chemins-avec-pathlib.path" id="toc-gestion-des-chemins-avec-pathlib.path" class="nav-link" data-scroll-target="#gestion-des-chemins-avec-pathlib.path">2.2 Gestion des Chemins avec <code>pathlib.Path</code></a></li>
+  <li><a href="#exercice-2-le-client-résilient-avec-cache-disque-guidage-fort" id="toc-exercice-2-le-client-résilient-avec-cache-disque-guidage-fort" class="nav-link" data-scroll-target="#exercice-2-le-client-résilient-avec-cache-disque-guidage-fort">2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guidage Fort]</a>
+  <ul class="collapse">
+  <li><a href="#cahier-des-charges-1" id="toc-cahier-des-charges-1" class="nav-link" data-scroll-target="#cahier-des-charges-1">Cahier des charges</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#partie-3-mini-cours-pratique-pandas-matrices-tabulaires" id="toc-partie-3-mini-cours-pratique-pandas-matrices-tabulaires" class="nav-link" data-scroll-target="#partie-3-mini-cours-pratique-pandas-matrices-tabulaires">Partie 3 : Mini-Cours Pratique : Pandas &amp; Matrices Tabulaires</a>
+  <ul class="collapse">
+  <li><a href="#motivation-pourquoi-pandas-de-lindice-aveugle-à-létiquette-sémantique" id="toc-motivation-pourquoi-pandas-de-lindice-aveugle-à-létiquette-sémantique" class="nav-link" data-scroll-target="#motivation-pourquoi-pandas-de-lindice-aveugle-à-létiquette-sémantique">3.1 Motivation : Pourquoi Pandas ? De l’Indice Aveugle à l’Étiquette Sémantique</a></li>
+  <li><a href="#intégration-sans-rupture-de-compatibilité-avec-warriors.py" id="toc-intégration-sans-rupture-de-compatibilité-avec-warriors.py" class="nav-link" data-scroll-target="#intégration-sans-rupture-de-compatibilité-avec-warriors.py">3.2 Intégration sans Rupture de Compatibilité avec <code>warriors.py</code></a></li>
+  <li><a href="#les-deux-objets-fondamentaux-de-pandas-sélection-.loc" id="toc-les-deux-objets-fondamentaux-de-pandas-sélection-.loc" class="nav-link" data-scroll-target="#les-deux-objets-fondamentaux-de-pandas-sélection-.loc">3.3 Les Deux Objets Fondamentaux de Pandas &amp; Sélection <code>.loc</code></a></li>
+  <li><a href="#exercice-3-ingestion-de-la-matrice-de-combat-srczarenaioloader.py" id="toc-exercice-3-ingestion-de-la-matrice-de-combat-srczarenaioloader.py" class="nav-link" data-scroll-target="#exercice-3-ingestion-de-la-matrice-de-combat-srczarenaioloader.py">3.4 Exercice 3 : Ingestion de la Matrice de Combat (<code>src/zarena/io/loader.py</code>)</a>
+  <ul class="collapse">
+  <li><a href="#cahier-des-charges-2" id="toc-cahier-des-charges-2" class="nav-link" data-scroll-target="#cahier-des-charges-2">Cahier des charges</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#partie-4-ingestion-de-données-spatiales-le-format-geojson" id="toc-partie-4-ingestion-de-données-spatiales-le-format-geojson" class="nav-link" data-scroll-target="#partie-4-ingestion-de-données-spatiales-le-format-geojson">Partie 4 : Ingestion de Données Spatiales : Le Format GeoJSON</a>
+  <ul class="collapse">
+  <li><a href="#motivation-quest-ce-que-le-geojson-et-à-quoi-sert-il" id="toc-motivation-quest-ce-que-le-geojson-et-à-quoi-sert-il" class="nav-link" data-scroll-target="#motivation-quest-ce-que-le-geojson-et-à-quoi-sert-il">4.1 Motivation : Qu’est-ce que le GeoJSON et à quoi sert-il ?</a></li>
+  <li><a href="#création-du-fichier-darènes-dbz" id="toc-création-du-fichier-darènes-dbz" class="nav-link" data-scroll-target="#création-du-fichier-darènes-dbz">4.2 Création du Fichier d’Arènes DBZ</a></li>
+  <li><a href="#exercice-4-chargement-sécurisé-du-geojson-srczarenaioloader.py" id="toc-exercice-4-chargement-sécurisé-du-geojson-srczarenaioloader.py" class="nav-link" data-scroll-target="#exercice-4-chargement-sécurisé-du-geojson-srczarenaioloader.py">4.3 Exercice 4 : Chargement Sécurisé du GeoJSON (<code>src/zarena/io/loader.py</code>)</a>
+  <ul class="collapse">
+  <li><a href="#cahier-des-charges-3" id="toc-cahier-des-charges-3" class="nav-link" data-scroll-target="#cahier-des-charges-3">Cahier des charges</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#partie-5-tests-unitaires-isolés-mocking-réseau-requests-mock" id="toc-partie-5-tests-unitaires-isolés-mocking-réseau-requests-mock" class="nav-link" data-scroll-target="#partie-5-tests-unitaires-isolés-mocking-réseau-requests-mock">Partie 5 : Tests Unitaires Isolés &amp; Mocking Réseau (<code>requests-mock</code>)</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-mocker-le-réseau-dans-les-tests" id="toc-pourquoi-mocker-le-réseau-dans-les-tests" class="nav-link" data-scroll-target="#pourquoi-mocker-le-réseau-dans-les-tests">5.1 Pourquoi « Mocker » le Réseau dans les Tests ?</a></li>
+  <li><a href="#utilisation-de-la-fixture-requests_mock" id="toc-utilisation-de-la-fixture-requests_mock" class="nav-link" data-scroll-target="#utilisation-de-la-fixture-requests_mock">5.2 Utilisation de la Fixture <code>requests_mock</code></a></li>
+  <li><a href="#exercice-5-la-suite-de-tests-dingestion-teststest_fetcher.py-autonomie-complète" id="toc-exercice-5-la-suite-de-tests-dingestion-teststest_fetcher.py-autonomie-complète" class="nav-link" data-scroll-target="#exercice-5-la-suite-de-tests-dingestion-teststest_fetcher.py-autonomie-complète">5.3 Exercice 5 : La Suite de Tests d’Ingestion (<code>tests/test_fetcher.py</code>) [Autonomie Complète]</a>
+  <ul class="collapse">
+  <li><a href="#cahier-des-charges-4" id="toc-cahier-des-charges-4" class="nav-link" data-scroll-target="#cahier-des-charges-4">Cahier des charges</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#partie-6-audit-de-couverture-bilan-qualité-15-min" id="toc-partie-6-audit-de-couverture-bilan-qualité-15-min" class="nav-link" data-scroll-target="#partie-6-audit-de-couverture-bilan-qualité-15-min">Partie 6 : Audit de Couverture &amp; Bilan Qualité (15 min)</a></li>
+  <li><a href="#devoir-maison-guidé-pipeline-dingestion-de-pyarena-jalon-3" id="toc-devoir-maison-guidé-pipeline-dingestion-de-pyarena-jalon-3" class="nav-link" data-scroll-target="#devoir-maison-guidé-pipeline-dingestion-de-pyarena-jalon-3">Devoir Maison Guidé : Pipeline d’Ingestion de PyArena (Jalon 3)</a>
+  <ul class="collapse">
+  <li><a href="#objectif" id="toc-objectif" class="nav-link" data-scroll-target="#objectif">Objectif</a></li>
+  <li><a href="#étape-1-branche-git-de-fonctionnalité" id="toc-étape-1-branche-git-de-fonctionnalité" class="nav-link" data-scroll-target="#étape-1-branche-git-de-fonctionnalité">Étape 1 : Branche Git de Fonctionnalité</a></li>
+  <li><a href="#étape-2-le-client-dingestion-srcpyarenaiofetcher.py" id="toc-étape-2-le-client-dingestion-srcpyarenaiofetcher.py" class="nav-link" data-scroll-target="#étape-2-le-client-dingestion-srcpyarenaiofetcher.py">Étape 2 : Le Client d’Ingestion (<code>src/pyarena/io/fetcher.py</code>)</a></li>
+  <li><a href="#étape-3-chargement-des-données-statiques-srcpyarenaioloader.py" id="toc-étape-3-chargement-des-données-statiques-srcpyarenaioloader.py" class="nav-link" data-scroll-target="#étape-3-chargement-des-données-statiques-srcpyarenaioloader.py">Étape 3 : Chargement des Données Statiques (<code>src/pyarena/io/loader.py</code>)</a></li>
+  <li><a href="#étape-4-suite-de-tests-avec-mocking-réseau-teststest_io.py" id="toc-étape-4-suite-de-tests-avec-mocking-réseau-teststest_io.py" class="nav-link" data-scroll-target="#étape-4-suite-de-tests-avec-mocking-réseau-teststest_io.py">Étape 4 : Suite de Tests avec Mocking Réseau (<code>tests/test_io.py</code>)</a></li>
+  <li><a href="#étape-5-validation-qualité-audit-de-couverture-pull-request" id="toc-étape-5-validation-qualité-audit-de-couverture-pull-request" class="nav-link" data-scroll-target="#étape-5-validation-qualité-audit-de-couverture-pull-request">Étape 5 : Validation Qualité, Audit de Couverture &amp; Pull Request</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cours-TP : Ingestion de Données, API REST, Cache Disque &amp; Mocking</h1>
+<p class="subtitle lead">De la Capsule Corp aux Pipelines Résilients de PyArena</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Bensaid Bilel </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">16 octobre 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="objectifs-et-démarche-pédagogique" class="level1">
+<h1>Objectifs et Démarche Pédagogique</h1>
+<p>Lors des séances précédentes, nous avons modélisé nos entités en programmation orientée objet (<code>core/models</code>) et sanctuarisé leurs comportements par des suites de tests unitaires rigoureuses (<code>pytest</code>). Cependant, nos combattants étaient jusqu’ici instanciés « en dur » dans le code source (<code>BaseWarrior("Goku", 100, ...)</code>).</p>
+<p>Dans un système logiciel professionnel ou un projet de Data Science, <strong>les données ne sont jamais codées en dur</strong> : * Elles proviennent d’<strong>API REST distantes</strong> soumises aux aléas du réseau, aux pannes de serveurs et aux limitations de débit (<em>rate-limiting</em>). * Elles transitent sous des formats hétérogènes : charges utiles JSON arborescentes, matrices de coefficients (CSV) ou structures géoréférencées (GeoJSON). * Elles doivent être persistées localement via un patron de <strong>cache disque résilient (<em>Cache-Aside</em>)</strong> pour garantir la haute disponibilité et le fonctionnement hors-ligne de l’application. * <strong>Le défi des tests automatisés :</strong> une chaîne d’intégration continue (GitHub Actions) ne doit <strong>jamais</strong> dépendre d’une connexion Internet active ni surcharger les serveurs distants. Il est obligatoire d’apprendre à <strong>simuler (<em>mocker</em>) les échanges réseau</strong>.</p>
+<hr>
+<section id="découpage-de-la-séance-progression" class="level2">
+<h2 class="anchored" data-anchor-id="découpage-de-la-séance-progression">Découpage de la Séance &amp; Progression</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 30%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Phase</th>
+<th style="text-align: left;">Thématique abordée</th>
+<th style="text-align: center;">Degré d’autonomie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 0</strong></td>
+<td style="text-align: left;">Architecture du module <code>io/</code> &amp; Nouvelles dépendances</td>
+<td style="text-align: center;">Manipulation guidée</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 1</strong></td>
+<td style="text-align: left;">Protocole HTTP, Requêtes REST &amp; Exceptions Réseau</td>
+<td style="text-align: center;">Cours &amp; Exercice 1 (<code>fetcher.py</code>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 2</strong></td>
+<td style="text-align: left;">Stratégie de Cache Disque Résilient (<em>Cache-Aside</em>)</td>
+<td style="text-align: center;"><strong>Guidage fort</strong> (Squelette fourni)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 3</strong></td>
+<td style="text-align: left;">Mini-Cours Pandas : Matrices Tabulaires &amp; Indexation Nommée</td>
+<td style="text-align: center;">Cours &amp; Exercice 3 (<code>loader.py</code>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 4</strong></td>
+<td style="text-align: left;">Ingestion de Données Spatiales : Le Standard GeoJSON</td>
+<td style="text-align: center;"><strong>Semi-autonomie</strong> (<code>loader.py</code>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 5</strong></td>
+<td style="text-align: left;">Tests Unitaires Isolés &amp; Mocking Réseau (<code>requests-mock</code>)</td>
+<td style="text-align: center;"><strong>Autonomie complète</strong> (<code>test_fetcher.py</code>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 6</strong></td>
+<td style="text-align: left;">Audit de Couverture &amp; Chasse aux Branches Mortes</td>
+<td style="text-align: center;">Diagnostic guidé</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Synthèse</strong></td>
+<td style="text-align: left;"><strong>Devoir Maison Guidé (Hors séance) :</strong> Pipeline <code>PyArena</code></td>
+<td style="text-align: center;">Projet Git en équipe</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="partie-0-architecture-du-module-io-configuration" class="level1">
+<h1>Partie 0 : Architecture du Module <code>io/</code> &amp; Configuration</h1>
+<section id="pourquoi-un-sous-paquet-io-dédié" class="level2">
+<h2 class="anchored" data-anchor-id="pourquoi-un-sous-paquet-io-dédié">0.1 Pourquoi un Sous-Paquet <code>io/</code> Dédié ?</h2>
+<p>En architecture logicielle, le principe de <strong>Séparation des Responsabilités (<em>Separation of Concerns</em>)</strong> impose d’isoler strictement la logique métier (nos modèles <code>BaseWarrior</code>, <code>SaiyanWarrior</code> sous <code>core/</code>) des mécanismes d’entrée/sortie réseau et fichier (<strong>I/O</strong> pour <em>Input/Output</em>).</p>
+<p>Si PokéAPI change d’adresse ou si le format d’un fichier CSV évolue, seuls les modules du sous-paquet <code>io/</code> doivent être modifiés, sans impacter une seule ligne de nos classes de combat.</p>
+<p>Notre arborescence s’organise ainsi :</p>
+<pre class="text"><code>tp-exercices/
+├── pyproject.toml
+├── data/
+│   ├── styles_combat.csv     # Matrice tabulaire des multiplicateurs
+│   └── arenas_dbz.geojson    # Coordonnées et métadonnées des arènes
+├── src/
+│   └── zarena/
+│       ├── exceptions.py
+│       ├── warriors.py
+│       └── io/               # SOUS-PAQUET D'INGESTION
+│           ├── __init__.py
+│           ├── fetcher.py    # Client API REST avec cache disque
+│           └── loader.py     # Chargeur de fichiers tabulaires et spatiaux
+└── tests/
+    ├── conftest.py
+    └── test_fetcher.py       # Tests avec isolation réseau (Mocking)</code></pre>
+<hr>
+</section>
+<section id="mise-à-jour-de-pyproject.toml" class="level2">
+<h2 class="anchored" data-anchor-id="mise-à-jour-de-pyproject.toml">0.2 Mise à Jour de <code>pyproject.toml</code></h2>
+<p>Ouvrez <code>pyproject.toml</code> à la racine pour y déclarer les dépendances nécessaires à l’ingestion (<code>requests</code>, <code>pandas</code>) et au test réseau (<code>requests-mock</code>) :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[project]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"zarena"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">"Moteur de simulation d'arène de combat Dragon Ball Z"</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">"&gt;=3.10"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"numpy&gt;=1.24.0"</span><span class="op">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pandas&gt;=2.0.0"</span><span class="op">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"requests&gt;=2.31.0"</span><span class="op">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">[project.optional-dependencies]</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ruff&gt;=0.1.0"</span><span class="op">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest&gt;=8.0.0"</span><span class="op">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pytest-cov&gt;=5.0.0"</span><span class="op">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"requests-mock&gt;=1.11.0"</span><span class="op">,</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.setuptools.packages.find]</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="dt">where</span> <span class="op">=</span> <span class="op">[</span><span class="st">"src"</span><span class="op">]</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">[tool.pytest.ini_options]</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="dt">minversion</span> <span class="op">=</span> <span class="st">"8.0"</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="dt">testpaths</span> <span class="op">=</span> <span class="op">[</span><span class="st">"tests"</span><span class="op">]</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="dt">python_files</span> <span class="op">=</span> <span class="op">[</span><span class="st">"test_*.py"</span><span class="op">]</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="dt">python_functions</span> <span class="op">=</span> <span class="op">[</span><span class="st">"test_*"</span><span class="op">]</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="dt">addopts</span> <span class="op">=</span> <span class="st">"-v --strict-markers"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Installez ces bibliothèques dans votre environnement virtuel :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Créez le sous-dossier d’ingestion et ses fichiers d’initialisation :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> src/zarena/io data</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> src/zarena/io/__init__.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Nos outils sont installés. Abordons maintenant la première porte d’entrée des données : la consommation d’une API distante via le protocole HTTP.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="partie-1-le-protocole-http-requêtes-rest-exceptions-réseau" class="level1">
+<h1>Partie 1 : Le Protocole HTTP, Requêtes REST &amp; Exceptions Réseau</h1>
+<section id="motivation-comment-dialoguent-les-systèmes-modernes" class="level2">
+<h2 class="anchored" data-anchor-id="motivation-comment-dialoguent-les-systèmes-modernes">1.1 Motivation : Comment Dialoguent les Systèmes Modernes ?</h2>
+<p>Pour récupérer les caractéristiques d’un guerrier stocké sur les serveurs de la Capsule Corp, notre machine locale doit initier une conversation à travers le Web. Le protocole universel de cet échange est <strong>HTTP</strong>.</p>
+<p>Une transaction REST se décompose en deux phases : 1. <strong>La Requête Client :</strong> notre script envoie un message contenant : * Une méthode : <strong><code>GET</code></strong> (demande de lecture sans modification d’état). * Une URL d’accès : <code>https://.../api/warriors/1.json</code>. * Des en-têtes optionnels (<em>Headers</em>) pour l’authentification ou le format attendu. 2. <strong>La Réponse Serveur :</strong> le serveur renvoie : * Un <strong>Code de Statut HTTP</strong> numérique indiquant le sort de la requête. * Un corps de message (<em>Payload</em>), le plus souvent sous la forme d’une chaîne de caractères structurée en <strong>JSON</strong>.</p>
+<section id="les-codes-de-statut-indispensables-en-data-science" class="level3">
+<h3 class="anchored" data-anchor-id="les-codes-de-statut-indispensables-en-data-science">Les Codes de Statut Indispensables en Data Science</h3>
+<ul>
+<li><strong><code>200 OK</code> :</strong> Requête validée, données disponibles.</li>
+<li><strong><code>404 Not Found</code> :</strong> L’identifiant demandé n’existe pas en base.</li>
+<li><strong><code>429 Too Many Requests</code> :</strong> Quota de requêtes dépassé (blocage anti-spam).</li>
+<li><strong><code>500 Internal Server Error</code> :</strong> Incident ou plantage sur le serveur distant.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="la-bibliothèque-requests-et-limpératif-industriel-du-timeout" class="level2">
+<h2 class="anchored" data-anchor-id="la-bibliothèque-requests-et-limpératif-industriel-du-timeout">1.2 La Bibliothèque <code>requests</code> et l’Impératif Industriel du Timeout</h2>
+<p>En Python, la bibliothèque standard d’ingestion HTTP est <strong><code>requests</code></strong> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/.../api/warriors/1.json"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>reponse <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="fl">5.0</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> reponse.status_code <span class="op">==</span> <span class="dv">200</span>:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> reponse.json()  <span class="co"># Décode la chaîne JSON en dictionnaire Python</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Combattant : </span><span class="sc">{</span>data[<span class="st">'name'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="règle-dor-en-production-toujours-définir-timeout" class="level3 callout-danger">
+<h3 class="anchored" data-anchor-id="règle-dor-en-production-toujours-définir-timeout">Règle d’or en Production : Toujours définir <code>timeout</code></h3>
+<p>Par défaut, si l’argument <code>timeout</code> est omis, <code>requests.get()</code> attend <strong>indéfiniment</strong> si le serveur distant ne répond pas. Votre pipeline de données, votre boucle d’entraînement ou votre serveur web peuvent rester gelés pendant des heures. <strong>Tout appel réseau doit obligatoirement comporter un délai d’expiration (ex. <code>timeout=5.0</code>).</strong></p>
+</section>
+<hr>
+</section>
+<section id="encapsuler-les-pannes-réseau-dans-une-exception-métier" class="level2">
+<h2 class="anchored" data-anchor-id="encapsuler-les-pannes-réseau-dans-une-exception-métier">1.3 Encapsuler les Pannes Réseau dans une Exception Métier</h2>
+<p>Si la connexion Wi-Fi s’interrompt ou si le serveur distant renvoie une erreur 500, <code>requests</code> déclenche des exceptions internes telles que <code>requests.exceptions.ConnectionError</code> ou <code>requests.exceptions.Timeout</code>.</p>
+<p>Un code propre applique le principe de l’<strong>Encapsulation des Exceptions</strong> : le moteur de combat ne doit pas manipuler d’exceptions réseau brutes. Le composant d’ingestion intercepte ces anomalies et lève une exception du domaine : <strong><code>DataFetchError</code></strong>.</p>
+<p>Ajoutez cette exception dans <code>src/zarena/exceptions.py</code> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/zarena/exceptions.py (Ajout)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DataFetchError(ZArenaError):</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Levée si l'API distante est injoignable ET qu'aucun cache local n'existe."""</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="exercice-1-le-récepteur-http-distant-guidage-moyen" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-1-le-récepteur-http-distant-guidage-moyen">1.4 Exercice 1 : Le Récepteur HTTP Distant [Guidage Moyen]</h2>
+<p>Dans <code>src/zarena/io/fetcher.py</code>, concevez la classe <code>CapsuleCorpFetcher</code>.</p>
+<section id="cahier-des-charges" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges">Cahier des charges</h3>
+<ol type="1">
+<li>Constructeur <code>__init__(self, base_url: str) -&gt; None</code> :
+<ul>
+<li>Enregistre l’URL racine en supprimant un éventuel slash terminal : <code>self.base_url = base_url.rstrip("/")</code>.</li>
+</ul></li>
+<li>Méthode <code>fetch_remote_warrior(self, warrior_id: int) -&gt; dict</code> :
+<ul>
+<li>Construit l’URL cible : <code>f"{self.base_url}/warriors/{warrior_id}.json"</code>.</li>
+<li>Configure un en-tête <code>headers={"User-Agent": "ZArena-Pipeline/1.0"}</code> pour s’identifier proprement auprès du serveur.</li>
+<li>Émet la requête <code>requests.get(url, headers=headers, timeout=5.0)</code>.</li>
+<li>Si <code>response.status_code == 200</code>, renvoie le dictionnaire issu de <code>response.json()</code>.</li>
+<li>Si le statut est différent de 200 (ex. 404), lever <code>DataFetchError(f"Échec API : code {response.status_code}")</code>.</li>
+<li>En cas de problème de connexion (interception de <code>requests.RequestException</code>), lever <code>DataFetchError</code> en encapsulant la cause (<code>from err</code>).</li>
+</ul></li>
+</ol>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Notre client HTTP fonctionne. Mais que se passe-t-il si nous simulons un tournoi de 10 000 combats ? Réémettre une requête HTTP pour chaque combattant saturerait le réseau et ralentirait massivement le programme. Nous devons mettre en place un cache local.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="partie-2-stratégie-de-cache-disque-cache-aside-pattern" class="level1">
+<h1>Partie 2 : Stratégie de Cache Disque (<em>Cache-Aside Pattern</em>)</h1>
+<section id="motivation-pourquoi-et-comment-mettre-en-cache" class="level2">
+<h2 class="anchored" data-anchor-id="motivation-pourquoi-et-comment-mettre-en-cache">2.1 Motivation : Pourquoi et Comment Mettre en Cache ?</h2>
+<p>Interroger le réseau pour des données immuables est une anomalie de conception : * <strong>Latence :</strong> Une requête HTTP prend entre 50 et 500 ms, alors qu’une lecture disque locale prend moins de 0.2 ms (un gain d’un facteur 1 000). * <strong>Résilience :</strong> Si le réseau se coupe pendant une simulation, les données déjà téléchargées doivent rester accessibles. * <strong>Sobriété :</strong> Évite de surcharger les serveurs distants ou de subir des blocages d’IP.</p>
+<p>Le patron architectural <strong>Cache-Aside</strong> répond à ce besoin :</p>
+<pre class="text"><code>               ┌────────────────────────┐
+               │ get_warrior_data(id)   │
+               └───────────┬────────────┘
+                           │
+                 [Le fichier existe ?]
+                 /                              OUI  /                     \  NON
+               ▼                       ▼
+    ┌──────────────────────┐   ┌──────────────────────┐
+    │ Charger depuis le    │   │ Télécharger depuis   │
+    │ disque local (JSON)  │   │ l'API distante       │
+    └──────────────────────┘   └──────────┬───────────┘
+                                          │
+                               [Sauvegarder sur le disque]
+                                          │
+                                          ▼
+                               ┌──────────────────────┐
+                               │ Renvoyer les données │
+                               └──────────────────────┘</code></pre>
+<hr>
+</section>
+<section id="gestion-des-chemins-avec-pathlib.path" class="level2">
+<h2 class="anchored" data-anchor-id="gestion-des-chemins-avec-pathlib.path">2.2 Gestion des Chemins avec <code>pathlib.Path</code></h2>
+<p>Pour créer et manipuler des dossiers de cache sans dépendre du système d’exploitation (Linux, macOS ou Windows), on utilise <strong><code>pathlib.Path</code></strong> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>repertoire <span class="op">=</span> Path(<span class="st">"data/cache/warriors"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>repertoire.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)  <span class="co"># Crée l'arborescence complète si absente</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>fichier_cible <span class="op">=</span> repertoire <span class="op">/</span> <span class="st">"1.json"</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> fichier_cible.exists():</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(fichier_cible, <span class="st">"r"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="im">as</span> f:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> json.load(f)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="exercice-2-le-client-résilient-avec-cache-disque-guidage-fort" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-2-le-client-résilient-avec-cache-disque-guidage-fort">2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guidage Fort]</h2>
+<p>Enrichissez <code>CapsuleCorpFetcher</code> dans <code>src/zarena/io/fetcher.py</code>.</p>
+<section id="cahier-des-charges-1" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges-1">Cahier des charges</h3>
+<ol type="1">
+<li>Modifiez <code>__init__(self, base_url: str, cache_dir: str | Path = "data/cache") -&gt; None</code> :
+<ul>
+<li>Enregistre <code>self.base_url</code>.</li>
+<li>Convertit <code>cache_dir</code> en objet <code>Path</code> et crée le répertoire s’il n’existe pas : <code>self.cache_dir = Path(cache_dir)</code> <code>self.cache_dir.mkdir(parents=True, exist_ok=True)</code></li>
+</ul></li>
+<li>Implémentez la méthode <code>get_warrior_data(self, warrior_id: int) -&gt; dict</code> :
+<ul>
+<li>Détermine le chemin local : <code>cache_file = self.cache_dir / f"{warrior_id}.json"</code>.</li>
+<li><strong>Étape 1 (Cache-Hit) :</strong> Si <code>cache_file.exists()</code>, charger le fichier JSON et le renvoyer directement sans aucun appel réseau.</li>
+<li><strong>Étape 2 (Cache-Miss) :</strong> Si le fichier n’existe pas, appeler <code>self.fetch_remote_warrior(warrior_id)</code>.</li>
+<li><strong>Étape 3 (Persistence) :</strong> Sauvegarder la charge utile reçue dans <code>cache_file</code> avec <code>json.dump(..., indent=2)</code>.</li>
+<li><strong>Étape 4 (Retour) :</strong> Renvoyer le dictionnaire.</li>
+</ul></li>
+</ol>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Les caractéristiques individuelles de nos combattants sont désormais ingérées et mises en cache. Mais qu’en est-il des lois globales de l’arène, comme les multiplicateurs d’affinité physique entre styles d’attaque et physiologies ? C’est le rôle des données tabulaires et de la bibliothèque Pandas.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="partie-3-mini-cours-pratique-pandas-matrices-tabulaires" class="level1">
+<h1>Partie 3 : Mini-Cours Pratique : Pandas &amp; Matrices Tabulaires</h1>
+<section id="motivation-pourquoi-pandas-de-lindice-aveugle-à-létiquette-sémantique" class="level2">
+<h2 class="anchored" data-anchor-id="motivation-pourquoi-pandas-de-lindice-aveugle-à-létiquette-sémantique">3.1 Motivation : Pourquoi Pandas ? De l’Indice Aveugle à l’Étiquette Sémantique</h2>
+<p>Dans l’arène de combat, les dégâts d’une attaque dépendent de l’affinité entre la nature de l’attaque portée et la physiologie de la cible : * Une frappe physique (<code>Corps-à-corps</code>) est absorbée par le blindage d’un <code>Cyborg</code> ($ imes 0{,}5<span class="math inline">\().
+* Une décharge d'énergie (`Ki`) transperce un combattant ordinaire (\)</span> imes 1{,}5<span class="math inline">\() mais est absorbée par un `Cyborg` (\)</span> imes 0{,}5<span class="math inline">\().
+* Une technique occulte (`Magie`) contourne les blindages technologiques (\)</span> imes 2{,}0$).</p>
+<p>Si nous stockions cette table dans un tableau NumPy brut <span class="math inline">\(A \in \mathbb{R}^{4 \times 4}\)</span> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>multiplicateur <span class="op">=</span> A[<span class="dv">1</span>, <span class="dv">3</span>]  <span class="co"># Que représentent l'indice 1 et l'indice 3 ?</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Le code devient opaque, impossible à relire et vulnérable aux inversions ligne/colonne.</p>
+<p><strong>Pandas</strong> résout ce problème d’ingénierie en introduisant <strong>l’indexation nommée</strong> : chaque ligne et chaque colonne est identifiée par une étiquette explicite.</p>
+<hr>
+</section>
+<section id="intégration-sans-rupture-de-compatibilité-avec-warriors.py" class="level2">
+<h2 class="anchored" data-anchor-id="intégration-sans-rupture-de-compatibilité-avec-warriors.py">3.2 Intégration sans Rupture de Compatibilité avec <code>warriors.py</code></h2>
+<p>Comment cette matrice s’articule-t-elle avec le code existant de <code>warriors.py</code> sans casser les classes ou les tests précédents ?</p>
+<ol type="1">
+<li><strong>Aucun changement sur <code>take_damage(self, amount: int)</code> :</strong> la méthode continue de recevoir un montant brut de dégâts entiers. Pour <code>Cyborg</code>, le blindage <code>shield</code> continue de s’appliquer en réduction finale.</li>
+<li><strong>Attribut <code>race</code> rétro-compatible :</strong> nos classes de combattants définissent simplement un attribut ou une propriété <code>race</code> avec une valeur par défaut cohérente :
+<ul>
+<li><code>BaseWarrior</code> possède <code>self.race: str = "Terrien"</code>.</li>
+<li><code>SaiyanWarrior</code> possède <code>self.race: str = "Saiyan"</code>.</li>
+<li><code>Cyborg</code> possède <code>self.race: str = "Cyborg"</code>. Toutes les signatures existantes restent valides : <code>BaseWarrior("Krilin", 100)</code> fonctionne exactement comme avant.</li>
+</ul></li>
+<li><strong>Le calcul d’assaut modulé :</strong> lors d’un affrontement, le moteur de match calcule : <span class="math display">\[\text{dégâts effectifs} = \lfloor \text{attaquant.execute\_attack()} \times \text{multiplicateur} \rfloor\]</span> puis transmet ce montant à <code>défenseur.take_damage(dégâts effectifs)</code>.</li>
+</ol>
+<hr>
+</section>
+<section id="les-deux-objets-fondamentaux-de-pandas-sélection-.loc" class="level2">
+<h2 class="anchored" data-anchor-id="les-deux-objets-fondamentaux-de-pandas-sélection-.loc">3.3 Les Deux Objets Fondamentaux de Pandas &amp; Sélection <code>.loc</code></h2>
+<ol type="1">
+<li><strong>La <code>Series</code> :</strong> Un tableau unidimensionnel indexé (une colonne nommée).</li>
+<li><strong>Le <code>DataFrame</code> :</strong> Une table bidimensionnelle composée de plusieurs <code>Series</code> partageant le même index de lignes.</li>
+</ol>
+<p>Créez le fichier <code>data/styles_combat.csv</code> :</p>
+<pre class="csv"><code>style,Terrien,Saiyan,Namek,Cyborg
+Corps-a-corps,1.0,1.0,1.2,0.5
+Ki,1.5,1.0,1.0,0.5
+Magie,1.2,1.5,1.0,2.0
+Technologie,1.0,1.2,1.5,1.0</code></pre>
+<p>Chargeons cette matrice avec Pandas en désignant la première colonne comme index des lignes :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"data/styles_combat.csv"</span>, index_col<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Affichage console :</p>
+<pre class="text"><code>               Terrien  Saiyan  Namek  Cyborg
+style                                        
+Corps-a-corps      1.0     1.0    1.2     0.5
+Ki                 1.5     1.0    1.0     0.5
+Magie              1.2     1.5    1.0     2.0
+Technologie        1.0     1.2    1.5     1.0</code></pre>
+<p>Pour extraire une valeur à l’intersection d’une ligne et d’une colonne étiquetées, on utilise <strong><code>.loc[ligne, colonne]</code></strong> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>coeff <span class="op">=</span> <span class="bu">float</span>(df.loc[<span class="st">"Magie"</span>, <span class="st">"Cyborg"</span>])  <span class="co"># Renvoie exactement 2.0</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Performance en Simulation Massive (Data Science Reflex)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>L’indexation <code>.loc</code> de Pandas apporte confort et sécurité lors du chargement. En revanche, dans une boucle de Monte Carlo exécutant <span class="math inline">\(100\,000\)</span> duels, <code>.loc</code> introduit une surcharge sensible. L’astuce d’ingénieur consiste à convertir le DataFrame en dictionnaire imbriqué une seule fois :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>lookup <span class="op">=</span> df.to_dict()  <span class="co"># Accès direct lookup["Cyborg"]["Magie"] 50x plus rapide !</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<hr>
+</section>
+<section id="exercice-3-ingestion-de-la-matrice-de-combat-srczarenaioloader.py" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-3-ingestion-de-la-matrice-de-combat-srczarenaioloader.py">3.4 Exercice 3 : Ingestion de la Matrice de Combat (<code>src/zarena/io/loader.py</code>)</h2>
+<p>Créez le fichier <code>src/zarena/io/loader.py</code>.</p>
+<section id="cahier-des-charges-2" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges-2">Cahier des charges</h3>
+<ol type="1">
+<li>Implémentez la fonction <code>load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -&gt; pd.DataFrame</code> :
+<ul>
+<li>Vérifie que le fichier existe (lever <code>FileNotFoundError</code> sinon).</li>
+<li>Charge le fichier via <code>pd.read_csv(filepath, index_col=0)</code>.</li>
+<li>Convertit l’ensemble des valeurs numériques en flottants avec <code>.astype(float)</code>.</li>
+<li>Retourne le DataFrame.</li>
+</ul></li>
+<li>Implémentez la fonction <code>get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str) -&gt; float</code> :
+<ul>
+<li>Vérifie que <code>attack_style</code> est bien présent dans <code>df.index</code> et que <code>defender_race</code> est présent dans <code>df.columns</code>. Si l’une des clés est absente, lever <code>ValueError(f"Style ou race non répertorié : {attack_style}, {defender_race}")</code>.</li>
+<li>Retourne le coefficient extrait converti en <code>float</code>.</li>
+</ul></li>
+</ol>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Nous savons ingérer des combattants distants et des matrices tabulaires. Il nous reste un dernier type de données capital pour le projet final : les données géospatiales décrivant les arènes régionales sur une carte.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="partie-4-ingestion-de-données-spatiales-le-format-geojson" class="level1">
+<h1>Partie 4 : Ingestion de Données Spatiales : Le Format GeoJSON</h1>
+<section id="motivation-quest-ce-que-le-geojson-et-à-quoi-sert-il" class="level2">
+<h2 class="anchored" data-anchor-id="motivation-quest-ce-que-le-geojson-et-à-quoi-sert-il">4.1 Motivation : Qu’est-ce que le GeoJSON et à quoi sert-il ?</h2>
+<p>Dans le projet de fin de semestre, les tournois ne se déroulent pas dans le vide : ils prennent place dans des arènes réparties sur le territoire (les arènes d’Occitanie : Montpellier, Toulouse, Nîmes…). Dans le jalon final, ces arènes seront projetées sur une carte interactive via Streamlit et Folium.</p>
+<p>Faut-il installer des bibliothèques cartographiques lourdes (GDAL, GeoPandas) pour lire ces données ? <strong>Absolument pas.</strong></p>
+<p>Le format <strong>GeoJSON (IETF RFC 7946)</strong> n’est rien d’autre qu’un <strong>fichier texte JSON standard</strong> qui organise les données géographiques selon une nomenclature universelle :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"FeatureCollection"</span><span class="fu">,</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"features"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Feature"</span><span class="fu">,</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"geometry"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Point"</span><span class="fu">,</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"coordinates"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">3.8767</span><span class="ot">,</span> <span class="fl">43.6108</span><span class="ot">]</span>  <span class="er">//</span> <span class="er">ATTENTION</span> <span class="er">:</span> <span class="ot">[</span><span class="er">Longitude</span><span class="ot">,</span> <span class="er">Latitude</span><span class="ot">]</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">},</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"arena-01"</span><span class="fu">,</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Arène de Montpellier"</span><span class="fu">,</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"capacity"</span><span class="fu">:</span> <span class="dv">15000</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Avertissement</span>Piège Fréquent : L’Ordre des Coordonnées
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>En cartographie mathématique et dans la norme GeoJSON, les coordonnées sont <strong>toujours</strong> ordonnées sous la forme <code>[Longitude, Latitude]</code> (c’est-à-dire <span class="math inline">\([X, Y]\)</span> dans le plan cartésien), et non <code>[Latitude, Longitude]</code> !</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="création-du-fichier-darènes-dbz" class="level2">
+<h2 class="anchored" data-anchor-id="création-du-fichier-darènes-dbz">4.2 Création du Fichier d’Arènes DBZ</h2>
+<p>Créez le fichier <code>data/arenas_dbz.geojson</code> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"FeatureCollection"</span><span class="fu">,</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"features"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Feature"</span><span class="fu">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"geometry"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Point"</span><span class="fu">,</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"coordinates"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">139.6917</span><span class="ot">,</span> <span class="fl">35.6895</span><span class="ot">]</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">},</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"arena-01"</span><span class="fu">,</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Championnat du Monde"</span><span class="fu">,</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"environment"</span><span class="fu">:</span> <span class="st">"Plaine"</span><span class="fu">,</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"capacity"</span><span class="fu">:</span> <span class="dv">10000</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Feature"</span><span class="fu">,</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"geometry"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Point"</span><span class="fu">,</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"coordinates"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">11.2558</span><span class="ot">,</span> <span class="fl">43.7696</span><span class="ot">]</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">},</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"arena-02"</span><span class="fu">,</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Palais de Kamisama"</span><span class="fu">,</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"environment"</span><span class="fu">:</span> <span class="st">"Sanctuaire"</span><span class="fu">,</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"capacity"</span><span class="fu">:</span> <span class="dv">500</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Feature"</span><span class="fu">,</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"geometry"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"type"</span><span class="fu">:</span> <span class="st">"Point"</span><span class="fu">,</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"coordinates"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">3.8767</span><span class="ot">,</span> <span class="fl">43.6108</span><span class="ot">]</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>      <span class="fu">},</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"properties"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"id"</span><span class="fu">:</span> <span class="st">"arena-03"</span><span class="fu">,</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"Jeux de Cell"</span><span class="fu">,</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"environment"</span><span class="fu">:</span> <span class="st">"Désert"</span><span class="fu">,</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"capacity"</span><span class="fu">:</span> <span class="dv">50000</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="exercice-4-chargement-sécurisé-du-geojson-srczarenaioloader.py" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-4-chargement-sécurisé-du-geojson-srczarenaioloader.py">4.3 Exercice 4 : Chargement Sécurisé du GeoJSON (<code>src/zarena/io/loader.py</code>)</h2>
+<p>Complétez <code>src/zarena/io/loader.py</code>.</p>
+<section id="cahier-des-charges-3" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges-3">Cahier des charges</h3>
+<p>Implémentez la fonction <code>load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -&gt; dict</code> : 1. Vérifie l’existence du fichier sur le disque (<code>FileNotFoundError</code>). 2. Charge le contenu avec <code>json.load()</code>. 3. Valide les contraintes structurelles minimales de la norme RFC 7946 : * Le dictionnaire doit posséder la clé <code>"type"</code> avec la valeur <code>"FeatureCollection"</code>. * Le dictionnaire doit contenir une liste sous la clé <code>"features"</code>. * Si l’une de ces conditions n’est pas remplie, lever immédiatement <code>ValueError("Structure GeoJSON non conforme.")</code>. 4. Renvoie le dictionnaire brut.</p>
+<hr>
+<blockquote class="blockquote">
+<p><em>Transition : Notre chaîne d’ingestion complète est implémentée (API REST, cache disque, CSV Pandas, GeoJSON). Comment tester l’ensemble de ces briques dans un environnement automatisé de CI/CD sans jamais dépendre d’Internet ? C’est le rôle du Mocking.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="partie-5-tests-unitaires-isolés-mocking-réseau-requests-mock" class="level1">
+<h1>Partie 5 : Tests Unitaires Isolés &amp; Mocking Réseau (<code>requests-mock</code>)</h1>
+<section id="pourquoi-mocker-le-réseau-dans-les-tests" class="level2">
+<h2 class="anchored" data-anchor-id="pourquoi-mocker-le-réseau-dans-les-tests">5.1 Pourquoi « Mocker » le Réseau dans les Tests ?</h2>
+<p>Considérons ce test naïf :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_recuperation_goku():</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    fetcher <span class="op">=</span> CapsuleCorpFetcher(<span class="st">"https://api.capsulecorp.com"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> fetcher.get_warrior_data(<span class="dv">1</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> data[<span class="st">"name"</span>] <span class="op">==</span> <span class="st">"Son Goku"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ce test présente trois défauts majeurs : 1. <strong>Instabilité :</strong> Si le serveur de la Capsule Corp est en maintenance, le test échoue alors que notre code fonctionne parfaitement. 2. <strong>Lenteur :</strong> Exécuter 100 requêtes HTTP dans une suite de tests allonge le temps d’exécution de plusieurs minutes. 3. <strong>Impossibilité de tester les pannes :</strong> Comment vérifier que notre gestionnaire d’erreurs intercepte bien une panne HTTP 500 sans faire crasher le vrai serveur de production ?</p>
+<p><strong>La Solution : Le Mocking.</strong><br>
+Un <strong>Mock</strong> est un intercepteur logiciel qui intercepte les requêtes <code>requests.get()</code> au sein même du processus Python et renvoie une réponse préenregistrée en mémoire vive, <strong>sans qu’aucun paquet réseau ne soit émis</strong>.</p>
+<hr>
+</section>
+<section id="utilisation-de-la-fixture-requests_mock" class="level2">
+<h2 class="anchored" data-anchor-id="utilisation-de-la-fixture-requests_mock">5.2 Utilisation de la Fixture <code>requests_mock</code></h2>
+<p>Grâce au paquet <code>requests-mock</code>, Pytest fournit la fixture <strong><code>requests_mock</code></strong> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_interception_reseau(requests_mock):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Configuration du simulateur : intercepter cette URL précise</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    url <span class="op">=</span> <span class="st">"https://api.test.com/warriors/1.json"</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    requests_mock.get(url, json<span class="op">=</span>{<span class="st">"name"</span>: <span class="st">"Son Goku"</span>, <span class="st">"hp_base"</span>: <span class="dv">120</span>}, status_code<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Exécution du vrai code métier</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    reponse <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="fl">5.0</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. La réponse est instantanée et provient de la mémoire</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> reponse.json()[<span class="st">"name"</span>] <span class="op">==</span> <span class="st">"Son Goku"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="exercice-5-la-suite-de-tests-dingestion-teststest_fetcher.py-autonomie-complète" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-5-la-suite-de-tests-dingestion-teststest_fetcher.py-autonomie-complète">5.3 Exercice 5 : La Suite de Tests d’Ingestion (<code>tests/test_fetcher.py</code>) [Autonomie Complète]</h2>
+<p>Créez <code>tests/test_fetcher.py</code>. Vous allez concevoir la suite de tests validant la résilience du client <code>CapsuleCorpFetcher</code>.</p>
+<section id="cahier-des-charges-4" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges-4">Cahier des charges</h3>
+<p>Rédigez les quatre tests unitaires suivants : 1. <code>test_fetcher_cache_miss_queries_api_and_saves_to_disk(requests_mock, tmp_path)</code> : * Simule une réponse HTTP 200 sur <code>https://api.capsulecorp.com/warriors/1.json</code> avec <code>{"id": 1, "name": "Son Goku", "hp_base": 120}</code>. * Instancie <code>CapsuleCorpFetcher</code> en pointant son dossier de cache sur <code>tmp_path</code>. * Vérifie que le fichier <code>tmp_path / "1.json"</code> n’existe pas au départ. * Appelle <code>get_warrior_data(1)</code>. * Constate que les données reçues sont correctes, que le fichier local a été créé sur disque et contient le JSON attendu. 2. <code>test_fetcher_cache_hit_does_not_call_network(requests_mock, tmp_path)</code> : * Écrit manuellement un fichier <code>1.json</code> dans <code>tmp_path</code> contenant <code>{"id": 1, "name": "Goku Local"}</code>. * <strong>Ne déclare aucun mock d’URL</strong> (si une requête HTTP était émise, le test planterait immédiatement). * Appelle <code>get_warrior_data(1)</code>. * Vérifie que le résultat renvoyé est <code>"Goku Local"</code>. 3. <code>test_fetcher_api_error_without_cache_raises_data_fetch_error(requests_mock, tmp_path)</code> : * Simule un code HTTP 404 sur l’ID 999. * Vérifie avec <code>pytest.raises(DataFetchError)</code> que la méthode refuse l’opération. 4. <code>test_loader_style_matrix_and_arenas(tmp_path)</code> : * Crée un fichier CSV temporaire dans <code>tmp_path</code> et teste <code>load_style_matrix</code> et <code>get_style_multiplier</code>. * Crée un fichier GeoJSON temporaire et vérifie que <code>load_arenas</code> valide le format et lève <code>ValueError</code> si le type n’est pas <code>"FeatureCollection"</code>.</p>
+<p>Exécutez vos tests pour valider le bon fonctionnement du mock :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_fetcher.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+</section>
+<section id="partie-6-audit-de-couverture-bilan-qualité-15-min" class="level1">
+<h1>Partie 6 : Audit de Couverture &amp; Bilan Qualité (15 min)</h1>
+<p>Exécutez <code>pytest</code> avec analyse de couverture sur l’ensemble du sous-paquet <code>zarena.io</code> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>src/zarena/io <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Assurez-vous d’atteindre un score de couverture <strong>supérieur à <span class="math inline">\(95\%\)</span></strong> sur <code>fetcher.py</code> et <code>loader.py</code>. Si des lignes d’exceptions restent dans la colonne <code>Missing</code>, complétez vos tests unitaires.</p>
+<hr>
+</section>
+<section id="devoir-maison-guidé-pipeline-dingestion-de-pyarena-jalon-3" class="level1">
+<h1>Devoir Maison Guidé : Pipeline d’Ingestion de PyArena (Jalon 3)</h1>
+<p><em>Ce travail est à réaliser en équipe d’ici le prochain TP sur votre dépôt officiel de projet (<code>pyarena-groupe-XX</code>). Il concrétise les attendus de la <strong>Section 5 de l’Annexe Technique</strong>.</em></p>
+<section id="objectif" class="level3">
+<h3 class="anchored" data-anchor-id="objectif">Objectif</h3>
+<p>Vous allez implémenter le client d’ingestion réseau de PokéAPI avec cache disque (<code>DataFetcher</code>) ainsi que les chargeurs de données statiques (<code>load_type_matrix</code> et <code>load_arenas</code>).</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Respect Strict des Signatures de l’Annexe Technique
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Les bancs de test de la CI GitHub Actions reposent <strong>strictement</strong> sur les interfaces suivantes : * Module <code>pyarena.io.fetcher</code> : classe <code>DataFetcher</code>. * Module <code>pyarena.io.loader</code> : fonctions <code>load_type_matrix</code> et <code>load_arenas</code>.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="étape-1-branche-git-de-fonctionnalité" class="level3">
+<h3 class="anchored" data-anchor-id="étape-1-branche-git-de-fonctionnalité">Étape 1 : Branche Git de Fonctionnalité</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/pyarena-officiel</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin dev</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/io-pipeline</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="étape-2-le-client-dingestion-srcpyarenaiofetcher.py" class="level3">
+<h3 class="anchored" data-anchor-id="étape-2-le-client-dingestion-srcpyarenaiofetcher.py">Étape 2 : Le Client d’Ingestion (<code>src/pyarena/io/fetcher.py</code>)</h3>
+<p>Implémentez la classe <code>DataFetcher</code> conformément à la section 5.1 de l’Annexe Technique :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/pyarena/io/fetcher.py</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.exceptions <span class="im">import</span> DataFetchError</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DataFetcher:</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, cache_dir: <span class="bu">str</span> <span class="op">|</span> Path <span class="op">=</span> <span class="st">"data/cache"</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Configure le gestionnaire d'ingestion avec le dossier de stockage local."""</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cache_dir <span class="op">=</span> Path(cache_dir)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cache_dir.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.base_url <span class="op">=</span> <span class="st">"https://pokeapi.co/api/v2/pokemon"</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_pokemon(<span class="va">self</span>, pokemon_id: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Récupère le dictionnaire JSON décrivant la créature.</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Stratégie :</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co">          1. Si 'data/cache/{pokemon_id}.json' existe sur le disque, charger le fichier.</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co">          2. Sinon, interroger l'API PokéAPI, enregistrer la réponse dans le cache puis la renvoyer.</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="co">          3. En cas d'échec réseau sans cache disponible, lever DataFetchError.</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>        ...</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Comprendre la Structure JSON de PokéAPI
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Contrairement à notre modèle simplifié, la vraie PokéAPI renvoie une charge utile imbriquée. Pour extraire les statistiques de base au Niveau 50 lors de l’instanciation de vos objets <code>Fighter</code>, vous utiliserez une compréhension de dictionnaire :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exemple de décodage des statistiques PokéAPI</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>stats_brutes <span class="op">=</span> {s[<span class="st">"stat"</span>][<span class="st">"name"</span>]: s[<span class="st">"base_stat"</span>] <span class="cf">for</span> s <span class="kw">in</span> payload[<span class="st">"stats"</span>]}</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Donne : {'hp': 35, 'attack': 55, 'defense': 40, 'speed': 90, ...}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<hr>
+</section>
+<section id="étape-3-chargement-des-données-statiques-srcpyarenaioloader.py" class="level3">
+<h3 class="anchored" data-anchor-id="étape-3-chargement-des-données-statiques-srcpyarenaioloader.py">Étape 3 : Chargement des Données Statiques (<code>src/pyarena/io/loader.py</code>)</h3>
+<section id="consignes-différenciées-selon-la-taille-du-groupe" class="level4">
+<h4 class="anchored" data-anchor-id="consignes-différenciées-selon-la-taille-du-groupe">Consignes Différenciées selon la Taille du Groupe :</h4>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Pour les Groupes de 3 Étudiants
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Périmètre :</strong> Vous travaillez avec les <strong>5 types élémentaires de base</strong> (Normal, Feu, Eau, Plante, Électrik).</li>
+<li>Le fichier <code>data/types.csv</code> fourni dans le dépôt contient une matrice <span class="math inline">\(5 \times 5\)</span>.</li>
+<li>Votre fonction <code>load_type_matrix</code> charge simplement cette matrice avec <code>pd.read_csv(filepath, index_col=0).astype(float)</code>.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Avertissement</span>Pour les Groupes de 4 Étudiants (Exigence Étendue)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Périmètre :</strong> Vous devez gérer l’intégralité des <strong>18 types officiels</strong> de Pokémon (matrice <span class="math inline">\(18 \times 18\)</span>) <strong>ET</strong> le calcul combiné pour les Pokémon à double-type.</li>
+<li><strong>Calcul du multiplicateur combiné :</strong> Si un défenseur est de type double (ex. Dracaufeu : <code>type_1="Feu"</code>, <code>type_2="Vol"</code>), le multiplicateur d’une attaque subie est le produit des multiplicateurs élémentaires individuels :<br>
+<span class="math display">\[m_{\text{total}} = m(\text{type\_attaque}, \text{type\_1}) \times m(\text{type\_attaque}, \text{type\_2})\]</span><br>
+Ce multiplicateur prend alors ses valeurs dans <span class="math inline">\(\{0\,;\, 0{,}25\,;\, 0{,}5\,;\, 1{,}0\,;\, 2{,}0\,;\, 4{,}0\}\)</span>.</li>
+<li><strong>Génération Automatique de la Matrice 18x18 via PokéAPI :</strong> Ne remplissez <strong>jamais</strong> cette matrice à la main ! Implémentez une fonction utilitaire (par exemple <code>build_full_type_matrix()</code>) qui interroge les 18 endpoints PokéAPI <code>https://pokeapi.co/api/v2/type/{id}</code> (IDs de 1 à 18). Dans chaque réponse, inspectez l’objet <code>damage_relations</code> :
+<ul>
+<li>Les types listés dans <code>double_damage_to</code> reçoivent le coefficient <span class="math inline">\(2.0\)</span>.</li>
+<li>Les types listés dans <code>half_damage_to</code> reçoivent le coefficient <span class="math inline">\(0.5\)</span>.</li>
+<li>Les types listés dans <code>no_damage_to</code> reçoivent le coefficient <span class="math inline">\(0.0\)</span>.</li>
+<li>Tous les autres types prennent la valeur par défaut <span class="math inline">\(1.0\)</span>. Le DataFrame obtenu est alors exporté automatiquement vers <code>data/types.csv</code>.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="étape-4-suite-de-tests-avec-mocking-réseau-teststest_io.py" class="level3">
+<h3 class="anchored" data-anchor-id="étape-4-suite-de-tests-avec-mocking-réseau-teststest_io.py">Étape 4 : Suite de Tests avec Mocking Réseau (<code>tests/test_io.py</code>)</h3>
+<p>Rédigez la suite de tests complète sous <code>tests/test_io.py</code> en exploitant <code>requests_mock</code> et <code>tmp_path</code> : 1. <strong>Validation du Cache-Miss :</strong> Vérifiez qu’une requête HTTP est émise et que le fichier est sauvegardé dans <code>tmp_path</code>. 2. <strong>Validation du Cache-Hit :</strong> Vérifiez qu’un fichier préexistant dans <code>tmp_path</code> est lu directement sans solliciter le réseau. 3. <strong>Simulation de Panne Réseau :</strong> Vérifiez qu’un code HTTP 500 ou une coupure réseau sans cache local lève rigoureusement <code>DataFetchError</code>. 4. <strong>Validation de la Matrice des Types :</strong> Vérifiez que <code>load_type_matrix</code> charge correctement les multiplicateurs élémentaires. 5. <strong>Validation Cartographique :</strong> Vérifiez que <code>load_arenas("data/arenes_occitanie.geojson")</code> renvoie la collection des arènes régionales conformes au schéma GeoJSON.</p>
+<hr>
+</section>
+<section id="étape-5-validation-qualité-audit-de-couverture-pull-request" class="level3">
+<h3 class="anchored" data-anchor-id="étape-5-validation-qualité-audit-de-couverture-pull-request">Étape 5 : Validation Qualité, Audit de Couverture &amp; Pull Request</h3>
+<ol type="1">
+<li><p>Vérifiez que la couverture globale de <code>pyarena.io</code> dépasse <strong><span class="math inline">\(90\%\)</span></strong> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena.io <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>Formatez et auditez le code avec Ruff :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check src/ tests/</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> format src/ tests/</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p>Commitez, poussez votre branche sur GitHub et ouvrez la <strong>Pull Request</strong> ciblant <code>dev</code>.</p></li>
+</ol>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

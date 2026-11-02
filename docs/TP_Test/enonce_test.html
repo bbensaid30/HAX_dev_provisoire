@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,10 +10,16 @@
 
 <title>Cours-TP : Exceptions Robustes &amp; Tests Unitaires avec pytest – HAX712X — Dev Logiciel</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -72,10 +78,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-825bced5da6ec9a9e85d5340fdc4ca06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-6a2b564723c042b0e428f357d9a015bd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,7 +111,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -118,7 +124,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -496,7 +502,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Pourquoi placer <code>tests/</code> en dehors de <code>src/</code> ?
+<span class="screen-reader-only">Note</span>Pourquoi placer <code>tests/</code> en dehors de <code>src/</code> ?
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -508,7 +514,7 @@ Pourquoi placer <code>tests/</code> en dehors de <code>src/</code> ?
 <section id="configuration-des-outils-dans-pyproject.toml" class="level2">
 <h2 class="anchored" data-anchor-id="configuration-des-outils-dans-pyproject.toml">0.2 Configuration des Outils dans <code>pyproject.toml</code></h2>
 <p>Ouvrez le fichier <code>pyproject.toml</code> à la racine de votre dossier de travail <code>~/tp-exercices/</code> pour y déclarer les dépendances de test, la configuration de <code>pytest</code> et les marqueurs personnalisés :</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[build-system]</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">"setuptools&gt;=68.0"</span><span class="op">,</span> <span class="st">"wheel"</span><span class="op">]</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">"setuptools.build_meta"</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -543,15 +549,15 @@ Pourquoi placer <code>tests/</code> en dehors de <code>src/</code> ?
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="dt">addopts</span> <span class="op">=</span> <span class="st">"-v --strict-markers"</span></span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="dt">markers</span> <span class="op">=</span> <span class="op">[</span></span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"slow: tests de calcul intensif ou de simulation lourde (Monte Carlo)"</span><span class="op">,</span>  <span class="co">#on comprendra cette ligne à la fin du TP</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Installez ces outils dans votre environnement virtuel actif :</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Créez le répertoire de tests à la racine :</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> tests</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> tests/__init__.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> tests</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> tests/__init__.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Vérifiez que votre environnement est fonctionnel :</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--version</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--version</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <blockquote class="blockquote">
 <p><em>Transition : Avant d’écrire des bancs de test automatisés, comprenons comment intercepter et traiter proprement les erreurs métier émises par nos classes lors d’un match.</em></p>
@@ -569,7 +575,7 @@ Pourquoi placer <code>tests/</code> en dehors de <code>src/</code> ?
 <li>Le composant de haut niveau (l’arbitre de l’arène ou une boucle de jeu) <strong>intercepte</strong> cette alerte pour réagir sans faire planter brutalement l’application.</li>
 </ul>
 <p>Le mécanisme de capture repose sur quatre blocs complémentaires :</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Bloc surveillé : code susceptible de lever une exception</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    degats <span class="op">=</span> attaquant.execute_attack()</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    defenseur.take_damage(degats)</span>
@@ -581,7 +587,7 @@ Pourquoi placer <code>tests/</code> en dehors de <code>src/</code> ?
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Assaut validé : </span><span class="sc">{</span>degats<span class="sc">}</span><span class="ss"> dégâts appliqués."</span>)</span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. Bloc de clôture : exécuté SYSTÉMATIQUEMENT, quoi qu'il arrive</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    reinitialiser_chrono_tour()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    reinitialiser_chrono_tour()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="le-polymorphisme-appliqué-aux-exceptions" class="level2">
@@ -589,30 +595,30 @@ Pourquoi placer <code>tests/</code> en dehors de <code>src/</code> ?
 <p>Dans notre module <code>src/zarena/exceptions.py</code>, nous disposons de la hiérarchie suivante :</p>
 <p><span class="math display">\[\text{Exception} \longrightarrow \text{ZArenaError} \longrightarrow \begin{cases} \text{InvalidStatError} \\ \text{FighterFaintedError} \\ \text{NotEnoughKiError} \end{cases}\]</span></p>
 <p>Puisque <code>FighterFaintedError</code> hérite de <code>ZArenaError</code>, une clause d’interception sur la classe parente intercepte automatiquement toutes ses classes filles :</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    cible.take_damage(<span class="dv">50</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> ZArenaError <span class="im">as</span> err:</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Intercepte indifféremment FighterFaintedError ou InvalidStatError</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    journaliser_incident(err)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    journaliser_incident(err)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Règle d’or : L’Ordre d’Évaluation des Blocs <code>except</code>
+<span class="screen-reader-only">Important</span>Règle d’or : L’Ordre d’Évaluation des Blocs <code>except</code>
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>Python évalue les clauses <code>except</code> séquentiellement de haut en bas et s’arrête au premier bloc compatible. Vous devez <strong>toujours capturer les exceptions les plus spécifiques en premier</strong> et les classes parentes génériques en dernier :</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    guerrier.blast_attack()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> NotEnoughKiError:</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Cas très spécifique : manque de ressource tactique</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    guerrier.recharge_ki(<span class="dv">20</span>)</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> ZArenaError:</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Cas général : tout autre incident du moteur Z-Arena</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    annuler_tour()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    annuler_tour()</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <hr>
@@ -689,7 +695,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <h2 class="anchored" data-anchor-id="le-cas-nominal-happy-path-premiers-tests-sur-basewarrior">2.4 Le Cas Nominal (<em>Happy Path</em>) : Premiers Tests sur <code>BaseWarrior</code></h2>
 <p>On commence <strong>toujours</strong> par vérifier le cas où tout se déroule normalement (<em>Happy Path</em>) avant de chercher les cas d’erreur.</p>
 <p>Créez le fichier <code>tests/test_warriors.py</code> :</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/test_warriors.py</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/test_warriors.py</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> zarena.warriors <span class="im">import</span> BaseWarrior</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -715,9 +721,9 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    warrior.take_damage(<span class="dv">35</span>)</span>
 <span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. Assert</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> warrior.hp <span class="op">==</span> <span class="dv">65</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> warrior.hp <span class="op">==</span> <span class="dv">65</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Exécutez vos tests dans votre terminal :</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Pytest découvre automatiquement le fichier <code>test_warriors.py</code>, exécute les deux fonctions de test et affiche deux points verts :</p>
 <p><code>tests/test_warriors.py .. [100%]</code></p>
 <hr>
@@ -730,7 +736,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <p>Un logiciel robuste ne se contente pas de fonctionner avec des données valides : <strong>il doit refuser d’opérer lorsque les données violent ses invariants</strong>.</p>
 <p>Comment tester qu’une méthode refuse une action et lève bien l’exception attendue ?</p>
 <p>Si nous utilisions un bloc <code>try / except</code> manuel, le code de test deviendrait lourd et verbeux. <code>pytest</code> fournit un gestionnaire de contexte dédié : <strong><code>pytest.raises</code></strong>.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> zarena.exceptions <span class="im">import</span> InvalidStatError</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> zarena.warriors <span class="im">import</span> BaseWarrior</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -741,7 +747,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        BaseWarrior(name<span class="op">=</span><span class="st">"Goku"</span>, hp<span class="op">=-</span><span class="dv">50</span>, ki<span class="op">=</span><span class="dv">50</span>, attack_power<span class="op">=</span><span class="dv">30</span>)</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Vérification optionnelle mais recommandée du message associé</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">"Statistiques initiales invalides"</span> <span class="kw">in</span> <span class="bu">str</span>(exc_info.value)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="st">"Statistiques initiales invalides"</span> <span class="kw">in</span> <span class="bu">str</span>(exc_info.value)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="mécanique-de-pytest.raises" class="level3">
 <h3 class="anchored" data-anchor-id="mécanique-de-pytest.raises">Mécanique de <code>pytest.raises</code> :</h3>
 <ul>
@@ -780,7 +786,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <li>Vérifie avec <code>pytest.raises(FighterFaintedError)</code> que porter un nouveau coup de 10 dégâts est refusé.</li>
 </ul>
 <p>Lancez la suite de tests pour vérifier la bonne exécution des cinq tests :</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_warriors.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_warriors.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <blockquote class="blockquote">
 <p><em>Transition : Réinstancier BaseWarrior(name=“Krilin”, hp=100, …) au début de chaque fonction de test alourdit inutilement le code. Découvrons comment factoriser et injecter nos données de test avec les Fixtures.</em></p>
@@ -800,7 +806,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <li><strong>Risque de pollution d’état :</strong> si les fonctions se partageaient une variable globale <code>VEGETA</code>, le premier test qui lui inflige des dégâts fausserait les assertions des tests suivants.</li>
 </ol>
 <p>Une <strong>Fixture</strong> (<code>@pytest.fixture</code>) est une fonction décorée qui <strong>fabrique et fournit un objet prêt à l’emploi</strong> à chaque test qui en fait la demande en déclarant son nom en paramètre :</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> zarena.warriors <span class="im">import</span> BaseWarrior</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -812,7 +818,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_attaque_krilin(fresh_krilin: BaseWarrior) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># fresh_krilin est injecté automatiquement par pytest</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> fresh_krilin.compute_damage() <span class="op">==</span> <span class="dv">30</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> fresh_krilin.compute_damage() <span class="op">==</span> <span class="dv">30</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Par défaut, les fixtures ont une portée dite <code>scope="function"</code> : <strong>pytest réexécute la fixture avant chaque fonction de test</strong>, garantissant que chaque test travaille sur une instance indépendante.</p>
 <hr>
 </section>
@@ -827,7 +833,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <section id="déclarer-les-fixtures-partagées-dans-testsconftest.py" class="level3">
 <h3 class="anchored" data-anchor-id="déclarer-les-fixtures-partagées-dans-testsconftest.py">1. Déclarer les fixtures partagées dans <code>tests/conftest.py</code></h3>
 <p>Créez le fichier <code>tests/conftest.py</code> et déclarez trois profils de test représentatifs :</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/conftest.py</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/conftest.py</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> zarena.warriors <span class="im">import</span> BaseWarrior, Cyborg, SaiyanWarrior</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -853,7 +859,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.fixture</span></span>
 <span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> android_17() <span class="op">-&gt;</span> Cyborg:</span>
 <span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Cyborg C-17 doté d'un bouclier mécanique de 15 points."""</span></span>
-<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Cyborg(name<span class="op">=</span><span class="st">"C-17"</span>, hp<span class="op">=</span><span class="dv">100</span>, power<span class="op">=</span><span class="dv">50</span>, shield<span class="op">=</span><span class="dv">15</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Cyborg(name<span class="op">=</span><span class="st">"C-17"</span>, hp<span class="op">=</span><span class="dv">100</span>, power<span class="op">=</span><span class="dv">50</span>, shield<span class="op">=</span><span class="dv">15</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="écrire-la-suite-de-tests-du-saiyan-dans-teststest_saiyan.py" class="level3">
 <h3 class="anchored" data-anchor-id="écrire-la-suite-de-tests-du-saiyan-dans-teststest_saiyan.py">2. Écrire la suite de tests du Saiyan dans <code>tests/test_saiyan.py</code></h3>
@@ -886,7 +892,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <li>Vérifie avec <code>pytest.raises(NotEnoughKiError, match="Ki insuffisant")</code> que l’attaque échoue.</li>
 </ul>
 <p>Lancez la suite de tests pour valider l’injection automatique de la fixture :</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_saiyan.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_saiyan.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <blockquote class="blockquote">
 <p><em>Transition : Les fixtures garantissent l’isolation de nos objets. Mais que faire lorsque l’on souhaite éprouver un calcul mathématique sur une matrice complète de valeurs d’entrée (par exemple, tester le bouclier d’un Cyborg face à des coups faibles, égaux ou destructeurs) sans dupliquer dix fonctions de test identiques ?</em></p>
@@ -913,7 +919,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 </section>
 <section id="syntaxe-de-paramétrisation" class="level2">
 <h2 class="anchored" data-anchor-id="syntaxe-de-paramétrisation">5.2 Syntaxe de Paramétrisation</h2>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(</span>
@@ -929,7 +935,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    degats_entrants: <span class="bu">int</span>, degats_attendus: <span class="bu">int</span>, hp_attendus: <span class="bu">int</span></span>
 <span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ce test sera exécuté 4 fois indépendamment par pytest</span></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="exercice-4-validation-paramétrée-du-cyborg-autonomie-complète" class="level2">
@@ -954,7 +960,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <li>Deux instances distinctes ayant les mêmes caractéristiques doivent être jugées égales (<code>c1 == c2</code>).</li>
 </ul>
 <p>Lancez l’ensemble des tests de votre projet :</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <blockquote class="blockquote">
 <p><em>Transition : Jusqu’ici, l’ensemble de nos tests reposait sur un paradigme déterministe : une entrée <span class="math inline">\(x\)</span> produit invariablement la sortie <span class="math inline">\(y\)</span>. Or, dans un simulateur d’arène (comme dans tout système multi-agents ou modèle de Data Science), les combats introduisent du hasard : jets d’initiative, variations d’amplitude de frappe, simulations de Monte Carlo. Comment tester un code probabiliste sans fabriquer des tests instables qui font échouer la CI de façon imprévisible ?</em></p>
@@ -968,9 +974,9 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <section id="le-danger-des-tests-intermittents-flaky-tests" class="level2">
 <h2 class="anchored" data-anchor-id="le-danger-des-tests-intermittents-flaky-tests">6.1 Le Danger des Tests Intermittents (<em>Flaky Tests</em>)</h2>
 <p>Si un test unitaire exécute un tirage aléatoire sans contrôle :</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_combat_aleatoire() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_combat_aleatoire() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    vainqueur <span class="op">=</span> simuler_match_aleatoire(goku, vegeta)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> vainqueur.name <span class="op">==</span> <span class="st">"Goku"</span>  <span class="co"># Echoue 1 fois sur 2 !</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> vainqueur.name <span class="op">==</span> <span class="st">"Goku"</span>  <span class="co"># Echoue 1 fois sur 2 !</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Un test qui réussit ou échoue sans que le code source n’ait changé s’appelle un <strong>test intermittent (<em>flaky test</em>)</strong>. C’est le fléau des chaînes d’intégration continue : il paralyse les déploiements et détruit la confiance des équipes dans les tests automatisés.</p>
 <p>Pour tester du code stochastique, on applique <strong>trois techniques d’ingénierie logicielle</strong> :</p>
 <ol type="1">
@@ -983,7 +989,7 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <section id="implémentation-du-moteur-stochastique-srczarenabattle.py" class="level2">
 <h2 class="anchored" data-anchor-id="implémentation-du-moteur-stochastique-srczarenabattle.py">6.2 Implémentation du Moteur Stochastique (<code>src/zarena/battle.py</code>)</h2>
 <p>Créez le fichier <code>src/zarena/battle.py</code>. Nous y implémentons un moteur de duel au tour par tour où les attaques physiques oscillent avec une amplitude uniforme de <span class="math inline">\(\pm 15\%\)</span> (<span class="math inline">\(U \sim \mathcal{U}[0{,}85 \,;\, 1{,}15]\)</span>) :</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/zarena/battle.py</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/zarena/battle.py</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Callable</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -1063,14 +1069,14 @@ E        +  where 70 = &lt;BaseWarrior Krilin&gt;.hp
 <span id="cb21-78"><a href="#cb21-78" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
 <span id="cb21-79"><a href="#cb21-79" aria-hidden="true" tabindex="-1"></a>        <span class="st">"winrate"</span>: winrate,</span>
 <span id="cb21-80"><a href="#cb21-80" aria-hidden="true" tabindex="-1"></a>        <span class="st">"turns_mean"</span>: total_turns <span class="op">/</span> n_simulations,</span>
-<span id="cb21-81"><a href="#cb21-81" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-81"><a href="#cb21-81" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Focus 1 : Qu’est-ce qu’une <code>@dataclass(frozen=True)</code> ?
+<span class="screen-reader-only">Note</span>Focus 1 : Qu’est-ce qu’une <code>@dataclass(frozen=True)</code> ?
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1089,7 +1095,7 @@ Focus 1 : Qu’est-ce qu’une <code>@dataclass(frozen=True)</code> ?
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Focus 2 : Le typage <code>Callable</code> et le patron de Fabrique (<em>Factory Pattern</em>)
+<span class="screen-reader-only">Note</span>Focus 2 : Le typage <code>Callable</code> et le patron de Fabrique (<em>Factory Pattern</em>)
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1136,7 +1142,7 @@ Focus 2 : Le typage <code>Callable</code> et le patron de Fabrique (<em>Factory 
 <li>Vérifiez avec <code>pytest.approx</code> que le taux de victoire de Goku converge vers <span class="math inline">\(1{,}0\)</span> : <code>assert res["winrate"] == pytest.approx(1.0, abs=0.01)</code></li>
 </ul>
 <p>Lancez vos tests stochastiques :</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_battle.py</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_battle.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <blockquote class="blockquote">
 <p><em>Transition : Les simulations numériques s’accompagnent fréquemment d’écritures de journaux de combat ou de fichiers de cache sur le disque. Comment tester ces opérations d’entrée/sortie sans polluer notre dépôt Git ? Et comment isoler les simulations lentes ?</em></p>
@@ -1156,7 +1162,7 @@ Focus 2 : Le typage <code>Callable</code> et le patron de Fabrique (<em>Factory 
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Mauvaise Pratique : Écrire dans le Répertoire de Travail
+<span class="screen-reader-only">Avertissement</span>Mauvaise Pratique : Écrire dans le Répertoire de Travail
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -1171,7 +1177,7 @@ Mauvaise Pratique : Écrire dans le Répertoire de Travail
 <section id="module-métier-dexportation-srczarenarecords.py" class="level3">
 <h3 class="anchored" data-anchor-id="module-métier-dexportation-srczarenarecords.py">Module métier d’exportation (<code>src/zarena/records.py</code>) :</h3>
 <p>Créez <code>src/zarena/records.py</code> :</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/zarena/records.py</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/zarena/records.py</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> zarena.battle <span class="im">import</span> DuelResult</span>
@@ -1188,7 +1194,7 @@ Mauvaise Pratique : Écrire dans le Répertoire de Travail
 <span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    path <span class="op">=</span> Path(filepath)</span>
 <span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    path.parent.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(path, <span class="st">"w"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="im">as</span> f:</span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>        json.dump(data, f, indent<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>        json.dump(data, f, indent<span class="op">=</span><span class="dv">2</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 </section>
@@ -1196,22 +1202,22 @@ Mauvaise Pratique : Écrire dans le Répertoire de Travail
 <h2 class="anchored" data-anchor-id="marqueurs-personnalisés-filtrer-les-tests-lourds-avec-pytest.mark.slow">7.2 Marqueurs Personnalisés : Filtrer les Tests Lourds avec <code>@pytest.mark.slow</code></h2>
 <p>Une simulation de Monte Carlo avec <span class="math inline">\(10\,000\)</span> itérations peut prendre dix secondes. En phase de développement actif, vous ne voulez pas attendre dix secondes à chaque modification de code pour vérifier si votre syntaxe est valide.</p>
 <p>Le décorateur <strong><code>@pytest.mark.slow</code></strong> permet d’étiqueter les tests gourmands en calcul :</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.slow</span></span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_simulation_massive() <span class="op">-&gt;</span> <span class="va">None</span>:</span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calcul lourd simulant 10 000 tirages</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Vous pouvez ensuite filtrer dynamiquement vos tests depuis la ligne de commande :</p>
 <ul>
 <li>Exécuter <strong>uniquement les tests rapides du quotidien</strong> (exclut les tests lents) :</li>
 </ul>
-<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">-m</span> <span class="st">"not slow"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">-m</span> <span class="st">"not slow"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li>Exécuter <strong>exclusivement les tests de simulation lourde</strong> :</li>
 </ul>
-<div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">-m</span> <span class="st">"slow"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">-m</span> <span class="st">"slow"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="exercice-6-test-dio-sécurisé-et-test-lourd-teststest_records.py-semi-autonomie" class="level2">
@@ -1238,8 +1244,8 @@ Mauvaise Pratique : Écrire dans le Répertoire de Travail
 <li>Validez que le résultat contient un winrate compris entre <span class="math inline">\(0{,}0\)</span> et <span class="math inline">\(1{,}0\)</span>.</li>
 </ul>
 <p>Testez le filtrage dans votre terminal :</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verification rapide excluant le test lourd</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">-m</span> <span class="st">"not slow"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verification rapide excluant le test lourd</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">-m</span> <span class="st">"not slow"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 <blockquote class="blockquote">
 <p><em>Transition : Nos tests unitaires, stochastiques et d’entrées/sorties fonctionnent. Mais avons-nous pensé à tester toutes les branches et conditions de nos fichiers sources ? Comment mesurer objectivement la part réelle de code éprouvée par nos tests ? C’est le rôle de la couverture de code.</em></p>
@@ -1260,9 +1266,9 @@ Mauvaise Pratique : Écrire dans le Répertoire de Travail
 <section id="générer-le-rapport-de-couverture" class="level2">
 <h2 class="anchored" data-anchor-id="générer-le-rapport-de-couverture">8.2 Générer le Rapport de Couverture</h2>
 <p>Exécutez <code>pytest</code> en demandant l’analyse de couverture du paquet <code>zarena</code> avec localisation des lignes non testées :</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>zarena <span class="at">--cov-report</span><span class="op">=</span>term-missing</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>zarena <span class="at">--cov-report</span><span class="op">=</span>term-missing</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co">#ou</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>src/zarena <span class="at">--cov-report</span><span class="op">=</span>term-missing <span class="co"># pour la totalité du dossier</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>src/zarena <span class="at">--cov-report</span><span class="op">=</span>term-missing <span class="co"># pour la totalité du dossier</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="structure-du-rapport-terminal" class="level3">
 <h3 class="anchored" data-anchor-id="structure-du-rapport-terminal">Structure du rapport terminal :</h3>
 <ul>
@@ -1299,13 +1305,13 @@ Mauvaise Pratique : Écrire dans le Répertoire de Travail
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Avertissement Pédagogique : Non-Exhaustivité du Cahier des Charges
+<span class="screen-reader-only">Important</span>Avertissement Pédagogique : Non-Exhaustivité du Cahier des Charges
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <p>La liste de vérifications ci-après constitue un <strong>socle contractuel minimal</strong>, absolument pas une liste exhaustive.</p>
 <p>Les workflows GitHub Actions du dépôt exécutent la commande :</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena <span class="at">--cov-fail-under</span><span class="op">=</span>85</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena <span class="at">--cov-fail-under</span><span class="op">=</span>85</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Pour franchir le seuil strict de <strong><span class="math inline">\(85\%\)</span> de couverture</strong> imposé par la CI, chaque équipe doit concevoir ses propres tests complémentaires : cas aux limites, Pokémon mono-types (<code>type_2=None</code>), comportement de <code>reset_stats()</code> sur cible K.-O., arrondis mathématiques, etc.</p>
 </div>
 </div>
@@ -1314,16 +1320,16 @@ Avertissement Pédagogique : Non-Exhaustivité du Cahier des Charges
 <section id="étape-1-branche-de-travail-git" class="level3">
 <h3 class="anchored" data-anchor-id="étape-1-branche-de-travail-git">Étape 1 : Branche de Travail Git</h3>
 <p>Chaque équipe se place sur <code>dev</code>, synchronise le dépôt distant et ouvre une branche de test :</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/pyarena-officiel</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/pyarena-officiel</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin dev</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/tests-models</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/tests-models</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="étape-2-fixtures-centralisées-testsconftest.py" class="level3">
 <h3 class="anchored" data-anchor-id="étape-2-fixtures-centralisées-testsconftest.py">Étape 2 : Fixtures Centralisées (<code>tests/conftest.py</code>)</h3>
 <p>Dans le fichier <code>tests/conftest.py</code> de votre projet officiel, déclarez des profils de test représentatifs dont voici un exemple:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/conftest.py</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/conftest.py</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.models <span class="im">import</span> Fighter</span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -1355,7 +1361,7 @@ Avertissement Pédagogique : Non-Exhaustivité du Cahier des Charges
 <span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>        attack_base<span class="op">=</span><span class="dv">84</span>,</span>
 <span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>        defense_base<span class="op">=</span><span class="dv">78</span>,</span>
 <span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>        speed_base<span class="op">=</span><span class="dv">100</span>,</span>
-<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="étape-3-conception-de-la-suite-de-tests-des-modèles-teststest_models.py" class="level3">
@@ -1429,18 +1435,18 @@ Avertissement Pédagogique : Non-Exhaustivité du Cahier des Charges
 <ol type="1">
 <li>Lancez la suite de tests et assurez-vous d’atteindre le seuil réglementaire de <span class="math inline">\(85\%\)</span> :</li>
 </ol>
-<div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <ol start="2" type="1">
 <li>Formatez et auditez votre code avec Ruff :</li>
 </ol>
-<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check tests/</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> format tests/</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check tests/</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> format tests/</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <ol start="3" type="1">
 <li>Commitez et poussez votre branche sur GitHub :</li>
 </ol>
-<div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add tests/</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add tests/</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"test(core): suite de tests unitaires pour Fighter, BaseFighter et BattleResult"</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin feat/tests-models</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin feat/tests-models</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <ol start="4" type="1">
 <li>Ouvrez votre <strong>Pull Request</strong> sur GitHub ciblant <code>dev</code>. Vérifiez que le pipeline d’intégration continue GitHub Actions s’exécute avec succès (<code>All checks have passed</code>) avant de requérir l’approbation de votre équipe pour la fusion.</li>
 </ol>
@@ -1502,13 +1508,14 @@ Avertissement Pédagogique : Non-Exhaustivité du Cahier des Charges
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
