@@ -2,7 +2,7 @@
 title: "Cours-TP : Ingestion de Données, API REST, Cache Disque & Mocking"
 subtitle: "De la Capsule Corp aux Pipelines Résilients de PyArena"
 author: "Bensaid Bilel"
-date: "16 Octobre 2026"
+date: "06 Novembre 2026"
 lang: fr
 format:
   html:
@@ -19,6 +19,7 @@ format:
 Lors des séances précédentes, nous avons modélisé nos entités en programmation orientée objet (`core/models`) et sanctuarisé leurs comportements par des suites de tests unitaires rigoureuses (`pytest`). Cependant, nos combattants étaient jusqu'ici instanciés « en dur » dans le code source (`BaseWarrior("Goku", 100, ...)`).
 
 Dans un système logiciel professionnel ou un projet de Data Science, **les données ne sont jamais codées en dur** :
+
 * Elles proviennent d'**API REST distantes** soumises aux aléas du réseau, aux pannes de serveurs et aux limitations de débit (*rate-limiting*).
 * Elles transitent sous des formats hétérogènes : charges utiles JSON arborescentes, matrices de coefficients (CSV) ou structures géoréférencées (GeoJSON).
 * Elles doivent être persistées localement via un patron de **cache disque résilient (*Cache-Aside*)** pour garantir la haute disponibilité et le fonctionnement hors-ligne de l'application.
@@ -32,7 +33,7 @@ Dans un système logiciel professionnel ou un projet de Data Science, **les donn
 | :--- | :--- | :---: |
 | **Partie 0** | Architecture du module `io/` & Nouvelles dépendances | Manipulation guidée |
 | **Partie 1** | Protocole HTTP, Requêtes REST & Exceptions Réseau | Cours & Exercice 1 (`fetcher.py`) |
-| **Partie 2** | Stratégie de Cache Disque Résilient (*Cache-Aside*) | **Guidage fort** (Squelette fourni) |
+| **Partie 2** | Stratégie de Cache Disque Résilient (*Cache-Aside*) | **Guider** (Squelette fourni) |
 | **Partie 3** | Mini-Cours Pandas : Matrices Tabulaires & Indexation Nommée | Cours & Exercice 3 (`loader.py`) |
 | **Partie 4** | Ingestion de Données Spatiales : Le Standard GeoJSON | **Semi-autonomie** (`loader.py`) |
 | **Partie 5** | Tests Unitaires Isolés & Mocking Réseau (`requests-mock`) | **Autonomie complète** (`test_fetcher.py`) |
@@ -50,6 +51,7 @@ En architecture logicielle, le principe de **Séparation des Responsabilités (*
 Si PokéAPI change d'adresse ou si le format d'un fichier CSV évolue, seuls les modules du sous-paquet `io/` doivent être modifiés, sans impacter une seule ligne de nos classes de combat.
 
 Notre arborescence s'organise ainsi :
+
 ```text
 tp-exercices/
 ├── pyproject.toml
@@ -59,7 +61,7 @@ tp-exercices/
 ├── src/
 │   └── zarena/
 │       ├── exceptions.py
-│       ├── warriors.py
+│       ├── warriors.py #autres fichiers (battle.py, ...)
 │       └── io/               # SOUS-PAQUET D'INGESTION
 │           ├── __init__.py
 │           ├── fetcher.py    # Client API REST avec cache disque
@@ -131,15 +133,19 @@ touch src/zarena/io/__init__.py
 Pour récupérer les caractéristiques d'un guerrier stocké sur les serveurs de la Capsule Corp, notre machine locale doit initier une conversation à travers le Web. Le protocole universel de cet échange est **HTTP**.
 
 Une transaction REST se décompose en deux phases :
+
 1. **La Requête Client :** notre script envoie un message contenant :
+   
    * Une méthode : **`GET`** (demande de lecture sans modification d'état).
-   * Une URL d'accès : `https://.../api/warriors/1.json`.
+   * Une URL d'accès : `https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/api/warriors/1.json`.
    * Des en-têtes optionnels (*Headers*) pour l'authentification ou le format attendu.
 2. **La Réponse Serveur :** le serveur renvoie :
+   
    * Un **Code de Statut HTTP** numérique indiquant le sort de la requête.
    * Un corps de message (*Payload*), le plus souvent sous la forme d'une chaîne de caractères structurée en **JSON**.
 
 ### Les Codes de Statut Indispensables en Data Science
+
 * **`200 OK` :** Requête validée, données disponibles.
 * **`404 Not Found` :** L'identifiant demandé n'existe pas en base.
 * **`429 Too Many Requests` :** Quota de requêtes dépassé (blocage anti-spam).
@@ -154,7 +160,7 @@ En Python, la bibliothèque standard d'ingestion HTTP est **`requests`** :
 ```python
 import requests
 
-url = "https://raw.githubusercontent.com/.../api/warriors/1.json"
+url = "https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/api/warriors/1.json"
 reponse = requests.get(url, timeout=5.0)
 
 if reponse.status_code == 200:
@@ -190,9 +196,11 @@ class DataFetchError(ZArenaError):
 Dans `src/zarena/io/fetcher.py`, concevez la classe `CapsuleCorpFetcher`.
 
 ### Cahier des charges
+
 1. Constructeur `__init__(self, base_url: str) -> None` :
    * Enregistre l'URL racine en supprimant un éventuel slash terminal : `self.base_url = base_url.rstrip("/")`.
 2. Méthode `fetch_remote_warrior(self, warrior_id: int) -> dict` :
+   
    * Construit l'URL cible : `f"{self.base_url}/warriors/{warrior_id}.json"`.
    * Configure un en-tête `headers={"User-Agent": "ZArena-Pipeline/1.0"}` pour s'identifier proprement auprès du serveur.
    * Émet la requête `requests.get(url, headers=headers, timeout=5.0)`.
@@ -264,6 +272,7 @@ class CapsuleCorpFetcher:
 ## 2.1 Motivation : Pourquoi et Comment Mettre en Cache ?
 
 Interroger le réseau pour des données immuables est une anomalie de conception :
+
 * **Latence :** Une requête HTTP prend entre 50 et 500 ms, alors qu'une lecture disque locale prend moins de 0.2 ms (un gain d'un facteur 1 000).
 * **Résilience :** Si le réseau se coupe pendant une simulation, les données déjà téléchargées doivent rester accessibles.
 * **Sobriété :** Évite de surcharger les serveurs distants ou de subir des blocages d'IP.
