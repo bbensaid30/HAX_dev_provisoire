@@ -1,0 +1,10 @@
+{
+  "id": 1,
+  "name": "Son Goku",
+  "race": "Saiyan",
+  "hp_base": 120,
+  "attack_base": 85,
+  "defense_base": 70,
+  "ki_base": 90,
+  "special_move": "Kamehameha"
+}

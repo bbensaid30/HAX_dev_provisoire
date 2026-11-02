@@ -1,0 +1,10 @@
+{
+  "id": 2,
+  "name": "Vegeta",
+  "race": "Saiyan",
+  "hp_base": 110,
+  "attack_base": 90,
+  "defense_base": 65,
+  "ki_base": 85,
+  "special_move": "Final Flash"
+}
