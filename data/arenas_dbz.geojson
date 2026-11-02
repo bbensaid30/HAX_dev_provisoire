@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.6917, 35.6895]
+      },
+      "properties": {
+        "id": "arena-01",
+        "name": "Championnat du Monde des Arts Martiaux",
+        "environment": "Plaine",
+        "capacity": 10000
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.2558, 43.7696]
+      },
+      "properties": {
+        "id": "arena-02",
+        "name": "Palais de Kamisama",
+        "environment": "Sanctuaire",
+        "capacity": 500
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [3.8767, 43.6108]
+      },
+      "properties": {
+        "id": "arena-03",
+        "name": "Arène des Jeux de Cell",
+        "environment": "Désert",
+        "capacity": 50000
+      }
+    }
+  ]
+}
