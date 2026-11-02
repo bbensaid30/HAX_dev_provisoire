@@ -1,0 +1,954 @@
+---
+title: "Cours-TP : Ingestion de Données, API REST, Cache Disque & Mocking"
+subtitle: "De la Capsule Corp aux Pipelines Résilients de PyArena"
+author: "Bensaid Bilel"
+date: "16 Octobre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire de la séance"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Démarche Pédagogique
+
+Lors des séances précédentes, nous avons modélisé nos entités en programmation orientée objet (`core/models`) et sanctuarisé leurs comportements par des suites de tests unitaires rigoureuses (`pytest`). Cependant, nos combattants étaient jusqu'ici instanciés « en dur » dans le code source (`BaseWarrior("Goku", 100, ...)`).
+
+Dans un système logiciel professionnel ou un projet de Data Science, **les données ne sont jamais codées en dur** :
+* Elles proviennent d'**API REST distantes** soumises aux aléas du réseau, aux pannes de serveurs et aux limitations de débit (*rate-limiting*).
+* Elles transitent sous des formats hétérogènes : charges utiles JSON arborescentes, matrices de coefficients (CSV) ou structures géoréférencées (GeoJSON).
+* Elles doivent être persistées localement via un patron de **cache disque résilient (*Cache-Aside*)** pour garantir la haute disponibilité et le fonctionnement hors-ligne de l'application.
+* **Le défi des tests automatisés :** une chaîne d'intégration continue (GitHub Actions) ne doit **jamais** dépendre d'une connexion Internet active ni surcharger les serveurs distants. Il est obligatoire d'apprendre à **simuler (*mocker*) les échanges réseau**.
+
+---
+
+## Découpage de la Séance & Progression
+
+| Phase | Thématique abordée | Degré d'autonomie |
+| :--- | :--- | :---: |
+| **Partie 0** | Architecture du module `io/` & Nouvelles dépendances | Manipulation guidée |
+| **Partie 1** | Protocole HTTP, Requêtes REST & Exceptions Réseau | Cours & Exercice 1 (`fetcher.py`) |
+| **Partie 2** | Stratégie de Cache Disque Résilient (*Cache-Aside*) | **Guidage fort** (Squelette fourni) |
+| **Partie 3** | Mini-Cours Pandas : Matrices Tabulaires & Indexation Nommée | Cours & Exercice 3 (`loader.py`) |
+| **Partie 4** | Ingestion de Données Spatiales : Le Standard GeoJSON | **Semi-autonomie** (`loader.py`) |
+| **Partie 5** | Tests Unitaires Isolés & Mocking Réseau (`requests-mock`) | **Autonomie complète** (`test_fetcher.py`) |
+| **Partie 6** | Audit de Couverture & Chasse aux Branches Mortes | Diagnostic guidé |
+| **Synthèse** | **Devoir Maison Guidé (Hors séance) :** Pipeline `PyArena` | Projet Git en équipe |
+
+---
+
+# Partie 0 : Architecture du Module `io/` & Configuration
+
+## 0.1 Pourquoi un Sous-Paquet `io/` Dédié ?
+
+En architecture logicielle, le principe de **Séparation des Responsabilités (*Separation of Concerns*)** impose d'isoler strictement la logique métier (nos modèles `BaseWarrior`, `SaiyanWarrior` sous `core/`) des mécanismes d'entrée/sortie réseau et fichier (**I/O** pour *Input/Output*).
+
+Si PokéAPI change d'adresse ou si le format d'un fichier CSV évolue, seuls les modules du sous-paquet `io/` doivent être modifiés, sans impacter une seule ligne de nos classes de combat.
+
+Notre arborescence s'organise ainsi :
+```text
+tp-exercices/
+├── pyproject.toml
+├── data/
+│   ├── styles_combat.csv     # Matrice tabulaire des multiplicateurs
+│   └── arenas_dbz.geojson    # Coordonnées et métadonnées des arènes
+├── src/
+│   └── zarena/
+│       ├── exceptions.py
+│       ├── warriors.py
+│       └── io/               # SOUS-PAQUET D'INGESTION
+│           ├── __init__.py
+│           ├── fetcher.py    # Client API REST avec cache disque
+│           └── loader.py     # Chargeur de fichiers tabulaires et spatiaux
+└── tests/
+    ├── conftest.py
+    └── test_fetcher.py       # Tests avec isolation réseau (Mocking)
+```
+
+---
+
+## 0.2 Mise à Jour de `pyproject.toml`
+
+Ouvrez `pyproject.toml` à la racine pour y déclarer les dépendances nécessaires à l'ingestion (`requests`, `pandas`) et au test réseau (`requests-mock`) :
+
+```toml
+[project]
+name = "zarena"
+version = "0.1.0"
+description = "Moteur de simulation d'arène de combat Dragon Ball Z"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "requests-mock>=1.11.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+```
+
+Installez ces bibliothèques dans votre environnement virtuel :
+```bash
+source .venv/bin/activate
+pip install -e ".[dev]"
+```
+
+Créez le sous-dossier d'ingestion et ses fichiers d'initialisation :
+```bash
+mkdir -p src/zarena/io data
+touch src/zarena/io/__init__.py
+```
+
+---
+
+> *Transition : Nos outils sont installés. Abordons maintenant la première porte d'entrée des données : la consommation d'une API distante via le protocole HTTP.*
+
+---
+
+# Partie 1 : Le Protocole HTTP, Requêtes REST & Exceptions Réseau
+
+## 1.1 Motivation : Comment Dialoguent les Systèmes Modernes ?
+
+Pour récupérer les caractéristiques d'un guerrier stocké sur les serveurs de la Capsule Corp, notre machine locale doit initier une conversation à travers le Web. Le protocole universel de cet échange est **HTTP**.
+
+Une transaction REST se décompose en deux phases :
+1. **La Requête Client :** notre script envoie un message contenant :
+   * Une méthode : **`GET`** (demande de lecture sans modification d'état).
+   * Une URL d'accès : `https://.../api/warriors/1.json`.
+   * Des en-têtes optionnels (*Headers*) pour l'authentification ou le format attendu.
+2. **La Réponse Serveur :** le serveur renvoie :
+   * Un **Code de Statut HTTP** numérique indiquant le sort de la requête.
+   * Un corps de message (*Payload*), le plus souvent sous la forme d'une chaîne de caractères structurée en **JSON**.
+
+### Les Codes de Statut Indispensables en Data Science
+* **`200 OK` :** Requête validée, données disponibles.
+* **`404 Not Found` :** L'identifiant demandé n'existe pas en base.
+* **`429 Too Many Requests` :** Quota de requêtes dépassé (blocage anti-spam).
+* **`500 Internal Server Error` :** Incident ou plantage sur le serveur distant.
+
+---
+
+## 1.2 La Bibliothèque `requests` et l'Impératif Industriel du Timeout
+
+En Python, la bibliothèque standard d'ingestion HTTP est **`requests`** :
+
+```python
+import requests
+
+url = "https://raw.githubusercontent.com/.../api/warriors/1.json"
+reponse = requests.get(url, timeout=5.0)
+
+if reponse.status_code == 200:
+    data = reponse.json()  # Décode la chaîne JSON en dictionnaire Python
+    print(f"Combattant : {data['name']}")
+```
+
+::: {.callout-danger}
+### Règle d'or en Production : Toujours définir `timeout`
+Par défaut, si l'argument `timeout` est omis, `requests.get()` attend **indéfiniment** si le serveur distant ne répond pas. Votre pipeline de données, votre boucle d'entraînement ou votre serveur web peuvent rester gelés pendant des heures. **Tout appel réseau doit obligatoirement comporter un délai d'expiration (ex. `timeout=5.0`).**
+:::
+
+---
+
+## 1.3 Encapsuler les Pannes Réseau dans une Exception Métier
+
+Si la connexion Wi-Fi s'interrompt ou si le serveur distant renvoie une erreur 500, `requests` déclenche des exceptions internes telles que `requests.exceptions.ConnectionError` ou `requests.exceptions.Timeout`.
+
+Un code propre applique le principe de l'**Encapsulation des Exceptions** : le moteur de combat ne doit pas manipuler d'exceptions réseau brutes. Le composant d'ingestion intercepte ces anomalies et lève une exception du domaine : **`DataFetchError`**.
+
+Ajoutez cette exception dans `src/zarena/exceptions.py` :
+```python
+# src/zarena/exceptions.py (Ajout)
+class DataFetchError(ZArenaError):
+    """Levée si l'API distante est injoignable ET qu'aucun cache local n'existe."""
+    pass
+```
+
+---
+
+## 1.4 Exercice 1 : Le Récepteur HTTP Distant [Guidage Moyen]
+
+Dans `src/zarena/io/fetcher.py`, concevez la classe `CapsuleCorpFetcher`.
+
+### Cahier des charges
+1. Constructeur `__init__(self, base_url: str) -> None` :
+   * Enregistre l'URL racine en supprimant un éventuel slash terminal : `self.base_url = base_url.rstrip("/")`.
+2. Méthode `fetch_remote_warrior(self, warrior_id: int) -> dict` :
+   * Construit l'URL cible : `f"{self.base_url}/warriors/{warrior_id}.json"`.
+   * Configure un en-tête `headers={"User-Agent": "ZArena-Pipeline/1.0"}` pour s'identifier proprement auprès du serveur.
+   * Émet la requête `requests.get(url, headers=headers, timeout=5.0)`.
+   * Si `response.status_code == 200`, renvoie le dictionnaire issu de `response.json()`.
+   * Si le statut est différent de 200 (ex. 404), lever `DataFetchError(f"Échec API : code {response.status_code}")`.
+   * En cas de problème de connexion (interception de `requests.RequestException`), lever `DataFetchError` en encapsulant la cause (`from err`).
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`src/zarena/io/fetcher.py`) :
+```python
+# src/zarena/io/fetcher.py
+import requests
+from zarena.exceptions import DataFetchError
+
+
+class CapsuleCorpFetcher:
+    """Client HTTP pour l'ingestion des combattants de la Capsule Corp."""
+
+    def __init__(self, base_url: str) -> None:
+        self.base_url = base_url.rstrip("/")
+
+    def fetch_remote_warrior(self, warrior_id: int) -> dict:
+        """Télécharge les données d'un combattant depuis l'API distante."""
+        # TODO: Construire l'URL, ajouter les headers, appeler requests.get(..., timeout=5.0)
+        # TODO: Lever DataFetchError en cas d'erreur de statut ou de réseau
+        pass
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`src/zarena/io/fetcher.py`) :
+```python
+# src/zarena/io/fetcher.py
+import requests
+from zarena.exceptions import DataFetchError
+
+
+class CapsuleCorpFetcher:
+    """Client HTTP pour l'ingestion des combattants de la Capsule Corp."""
+
+    def __init__(self, base_url: str) -> None:
+        self.base_url = base_url.rstrip("/")
+
+    def fetch_remote_warrior(self, warrior_id: int) -> dict:
+        url = f"{self.base_url}/warriors/{warrior_id}.json"
+        headers = {"User-Agent": "ZArena-Pipeline/1.0"}
+        try:
+            response = requests.get(url, headers=headers, timeout=5.0)
+            if response.status_code != 200:
+                raise DataFetchError(
+                    f"Échec de l'API : statut HTTP {response.status_code} sur {url}"
+                )
+            return response.json()
+        except requests.RequestException as err:
+            raise DataFetchError(
+                f"L'API distante est injoignable : {err}"
+            ) from err
+```
+:::
+
+---
+
+> *Transition : Notre client HTTP fonctionne. Mais que se passe-t-il si nous simulons un tournoi de 10 000 combats ? Réémettre une requête HTTP pour chaque combattant saturerait le réseau et ralentirait massivement le programme. Nous devons mettre en place un cache local.*
+
+---
+
+# Partie 2 : Stratégie de Cache Disque (*Cache-Aside Pattern*)
+
+## 2.1 Motivation : Pourquoi et Comment Mettre en Cache ?
+
+Interroger le réseau pour des données immuables est une anomalie de conception :
+* **Latence :** Une requête HTTP prend entre 50 et 500 ms, alors qu'une lecture disque locale prend moins de 0.2 ms (un gain d'un facteur 1 000).
+* **Résilience :** Si le réseau se coupe pendant une simulation, les données déjà téléchargées doivent rester accessibles.
+* **Sobriété :** Évite de surcharger les serveurs distants ou de subir des blocages d'IP.
+
+Le patron architectural **Cache-Aside** répond à ce besoin :
+
+```text
+               ┌────────────────────────┐
+               │ get_warrior_data(id)   │
+               └───────────┬────────────┘
+                           │
+                 [Le fichier existe ?]
+                 /                              OUI  /                     \  NON
+               ▼                       ▼
+    ┌──────────────────────┐   ┌──────────────────────┐
+    │ Charger depuis le    │   │ Télécharger depuis   │
+    │ disque local (JSON)  │   │ l'API distante       │
+    └──────────────────────┘   └──────────┬───────────┘
+                                          │
+                               [Sauvegarder sur le disque]
+                                          │
+                                          ▼
+                               ┌──────────────────────┐
+                               │ Renvoyer les données │
+                               └──────────────────────┘
+```
+
+---
+
+## 2.2 Gestion des Chemins avec `pathlib.Path`
+
+Pour créer et manipuler des dossiers de cache sans dépendre du système d'exploitation (Linux, macOS ou Windows), on utilise **`pathlib.Path`** :
+
+```python
+import json
+from pathlib import Path
+
+repertoire = Path("data/cache/warriors")
+repertoire.mkdir(parents=True, exist_ok=True)  # Crée l'arborescence complète si absente
+
+fichier_cible = repertoire / "1.json"
+
+if fichier_cible.exists():
+    with open(fichier_cible, "r", encoding="utf-8") as f:
+        data = json.load(f)
+```
+
+---
+
+## 2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guidage Fort]
+
+Enrichissez `CapsuleCorpFetcher` dans `src/zarena/io/fetcher.py`.
+
+### Cahier des charges
+1. Modifiez `__init__(self, base_url: str, cache_dir: str | Path = "data/cache") -> None` :
+   * Enregistre `self.base_url`.
+   * Convertit `cache_dir` en objet `Path` et crée le répertoire s'il n'existe pas :
+     `self.cache_dir = Path(cache_dir)`
+     `self.cache_dir.mkdir(parents=True, exist_ok=True)`
+2. Implémentez la méthode `get_warrior_data(self, warrior_id: int) -> dict` :
+   * Détermine le chemin local : `cache_file = self.cache_dir / f"{warrior_id}.json"`.
+   * **Étape 1 (Cache-Hit) :** Si `cache_file.exists()`, charger le fichier JSON et le renvoyer directement sans aucun appel réseau.
+   * **Étape 2 (Cache-Miss) :** Si le fichier n'existe pas, appeler `self.fetch_remote_warrior(warrior_id)`.
+   * **Étape 3 (Persistence) :** Sauvegarder la charge utile reçue dans `cache_file` avec `json.dump(..., indent=2)`.
+   * **Étape 4 (Retour) :** Renvoyer le dictionnaire.
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`src/zarena/io/fetcher.py`) :
+```python
+import json
+from pathlib import Path
+import requests
+from zarena.exceptions import DataFetchError
+
+
+class CapsuleCorpFetcher:
+    """Client d'ingestion robuste avec stratégie de mise en cache locale."""
+
+    def __init__(self, base_url: str, cache_dir: str | Path = "data/cache") -> None:
+        self.base_url = base_url.rstrip("/")
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+    def fetch_remote_warrior(self, warrior_id: int) -> dict:
+        url = f"{self.base_url}/warriors/{warrior_id}.json"
+        headers = {"User-Agent": "ZArena-Pipeline/1.0"}
+        try:
+            response = requests.get(url, headers=headers, timeout=5.0)
+            if response.status_code != 200:
+                raise DataFetchError(
+                    f"Échec de l'API : statut HTTP {response.status_code}"
+                )
+            return response.json()
+        except requests.RequestException as err:
+            raise DataFetchError(
+                f"API distante injoignable : {err}"
+            ) from err
+
+    def get_warrior_data(self, warrior_id: int) -> dict:
+        cache_file = self.cache_dir / f"{warrior_id}.json"
+
+        # 1. Stratégie Cache : le fichier est-il présent sur le disque ?
+        if cache_file.exists():
+            with open(cache_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+
+        # 2. Absence de cache : interrogation réseau distante
+        data = self.fetch_remote_warrior(warrior_id)
+
+        # 3. Écriture du cache local
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+        return data
+```
+:::
+
+---
+
+> *Transition : Les caractéristiques individuelles de nos combattants sont désormais ingérées et mises en cache. Mais qu'en est-il des lois globales de l'arène, comme les multiplicateurs d'affinité physique entre styles d'attaque et physiologies ? C'est le rôle des données tabulaires et de la bibliothèque Pandas.*
+
+---
+
+# Partie 3 : Mini-Cours Pratique : Pandas & Matrices Tabulaires
+
+## 3.1 Motivation : Pourquoi Pandas ? De l'Indice Aveugle à l'Étiquette Sémantique
+
+Dans l'arène de combat, les dégâts d'une attaque dépendent de l'affinité entre la nature de l'attaque portée et la physiologie de la cible :
+* Une frappe physique (`Corps-à-corps`) est absorbée par le blindage d'un `Cyborg` ($	imes 0{,}5$).
+* Une décharge d'énergie (`Ki`) transperce un combattant ordinaire ($	imes 1{,}5$) mais est absorbée par un `Cyborg` ($	imes 0{,}5$).
+* Une technique occulte (`Magie`) contourne les blindages technologiques ($	imes 2{,}0$).
+
+Si nous stockions cette table dans un tableau NumPy brut $A \in \mathbb{R}^{4 \times 4}$ :
+```python
+multiplicateur = A[1, 3]  # Que représentent l'indice 1 et l'indice 3 ?
+```
+Le code devient opaque, impossible à relire et vulnérable aux inversions ligne/colonne.
+
+**Pandas** résout ce problème d'ingénierie en introduisant **l'indexation nommée** : chaque ligne et chaque colonne est identifiée par une étiquette explicite.
+
+---
+
+## 3.2 Intégration sans Rupture de Compatibilité avec `warriors.py`
+
+Comment cette matrice s'articule-t-elle avec le code existant de `warriors.py` sans casser les classes ou les tests précédents ?
+
+1. **Aucun changement sur `take_damage(self, amount: int)` :** la méthode continue de recevoir un montant brut de dégâts entiers. Pour `Cyborg`, le blindage `shield` continue de s'appliquer en réduction finale.
+2. **Attribut `race` rétro-compatible :** nos classes de combattants définissent simplement un attribut ou une propriété `race` avec une valeur par défaut cohérente :
+   * `BaseWarrior` possède `self.race: str = "Terrien"`.
+   * `SaiyanWarrior` possède `self.race: str = "Saiyan"`.
+   * `Cyborg` possède `self.race: str = "Cyborg"`.
+   Toutes les signatures existantes restent valides : `BaseWarrior("Krilin", 100)` fonctionne exactement comme avant.
+3. **Le calcul d'assaut modulé :** lors d'un affrontement, le moteur de match calcule :
+   $$\text{dégâts effectifs} = \lfloor \text{attaquant.execute\_attack()} \times \text{multiplicateur} \rfloor$$
+   puis transmet ce montant à `défenseur.take_damage(dégâts effectifs)`.
+
+---
+
+## 3.3 Les Deux Objets Fondamentaux de Pandas & Sélection `.loc`
+
+1. **La `Series` :** Un tableau unidimensionnel indexé (une colonne nommée).
+2. **Le `DataFrame` :** Une table bidimensionnelle composée de plusieurs `Series` partageant le même index de lignes.
+
+Créez le fichier `data/styles_combat.csv` :
+```csv
+style,Terrien,Saiyan,Namek,Cyborg
+Corps-a-corps,1.0,1.0,1.2,0.5
+Ki,1.5,1.0,1.0,0.5
+Magie,1.2,1.5,1.0,2.0
+Technologie,1.0,1.2,1.5,1.0
+```
+
+Chargeons cette matrice avec Pandas en désignant la première colonne comme index des lignes :
+```python
+import pandas as pd
+
+df = pd.read_csv("data/styles_combat.csv", index_col=0)
+print(df)
+```
+
+Affichage console :
+```text
+               Terrien  Saiyan  Namek  Cyborg
+style                                        
+Corps-a-corps      1.0     1.0    1.2     0.5
+Ki                 1.5     1.0    1.0     0.5
+Magie              1.2     1.5    1.0     2.0
+Technologie        1.0     1.2    1.5     1.0
+```
+
+Pour extraire une valeur à l'intersection d'une ligne et d'une colonne étiquetées, on utilise **`.loc[ligne, colonne]`** :
+```python
+coeff = float(df.loc["Magie", "Cyborg"])  # Renvoie exactement 2.0
+```
+
+::: {.callout-note}
+### Performance en Simulation Massive (Data Science Reflex)
+L'indexation `.loc` de Pandas apporte confort et sécurité lors du chargement. En revanche, dans une boucle de Monte Carlo exécutant $100\,000$ duels, `.loc` introduit une surcharge sensible. L'astuce d'ingénieur consiste à convertir le DataFrame en dictionnaire imbriqué une seule fois :
+```python
+lookup = df.to_dict()  # Accès direct lookup["Cyborg"]["Magie"] 50x plus rapide !
+```
+:::
+
+---
+
+## 3.4 Exercice 3 : Ingestion de la Matrice de Combat (`src/zarena/io/loader.py`)
+
+Créez le fichier `src/zarena/io/loader.py`.
+
+### Cahier des charges
+1. Implémentez la fonction `load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -> pd.DataFrame` :
+   * Vérifie que le fichier existe (lever `FileNotFoundError` sinon).
+   * Charge le fichier via `pd.read_csv(filepath, index_col=0)`.
+   * Convertit l'ensemble des valeurs numériques en flottants avec `.astype(float)`.
+   * Retourne le DataFrame.
+2. Implémentez la fonction `get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str) -> float` :
+   * Vérifie que `attack_style` est bien présent dans `df.index` et que `defender_race` est présent dans `df.columns`. Si l'une des clés est absente, lever `ValueError(f"Style ou race non répertorié : {attack_style}, {defender_race}")`.
+   * Retourne le coefficient extrait converti en `float`.
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`src/zarena/io/loader.py`) :
+```python
+from pathlib import Path
+import pandas as pd
+
+
+def load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -> pd.DataFrame:
+    """Charge et valide la matrice des multiplicateurs de style de combat."""
+    path = Path(filepath)
+    if not path.is_file():
+        raise FileNotFoundError(f"Fichier de styles de combat introuvable : {path}")
+
+    df = pd.read_csv(path, index_col=0)
+    return df.astype(float)
+
+
+def get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str) -> float:
+    """Extrait le coefficient multiplicateur à l'intersection du style et de la race."""
+    if attack_style not in df.index:
+        raise ValueError(f"Style d'attaque non répertorié : {attack_style}")
+    if defender_race not in df.columns:
+        raise ValueError(f"Race défensive non répertoriée : {defender_race}")
+
+    return float(df.loc[attack_style, defender_race])
+```
+:::
+
+---
+
+> *Transition : Nous savons ingérer des combattants distants et des matrices tabulaires. Il nous reste un dernier type de données capital pour le projet final : les données géospatiales décrivant les arènes régionales sur une carte.*
+
+---
+
+# Partie 4 : Ingestion de Données Spatiales : Le Format GeoJSON
+
+## 4.1 Motivation : Qu'est-ce que le GeoJSON et à quoi sert-il ?
+
+Dans le projet de fin de semestre, les tournois ne se déroulent pas dans le vide : ils prennent place dans des arènes réparties sur le territoire (les arènes d'Occitanie : Montpellier, Toulouse, Nîmes...). Dans le jalon final, ces arènes seront projetées sur une carte interactive via Streamlit et Folium.
+
+Faut-il installer des bibliothèques cartographiques lourdes (GDAL, GeoPandas) pour lire ces données ? **Absolument pas.**
+
+Le format **GeoJSON (IETF RFC 7946)** n'est rien d'autre qu'un **fichier texte JSON standard** qui organise les données géographiques selon une nomenclature universelle :
+
+```json
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [3.8767, 43.6108]  // ATTENTION : [Longitude, Latitude]
+      },
+      "properties": {
+        "id": "arena-01",
+        "name": "Arène de Montpellier",
+        "capacity": 15000
+      }
+    }
+  ]
+}
+```
+
+::: {.callout-warning}
+### Piège Fréquent : L'Ordre des Coordonnées
+En cartographie mathématique et dans la norme GeoJSON, les coordonnées sont **toujours** ordonnées sous la forme `[Longitude, Latitude]` (c'est-à-dire $[X, Y]$ dans le plan cartésien), et non `[Latitude, Longitude]` !
+:::
+
+---
+
+## 4.2 Création du Fichier d'Arènes DBZ
+
+Créez le fichier `data/arenas_dbz.geojson` :
+```json
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.6917, 35.6895]
+      },
+      "properties": {
+        "id": "arena-01",
+        "name": "Championnat du Monde",
+        "environment": "Plaine",
+        "capacity": 10000
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.2558, 43.7696]
+      },
+      "properties": {
+        "id": "arena-02",
+        "name": "Palais de Kamisama",
+        "environment": "Sanctuaire",
+        "capacity": 500
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [3.8767, 43.6108]
+      },
+      "properties": {
+        "id": "arena-03",
+        "name": "Jeux de Cell",
+        "environment": "Désert",
+        "capacity": 50000
+      }
+    }
+  ]
+}
+```
+
+---
+
+## 4.3 Exercice 4 : Chargement Sécurisé du GeoJSON (`src/zarena/io/loader.py`)
+
+Complétez `src/zarena/io/loader.py`.
+
+### Cahier des charges
+Implémentez la fonction `load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -> dict` :
+1. Vérifie l'existence du fichier sur le disque (`FileNotFoundError`).
+2. Charge le contenu avec `json.load()`.
+3. Valide les contraintes structurelles minimales de la norme RFC 7946 :
+   * Le dictionnaire doit posséder la clé `"type"` avec la valeur `"FeatureCollection"`.
+   * Le dictionnaire doit contenir une liste sous la clé `"features"`.
+   * Si l'une de ces conditions n'est pas remplie, lever immédiatement `ValueError("Structure GeoJSON non conforme.")`.
+4. Renvoie le dictionnaire brut.
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (Ajout dans `src/zarena/io/loader.py`) :
+```python
+import json
+
+
+def load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -> dict:
+    """Charge et valide la structure formelle d'un fichier GeoJSON d'arènes."""
+    path = Path(filepath)
+    if not path.is_file():
+        raise FileNotFoundError(f"Fichier cartographique introuvable : {path}")
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    if (
+        data.get("type") != "FeatureCollection"
+        or "features" not in data
+        or not isinstance(data["features"], list)
+    ):
+        raise ValueError(
+            "Le fichier ne respecte pas le schéma GeoJSON FeatureCollection."
+        )
+
+    return data
+```
+:::
+
+---
+
+> *Transition : Notre chaîne d'ingestion complète est implémentée (API REST, cache disque, CSV Pandas, GeoJSON). Comment tester l'ensemble de ces briques dans un environnement automatisé de CI/CD sans jamais dépendre d'Internet ? C'est le rôle du Mocking.*
+
+---
+
+# Partie 5 : Tests Unitaires Isolés & Mocking Réseau (`requests-mock`)
+
+## 5.1 Pourquoi « Mocker » le Réseau dans les Tests ?
+
+Considérons ce test naïf :
+```python
+def test_recuperation_goku():
+    fetcher = CapsuleCorpFetcher("https://api.capsulecorp.com")
+    data = fetcher.get_warrior_data(1)
+    assert data["name"] == "Son Goku"
+```
+
+Ce test présente trois défauts majeurs :
+1. **Instabilité :** Si le serveur de la Capsule Corp est en maintenance, le test échoue alors que notre code fonctionne parfaitement.
+2. **Lenteur :** Exécuter 100 requêtes HTTP dans une suite de tests allonge le temps d'exécution de plusieurs minutes.
+3. **Impossibilité de tester les pannes :** Comment vérifier que notre gestionnaire d'erreurs intercepte bien une panne HTTP 500 sans faire crasher le vrai serveur de production ?
+
+**La Solution : Le Mocking.**  
+Un **Mock** est un intercepteur logiciel qui intercepte les requêtes `requests.get()` au sein même du processus Python et renvoie une réponse préenregistrée en mémoire vive, **sans qu'aucun paquet réseau ne soit émis**.
+
+---
+
+## 5.2 Utilisation de la Fixture `requests_mock`
+
+Grâce au paquet `requests-mock`, Pytest fournit la fixture **`requests_mock`** :
+
+```python
+def test_interception_reseau(requests_mock):
+    # 1. Configuration du simulateur : intercepter cette URL précise
+    url = "https://api.test.com/warriors/1.json"
+    requests_mock.get(url, json={"name": "Son Goku", "hp_base": 120}, status_code=200)
+
+    # 2. Exécution du vrai code métier
+    reponse = requests.get(url, timeout=5.0)
+
+    # 3. La réponse est instantanée et provient de la mémoire
+    assert reponse.json()["name"] == "Son Goku"
+```
+
+---
+
+## 5.3 Exercice 5 : La Suite de Tests d'Ingestion (`tests/test_fetcher.py`) [Autonomie Complète]
+
+Créez `tests/test_fetcher.py`. Vous allez concevoir la suite de tests validant la résilience du client `CapsuleCorpFetcher`.
+
+### Cahier des charges
+Rédigez les quatre tests unitaires suivants :
+1. `test_fetcher_cache_miss_queries_api_and_saves_to_disk(requests_mock, tmp_path)` :
+   * Simule une réponse HTTP 200 sur `https://api.capsulecorp.com/warriors/1.json` avec `{"id": 1, "name": "Son Goku", "hp_base": 120}`.
+   * Instancie `CapsuleCorpFetcher` en pointant son dossier de cache sur `tmp_path`.
+   * Vérifie que le fichier `tmp_path / "1.json"` n'existe pas au départ.
+   * Appelle `get_warrior_data(1)`.
+   * Constate que les données reçues sont correctes, que le fichier local a été créé sur disque et contient le JSON attendu.
+2. `test_fetcher_cache_hit_does_not_call_network(requests_mock, tmp_path)` :
+   * Écrit manuellement un fichier `1.json` dans `tmp_path` contenant `{"id": 1, "name": "Goku Local"}`.
+   * **Ne déclare aucun mock d'URL** (si une requête HTTP était émise, le test planterait immédiatement).
+   * Appelle `get_warrior_data(1)`.
+   * Vérifie que le résultat renvoyé est `"Goku Local"`.
+3. `test_fetcher_api_error_without_cache_raises_data_fetch_error(requests_mock, tmp_path)` :
+   * Simule un code HTTP 404 sur l'ID 999.
+   * Vérifie avec `pytest.raises(DataFetchError)` que la méthode refuse l'opération.
+4. `test_loader_style_matrix_and_arenas(tmp_path)` :
+   * Crée un fichier CSV temporaire dans `tmp_path` et teste `load_style_matrix` et `get_style_multiplier`.
+   * Crée un fichier GeoJSON temporaire et vérifie que `load_arenas` valide le format et lève `ValueError` si le type n'est pas `"FeatureCollection"`.
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`tests/test_fetcher.py`) :
+```python
+import json
+from pathlib import Path
+import pytest
+from zarena.exceptions import DataFetchError
+from zarena.io.fetcher import CapsuleCorpFetcher
+from zarena.io.loader import (
+    get_style_multiplier,
+    load_arenas,
+    load_style_matrix,
+)
+
+
+def test_fetcher_cache_miss_queries_api_and_saves_to_disk(
+    requests_mock, tmp_path: Path
+) -> None:
+    api_url = "https://api.capsulecorp.com"
+    warrior_payload = {"id": 1, "name": "Son Goku", "hp_base": 120}
+    requests_mock.get(f"{api_url}/warriors/1.json", json=warrior_payload)
+
+    fetcher = CapsuleCorpFetcher(base_url=api_url, cache_dir=tmp_path)
+    cache_file = tmp_path / "1.json"
+    assert cache_file.exists() is False
+
+    data = fetcher.get_warrior_data(1)
+
+    assert data["name"] == "Son Goku"
+    assert cache_file.exists() is True
+    with open(cache_file, "r", encoding="utf-8") as f:
+        saved_data = json.load(f)
+    assert saved_data == warrior_payload
+
+
+def test_fetcher_cache_hit_does_not_call_network(
+    requests_mock, tmp_path: Path
+) -> None:
+    api_url = "https://api.capsulecorp.com"
+    fetcher = CapsuleCorpFetcher(base_url=api_url, cache_dir=tmp_path)
+
+    cache_file = tmp_path / "1.json"
+    with open(cache_file, "w", encoding="utf-8") as f:
+        json.dump({"id": 1, "name": "Goku Local"}, f)
+
+    # Aucun mock déclaré : si le réseau est appelé, le test échoue
+    data = fetcher.get_warrior_data(1)
+    assert data["name"] == "Goku Local"
+
+
+def test_fetcher_api_error_without_cache_raises_data_fetch_error(
+    requests_mock, tmp_path: Path
+) -> None:
+    api_url = "https://api.capsulecorp.com"
+    requests_mock.get(f"{api_url}/warriors/999.json", status_code=404)
+
+    fetcher = CapsuleCorpFetcher(base_url=api_url, cache_dir=tmp_path)
+
+    with pytest.raises(DataFetchError, match="Échec de l'API"):
+        fetcher.get_warrior_data(999)
+
+
+def test_loader_style_matrix_and_arenas(tmp_path: Path) -> None:
+    # Test Matrice CSV
+    csv_file = tmp_path / "styles.csv"
+    csv_file.write_text(
+        "style,Saiyan,Cyborg\nCorps-a-corps,1.0,0.5\nKi,1.0,0.5\n",
+        encoding="utf-8",
+    )
+
+    df = load_style_matrix(csv_file)
+    assert df.loc["Corps-a-corps", "Cyborg"] == 0.5
+    assert get_style_multiplier(df, "Corps-a-corps", "Saiyan") == 1.0
+
+    with pytest.raises(ValueError):
+        get_style_multiplier(df, "Inconnu", "Saiyan")
+
+    # Test GeoJSON
+    geojson_file = tmp_path / "arenas.geojson"
+    geojson_file.write_text(
+        json.dumps({
+            "type": "FeatureCollection",
+            "features": [{"type": "Feature", "properties": {"name": "Test"}}],
+        }),
+        encoding="utf-8",
+    )
+    data = load_arenas(geojson_file)
+    assert data["type"] == "FeatureCollection"
+
+    bad_geojson = tmp_path / "bad.geojson"
+    bad_geojson.write_text(
+        json.dumps({"type": "InvalidCollection"}), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="GeoJSON"):
+        load_arenas(bad_geojson)
+```
+:::
+
+Exécutez vos tests pour valider le bon fonctionnement du mock :
+```bash
+pytest tests/test_fetcher.py
+```
+
+---
+
+# Partie 6 : Audit de Couverture & Bilan Qualité (15 min)
+
+Exécutez `pytest` avec analyse de couverture sur l'ensemble du sous-paquet `zarena.io` :
+
+```bash
+pytest --cov=src/zarena/io --cov-report=term-missing
+```
+
+Assurez-vous d'atteindre un score de couverture **supérieur à $95\%$** sur `fetcher.py` et `loader.py`. Si des lignes d'exceptions restent dans la colonne `Missing`, complétez vos tests unitaires.
+
+---
+
+# Devoir Maison Guidé : Pipeline d'Ingestion de PyArena (Jalon 3)
+
+*Ce travail est à réaliser en équipe d'ici le prochain TP sur votre dépôt officiel de projet (`pyarena-groupe-XX`). Il concrétise les attendus de la **Section 5 de l'Annexe Technique**.*
+
+### Objectif
+Vous allez implémenter le client d'ingestion réseau de PokéAPI avec cache disque (`DataFetcher`) ainsi que les chargeurs de données statiques (`load_type_matrix` et `load_arenas`).
+
+::: {.callout-important}
+### Respect Strict des Signatures de l'Annexe Technique
+Les bancs de test de la CI GitHub Actions reposent **strictement** sur les interfaces suivantes :
+* Module `pyarena.io.fetcher` : classe `DataFetcher`.
+* Module `pyarena.io.loader` : fonctions `load_type_matrix` et `load_arenas`.
+:::
+
+---
+
+### Étape 1 : Branche Git de Fonctionnalité
+```bash
+cd ~/pyarena-officiel
+git switch dev
+git pull origin dev
+git switch -c feat/io-pipeline
+```
+
+---
+
+### Étape 2 : Le Client d'Ingestion (`src/pyarena/io/fetcher.py`)
+Implémentez la classe `DataFetcher` conformément à la section 5.1 de l'Annexe Technique :
+
+```python
+# src/pyarena/io/fetcher.py
+from pathlib import Path
+import requests
+from pyarena.core.exceptions import DataFetchError
+
+
+class DataFetcher:
+
+    def __init__(self, cache_dir: str | Path = "data/cache") -> None:
+        """Configure le gestionnaire d'ingestion avec le dossier de stockage local."""
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.base_url = "https://pokeapi.co/api/v2/pokemon"
+
+    def get_pokemon(self, pokemon_id: int) -> dict:
+        """Récupère le dictionnaire JSON décrivant la créature.
+
+        Stratégie :
+          1. Si 'data/cache/{pokemon_id}.json' existe sur le disque, charger le fichier.
+          2. Sinon, interroger l'API PokéAPI, enregistrer la réponse dans le cache puis la renvoyer.
+          3. En cas d'échec réseau sans cache disponible, lever DataFetchError.
+        """
+        ...
+```
+
+::: {.callout-note}
+### Comprendre la Structure JSON de PokéAPI
+Contrairement à notre modèle simplifié, la vraie PokéAPI renvoie une charge utile imbriquée. Pour extraire les statistiques de base au Niveau 50 lors de l'instanciation de vos objets `Fighter`, vous utiliserez une compréhension de dictionnaire :
+```python
+# Exemple de décodage des statistiques PokéAPI
+stats_brutes = {s["stat"]["name"]: s["base_stat"] for s in payload["stats"]}
+# Donne : {'hp': 35, 'attack': 55, 'defense': 40, 'speed': 90, ...}
+```
+:::
+
+---
+
+### Étape 3 : Chargement des Données Statiques (`src/pyarena/io/loader.py`)
+
+#### Consignes Différenciées selon la Taille du Groupe :
+
+::: {.callout-note}
+### Pour les Groupes de 3 Étudiants
+* **Périmètre :** Vous travaillez avec les **5 types élémentaires de base** (Normal, Feu, Eau, Plante, Électrik).
+* Le fichier `data/types.csv` fourni dans le dépôt contient une matrice $5 \times 5$.
+* Votre fonction `load_type_matrix` charge simplement cette matrice avec `pd.read_csv(filepath, index_col=0).astype(float)`.
+:::
+
+::: {.callout-warning}
+### Pour les Groupes de 4 Étudiants (Exigence Étendue)
+* **Périmètre :** Vous devez gérer l'intégralité des **18 types officiels** de Pokémon (matrice $18 \times 18$) **ET** le calcul combiné pour les Pokémon à double-type.
+* **Calcul du multiplicateur combiné :** Si un défenseur est de type double (ex. Dracaufeu : `type_1="Feu"`, `type_2="Vol"`), le multiplicateur d'une attaque subie est le produit des multiplicateurs élémentaires individuels :  
+  $$m_{\text{total}} = m(\text{type\_attaque}, \text{type\_1}) \times m(\text{type\_attaque}, \text{type\_2})$$  
+  Ce multiplicateur prend alors ses valeurs dans $\{0\,;\, 0{,}25\,;\, 0{,}5\,;\, 1{,}0\,;\, 2{,}0\,;\, 4{,}0\}$.
+* **Génération Automatique de la Matrice 18x18 via PokéAPI :** Ne remplissez **jamais** cette matrice à la main ! Implémentez une fonction utilitaire (par exemple `build_full_type_matrix()`) qui interroge les 18 endpoints PokéAPI `https://pokeapi.co/api/v2/type/{id}` (IDs de 1 à 18).
+  Dans chaque réponse, inspectez l'objet `damage_relations` :
+  * Les types listés dans `double_damage_to` reçoivent le coefficient $2.0$.
+  * Les types listés dans `half_damage_to` reçoivent le coefficient $0.5$.
+  * Les types listés dans `no_damage_to` reçoivent le coefficient $0.0$.
+  * Tous les autres types prennent la valeur par défaut $1.0$.
+  Le DataFrame obtenu est alors exporté automatiquement vers `data/types.csv`.
+:::
+
+---
+
+### Étape 4 : Suite de Tests avec Mocking Réseau (`tests/test_io.py`)
+Rédigez la suite de tests complète sous `tests/test_io.py` en exploitant `requests_mock` et `tmp_path` :
+1. **Validation du Cache-Miss :** Vérifiez qu'une requête HTTP est émise et que le fichier est sauvegardé dans `tmp_path`.
+2. **Validation du Cache-Hit :** Vérifiez qu'un fichier préexistant dans `tmp_path` est lu directement sans solliciter le réseau.
+3. **Simulation de Panne Réseau :** Vérifiez qu'un code HTTP 500 ou une coupure réseau sans cache local lève rigoureusement `DataFetchError`.
+4. **Validation de la Matrice des Types :** Vérifiez que `load_type_matrix` charge correctement les multiplicateurs élémentaires.
+5. **Validation Cartographique :** Vérifiez que `load_arenas("data/arenes_occitanie.geojson")` renvoie la collection des arènes régionales conformes au schéma GeoJSON.
+
+---
+
+### Étape 5 : Validation Qualité, Audit de Couverture & Pull Request
+1. Vérifiez que la couverture globale de `pyarena.io` dépasse **$90\%$** :
+   ```bash
+   pytest --cov=pyarena.io --cov-report=term-missing
+   ```
+2. Formatez et auditez le code avec Ruff :
+   ```bash
+   ruff check src/ tests/
+   ruff format src/ tests/
+   ```
+3. Commitez, poussez votre branche sur GitHub et ouvrez la **Pull Request** ciblant `dev`.
