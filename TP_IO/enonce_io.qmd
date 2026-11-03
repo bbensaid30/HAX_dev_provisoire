@@ -173,6 +173,16 @@ if reponse.status_code == 200:
 Par défaut, si l'argument `timeout` est omis, `requests.get()` attend **indéfiniment** si le serveur distant ne répond pas. Votre pipeline de données, votre boucle d'entraînement ou votre serveur web peuvent rester gelés pendant des heures. **Tout appel réseau doit obligatoirement comporter un délai d'expiration (ex. `timeout=5.0`).**
 :::
 
+::: {.callout-note}
+### Note d'ingénierie : `response.raise_for_status()` vs Contrôle explicite de statut
+La bibliothèque `requests` propose la méthode native `response.raise_for_status()`, qui lève une exception `requests.exceptions.HTTPError` dès que le code HTTP est supérieur ou égal à 400 (erreurs client 4xx et serveur 5xx).
+
+Dans le cadre d'un client de données strict, nous préférons tester explicitement `if response.status_code != 200:` :
+
+1. Une API REST peut renvoyer un code `204 No Content` : pour `raise_for_status()`, c'est un succès, mais l'appel ultérieur à `response.json()` échoue avec un `JSONDecodeError`.
+2. Cela garantit le respect formel du contrat d'interface : la ressource JSON demandée doit renvoyer un statut `200 OK`, tout autre code déclenchant immédiatement notre exception métier `DataFetchError`.
+:::
+
 ---
 
 ## 1.3 Encapsuler les Pannes Réseau dans une Exception Métier
@@ -198,14 +208,14 @@ Dans `src/zarena/io/fetcher.py`, concevez la classe `CapsuleCorpFetcher`.
 ### Cahier des charges
 
 1. Constructeur `__init__(self, base_url: str) -> None` :
-   * Enregistre l'URL racine en supprimant un éventuel slash terminal : `self.base_url = base_url.rstrip("/")`.
-2. Méthode `fetch_remote_warrior(self, warrior_id: int) -> dict` :
+  Enregistre l'URL racine en supprimant un éventuel slash terminal : `self.base_url = base_url.rstrip("/")`.
+1. Méthode `fetch_remote_warrior(self, warrior_id: int) -> dict` :
    
    * Construit l'URL cible : `f"{self.base_url}/warriors/{warrior_id}.json"`.
    * Configure un en-tête `headers={"User-Agent": "ZArena-Pipeline/1.0"}` pour s'identifier proprement auprès du serveur.
    * Émet la requête `requests.get(url, headers=headers, timeout=5.0)`.
    * Si `response.status_code == 200`, renvoie le dictionnaire issu de `response.json()`.
-   * Si le statut est différent de 200 (ex. 404), lever `DataFetchError(f"Échec API : code {response.status_code}")`.
+   * Si le statut est différent de 200 (ex. 204), lever `DataFetchError(f"Échec API : code {response.status_code}")`.
    * En cas de problème de connexion (interception de `requests.RequestException`), lever `DataFetchError` en encapsulant la cause (`from err`).
 
 ::: {.content-visible when-profile="student"}
@@ -256,7 +266,7 @@ class CapsuleCorpFetcher:
             return response.json()
         except requests.RequestException as err:
             raise DataFetchError(
-                f"L'API distante est injoignable : {err}"
+                f"L'API distante est injoignable sur {url} : {err}"
             ) from err
 ```
 :::
@@ -285,7 +295,7 @@ Le patron architectural **Cache-Aside** répond à ce besoin :
                └───────────┬────────────┘
                            │
                  [Le fichier existe ?]
-                 /                              OUI  /                     \  NON
+                OUI  /              \  NON                                    
                ▼                       ▼
     ┌──────────────────────┐   ┌──────────────────────┐
     │ Charger depuis le    │   │ Télécharger depuis   │
@@ -318,25 +328,30 @@ fichier_cible = repertoire / "1.json"
 if fichier_cible.exists():
     with open(fichier_cible, "r", encoding="utf-8") as f:
         data = json.load(f)
+
+#json.dump(data, f, indent=) (pour l'écriture dans un fichier f)
 ```
 
 ---
 
-## 2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guidage Fort]
+## 2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guider]
 
 Enrichissez `CapsuleCorpFetcher` dans `src/zarena/io/fetcher.py`.
 
 ### Cahier des charges
+
 1. Modifiez `__init__(self, base_url: str, cache_dir: str | Path = "data/cache") -> None` :
+
    * Enregistre `self.base_url`.
    * Convertit `cache_dir` en objet `Path` et crée le répertoire s'il n'existe pas :
      `self.cache_dir = Path(cache_dir)`
      `self.cache_dir.mkdir(parents=True, exist_ok=True)`
 2. Implémentez la méthode `get_warrior_data(self, warrior_id: int) -> dict` :
+   
    * Détermine le chemin local : `cache_file = self.cache_dir / f"{warrior_id}.json"`.
    * **Étape 1 (Cache-Hit) :** Si `cache_file.exists()`, charger le fichier JSON et le renvoyer directement sans aucun appel réseau.
    * **Étape 2 (Cache-Miss) :** Si le fichier n'existe pas, appeler `self.fetch_remote_warrior(warrior_id)`.
-   * **Étape 3 (Persistence) :** Sauvegarder la charge utile reçue dans `cache_file` avec `json.dump(..., indent=2)`.
+   * **Étape 3 (Persistence) :** Sauvegarder ce qui est reçue dans `cache_file` avec `json.dump(..., indent=2)`.
    * **Étape 4 (Retour) :** Renvoyer le dictionnaire.
 
 ::: {.content-visible when-profile="solution"}
@@ -363,12 +378,12 @@ class CapsuleCorpFetcher:
             response = requests.get(url, headers=headers, timeout=5.0)
             if response.status_code != 200:
                 raise DataFetchError(
-                    f"Échec de l'API : statut HTTP {response.status_code}"
+                    f"Échec de l'API : statut HTTP {response.status_code} sur {url}"
                 )
             return response.json()
         except requests.RequestException as err:
             raise DataFetchError(
-                f"API distante injoignable : {err}"
+                f"L'API distante est injoignable sur {url} : {err}"
             ) from err
 
     def get_warrior_data(self, warrior_id: int) -> dict:
@@ -392,7 +407,7 @@ class CapsuleCorpFetcher:
 
 ---
 
-> *Transition : Les caractéristiques individuelles de nos combattants sont désormais ingérées et mises en cache. Mais qu'en est-il des lois globales de l'arène, comme les multiplicateurs d'affinité physique entre styles d'attaque et physiologies ? C'est le rôle des données tabulaires et de la bibliothèque Pandas.*
+> *Transition : Les caractéristiques individuelles de nos combattants sont désormais ingérées et mises en cache. On souhaite ajouter des lois globales de l'arène, comme les multiplicateurs d'affinité physique entre styles d'attaque et physiologies ? C'est le rôle des données tabulaires et de la bibliothèque Pandas que de charger de telles données.*
 
 ---
 
@@ -401,6 +416,7 @@ class CapsuleCorpFetcher:
 ## 3.1 Motivation : Pourquoi Pandas ? De l'Indice Aveugle à l'Étiquette Sémantique
 
 Dans l'arène de combat, les dégâts d'une attaque dépendent de l'affinité entre la nature de l'attaque portée et la physiologie de la cible :
+
 * Une frappe physique (`Corps-à-corps`) est absorbée par le blindage d'un `Cyborg` ($	imes 0{,}5$).
 * Une décharge d'énergie (`Ki`) transperce un combattant ordinaire ($	imes 1{,}5$) mais est absorbée par un `Cyborg` ($	imes 0{,}5$).
 * Une technique occulte (`Magie`) contourne les blindages technologiques ($	imes 2{,}0$).
@@ -421,6 +437,7 @@ Comment cette matrice s'articule-t-elle avec le code existant de `warriors.py` s
 
 1. **Aucun changement sur `take_damage(self, amount: int)` :** la méthode continue de recevoir un montant brut de dégâts entiers. Pour `Cyborg`, le blindage `shield` continue de s'appliquer en réduction finale.
 2. **Attribut `race` rétro-compatible :** nos classes de combattants définissent simplement un attribut ou une propriété `race` avec une valeur par défaut cohérente :
+
    * `BaseWarrior` possède `self.race: str = "Terrien"`.
    * `SaiyanWarrior` possède `self.race: str = "Saiyan"`.
    * `Cyborg` possède `self.race: str = "Cyborg"`.
@@ -443,6 +460,11 @@ Corps-a-corps,1.0,1.0,1.2,0.5
 Ki,1.5,1.0,1.0,0.5
 Magie,1.2,1.5,1.0,2.0
 Technologie,1.0,1.2,1.5,1.0
+```
+
+ou charger le depuis le dépôt
+```bash
+curl -sSL "https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/data/styles_combat.csv" -o data/styles_combat.csv
 ```
 
 Chargeons cette matrice avec Pandas en désignant la première colonne comme index des lignes :
@@ -469,13 +491,15 @@ coeff = float(df.loc["Magie", "Cyborg"])  # Renvoie exactement 2.0
 ```
 
 ::: {.callout-note}
-### Performance en Simulation Massive (Data Science Reflex)
-L'indexation `.loc` de Pandas apporte confort et sécurité lors du chargement. En revanche, dans une boucle de Monte Carlo exécutant $100\,000$ duels, `.loc` introduit une surcharge sensible. L'astuce d'ingénieur consiste à convertir le DataFrame en dictionnaire imbriqué une seule fois :
-```python
-lookup = df.to_dict()  # Accès direct lookup["Cyborg"]["Magie"] 50x plus rapide !
-```
-:::
+### Performance en Simulation Massive : Du DataFrame au Dictionnaire Imbriqué
+L'indexation `.loc` de Pandas apporte confort et sécurité lors du chargement, du filtrage ou de l'affichage ponctuel d'une confrontation dans Streamlit. En revanche, dans une boucle de Monte-Carlo exécutant $100\,000$ duels, répéter `.loc` induit un surcoût sensible (environ $50$ fois plus lent que l'acccès dictionnaire).
 
+La bonne pratique d'ingénierie logicielle consiste à :
+
+1. Valider et ingérer la matrice tabulaire via Pandas au chargement (`pd.read_csv`).
+2. Pré-convertir la matrice en dictionnaire Python natif imbriqué via `df.to_dict(orient="index")`.
+3. Réaliser des lectures directes en $O(1)$ dans la boucle de simulation : `lookup[style_attaque][race_defenseur]`.
+:::
 ---
 
 ## 3.4 Exercice 3 : Ingestion de la Matrice de Combat (`src/zarena/io/loader.py`)
@@ -483,21 +507,28 @@ lookup = df.to_dict()  # Accès direct lookup["Cyborg"]["Magie"] 50x plus rapide
 Créez le fichier `src/zarena/io/loader.py`.
 
 ### Cahier des charges
+
 1. Implémentez la fonction `load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -> pd.DataFrame` :
+   
    * Vérifie que le fichier existe (lever `FileNotFoundError` sinon).
    * Charge le fichier via `pd.read_csv(filepath, index_col=0)`.
    * Convertit l'ensemble des valeurs numériques en flottants avec `.astype(float)`.
    * Retourne le DataFrame.
 2. Implémentez la fonction `get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str) -> float` :
+   
    * Vérifie que `attack_style` est bien présent dans `df.index` et que `defender_race` est présent dans `df.columns`. Si l'une des clés est absente, lever `ValueError(f"Style ou race non répertorié : {attack_style}, {defender_race}")`.
    * Retourne le coefficient extrait converti en `float`.
+3. Implémentez la fonction `build_style_lookup(df: pd.DataFrame) -> dict[str, dict[str, float]]` :
+   
+   * Convertit le DataFrame en dictionnaire imbriqué indexé d'abord par style d'attaque, puis par race défenseure : `df.to_dict(orient="index")`.
+   * Permet un accès instantané en complexité $O(1)$ : `lookup["Magie"]["Cyborg"] == 2.0`.
 
 ::: {.content-visible when-profile="solution"}
 ### Solution Enseignant (`src/zarena/io/loader.py`) :
 ```python
+# src/zarena/io/loader.py
 from pathlib import Path
 import pandas as pd
-
 
 def load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -> pd.DataFrame:
     """Charge et valide la matrice des multiplicateurs de style de combat."""
@@ -509,7 +540,9 @@ def load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -> pd.Dat
     return df.astype(float)
 
 
-def get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str) -> float:
+def get_style_multiplier(
+    df: pd.DataFrame, attack_style: str, defender_race: str
+) -> float:
     """Extrait le coefficient multiplicateur à l'intersection du style et de la race."""
     if attack_style not in df.index:
         raise ValueError(f"Style d'attaque non répertorié : {attack_style}")
@@ -517,6 +550,11 @@ def get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str
         raise ValueError(f"Race défensive non répertoriée : {defender_race}")
 
     return float(df.loc[attack_style, defender_race])
+
+
+def build_style_lookup(df: pd.DataFrame) -> dict[str, dict[str, float]]:
+    """Convertit la table Pandas en dictionnaire imbriqué optimisé pour Monte-Carlo."""
+    return df.to_dict(orient="index")
 ```
 :::
 
@@ -556,9 +594,13 @@ Le format **GeoJSON (IETF RFC 7946)** n'est rien d'autre qu'un **fichier texte J
 }
 ```
 
-::: {.callout-warning}
-### Piège Fréquent : L'Ordre des Coordonnées
-En cartographie mathématique et dans la norme GeoJSON, les coordonnées sont **toujours** ordonnées sous la forme `[Longitude, Latitude]` (c'est-à-dire $[X, Y]$ dans le plan cartésien), et non `[Latitude, Longitude]` !
+::: {.callout-important}
+### Le Piège d'Intégration Cartographique : GeoJSON vs Folium / Leaflet
+
+* **Norme GeoJSON (RFC 7946) :** L'ordre des coordonnées géométriques suit l'axe cartésien standard $[X, Y]$, soit impérativement `[Longitude, Latitude]`.
+* **Bibliothèques de cartographie (Folium, Leaflet) :** Les fonctions de tracé (comme `folium.Marker`) exigent l'ordre géographique traditionnel : `[Latitude, Longitude]`.
+
+Pour sanctuariser le pipeline et éviter toute inversion lors du développement du tableau de bord (Streamlit), le module de chargement doit isoler la conversion `[lon, lat] -> (lat, lon)`.
 :::
 
 ---
@@ -621,6 +663,7 @@ Complétez `src/zarena/io/loader.py`.
 
 ### Cahier des charges
 Implémentez la fonction `load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -> dict` :
+
 1. Vérifie l'existence du fichier sur le disque (`FileNotFoundError`).
 2. Charge le contenu avec `json.load()`.
 3. Valide les contraintes structurelles minimales de la norme RFC 7946 :
@@ -629,10 +672,17 @@ Implémentez la fonction `load_arenas(filepath: str | Path = "data/arenas_dbz.ge
    * Si l'une de ces conditions n'est pas remplie, lever immédiatement `ValueError("Structure GeoJSON non conforme.")`.
 4. Renvoie le dictionnaire brut.
 
+Implémentez la fonction `extract_arena_coordinates(feature: dict) -> tuple[float, float]` :
+
+   * Extrait les coordonnées géométriques `feature["geometry"]["coordinates"]`.
+   * Retourne le tuple `(latitude, longitude)` au format conforme pour Folium.
+
 ::: {.content-visible when-profile="solution"}
 ### Solution Enseignant (Ajout dans `src/zarena/io/loader.py`) :
 ```python
+# src/zarena/io/loader.py (suite)
 import json
+from pathlib import Path
 
 
 def load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -> dict:
@@ -654,6 +704,13 @@ def load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -> dict:
         )
 
     return data
+
+
+def extract_arena_coordinates(feature: dict) -> tuple[float, float]:
+    """Extrait la position géographique au format attendu par Folium (latitude, longitude)."""
+    coordinates = feature["geometry"]["coordinates"]
+    lon, lat = coordinates[0], coordinates[1]
+    return float(lat), float(lon)
 ```
 :::
 
@@ -676,6 +733,7 @@ def test_recuperation_goku():
 ```
 
 Ce test présente trois défauts majeurs :
+
 1. **Instabilité :** Si le serveur de la Capsule Corp est en maintenance, le test échoue alors que notre code fonctionne parfaitement.
 2. **Lenteur :** Exécuter 100 requêtes HTTP dans une suite de tests allonge le temps d'exécution de plusieurs minutes.
 3. **Impossibilité de tester les pannes :** Comment vérifier que notre gestionnaire d'erreurs intercepte bien une panne HTTP 500 sans faire crasher le vrai serveur de production ?
@@ -710,23 +768,30 @@ Créez `tests/test_fetcher.py`. Vous allez concevoir la suite de tests validant 
 
 ### Cahier des charges
 Rédigez les quatre tests unitaires suivants :
+
 1. `test_fetcher_cache_miss_queries_api_and_saves_to_disk(requests_mock, tmp_path)` :
+
    * Simule une réponse HTTP 200 sur `https://api.capsulecorp.com/warriors/1.json` avec `{"id": 1, "name": "Son Goku", "hp_base": 120}`.
    * Instancie `CapsuleCorpFetcher` en pointant son dossier de cache sur `tmp_path`.
    * Vérifie que le fichier `tmp_path / "1.json"` n'existe pas au départ.
    * Appelle `get_warrior_data(1)`.
    * Constate que les données reçues sont correctes, que le fichier local a été créé sur disque et contient le JSON attendu.
 2. `test_fetcher_cache_hit_does_not_call_network(requests_mock, tmp_path)` :
+   
    * Écrit manuellement un fichier `1.json` dans `tmp_path` contenant `{"id": 1, "name": "Goku Local"}`.
    * **Ne déclare aucun mock d'URL** (si une requête HTTP était émise, le test planterait immédiatement).
    * Appelle `get_warrior_data(1)`.
    * Vérifie que le résultat renvoyé est `"Goku Local"`.
 3. `test_fetcher_api_error_without_cache_raises_data_fetch_error(requests_mock, tmp_path)` :
+   
    * Simule un code HTTP 404 sur l'ID 999.
    * Vérifie avec `pytest.raises(DataFetchError)` que la méthode refuse l'opération.
 4. `test_loader_style_matrix_and_arenas(tmp_path)` :
-   * Crée un fichier CSV temporaire dans `tmp_path` et teste `load_style_matrix` et `get_style_multiplier`.
-   * Crée un fichier GeoJSON temporaire et vérifie que `load_arenas` valide le format et lève `ValueError` si le type n'est pas `"FeatureCollection"`.
+   
+   * Valide le chargement d'un CSV temporaire avec `load_style_matrix`.
+   * Vérifie le calcul direct par `.loc` via `get_style_multiplier` et la détection d'index invalide (`ValueError`).
+   * Vérifie la conversion en dictionnaire rapide `build_style_lookup(df)`.
+   * Vérifie la validation structurelle de `load_arenas` et teste `extract_arena_coordinates` pour s'assurer que l'ordre `[lon, lat]` devient bien `(lat, lon)`.
 
 ::: {.content-visible when-profile="solution"}
 ### Solution Enseignant (`tests/test_fetcher.py`) :
@@ -791,7 +856,7 @@ def test_fetcher_api_error_without_cache_raises_data_fetch_error(
 
 
 def test_loader_style_matrix_and_arenas(tmp_path: Path) -> None:
-    # Test Matrice CSV
+    # 1. Validation de la matrice tabulaire CSV
     csv_file = tmp_path / "styles.csv"
     csv_file.write_text(
         "style,Saiyan,Cyborg\nCorps-a-corps,1.0,0.5\nKi,1.0,0.5\n",
@@ -802,24 +867,44 @@ def test_loader_style_matrix_and_arenas(tmp_path: Path) -> None:
     assert df.loc["Corps-a-corps", "Cyborg"] == 0.5
     assert get_style_multiplier(df, "Corps-a-corps", "Saiyan") == 1.0
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Style d'attaque non répertorié"):
         get_style_multiplier(df, "Inconnu", "Saiyan")
 
-    # Test GeoJSON
+    with pytest.raises(ValueError, match="Race défensive non répertoriée"):
+        get_style_multiplier(df, "Corps-a-corps", "Inconnu")
+
+    # 2. Validation du dictionnaire de recherche rapide (Monte-Carlo)
+    lookup = build_style_lookup(df)
+    assert lookup["Corps-a-corps"]["Cyborg"] == 0.5
+    assert lookup["Ki"]["Saiyan"] == 1.0
+
+    # 3. Validation de la collection GeoJSON et conversion Folium
+    arena_feature = {
+        "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [3.8767, 43.6108]},
+        "properties": {"name": "Arène Montpellier"},
+    }
     geojson_file = tmp_path / "arenas.geojson"
     geojson_file.write_text(
         json.dumps({
             "type": "FeatureCollection",
-            "features": [{"type": "Feature", "properties": {"name": "Test"}}],
+            "features": [arena_feature],
         }),
         encoding="utf-8",
     )
+
     data = load_arenas(geojson_file)
     assert data["type"] == "FeatureCollection"
+    assert len(data["features"]) == 1
 
+    # Inversion RFC 7946 [lon, lat] -> Folium (lat, lon)
+    lat, lon = extract_arena_coordinates(arena_feature)
+    assert (lat, lon) == (43.6108, 3.8767)
+
+    # Rejet d'un schéma invalide
     bad_geojson = tmp_path / "bad.geojson"
     bad_geojson.write_text(
-        json.dumps({"type": "InvalidCollection"}), encoding="utf-8"
+        json.dumps({"type": "InvalidSchema"}), encoding="utf-8"
     )
     with pytest.raises(ValueError, match="GeoJSON"):
         load_arenas(bad_geojson)
@@ -855,6 +940,7 @@ Vous allez implémenter le client d'ingestion réseau de PokéAPI avec cache dis
 ::: {.callout-important}
 ### Respect Strict des Signatures de l'Annexe Technique
 Les bancs de test de la CI GitHub Actions reposent **strictement** sur les interfaces suivantes :
+
 * Module `pyarena.io.fetcher` : classe `DataFetcher`.
 * Module `pyarena.io.loader` : fonctions `load_type_matrix` et `load_arenas`.
 :::
@@ -901,13 +987,134 @@ class DataFetcher:
 ```
 
 ::: {.callout-note}
-### Comprendre la Structure JSON de PokéAPI
-Contrairement à notre modèle simplifié, la vraie PokéAPI renvoie une charge utile imbriquée. Pour extraire les statistiques de base au Niveau 50 lors de l'instanciation de vos objets `Fighter`, vous utiliserez une compréhension de dictionnaire :
-```python
-# Exemple de décodage des statistiques PokéAPI
-stats_brutes = {s["stat"]["name"]: s["base_stat"] for s in payload["stats"]}
-# Donne : {'hp': 35, 'attack': 55, 'defense': 40, 'speed': 90, ...}
+### Comprendre et Décoder la Structure JSON Imbriquée de PokéAPI
+
+Lorsque vous appelez votre méthode `fetcher.get_pokemon(pokemon_id)` (ou directement `response.json()`), l'API PokéAPI renvoie un volumineux dictionnaire Python racine que l'on nomme ici **`payload`** (la « charge utile » de la réponse HTTP).
+
+Contrairement à des données tabulaires simples, l'API ne stocke pas directement `payload["hp"]` ou `payload["attack"]`. Les données sont **fortement imbriquées** dans des sous-listes de dictionnaires.
+
+---
+
+#### 1. Anatomie de la clé `payload["stats"]`
+
+Dans la réponse de l'API pour Pikachu (`id = 25`), la clé `"stats"` est associée à une **liste de 6 dictionnaires** (un par caractéristique) ayant la structure suivante :
+
+```json
+{
+  "id": 25,
+  "name": "pikachu",
+  "stats": [
+    {
+      "base_stat": 35,
+      "effort": 0,
+      "stat": {
+        "name": "hp",
+        "url": "[https://pokeapi.co/api/v2/stat/1/](https://pokeapi.co/api/v2/stat/1/)"
+      }
+    },
+    {
+      "base_stat": 55,
+      "effort": 2,
+      "stat": {
+        "name": "attack",
+        "url": "[https://pokeapi.co/api/v2/stat/2/](https://pokeapi.co/api/v2/stat/2/)"
+      }
+    },
+    {
+      "base_stat": 40,
+      "effort": 0,
+      "stat": {
+        "name": "defense",
+        "url": "[https://pokeapi.co/api/v2/stat/3/](https://pokeapi.co/api/v2/stat/3/)"
+      }
+    },
+    {
+      "base_stat": 90,
+      "effort": 0,
+      "stat": {
+        "name": "speed",
+        "url": "[https://pokeapi.co/api/v2/stat/6/](https://pokeapi.co/api/v2/stat/6/)"
+      }
+    }
+  ]
+}
 ```
+
+Pour chaque élément s de la liste payload["stats"] :
+
+* s["base_stat"] est un entier représentant la valeur numérique brute de la statistique.
+* s["stat"] est un sous-dictionnaire dont le champ "name" contient la désignation textuelle en minuscules ("hp", "attack", "defense", "speed"...).
+
+Pour transformer cette liste imbriquée en un dictionnaire plat et directement indexable par nom, on utilise une compréhension de dictionnaire :
+```python
+# payload est le dictionnaire renvoyé par get_pokemon(id)
+payload = fetcher.get_pokemon(25)
+
+# Extraction aplatie : chaque élément s produit la paire { "nom_stat": valeur }
+raw_stats = {s["stat"]["name"]: s["base_stat"] for s in payload["stats"]}
+#L'objet résultant raw_stats est un dictionnaire à plat
+# raw_stats = {'hp': 35, 'attack': 55, 'defense': 40, 'special-attack': 50, 'special-defense': 50, 'speed': 90}
+
+#Vous pouvez ensuite extraire les caractéristiques nécessaires au constructeur de Fighter sans risque d'erreur d'indice :
+hp_base = raw_stats["hp"]
+attack_base = raw_stats["attack"]
+defense_base = raw_stats["defense"]
+speed_base = raw_stats["speed"]
+```
+
+2. Anatomie de la clé payload["types"] et Règle des Slots
+   
+La clé payload["types"] contient elle aussi une liste de dictionnaires, où chaque entrée associe un type élémentaire à un ordre d'apparition (slot) :
+``` json
+{
+  "name": "charizard",
+  "types": [
+    {
+      "slot": 1,
+      "type": {
+        "name": "fire",
+        "url": "[https://pokeapi.co/api/v2/type/10/](https://pokeapi.co/api/v2/type/10/)"
+      }
+    },
+    {
+      "slot": 2,
+      "type": {
+        "name": "flying",
+        "url": "[https://pokeapi.co/api/v2/type/3/](https://pokeapi.co/api/v2/type/3/)"
+      }
+    }
+  ]
+}
+```
+
+* Règle des slots : Conformément à l'Annexe Technique, le type principal type_1 est impérativement celui avec slot == 1. Si la créature possède un second type, il est assigné à slot == 2 (sinon type_2 vaut None).
+* Traduction Anglais → Français : PokéAPI renvoie des noms anglais en minuscules ("fire", "water"), alors que la matrice tabulaire data/types.csv de PyArena utilise le français capitalisé ("Feu", "Eau").
+  
+On procède donc en deux temps : un dictionnaire de correspondance, puis une extraction ordonnée par slot :
+```python
+# Table de correspondance bilingue officielle
+TYPE_TRANSLATION: dict[str, str] = {
+    "normal": "Normal", "fire": "Feu", "water": "Eau",
+    "grass": "Plante", "electric": "Électrik", "ice": "Glace",
+    "fighting": "Combat", "poison": "Poison", "ground": "Sol",
+    "flying": "Vol", "psychic": "Psy", "bug": "Insecte",
+    "rock": "Roche", "ghost": "Spectre", "dragon": "Dragon",
+    "steel": "Acier", "dark": "Ténèbres", "fairy": "Fée",
+}
+
+# Dictionnaire associant chaque numéro de slot au type français correspondant :
+# slots = {1: "Feu", 2: "Vol"} pour Dracaufeu
+slots = {
+    t["slot"]: TYPE_TRANSLATION.get(t["type"]["name"], t["type"]["name"].capitalize())
+    for t in payload["types"]
+}
+
+type_1: str = slots[1]
+type_2: str | None = slots.get(2, None)
+```
+
+Grâce à slots.get(2, None), si le Pokémon est mono-type (comme Pikachu), la clé 2 n'existe pas et type_2 reçoit la valeur None, respectant le contrat d'interface de Fighter.
+
 :::
 
 ---
@@ -918,6 +1125,7 @@ stats_brutes = {s["stat"]["name"]: s["base_stat"] for s in payload["stats"]}
 
 ::: {.callout-note}
 ### Pour les Groupes de 3 Étudiants
+
 * **Périmètre :** Vous travaillez avec les **5 types élémentaires de base** (Normal, Feu, Eau, Plante, Électrik).
 * Le fichier `data/types.csv` fourni dans le dépôt contient une matrice $5 \times 5$.
 * Votre fonction `load_type_matrix` charge simplement cette matrice avec `pd.read_csv(filepath, index_col=0).astype(float)`.
@@ -925,12 +1133,14 @@ stats_brutes = {s["stat"]["name"]: s["base_stat"] for s in payload["stats"]}
 
 ::: {.callout-warning}
 ### Pour les Groupes de 4 Étudiants (Exigence Étendue)
+
 * **Périmètre :** Vous devez gérer l'intégralité des **18 types officiels** de Pokémon (matrice $18 \times 18$) **ET** le calcul combiné pour les Pokémon à double-type.
 * **Calcul du multiplicateur combiné :** Si un défenseur est de type double (ex. Dracaufeu : `type_1="Feu"`, `type_2="Vol"`), le multiplicateur d'une attaque subie est le produit des multiplicateurs élémentaires individuels :  
   $$m_{\text{total}} = m(\text{type\_attaque}, \text{type\_1}) \times m(\text{type\_attaque}, \text{type\_2})$$  
   Ce multiplicateur prend alors ses valeurs dans $\{0\,;\, 0{,}25\,;\, 0{,}5\,;\, 1{,}0\,;\, 2{,}0\,;\, 4{,}0\}$.
 * **Génération Automatique de la Matrice 18x18 via PokéAPI :** Ne remplissez **jamais** cette matrice à la main ! Implémentez une fonction utilitaire (par exemple `build_full_type_matrix()`) qui interroge les 18 endpoints PokéAPI `https://pokeapi.co/api/v2/type/{id}` (IDs de 1 à 18).
   Dans chaque réponse, inspectez l'objet `damage_relations` :
+
   * Les types listés dans `double_damage_to` reçoivent le coefficient $2.0$.
   * Les types listés dans `half_damage_to` reçoivent le coefficient $0.5$.
   * Les types listés dans `no_damage_to` reçoivent le coefficient $0.0$.
@@ -941,16 +1151,19 @@ stats_brutes = {s["stat"]["name"]: s["base_stat"] for s in payload["stats"]}
 ---
 
 ### Étape 4 : Suite de Tests avec Mocking Réseau (`tests/test_io.py`)
-Rédigez la suite de tests complète sous `tests/test_io.py` en exploitant `requests_mock` et `tmp_path` :
-1. **Validation du Cache-Miss :** Vérifiez qu'une requête HTTP est émise et que le fichier est sauvegardé dans `tmp_path`.
-2. **Validation du Cache-Hit :** Vérifiez qu'un fichier préexistant dans `tmp_path` est lu directement sans solliciter le réseau.
-3. **Simulation de Panne Réseau :** Vérifiez qu'un code HTTP 500 ou une coupure réseau sans cache local lève rigoureusement `DataFetchError`.
-4. **Validation de la Matrice des Types :** Vérifiez que `load_type_matrix` charge correctement les multiplicateurs élémentaires.
-5. **Validation Cartographique :** Vérifiez que `load_arenas("data/arenes_occitanie.geojson")` renvoie la collection des arènes régionales conformes au schéma GeoJSON.
+Rédigez la suite de tests complète sous `tests/test_io.py` en exploitant les fixtures `requests_mock` et `tmp_path` :
+
+1. **Validation du Cache-Miss :** Vérifiez qu'en l'absence de fichier préexistant dans `tmp_path`, un appel à `fetcher.get_pokemon(id)` effectue bien la requête HTTP via le mock, enregistre le contenu JSON sous `tmp_path / f"{id}.json"` et retourne les données.
+2. **Validation du Cache-Hit (Isolation réseau absolue) :** Écrivez manuellement un fichier `{id}.json` factice dans `tmp_path` avant l'appel. Vérifiez que `fetcher.get_pokemon(id)` retourne immédiatement son contenu **sans déclarer aucun mock d'URL** (si une requête HTTP était tentée, le test échouerait immédiatement).
+3. **Simulation de Panne Réseau :** Vérifiez avec `pytest.raises(DataFetchError)` qu'une réponse HTTP d'erreur (ex: code 500 ou 404 simulé avec `requests_mock`) ou une coupure réseau sans cache préexistant lève formellement l'exception métier du projet.
+4. **Validation de la Matrice des Types :** Vérifiez que `load_type_matrix("data/types.csv")` charge un `pd.DataFrame` dont les coefficients multiplicateurs sont strictement positifs ou nuls (ex: vérifier que le multiplicateur Eau contre Feu vaut bien $2.0$).
+5. **Validation Cartographique & Inversion Folium :** Vérifiez que `load_arenas("data/arenes_occitanie.geojson")` valide la structure GeoJSON `FeatureCollection`, et testez que la fonction d'extraction de position géographique permute bien les coordonnées brutes `[lon, lat]` pour restituer le tuple `(latitude, longitude)` attendu par Folium.
+6. **Robustesse du Décodage Métier :** Testez la fonction de conversion d'un payload PokéAPI en instance de `Fighter` : validez que les statistiques sont correctement normalisées au niveau 50 ($PV_{\max} = \text{hp\_base} + 60$), que les types sont traduits en français et que `type_2` vaut rigoureusement `None` pour un Pokémon mono-type.
 
 ---
 
 ### Étape 5 : Validation Qualité, Audit de Couverture & Pull Request
+
 1. Vérifiez que la couverture globale de `pyarena.io` dépasse **$90\%$** :
    ```bash
    pytest --cov=pyarena.io --cov-report=term-missing
