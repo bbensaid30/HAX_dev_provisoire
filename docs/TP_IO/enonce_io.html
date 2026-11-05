@@ -8,7 +8,7 @@
 
 <meta name="author" content="Bensaid Bilel">
 
-<title>Cours-TP : Ingestion de Données, API REST, Cache Disque &amp; Mocking</title>
+<title>Cours-TP : Ingestion de Données, API REST, Cache Disque &amp; Mocking – HAX712X — Dev Logiciel</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -65,17 +65,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="enonce_io_files/libs/clipboard/clipboard.min.js"></script>
-<script src="enonce_io_files/libs/quarto-html/quarto.js" type="module"></script>
-<script src="enonce_io_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="enonce_io_files/libs/quarto-html/popper.min.js"></script>
-<script src="enonce_io_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="enonce_io_files/libs/quarto-html/anchor.min.js"></script>
-<link href="enonce_io_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="enonce_io_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="enonce_io_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="enonce_io_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="enonce_io_files/libs/bootstrap/bootstrap-496d54825f4a5d13459347af1c2e7183.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-6a2b564723c042b0e428f357d9a015bd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
@@ -109,11 +142,104 @@ window.Quarto = {
 
 </head>
 
-<body class="quarto-light">
+<body class="nav-fixed quarto-light">
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc" class="toc-active">
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">HAX712X — Dev Logiciel</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Recherche"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Basculer la navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Accueil</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projets-2026-2027" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Projets 2026-2027</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projets-2026-2027">    
+        <li>
+    <a class="dropdown-item" href="../Projet2026/cahier_des_charges.html">
+ <span class="dropdown-text">Cahier des charges</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../Projet2026/contrat_api.html">
+ <span class="dropdown-text">Contrat API</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-cours-tps-généraux" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Cours-TPs Généraux</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-cours-tps-généraux">    
+        <li>
+    <a class="dropdown-item" href="../TP_bash/enonce_bash.html">
+ <span class="dropdown-text">Linux &amp; Bash</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_git/enonce_git.html">
+ <span class="dropdown-text">Git avancé</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-cours-tps-python" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Cours-TPs Python</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-cours-tps-python">    
+        <li>
+    <a class="dropdown-item" href="../TP_packaging/enonce_packaging.html">
+ <span class="dropdown-text">Module et packaging</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_POO/enonce_poo.html">
+ <span class="dropdown-text">Orienté objet</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_Test/enonce_test.html">
+ <span class="dropdown-text">Exceptions et Tests unitaires</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_IO/enonce_io.html">
+ <span class="dropdown-text">HTTP et Données</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-installations" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Installations</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-installations">    
+        <li>
+    <a class="dropdown-item" href="../installation_wsl.html">
+ <span class="dropdown-text">Guide WSL</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Sommaire de la séance</h2>
    
   <ul>
@@ -146,7 +272,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#motivation-pourquoi-et-comment-mettre-en-cache" id="toc-motivation-pourquoi-et-comment-mettre-en-cache" class="nav-link" data-scroll-target="#motivation-pourquoi-et-comment-mettre-en-cache">2.1 Motivation : Pourquoi et Comment Mettre en Cache ?</a></li>
   <li><a href="#gestion-des-chemins-avec-pathlib.path" id="toc-gestion-des-chemins-avec-pathlib.path" class="nav-link" data-scroll-target="#gestion-des-chemins-avec-pathlib.path">2.2 Gestion des Chemins avec <code>pathlib.Path</code></a></li>
-  <li><a href="#exercice-2-le-client-résilient-avec-cache-disque-guidage-fort" id="toc-exercice-2-le-client-résilient-avec-cache-disque-guidage-fort" class="nav-link" data-scroll-target="#exercice-2-le-client-résilient-avec-cache-disque-guidage-fort">2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guidage Fort]</a>
+  <li><a href="#exercice-2-le-client-résilient-avec-cache-disque-guider" id="toc-exercice-2-le-client-résilient-avec-cache-disque-guider" class="nav-link" data-scroll-target="#exercice-2-le-client-résilient-avec-cache-disque-guider">2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guider]</a>
   <ul class="collapse">
   <li><a href="#cahier-des-charges-1" id="toc-cahier-des-charges-1" class="nav-link" data-scroll-target="#cahier-des-charges-1">Cahier des charges</a></li>
   </ul></li>
@@ -191,13 +317,14 @@ window.Quarto = {
   </ul></li>
   </ul>
 </nav>
-</div>
+    </div>
+<!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Cours-TP : Ingestion de Données, API REST, Cache Disque &amp; Mocking</h1>
-<p class="subtitle lead">De la Capsule Corp aux Pipelines Résilients de PyArena</p>
+<p class="subtitle lead">Pipelines Résilients de PyArena</p>
 </div>
 
 
@@ -214,7 +341,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Date de publication</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">16 octobre 2026</p>
+      <p class="date">6 novembre 2026</p>
     </div>
   </div>
   
@@ -229,7 +356,13 @@ window.Quarto = {
 <section id="objectifs-et-démarche-pédagogique" class="level1">
 <h1>Objectifs et Démarche Pédagogique</h1>
 <p>Lors des séances précédentes, nous avons modélisé nos entités en programmation orientée objet (<code>core/models</code>) et sanctuarisé leurs comportements par des suites de tests unitaires rigoureuses (<code>pytest</code>). Cependant, nos combattants étaient jusqu’ici instanciés « en dur » dans le code source (<code>BaseWarrior("Goku", 100, ...)</code>).</p>
-<p>Dans un système logiciel professionnel ou un projet de Data Science, <strong>les données ne sont jamais codées en dur</strong> : * Elles proviennent d’<strong>API REST distantes</strong> soumises aux aléas du réseau, aux pannes de serveurs et aux limitations de débit (<em>rate-limiting</em>). * Elles transitent sous des formats hétérogènes : charges utiles JSON arborescentes, matrices de coefficients (CSV) ou structures géoréférencées (GeoJSON). * Elles doivent être persistées localement via un patron de <strong>cache disque résilient (<em>Cache-Aside</em>)</strong> pour garantir la haute disponibilité et le fonctionnement hors-ligne de l’application. * <strong>Le défi des tests automatisés :</strong> une chaîne d’intégration continue (GitHub Actions) ne doit <strong>jamais</strong> dépendre d’une connexion Internet active ni surcharger les serveurs distants. Il est obligatoire d’apprendre à <strong>simuler (<em>mocker</em>) les échanges réseau</strong>.</p>
+<p>Dans un système logiciel professionnel ou un projet de Data Science, <strong>les données ne sont jamais codées en dur</strong> :</p>
+<ul>
+<li>Elles proviennent d’<strong>API REST distantes</strong> soumises aux aléas du réseau, aux pannes de serveurs et aux limitations de débit (<em>rate-limiting</em>).</li>
+<li>Elles transitent sous des formats hétérogènes : charges utiles JSON arborescentes, matrices de coefficients (CSV) ou structures géoréférencées (GeoJSON).</li>
+<li>Elles doivent être persistées localement via un patron de <strong>cache disque résilient (<em>Cache-Aside</em>)</strong> pour garantir la haute disponibilité et le fonctionnement hors-ligne de l’application.</li>
+<li><strong>Le défi des tests automatisés :</strong> une chaîne d’intégration continue (GitHub Actions) ne doit <strong>jamais</strong> dépendre d’une connexion Internet active ni surcharger les serveurs distants. Il est obligatoire d’apprendre à <strong>simuler (<em>mocker</em>) les échanges réseau</strong>.</li>
+</ul>
 <hr>
 <section id="découpage-de-la-séance-progression" class="level2">
 <h2 class="anchored" data-anchor-id="découpage-de-la-séance-progression">Découpage de la Séance &amp; Progression</h2>
@@ -260,7 +393,7 @@ window.Quarto = {
 <tr class="odd">
 <td style="text-align: left;"><strong>Partie 2</strong></td>
 <td style="text-align: left;">Stratégie de Cache Disque Résilient (<em>Cache-Aside</em>)</td>
-<td style="text-align: center;"><strong>Guidage fort</strong> (Squelette fourni)</td>
+<td style="text-align: center;"><strong>Guider</strong> (Squelette fourni)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><strong>Partie 3</strong></td>
@@ -279,7 +412,7 @@ window.Quarto = {
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><strong>Partie 6</strong></td>
-<td style="text-align: left;">Audit de Couverture &amp; Chasse aux Branches Mortes</td>
+<td style="text-align: left;">Audit de Couverture</td>
 <td style="text-align: center;">Diagnostic guidé</td>
 </tr>
 <tr class="even">
@@ -297,7 +430,7 @@ window.Quarto = {
 <section id="pourquoi-un-sous-paquet-io-dédié" class="level2">
 <h2 class="anchored" data-anchor-id="pourquoi-un-sous-paquet-io-dédié">0.1 Pourquoi un Sous-Paquet <code>io/</code> Dédié ?</h2>
 <p>En architecture logicielle, le principe de <strong>Séparation des Responsabilités (<em>Separation of Concerns</em>)</strong> impose d’isoler strictement la logique métier (nos modèles <code>BaseWarrior</code>, <code>SaiyanWarrior</code> sous <code>core/</code>) des mécanismes d’entrée/sortie réseau et fichier (<strong>I/O</strong> pour <em>Input/Output</em>).</p>
-<p>Si PokéAPI change d’adresse ou si le format d’un fichier CSV évolue, seuls les modules du sous-paquet <code>io/</code> doivent être modifiés, sans impacter une seule ligne de nos classes de combat.</p>
+<p>Si l’API change d’adresse ou si le format d’un fichier CSV évolue, seuls les modules du sous-paquet <code>io/</code> doivent être modifiés, sans impacter une seule ligne de nos classes de combat.</p>
 <p>Notre arborescence s’organise ainsi :</p>
 <pre class="text"><code>tp-exercices/
 ├── pyproject.toml
@@ -307,7 +440,7 @@ window.Quarto = {
 ├── src/
 │   └── zarena/
 │       ├── exceptions.py
-│       ├── warriors.py
+│       ├── warriors.py #autres fichiers (battle.py, ...)
 │       └── io/               # SOUS-PAQUET D'INGESTION
 │           ├── __init__.py
 │           ├── fetcher.py    # Client API REST avec cache disque
@@ -347,7 +480,10 @@ window.Quarto = {
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="dt">testpaths</span> <span class="op">=</span> <span class="op">[</span><span class="st">"tests"</span><span class="op">]</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="dt">python_files</span> <span class="op">=</span> <span class="op">[</span><span class="st">"test_*.py"</span><span class="op">]</span></span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="dt">python_functions</span> <span class="op">=</span> <span class="op">[</span><span class="st">"test_*"</span><span class="op">]</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="dt">addopts</span> <span class="op">=</span> <span class="st">"-v --strict-markers"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="dt">addopts</span> <span class="op">=</span> <span class="st">"-v --strict-markers"</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="dt">markers</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"slow: tests de calcul intensif ou de simulation lourde (Monte Carlo)"</span><span class="op">,</span>  <span class="co">#on comprendra cette ligne à la fin du TP</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="op">]</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Installez ces bibliothèques dans votre environnement virtuel :</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> .venv/bin/activate</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-e</span> <span class="st">".[dev]"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
@@ -365,8 +501,21 @@ window.Quarto = {
 <h1>Partie 1 : Le Protocole HTTP, Requêtes REST &amp; Exceptions Réseau</h1>
 <section id="motivation-comment-dialoguent-les-systèmes-modernes" class="level2">
 <h2 class="anchored" data-anchor-id="motivation-comment-dialoguent-les-systèmes-modernes">1.1 Motivation : Comment Dialoguent les Systèmes Modernes ?</h2>
-<p>Pour récupérer les caractéristiques d’un guerrier stocké sur les serveurs de la Capsule Corp, notre machine locale doit initier une conversation à travers le Web. Le protocole universel de cet échange est <strong>HTTP</strong>.</p>
-<p>Une transaction REST se décompose en deux phases : 1. <strong>La Requête Client :</strong> notre script envoie un message contenant : * Une méthode : <strong><code>GET</code></strong> (demande de lecture sans modification d’état). * Une URL d’accès : <code>https://.../api/warriors/1.json</code>. * Des en-têtes optionnels (<em>Headers</em>) pour l’authentification ou le format attendu. 2. <strong>La Réponse Serveur :</strong> le serveur renvoie : * Un <strong>Code de Statut HTTP</strong> numérique indiquant le sort de la requête. * Un corps de message (<em>Payload</em>), le plus souvent sous la forme d’une chaîne de caractères structurée en <strong>JSON</strong>.</p>
+<p>Pour récupérer les caractéristiques d’un guerrier stocké sur les serveurs, notre machine locale doit initier une conversation à travers le Web. Le protocole universel de cet échange est <strong>HTTP</strong>.</p>
+<p>Une transaction REST se décompose en deux phases :</p>
+<ol type="1">
+<li><p><strong>La Requête Client :</strong> notre script envoie un message contenant :</p>
+<ul>
+<li>Une méthode : <strong><code>GET</code></strong> (demande de lecture sans modification d’état).</li>
+<li>Une URL d’accès : <code>https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/api/warriors/1.json</code>.</li>
+<li>Des en-têtes optionnels (<em>Headers</em>) pour l’authentification ou le format attendu.</li>
+</ul></li>
+<li><p><strong>La Réponse Serveur :</strong> le serveur renvoie :</p>
+<ul>
+<li>Un <strong>Code de Statut HTTP</strong> numérique indiquant le sort de la requête.</li>
+<li>Un corps de message (<em>Payload</em>), le plus souvent sous la forme d’une chaîne de caractères structurée en <strong>JSON</strong>.</li>
+</ul></li>
+</ol>
 <section id="les-codes-de-statut-indispensables-en-data-science" class="level3">
 <h3 class="anchored" data-anchor-id="les-codes-de-statut-indispensables-en-data-science">Les Codes de Statut Indispensables en Data Science</h3>
 <ul>
@@ -383,7 +532,7 @@ window.Quarto = {
 <p>En Python, la bibliothèque standard d’ingestion HTTP est <strong><code>requests</code></strong> :</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/.../api/warriors/1.json"</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/api/warriors/1.json"</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>reponse <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="fl">5.0</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> reponse.status_code <span class="op">==</span> <span class="dv">200</span>:</span>
@@ -391,7 +540,7 @@ window.Quarto = {
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Combattant : </span><span class="sc">{</span>data[<span class="st">'name'</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="règle-dor-en-production-toujours-définir-timeout" class="level3 callout-danger">
 <h3 class="anchored" data-anchor-id="règle-dor-en-production-toujours-définir-timeout">Règle d’or en Production : Toujours définir <code>timeout</code></h3>
-<p>Par défaut, si l’argument <code>timeout</code> est omis, <code>requests.get()</code> attend <strong>indéfiniment</strong> si le serveur distant ne répond pas. Votre pipeline de données, votre boucle d’entraînement ou votre serveur web peuvent rester gelés pendant des heures. <strong>Tout appel réseau doit obligatoirement comporter un délai d’expiration (ex. <code>timeout=5.0</code>).</strong></p>
+<p>Par défaut, si l’argument <code>timeout</code> est omis, <code>requests.get()</code> attend <strong>indéfiniment</strong> même si le serveur distant ne répond pas. Votre pipeline de données, votre boucle d’entraînement ou votre serveur web peuvent rester gelés pendant des heures. <strong>Tout appel réseau doit obligatoirement comporter un délai d’expiration (ex. <code>timeout=5.0</code>).</strong></p>
 </section>
 <hr>
 </section>
@@ -404,6 +553,24 @@ window.Quarto = {
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DataFetchError(ZArenaError):</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Levée si l'API distante est injoignable ET qu'aucun cache local n'existe."""</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">pass</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Note d’ingénierie : <code>response.raise_for_status()</code> vs Contrôle explicite de statut
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>La bibliothèque <code>requests</code> propose la méthode native <code>response.raise_for_status()</code>, qui lève une exception <code>requests.exceptions.HTTPError</code> dès que le code HTTP est supérieur ou égal à 400 (erreurs client 4xx et serveur 5xx).</p>
+<p>Dans le cadre d’un client de données strict, nous préférons tester explicitement <code>if response.status_code != 200:</code> :</p>
+<ol type="1">
+<li>Une API REST peut renvoyer un code <code>204 No Content</code> : pour <code>raise_for_status()</code>, c’est un succès, mais l’appel ultérieur à <code>response.json()</code> échoue avec un <code>JSONDecodeError</code>.</li>
+<li>Cela garantit le respect formel du contrat d’interface : la ressource JSON demandée doit renvoyer un statut <code>200 OK</code>, tout autre code déclenchant immédiatement notre exception métier <code>DataFetchError</code>.</li>
+</ol>
+</div>
+</div>
 <hr>
 </section>
 <section id="exercice-1-le-récepteur-http-distant-guidage-moyen" class="level2">
@@ -412,17 +579,14 @@ window.Quarto = {
 <section id="cahier-des-charges" class="level3">
 <h3 class="anchored" data-anchor-id="cahier-des-charges">Cahier des charges</h3>
 <ol type="1">
-<li>Constructeur <code>__init__(self, base_url: str) -&gt; None</code> :
-<ul>
-<li>Enregistre l’URL racine en supprimant un éventuel slash terminal : <code>self.base_url = base_url.rstrip("/")</code>.</li>
-</ul></li>
-<li>Méthode <code>fetch_remote_warrior(self, warrior_id: int) -&gt; dict</code> :
+<li><p>Constructeur <code>__init__(self, base_url: str) -&gt; None</code> : Enregistre l’URL racine en supprimant un éventuel slash terminal : <code>self.base_url = base_url.rstrip("/")</code>.</p></li>
+<li><p>Méthode <code>fetch_remote_warrior(self, warrior_id: int) -&gt; dict</code> :</p>
 <ul>
 <li>Construit l’URL cible : <code>f"{self.base_url}/warriors/{warrior_id}.json"</code>.</li>
 <li>Configure un en-tête <code>headers={"User-Agent": "ZArena-Pipeline/1.0"}</code> pour s’identifier proprement auprès du serveur.</li>
 <li>Émet la requête <code>requests.get(url, headers=headers, timeout=5.0)</code>.</li>
 <li>Si <code>response.status_code == 200</code>, renvoie le dictionnaire issu de <code>response.json()</code>.</li>
-<li>Si le statut est différent de 200 (ex. 404), lever <code>DataFetchError(f"Échec API : code {response.status_code}")</code>.</li>
+<li>Si le statut est différent de 200 (ex. 204), lever <code>DataFetchError(f"Échec API : code {response.status_code}")</code>.</li>
 <li>En cas de problème de connexion (interception de <code>requests.RequestException</code>), lever <code>DataFetchError</code> en encapsulant la cause (<code>from err</code>).</li>
 </ul></li>
 </ol>
@@ -438,14 +602,19 @@ window.Quarto = {
 <h1>Partie 2 : Stratégie de Cache Disque (<em>Cache-Aside Pattern</em>)</h1>
 <section id="motivation-pourquoi-et-comment-mettre-en-cache" class="level2">
 <h2 class="anchored" data-anchor-id="motivation-pourquoi-et-comment-mettre-en-cache">2.1 Motivation : Pourquoi et Comment Mettre en Cache ?</h2>
-<p>Interroger le réseau pour des données immuables est une anomalie de conception : * <strong>Latence :</strong> Une requête HTTP prend entre 50 et 500 ms, alors qu’une lecture disque locale prend moins de 0.2 ms (un gain d’un facteur 1 000). * <strong>Résilience :</strong> Si le réseau se coupe pendant une simulation, les données déjà téléchargées doivent rester accessibles. * <strong>Sobriété :</strong> Évite de surcharger les serveurs distants ou de subir des blocages d’IP.</p>
+<p>Interroger le réseau pour des données immuables est une anomalie de conception :</p>
+<ul>
+<li><strong>Latence :</strong> Une requête HTTP prend entre 50 et 500 ms, alors qu’une lecture disque locale prend moins de 0.2 ms (un gain d’un facteur 1 000).</li>
+<li><strong>Résilience :</strong> Si le réseau se coupe pendant une simulation, les données déjà téléchargées doivent rester accessibles.</li>
+<li><strong>Sobriété :</strong> Évite de surcharger les serveurs distants ou de subir des blocages d’IP.</li>
+</ul>
 <p>Le patron architectural <strong>Cache-Aside</strong> répond à ce besoin :</p>
 <pre class="text"><code>               ┌────────────────────────┐
                │ get_warrior_data(id)   │
                └───────────┬────────────┘
                            │
                  [Le fichier existe ?]
-                 /                              OUI  /                     \  NON
+                OUI  /              \  NON                                    
                ▼                       ▼
     ┌──────────────────────┐   ┌──────────────────────┐
     │ Charger depuis le    │   │ Télécharger depuis   │
@@ -473,32 +642,34 @@ window.Quarto = {
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> fichier_cible.exists():</span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(fichier_cible, <span class="st">"r"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="im">as</span> f:</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> json.load(f)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        data <span class="op">=</span> json.load(f)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#json.dump(data, f, indent=) (pour l'écriture dans un fichier f)</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
-<section id="exercice-2-le-client-résilient-avec-cache-disque-guidage-fort" class="level2">
-<h2 class="anchored" data-anchor-id="exercice-2-le-client-résilient-avec-cache-disque-guidage-fort">2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guidage Fort]</h2>
+<section id="exercice-2-le-client-résilient-avec-cache-disque-guider" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-2-le-client-résilient-avec-cache-disque-guider">2.3 Exercice 2 : Le Client Résilient avec Cache Disque [Guider]</h2>
 <p>Enrichissez <code>CapsuleCorpFetcher</code> dans <code>src/zarena/io/fetcher.py</code>.</p>
 <section id="cahier-des-charges-1" class="level3">
 <h3 class="anchored" data-anchor-id="cahier-des-charges-1">Cahier des charges</h3>
 <ol type="1">
-<li>Modifiez <code>__init__(self, base_url: str, cache_dir: str | Path = "data/cache") -&gt; None</code> :
+<li><p>Modifiez <code>__init__(self, base_url: str, cache_dir: str | Path = "data/cache") -&gt; None</code> :</p>
 <ul>
 <li>Enregistre <code>self.base_url</code>.</li>
 <li>Convertit <code>cache_dir</code> en objet <code>Path</code> et crée le répertoire s’il n’existe pas : <code>self.cache_dir = Path(cache_dir)</code> <code>self.cache_dir.mkdir(parents=True, exist_ok=True)</code></li>
 </ul></li>
-<li>Implémentez la méthode <code>get_warrior_data(self, warrior_id: int) -&gt; dict</code> :
+<li><p>Implémentez la méthode <code>get_warrior_data(self, warrior_id: int) -&gt; dict</code> :</p>
 <ul>
 <li>Détermine le chemin local : <code>cache_file = self.cache_dir / f"{warrior_id}.json"</code>.</li>
 <li><strong>Étape 1 (Cache-Hit) :</strong> Si <code>cache_file.exists()</code>, charger le fichier JSON et le renvoyer directement sans aucun appel réseau.</li>
 <li><strong>Étape 2 (Cache-Miss) :</strong> Si le fichier n’existe pas, appeler <code>self.fetch_remote_warrior(warrior_id)</code>.</li>
-<li><strong>Étape 3 (Persistence) :</strong> Sauvegarder la charge utile reçue dans <code>cache_file</code> avec <code>json.dump(..., indent=2)</code>.</li>
+<li><strong>Étape 3 (Persistence) :</strong> Sauvegarder ce qui est reçue dans <code>cache_file</code> avec <code>json.dump(..., indent=2)</code>.</li>
 <li><strong>Étape 4 (Retour) :</strong> Renvoyer le dictionnaire.</li>
 </ul></li>
 </ol>
 <hr>
 <blockquote class="blockquote">
-<p><em>Transition : Les caractéristiques individuelles de nos combattants sont désormais ingérées et mises en cache. Mais qu’en est-il des lois globales de l’arène, comme les multiplicateurs d’affinité physique entre styles d’attaque et physiologies ? C’est le rôle des données tabulaires et de la bibliothèque Pandas.</em></p>
+<p><em>Transition : Les caractéristiques individuelles de nos combattants sont désormais ingérées et mises en cache. On souhaite ajouter des lois globales de l’arène, comme les multiplicateurs d’affinité physique entre styles d’attaque et physiologies ? C’est le rôle des données tabulaires et de la bibliothèque Pandas que de charger de telles données.</em></p>
 </blockquote>
 <hr>
 </section>
@@ -508,9 +679,12 @@ window.Quarto = {
 <h1>Partie 3 : Mini-Cours Pratique : Pandas &amp; Matrices Tabulaires</h1>
 <section id="motivation-pourquoi-pandas-de-lindice-aveugle-à-létiquette-sémantique" class="level2">
 <h2 class="anchored" data-anchor-id="motivation-pourquoi-pandas-de-lindice-aveugle-à-létiquette-sémantique">3.1 Motivation : Pourquoi Pandas ? De l’Indice Aveugle à l’Étiquette Sémantique</h2>
-<p>Dans l’arène de combat, les dégâts d’une attaque dépendent de l’affinité entre la nature de l’attaque portée et la physiologie de la cible : * Une frappe physique (<code>Corps-à-corps</code>) est absorbée par le blindage d’un <code>Cyborg</code> ($ imes 0{,}5<span class="math inline">\().
-* Une décharge d'énergie (`Ki`) transperce un combattant ordinaire (\)</span> imes 1{,}5<span class="math inline">\() mais est absorbée par un `Cyborg` (\)</span> imes 0{,}5<span class="math inline">\().
-* Une technique occulte (`Magie`) contourne les blindages technologiques (\)</span> imes 2{,}0$).</p>
+<p>Dans l’arène de combat, les dégâts d’une attaque dépendent de l’affinité entre la nature de l’attaque portée et la physiologie de la cible :</p>
+<ul>
+<li>Une frappe physique (<code>Corps-à-corps</code>) est absorbée par le blindage d’un <code>Cyborg</code> (<span class="math inline">\(\times 0{,}5\)</span>).</li>
+<li>Une décharge d’énergie (<code>Ki</code>) transperce un combattant ordinaire (<span class="math inline">\(\times 1{,}5\)</span>) mais est absorbée par un <code>Cyborg</code> (<span class="math inline">\(\times 0{,}5\)</span>).</li>
+<li>Une technique occulte (<code>Magie</code>) contourne les blindages technologiques (<span class="math inline">\(\times 2{,}0\)</span>).</li>
+</ul>
 <p>Si nous stockions cette table dans un tableau NumPy brut <span class="math inline">\(A \in \mathbb{R}^{4 \times 4}\)</span> :</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>multiplicateur <span class="op">=</span> A[<span class="dv">1</span>, <span class="dv">3</span>]  <span class="co"># Que représentent l'indice 1 et l'indice 3 ?</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Le code devient opaque, impossible à relire et vulnérable aux inversions ligne/colonne.</p>
@@ -521,14 +695,14 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="intégration-sans-rupture-de-compatibilité-avec-warriors.py">3.2 Intégration sans Rupture de Compatibilité avec <code>warriors.py</code></h2>
 <p>Comment cette matrice s’articule-t-elle avec le code existant de <code>warriors.py</code> sans casser les classes ou les tests précédents ?</p>
 <ol type="1">
-<li><strong>Aucun changement sur <code>take_damage(self, amount: int)</code> :</strong> la méthode continue de recevoir un montant brut de dégâts entiers. Pour <code>Cyborg</code>, le blindage <code>shield</code> continue de s’appliquer en réduction finale.</li>
-<li><strong>Attribut <code>race</code> rétro-compatible :</strong> nos classes de combattants définissent simplement un attribut ou une propriété <code>race</code> avec une valeur par défaut cohérente :
+<li><p><strong>Aucun changement sur <code>take_damage(self, amount: int)</code> :</strong> la méthode continue de recevoir un montant brut de dégâts entiers. Pour <code>Cyborg</code>, le blindage <code>shield</code> continue de s’appliquer en réduction finale.</p></li>
+<li><p><strong>Attribut <code>race</code> rétro-compatible :</strong> nos classes de combattants définissent simplement un attribut ou une propriété <code>race</code> avec une valeur par défaut cohérente :</p>
 <ul>
 <li><code>BaseWarrior</code> possède <code>self.race: str = "Terrien"</code>.</li>
 <li><code>SaiyanWarrior</code> possède <code>self.race: str = "Saiyan"</code>.</li>
 <li><code>Cyborg</code> possède <code>self.race: str = "Cyborg"</code>. Toutes les signatures existantes restent valides : <code>BaseWarrior("Krilin", 100)</code> fonctionne exactement comme avant.</li>
 </ul></li>
-<li><strong>Le calcul d’assaut modulé :</strong> lors d’un affrontement, le moteur de match calcule : <span class="math display">\[\text{dégâts effectifs} = \lfloor \text{attaquant.execute\_attack()} \times \text{multiplicateur} \rfloor\]</span> puis transmet ce montant à <code>défenseur.take_damage(dégâts effectifs)</code>.</li>
+<li><p><strong>Le calcul d’assaut modulé :</strong> lors d’un affrontement, le moteur de match calcule : <span class="math display">\[\text{dégâts effectifs} = \lfloor \text{attaquant.execute\_attack()} \times \text{multiplicateur} \rfloor\]</span> puis transmet ce montant à <code>défenseur.take_damage(dégâts effectifs)</code>.</p></li>
 </ol>
 <hr>
 </section>
@@ -544,11 +718,13 @@ Corps-a-corps,1.0,1.0,1.2,0.5
 Ki,1.5,1.0,1.0,0.5
 Magie,1.2,1.5,1.0,2.0
 Technologie,1.0,1.2,1.5,1.0</code></pre>
+<p>ou charger le depuis le dépôt</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sSL</span> <span class="st">"https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/data/styles_combat.csv"</span> <span class="at">-o</span> data/styles_combat.csv</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Chargeons cette matrice avec Pandas en désignant la première colonne comme index des lignes :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"data/styles_combat.csv"</span>, index_col<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"data/styles_combat.csv"</span>, index_col<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Affichage console :</p>
 <pre class="text"><code>               Terrien  Saiyan  Namek  Cyborg
 style                                        
@@ -557,19 +733,24 @@ Ki                 1.5     1.0    1.0     0.5
 Magie              1.2     1.5    1.0     2.0
 Technologie        1.0     1.2    1.5     1.0</code></pre>
 <p>Pour extraire une valeur à l’intersection d’une ligne et d’une colonne étiquetées, on utilise <strong><code>.loc[ligne, colonne]</code></strong> :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>coeff <span class="op">=</span> <span class="bu">float</span>(df.loc[<span class="st">"Magie"</span>, <span class="st">"Cyborg"</span>])  <span class="co"># Renvoie exactement 2.0</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>coeff <span class="op">=</span> <span class="bu">float</span>(df.loc[<span class="st">"Magie"</span>, <span class="st">"Cyborg"</span>])  <span class="co"># Renvoie exactement 2.0</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Performance en Simulation Massive (Data Science Reflex)
+<span class="screen-reader-only">Note</span>Performance en Simulation Massive : Du DataFrame au Dictionnaire Imbriqué
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>L’indexation <code>.loc</code> de Pandas apporte confort et sécurité lors du chargement. En revanche, dans une boucle de Monte Carlo exécutant <span class="math inline">\(100\,000\)</span> duels, <code>.loc</code> introduit une surcharge sensible. L’astuce d’ingénieur consiste à convertir le DataFrame en dictionnaire imbriqué une seule fois :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>lookup <span class="op">=</span> df.to_dict()  <span class="co"># Accès direct lookup["Cyborg"]["Magie"] 50x plus rapide !</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>L’indexation <code>.loc</code> de Pandas apporte confort et sécurité lors du chargement, du filtrage ou de l’affichage ponctuel d’une confrontation dans Streamlit. En revanche, dans une boucle de Monte-Carlo exécutant <span class="math inline">\(100\,000\)</span> duels, répéter <code>.loc</code> induit un surcoût sensible (environ <span class="math inline">\(50\)</span> fois plus lent que l’acccès dictionnaire).</p>
+<p>La bonne pratique d’ingénierie logicielle consiste à :</p>
+<ol type="1">
+<li>Valider et ingérer la matrice tabulaire via Pandas au chargement (<code>pd.read_csv</code>).</li>
+<li>Pré-convertir la matrice en dictionnaire Python natif imbriqué via <code>df.to_dict(orient="index")</code>.</li>
+<li>Réaliser des lectures directes en <span class="math inline">\(O(1)\)</span> dans la boucle de simulation : <code>lookup[style_attaque][race_defenseur]</code>.</li>
+</ol>
 </div>
 </div>
 <hr>
@@ -580,17 +761,21 @@ Technologie        1.0     1.2    1.5     1.0</code></pre>
 <section id="cahier-des-charges-2" class="level3">
 <h3 class="anchored" data-anchor-id="cahier-des-charges-2">Cahier des charges</h3>
 <ol type="1">
-<li>Implémentez la fonction <code>load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -&gt; pd.DataFrame</code> :
+<li><p>Implémentez la fonction <code>load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -&gt; pd.DataFrame</code> :</p>
 <ul>
-<li>Vérifie que le fichier existe (lever <code>FileNotFoundError</code> sinon).</li>
+<li>Vérifie que le fichier existe (lever <code>FileNotFoundError</code> sinon: on peut utiliser <code>is_file()</code>).</li>
 <li>Charge le fichier via <code>pd.read_csv(filepath, index_col=0)</code>.</li>
 <li>Convertit l’ensemble des valeurs numériques en flottants avec <code>.astype(float)</code>.</li>
 <li>Retourne le DataFrame.</li>
 </ul></li>
-<li>Implémentez la fonction <code>get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str) -&gt; float</code> :
+<li><p>Implémentez la fonction <code>get_style_multiplier(df: pd.DataFrame, attack_style: str, defender_race: str) -&gt; float</code> :</p>
 <ul>
 <li>Vérifie que <code>attack_style</code> est bien présent dans <code>df.index</code> et que <code>defender_race</code> est présent dans <code>df.columns</code>. Si l’une des clés est absente, lever <code>ValueError(f"Style ou race non répertorié : {attack_style}, {defender_race}")</code>.</li>
 <li>Retourne le coefficient extrait converti en <code>float</code>.</li>
+</ul></li>
+<li><p>Implémentez la fonction <code>build_style_lookup(df: pd.DataFrame) -&gt; dict[str, dict[str, float]]</code> :</p>
+<ul>
+<li>Convertit le DataFrame en dictionnaire imbriqué indexé d’abord par style d’attaque, puis par race défenseure : <code>df.to_dict(orient="index")</code> afin de permettre un accès instantané en complexité <span class="math inline">\(O(1)\)</span> : <code>lookup["Magie"]["Cyborg"] == 2.0</code>.</li>
 </ul></li>
 </ol>
 <hr>
@@ -605,7 +790,7 @@ Technologie        1.0     1.2    1.5     1.0</code></pre>
 <h1>Partie 4 : Ingestion de Données Spatiales : Le Format GeoJSON</h1>
 <section id="motivation-quest-ce-que-le-geojson-et-à-quoi-sert-il" class="level2">
 <h2 class="anchored" data-anchor-id="motivation-quest-ce-que-le-geojson-et-à-quoi-sert-il">4.1 Motivation : Qu’est-ce que le GeoJSON et à quoi sert-il ?</h2>
-<p>Dans le projet de fin de semestre, les tournois ne se déroulent pas dans le vide : ils prennent place dans des arènes réparties sur le territoire (les arènes d’Occitanie : Montpellier, Toulouse, Nîmes…). Dans le jalon final, ces arènes seront projetées sur une carte interactive via Streamlit et Folium.</p>
+<p>Les tournois ne se déroulent pas dans le vide : ils prennent place dans des arènes réparties sur le territoire. Dans le jalon final, ces arènes seront projetées sur une carte interactive via Streamlit et Folium.</p>
 <p>Faut-il installer des bibliothèques cartographiques lourdes (GDAL, GeoPandas) pour lire ces données ? <strong>Absolument pas.</strong></p>
 <p>Le format <strong>GeoJSON (IETF RFC 7946)</strong> n’est rien d’autre qu’un <strong>fichier texte JSON standard</strong> qui organise les données géographiques selon une nomenclature universelle :</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
@@ -625,17 +810,21 @@ Technologie        1.0     1.2    1.5     1.0</code></pre>
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Avertissement</span>Piège Fréquent : L’Ordre des Coordonnées
+<span class="screen-reader-only">Important</span>Le Piège d’Intégration Cartographique : GeoJSON vs Folium / Leaflet
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>En cartographie mathématique et dans la norme GeoJSON, les coordonnées sont <strong>toujours</strong> ordonnées sous la forme <code>[Longitude, Latitude]</code> (c’est-à-dire <span class="math inline">\([X, Y]\)</span> dans le plan cartésien), et non <code>[Latitude, Longitude]</code> !</p>
+<ul>
+<li><strong>Norme GeoJSON (RFC 7946) :</strong> L’ordre des coordonnées géométriques suit l’axe cartésien standard <span class="math inline">\([X, Y]\)</span>, soit impérativement <code>[Longitude, Latitude]</code>.</li>
+<li><strong>Bibliothèques de cartographie (Folium, Leaflet) :</strong> Les fonctions de tracé (comme <code>folium.Marker</code>) exigent l’ordre géographique traditionnel : <code>[Latitude, Longitude]</code>.</li>
+</ul>
+<p>Pour sanctuariser le pipeline et éviter toute inversion lors du développement du tableau de bord (Streamlit), le module de chargement doit isoler la conversion <code>[lon, lat] -&gt; (lat, lon)</code>.</p>
 </div>
 </div>
 <hr>
@@ -687,6 +876,8 @@ Technologie        1.0     1.2    1.5     1.0</code></pre>
 <span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
 <span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
 <span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>ou chargez-le automatiquement avec:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sSL</span> <span class="st">"https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/data/arenas_dbz.geojson"</span> <span class="at">-o</span> data/arenas_dbz.geojson</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="exercice-4-chargement-sécurisé-du-geojson-srczarenaioloader.py" class="level2">
@@ -694,7 +885,23 @@ Technologie        1.0     1.2    1.5     1.0</code></pre>
 <p>Complétez <code>src/zarena/io/loader.py</code>.</p>
 <section id="cahier-des-charges-3" class="level3">
 <h3 class="anchored" data-anchor-id="cahier-des-charges-3">Cahier des charges</h3>
-<p>Implémentez la fonction <code>load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -&gt; dict</code> : 1. Vérifie l’existence du fichier sur le disque (<code>FileNotFoundError</code>). 2. Charge le contenu avec <code>json.load()</code>. 3. Valide les contraintes structurelles minimales de la norme RFC 7946 : * Le dictionnaire doit posséder la clé <code>"type"</code> avec la valeur <code>"FeatureCollection"</code>. * Le dictionnaire doit contenir une liste sous la clé <code>"features"</code>. * Si l’une de ces conditions n’est pas remplie, lever immédiatement <code>ValueError("Structure GeoJSON non conforme.")</code>. 4. Renvoie le dictionnaire brut.</p>
+<p>Implémentez la fonction <code>load_arenas(filepath: str | Path = "data/arenas_dbz.geojson") -&gt; dict</code> :</p>
+<ol type="1">
+<li>Vérifie l’existence du fichier sur le disque (<code>FileNotFoundError</code>).</li>
+<li>Charge le contenu avec <code>json.load()</code>.</li>
+<li>Valide les contraintes structurelles minimales de la norme RFC 7946 :
+<ul>
+<li>Le dictionnaire doit posséder la clé <code>"type"</code> avec la valeur <code>"FeatureCollection"</code>.</li>
+<li>Le dictionnaire doit contenir une liste sous la clé <code>"features"</code>.</li>
+<li>Si l’une de ces conditions n’est pas remplie, lever immédiatement <code>ValueError("Structure GeoJSON non conforme.")</code>.</li>
+</ul></li>
+<li>Renvoie le dictionnaire brut.</li>
+</ol>
+<p>Implémentez la fonction <code>extract_arena_coordinates(feature: dict) -&gt; tuple[float, float]</code> :</p>
+<ul>
+<li>Extrait les coordonnées géométriques <code>feature["geometry"]["coordinates"]</code>.</li>
+<li>Retourne le tuple <code>(latitude, longitude)</code>.</li>
+</ul>
 <hr>
 <blockquote class="blockquote">
 <p><em>Transition : Notre chaîne d’ingestion complète est implémentée (API REST, cache disque, CSV Pandas, GeoJSON). Comment tester l’ensemble de ces briques dans un environnement automatisé de CI/CD sans jamais dépendre d’Internet ? C’est le rôle du Mocking.</em></p>
@@ -708,11 +915,16 @@ Technologie        1.0     1.2    1.5     1.0</code></pre>
 <section id="pourquoi-mocker-le-réseau-dans-les-tests" class="level2">
 <h2 class="anchored" data-anchor-id="pourquoi-mocker-le-réseau-dans-les-tests">5.1 Pourquoi « Mocker » le Réseau dans les Tests ?</h2>
 <p>Considérons ce test naïf :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_recuperation_goku():</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    fetcher <span class="op">=</span> CapsuleCorpFetcher(<span class="st">"https://api.capsulecorp.com"</span>)</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> fetcher.get_warrior_data(<span class="dv">1</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> data[<span class="st">"name"</span>] <span class="op">==</span> <span class="st">"Son Goku"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Ce test présente trois défauts majeurs : 1. <strong>Instabilité :</strong> Si le serveur de la Capsule Corp est en maintenance, le test échoue alors que notre code fonctionne parfaitement. 2. <strong>Lenteur :</strong> Exécuter 100 requêtes HTTP dans une suite de tests allonge le temps d’exécution de plusieurs minutes. 3. <strong>Impossibilité de tester les pannes :</strong> Comment vérifier que notre gestionnaire d’erreurs intercepte bien une panne HTTP 500 sans faire crasher le vrai serveur de production ?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_recuperation_goku():</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    fetcher <span class="op">=</span> CapsuleCorpFetcher(<span class="st">"https://api.capsulecorp.com"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> fetcher.get_warrior_data(<span class="dv">1</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> data[<span class="st">"name"</span>] <span class="op">==</span> <span class="st">"Son Goku"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Ce test présente trois défauts majeurs :</p>
+<ol type="1">
+<li><strong>Instabilité :</strong> Si le serveur de la Capsule Corp est en maintenance, le test échoue alors que notre code fonctionne parfaitement.</li>
+<li><strong>Lenteur :</strong> Exécuter 100 requêtes HTTP dans une suite de tests allonge le temps d’exécution de plusieurs minutes.</li>
+<li><strong>Impossibilité de tester les pannes :</strong> Comment vérifier que notre gestionnaire d’erreurs intercepte bien une panne HTTP 500 sans faire crasher le vrai serveur de production ?</li>
+</ol>
 <p><strong>La Solution : Le Mocking.</strong><br>
 Un <strong>Mock</strong> est un intercepteur logiciel qui intercepte les requêtes <code>requests.get()</code> au sein même du processus Python et renvoie une réponse préenregistrée en mémoire vive, <strong>sans qu’aucun paquet réseau ne soit émis</strong>.</p>
 <hr>
@@ -720,16 +932,16 @@ Un <strong>Mock</strong> est un intercepteur logiciel qui intercepte les requêt
 <section id="utilisation-de-la-fixture-requests_mock" class="level2">
 <h2 class="anchored" data-anchor-id="utilisation-de-la-fixture-requests_mock">5.2 Utilisation de la Fixture <code>requests_mock</code></h2>
 <p>Grâce au paquet <code>requests-mock</code>, Pytest fournit la fixture <strong><code>requests_mock</code></strong> :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_interception_reseau(requests_mock):</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Configuration du simulateur : intercepter cette URL précise</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    url <span class="op">=</span> <span class="st">"https://api.test.com/warriors/1.json"</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    requests_mock.get(url, json<span class="op">=</span>{<span class="st">"name"</span>: <span class="st">"Son Goku"</span>, <span class="st">"hp_base"</span>: <span class="dv">120</span>}, status_code<span class="op">=</span><span class="dv">200</span>)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Exécution du vrai code métier</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    reponse <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="fl">5.0</span>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. La réponse est instantanée et provient de la mémoire</span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> reponse.json()[<span class="st">"name"</span>] <span class="op">==</span> <span class="st">"Son Goku"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_interception_reseau(requests_mock):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. Configuration du simulateur : intercepter cette URL précise</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    url <span class="op">=</span> <span class="st">"https://api.test.com/warriors/1.json"</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    requests_mock.get(url, json<span class="op">=</span>{<span class="st">"name"</span>: <span class="st">"Son Goku"</span>, <span class="st">"hp_base"</span>: <span class="dv">120</span>}, status_code<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. Exécution du vrai code métier</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    reponse <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="fl">5.0</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. La réponse est instantanée et provient de la mémoire</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> reponse.json()[<span class="st">"name"</span>] <span class="op">==</span> <span class="st">"Son Goku"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="exercice-5-la-suite-de-tests-dingestion-teststest_fetcher.py-autonomie-complète" class="level2">
@@ -737,9 +949,60 @@ Un <strong>Mock</strong> est un intercepteur logiciel qui intercepte les requêt
 <p>Créez <code>tests/test_fetcher.py</code>. Vous allez concevoir la suite de tests validant la résilience du client <code>CapsuleCorpFetcher</code>.</p>
 <section id="cahier-des-charges-4" class="level3">
 <h3 class="anchored" data-anchor-id="cahier-des-charges-4">Cahier des charges</h3>
-<p>Rédigez les quatre tests unitaires suivants : 1. <code>test_fetcher_cache_miss_queries_api_and_saves_to_disk(requests_mock, tmp_path)</code> : * Simule une réponse HTTP 200 sur <code>https://api.capsulecorp.com/warriors/1.json</code> avec <code>{"id": 1, "name": "Son Goku", "hp_base": 120}</code>. * Instancie <code>CapsuleCorpFetcher</code> en pointant son dossier de cache sur <code>tmp_path</code>. * Vérifie que le fichier <code>tmp_path / "1.json"</code> n’existe pas au départ. * Appelle <code>get_warrior_data(1)</code>. * Constate que les données reçues sont correctes, que le fichier local a été créé sur disque et contient le JSON attendu. 2. <code>test_fetcher_cache_hit_does_not_call_network(requests_mock, tmp_path)</code> : * Écrit manuellement un fichier <code>1.json</code> dans <code>tmp_path</code> contenant <code>{"id": 1, "name": "Goku Local"}</code>. * <strong>Ne déclare aucun mock d’URL</strong> (si une requête HTTP était émise, le test planterait immédiatement). * Appelle <code>get_warrior_data(1)</code>. * Vérifie que le résultat renvoyé est <code>"Goku Local"</code>. 3. <code>test_fetcher_api_error_without_cache_raises_data_fetch_error(requests_mock, tmp_path)</code> : * Simule un code HTTP 404 sur l’ID 999. * Vérifie avec <code>pytest.raises(DataFetchError)</code> que la méthode refuse l’opération. 4. <code>test_loader_style_matrix_and_arenas(tmp_path)</code> : * Crée un fichier CSV temporaire dans <code>tmp_path</code> et teste <code>load_style_matrix</code> et <code>get_style_multiplier</code>. * Crée un fichier GeoJSON temporaire et vérifie que <code>load_arenas</code> valide le format et lève <code>ValueError</code> si le type n’est pas <code>"FeatureCollection"</code>.</p>
+<p>Rédigez les quatre tests unitaires suivants :</p>
+<ol type="1">
+<li><p><code>test_fetcher_cache_miss_queries_api_and_saves_to_disk(requests_mock, tmp_path)</code> :</p>
+<ul>
+<li>Simule une réponse HTTP 200 sur <code>https://api.capsulecorp.com/warriors/1.json</code> avec <code>{"id": 1, "name": "Son Goku", "hp_base": 120}</code>.</li>
+<li>Instancie <code>CapsuleCorpFetcher</code> en pointant son dossier de cache sur <code>tmp_path</code>.</li>
+<li>Vérifie que le fichier <code>tmp_path / "1.json"</code> n’existe pas au départ.</li>
+<li>Appelle <code>get_warrior_data(1)</code>.</li>
+<li>Constate que les données reçues sont correctes, que le fichier local a été créé sur disque et contient le JSON attendu.</li>
+</ul></li>
+<li><p><code>test_fetcher_cache_hit_does_not_call_network(requests_mock, tmp_path)</code> :</p>
+<ul>
+<li>Écrit manuellement un fichier <code>1.json</code> dans <code>tmp_path</code> contenant <code>{"id": 1, "name": "Goku Local"}</code>.</li>
+<li><strong>Ne déclare aucun mock d’URL</strong>.</li>
+<li>Appelle <code>get_warrior_data(1)</code>.</li>
+<li>Vérifie que le résultat renvoyé est <code>"Goku Local"</code>.</li>
+</ul></li>
+<li><p><code>test_fetcher_api_error_without_cache_raises_data_fetch_error(requests_mock, tmp_path)</code> :</p>
+<ul>
+<li>Simule un code HTTP 404 sur l’ID 999.</li>
+<li>Vérifie avec <code>pytest.raises(DataFetchError)</code> que la méthode refuse l’opération.</li>
+</ul></li>
+<li><p><code>test_loader_style_matrix_and_arenas(tmp_path)</code> :</p>
+<ul>
+<li>On peut utiliser</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a> csv_file <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"styles.csv"</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a> csv_file.write_text(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>     <span class="st">"style,Saiyan,Cyborg</span><span class="ch">\n</span><span class="st">Corps-a-corps,1.0,0.5</span><span class="ch">\n</span><span class="st">Ki,1.0,0.5</span><span class="ch">\n</span><span class="st">"</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>     encoding<span class="op">=</span><span class="st">"utf-8"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a> arena_feature <span class="op">=</span> {</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>     <span class="st">"type"</span>: <span class="st">"Feature"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>     <span class="st">"geometry"</span>: {<span class="st">"type"</span>: <span class="st">"Point"</span>, <span class="st">"coordinates"</span>: [<span class="fl">3.8767</span>, <span class="fl">43.6108</span>]},</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>     <span class="st">"properties"</span>: {<span class="st">"name"</span>: <span class="st">"Arène Montpellier"</span>},</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a> }</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a> geojson_file <span class="op">=</span> tmp_path <span class="op">/</span> <span class="st">"arenas.geojson"</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a> geojson_file.write_text(</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>     json.dumps({</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>         <span class="st">"type"</span>: <span class="st">"FeatureCollection"</span>,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>         <span class="st">"features"</span>: [arena_feature],</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>     }),</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>     encoding<span class="op">=</span><span class="st">"utf-8"</span>,</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a> )</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>pour simuler les fichiers csv et geojson.</p>
+<ul>
+<li>Valide le chargement d’un CSV temporaire avec <code>load_style_matrix</code>.</li>
+<li>Vérifie le calcul direct par <code>.loc</code> via <code>get_style_multiplier</code> et la détection d’index invalide (<code>ValueError</code>).</li>
+<li>Vérifie la conversion en dictionnaire rapide <code>build_style_lookup(df)</code>.</li>
+<li>Vérifie la validation structurelle de <code>load_arenas</code> et teste <code>extract_arena_coordinates</code> pour s’assurer que l’ordre <code>[lon, lat]</code> devient bien <code>(lat, lon)</code>.</li>
+</ul></li>
+</ol>
 <p>Exécutez vos tests pour valider le bon fonctionnement du mock :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_fetcher.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_fetcher.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 </section>
@@ -747,7 +1010,7 @@ Un <strong>Mock</strong> est un intercepteur logiciel qui intercepte les requêt
 <section id="partie-6-audit-de-couverture-bilan-qualité-15-min" class="level1">
 <h1>Partie 6 : Audit de Couverture &amp; Bilan Qualité (15 min)</h1>
 <p>Exécutez <code>pytest</code> avec analyse de couverture sur l’ensemble du sous-paquet <code>zarena.io</code> :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>src/zarena/io <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>src/zarena/io <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Assurez-vous d’atteindre un score de couverture <strong>supérieur à <span class="math inline">\(95\%\)</span></strong> sur <code>fetcher.py</code> et <code>loader.py</code>. Si des lignes d’exceptions restent dans la colonne <code>Missing</code>, complétez vos tests unitaires.</p>
 <hr>
 </section>
@@ -767,59 +1030,171 @@ Un <strong>Mock</strong> est un intercepteur logiciel qui intercepte les requêt
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Les bancs de test de la CI GitHub Actions reposent <strong>strictement</strong> sur les interfaces suivantes : * Module <code>pyarena.io.fetcher</code> : classe <code>DataFetcher</code>. * Module <code>pyarena.io.loader</code> : fonctions <code>load_type_matrix</code> et <code>load_arenas</code>.</p>
+<p>Les bancs de test de la CI GitHub Actions reposent <strong>strictement</strong> sur les interfaces suivantes :</p>
+<ul>
+<li>Module <code>pyarena.io.fetcher</code> : classe <code>DataFetcher</code>.</li>
+<li>Module <code>pyarena.io.loader</code> : fonctions <code>load_type_matrix</code> et <code>load_arenas</code>.</li>
+</ul>
 </div>
 </div>
 <hr>
 </section>
 <section id="étape-1-branche-git-de-fonctionnalité" class="level3">
 <h3 class="anchored" data-anchor-id="étape-1-branche-git-de-fonctionnalité">Étape 1 : Branche Git de Fonctionnalité</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/pyarena-officiel</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin dev</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/io-pipeline</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/pyarena-officiel</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin dev</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/io-pipeline</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="étape-2-le-client-dingestion-srcpyarenaiofetcher.py" class="level3">
 <h3 class="anchored" data-anchor-id="étape-2-le-client-dingestion-srcpyarenaiofetcher.py">Étape 2 : Le Client d’Ingestion (<code>src/pyarena/io/fetcher.py</code>)</h3>
 <p>Implémentez la classe <code>DataFetcher</code> conformément à la section 5.1 de l’Annexe Technique :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/pyarena/io/fetcher.py</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.exceptions <span class="im">import</span> DataFetchError</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DataFetcher:</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, cache_dir: <span class="bu">str</span> <span class="op">|</span> Path <span class="op">=</span> <span class="st">"data/cache"</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Configure le gestionnaire d'ingestion avec le dossier de stockage local."""</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cache_dir <span class="op">=</span> Path(cache_dir)</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cache_dir.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.base_url <span class="op">=</span> <span class="st">"https://pokeapi.co/api/v2/pokemon"</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_pokemon(<span class="va">self</span>, pokemon_id: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Récupère le dictionnaire JSON décrivant la créature.</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Stratégie :</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co">          1. Si 'data/cache/{pokemon_id}.json' existe sur le disque, charger le fichier.</span></span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co">          2. Sinon, interroger l'API PokéAPI, enregistrer la réponse dans le cache puis la renvoyer.</span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="co">          3. En cas d'échec réseau sans cache disponible, lever DataFetchError.</span></span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>        ...</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># src/pyarena/io/fetcher.py</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyarena.core.exceptions <span class="im">import</span> DataFetchError</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DataFetcher:</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, cache_dir: <span class="bu">str</span> <span class="op">|</span> Path <span class="op">=</span> <span class="st">"data/cache"</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Configure le gestionnaire d'ingestion avec le dossier de stockage local."""</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cache_dir <span class="op">=</span> Path(cache_dir)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cache_dir.mkdir(parents<span class="op">=</span><span class="va">True</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.base_url <span class="op">=</span> <span class="st">"https://pokeapi.co/api/v2/pokemon"</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_pokemon(<span class="va">self</span>, pokemon_id: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Récupère le dictionnaire JSON décrivant la créature.</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Stratégie :</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="co">          1. Si 'data/cache/{pokemon_id}.json' existe sur le disque, charger le fichier.</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="co">          2. Sinon, interroger l'API PokéAPI, enregistrer la réponse dans le cache puis la renvoyer.</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="co">          3. En cas d'échec réseau sans cache disponible, lever DataFetchError.</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>        ...</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Comprendre la Structure JSON de PokéAPI
+<span class="screen-reader-only">Note</span>Comprendre et Décoder la Structure JSON Imbriquée de PokéAPI
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Contrairement à notre modèle simplifié, la vraie PokéAPI renvoie une charge utile imbriquée. Pour extraire les statistiques de base au Niveau 50 lors de l’instanciation de vos objets <code>Fighter</code>, vous utiliserez une compréhension de dictionnaire :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exemple de décodage des statistiques PokéAPI</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>stats_brutes <span class="op">=</span> {s[<span class="st">"stat"</span>][<span class="st">"name"</span>]: s[<span class="st">"base_stat"</span>] <span class="cf">for</span> s <span class="kw">in</span> payload[<span class="st">"stats"</span>]}</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Donne : {'hp': 35, 'attack': 55, 'defense': 40, 'speed': 90, ...}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Lorsque vous appelez votre méthode <code>fetcher.get_pokemon(pokemon_id)</code> (ou directement <code>response.json()</code>), l’API PokéAPI renvoie un volumineux dictionnaire Python racine que l’on nomme ici <strong><code>payload</code></strong> (la « charge utile » de la réponse HTTP).</p>
+<p>Contrairement à des données tabulaires simples, l’API ne stocke pas directement <code>payload["hp"]</code> ou <code>payload["attack"]</code>. Les données sont <strong>fortement imbriquées</strong> dans des sous-listes de dictionnaires.</p>
+<hr>
+<section id="anatomie-de-la-clé-payloadstats" class="level4">
+<h4 class="anchored" data-anchor-id="anatomie-de-la-clé-payloadstats">1. Anatomie de la clé <code>payload["stats"]</code></h4>
+<p>Dans la réponse de l’API pour Pikachu (<code>id = 25</code>), la clé <code>"stats"</code> est associée à une <strong>liste de 6 dictionnaires</strong> (un par caractéristique) ayant la structure suivante :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"id"</span><span class="fu">:</span> <span class="dv">25</span><span class="fu">,</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"pikachu"</span><span class="fu">,</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"stats"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"base_stat"</span><span class="fu">:</span> <span class="dv">35</span><span class="fu">,</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"effort"</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"stat"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"hp"</span><span class="fu">,</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"[https://pokeapi.co/api/v2/stat/1/](https://pokeapi.co/api/v2/stat/1/)"</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"base_stat"</span><span class="fu">:</span> <span class="dv">55</span><span class="fu">,</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"effort"</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"stat"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"attack"</span><span class="fu">,</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"[https://pokeapi.co/api/v2/stat/2/](https://pokeapi.co/api/v2/stat/2/)"</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"base_stat"</span><span class="fu">:</span> <span class="dv">40</span><span class="fu">,</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"effort"</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"stat"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"defense"</span><span class="fu">,</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"[https://pokeapi.co/api/v2/stat/3/](https://pokeapi.co/api/v2/stat/3/)"</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"base_stat"</span><span class="fu">:</span> <span class="dv">90</span><span class="fu">,</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"effort"</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"stat"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"speed"</span><span class="fu">,</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"[https://pokeapi.co/api/v2/stat/6/](https://pokeapi.co/api/v2/stat/6/)"</span></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pour chaque élément s de la liste payload[“stats”] :</p>
+<ul>
+<li>s[“base_stat”] est un entier représentant la valeur numérique brute de la statistique.</li>
+<li>s[“stat”] est un sous-dictionnaire dont le champ “name” contient la désignation textuelle en minuscules (“hp”, “attack”, “defense”, “speed”…).</li>
+</ul>
+<p>Pour transformer cette liste imbriquée en un dictionnaire plat et directement indexable par nom, on utilise une compréhension de dictionnaire :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># payload est le dictionnaire renvoyé par get_pokemon(id)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>payload <span class="op">=</span> fetcher.get_pokemon(<span class="dv">25</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Extraction aplatie : chaque élément s produit la paire { "nom_stat": valeur }</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>raw_stats <span class="op">=</span> {s[<span class="st">"stat"</span>][<span class="st">"name"</span>]: s[<span class="st">"base_stat"</span>] <span class="cf">for</span> s <span class="kw">in</span> payload[<span class="st">"stats"</span>]}</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">#L'objet résultant raw_stats est un dictionnaire à plat</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co"># raw_stats = {'hp': 35, 'attack': 55, 'defense': 40, 'special-attack': 50, 'special-defense': 50, 'speed': 90}</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Vous pouvez ensuite extraire les caractéristiques nécessaires au constructeur de Fighter sans risque d'erreur d'indice :</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>hp_base <span class="op">=</span> raw_stats[<span class="st">"hp"</span>]</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>attack_base <span class="op">=</span> raw_stats[<span class="st">"attack"</span>]</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>defense_base <span class="op">=</span> raw_stats[<span class="st">"defense"</span>]</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>speed_base <span class="op">=</span> raw_stats[<span class="st">"speed"</span>]</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<ol start="2" type="1">
+<li>Anatomie de la clé payload[“types”] et Règle des Slots</li>
+</ol>
+<p>La clé payload[“types”] contient elle aussi une liste de dictionnaires, où chaque entrée associe un type élémentaire à un ordre d’apparition (slot) :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"charizard"</span><span class="fu">,</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">"types"</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"slot"</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"type"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"fire"</span><span class="fu">,</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"[https://pokeapi.co/api/v2/type/10/](https://pokeapi.co/api/v2/type/10/)"</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"slot"</span><span class="fu">:</span> <span class="dv">2</span><span class="fu">,</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>      <span class="dt">"type"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"name"</span><span class="fu">:</span> <span class="st">"flying"</span><span class="fu">,</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>        <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"[https://pokeapi.co/api/v2/type/3/](https://pokeapi.co/api/v2/type/3/)"</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Règle des slots : Conformément à l’Annexe Technique, le type principal type_1 est impérativement celui avec slot == 1. Si la créature possède un second type, il est assigné à slot == 2 (sinon type_2 vaut None).</li>
+<li>Traduction Anglais → Français : PokéAPI renvoie des noms anglais en minuscules (“fire”, “water”), alors que la matrice tabulaire data/types.csv utilise le français capitalisé (“Feu”, “Eau”).</li>
+</ul>
+<p>On procède donc en deux temps : un dictionnaire de correspondance, puis une extraction ordonnée par slot :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Table de correspondance bilingue officielle</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>TYPE_TRANSLATION: <span class="bu">dict</span>[<span class="bu">str</span>, <span class="bu">str</span>] <span class="op">=</span> {</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"normal"</span>: <span class="st">"Normal"</span>, <span class="st">"fire"</span>: <span class="st">"Feu"</span>, <span class="st">"water"</span>: <span class="st">"Eau"</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"grass"</span>: <span class="st">"Plante"</span>, <span class="st">"electric"</span>: <span class="st">"Électrik"</span>, <span class="st">"ice"</span>: <span class="st">"Glace"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fighting"</span>: <span class="st">"Combat"</span>, <span class="st">"poison"</span>: <span class="st">"Poison"</span>, <span class="st">"ground"</span>: <span class="st">"Sol"</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"flying"</span>: <span class="st">"Vol"</span>, <span class="st">"psychic"</span>: <span class="st">"Psy"</span>, <span class="st">"bug"</span>: <span class="st">"Insecte"</span>,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rock"</span>: <span class="st">"Roche"</span>, <span class="st">"ghost"</span>: <span class="st">"Spectre"</span>, <span class="st">"dragon"</span>: <span class="st">"Dragon"</span>,</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"steel"</span>: <span class="st">"Acier"</span>, <span class="st">"dark"</span>: <span class="st">"Ténèbres"</span>, <span class="st">"fairy"</span>: <span class="st">"Fée"</span>,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Dictionnaire associant chaque numéro de slot au type français correspondant :</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="co"># slots = {1: "Feu", 2: "Vol"} pour Dracaufeu</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>slots <span class="op">=</span> {</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    t[<span class="st">"slot"</span>]: TYPE_TRANSLATION.get(t[<span class="st">"type"</span>][<span class="st">"name"</span>], t[<span class="st">"type"</span>][<span class="st">"name"</span>].capitalize())</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> payload[<span class="st">"types"</span>]</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>type_1: <span class="bu">str</span> <span class="op">=</span> slots[<span class="dv">1</span>]</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>type_2: <span class="bu">str</span> <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> slots.get(<span class="dv">2</span>, <span class="va">None</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Grâce à slots.get(2, None), si le Pokémon est mono-type (comme Pikachu), la clé 2 n’existe pas et type_2 reçoit la valeur None, respectant le contrat d’interface de Fighter.</p>
+</section>
 </div>
 </div>
 <hr>
@@ -856,11 +1231,11 @@ Un <strong>Mock</strong> est un intercepteur logiciel qui intercepte les requêt
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li><strong>Périmètre :</strong> Vous devez gérer l’intégralité des <strong>18 types officiels</strong> de Pokémon (matrice <span class="math inline">\(18 \times 18\)</span>) <strong>ET</strong> le calcul combiné pour les Pokémon à double-type.</li>
-<li><strong>Calcul du multiplicateur combiné :</strong> Si un défenseur est de type double (ex. Dracaufeu : <code>type_1="Feu"</code>, <code>type_2="Vol"</code>), le multiplicateur d’une attaque subie est le produit des multiplicateurs élémentaires individuels :<br>
+<li><p><strong>Périmètre :</strong> Vous devez gérer l’intégralité des <strong>18 types officiels</strong> de Pokémon (matrice <span class="math inline">\(18 \times 18\)</span>) <strong>ET</strong> le calcul combiné pour les Pokémon à double-type.</p></li>
+<li><p><strong>Calcul du multiplicateur combiné :</strong> Si un défenseur est de type double (ex. Dracaufeu : <code>type_1="Feu"</code>, <code>type_2="Vol"</code>), le multiplicateur d’une attaque subie est le produit des multiplicateurs élémentaires individuels :<br>
 <span class="math display">\[m_{\text{total}} = m(\text{type\_attaque}, \text{type\_1}) \times m(\text{type\_attaque}, \text{type\_2})\]</span><br>
-Ce multiplicateur prend alors ses valeurs dans <span class="math inline">\(\{0\,;\, 0{,}25\,;\, 0{,}5\,;\, 1{,}0\,;\, 2{,}0\,;\, 4{,}0\}\)</span>.</li>
-<li><strong>Génération Automatique de la Matrice 18x18 via PokéAPI :</strong> Ne remplissez <strong>jamais</strong> cette matrice à la main ! Implémentez une fonction utilitaire (par exemple <code>build_full_type_matrix()</code>) qui interroge les 18 endpoints PokéAPI <code>https://pokeapi.co/api/v2/type/{id}</code> (IDs de 1 à 18). Dans chaque réponse, inspectez l’objet <code>damage_relations</code> :
+Ce multiplicateur prend alors ses valeurs dans <span class="math inline">\(\{0\,;\, 0{,}25\,;\, 0{,}5\,;\, 1{,}0\,;\, 2{,}0\,;\, 4{,}0\}\)</span>.</p></li>
+<li><p><strong>Génération Automatique de la Matrice 18x18 via PokéAPI :</strong> Ne remplissez <strong>jamais</strong> cette matrice à la main ! Implémentez une fonction utilitaire (par exemple <code>build_full_type_matrix()</code>) qui interroge les 18 endpoints PokéAPI <code>https://pokeapi.co/api/v2/type/{id}</code> (IDs de 1 à 18). Dans chaque réponse, inspectez l’objet <code>damage_relations</code> :</p>
 <ul>
 <li>Les types listés dans <code>double_damage_to</code> reçoivent le coefficient <span class="math inline">\(2.0\)</span>.</li>
 <li>Les types listés dans <code>half_damage_to</code> reçoivent le coefficient <span class="math inline">\(0.5\)</span>.</li>
@@ -875,24 +1250,33 @@ Ce multiplicateur prend alors ses valeurs dans <span class="math inline">\(\{0\,
 </section>
 <section id="étape-4-suite-de-tests-avec-mocking-réseau-teststest_io.py" class="level3">
 <h3 class="anchored" data-anchor-id="étape-4-suite-de-tests-avec-mocking-réseau-teststest_io.py">Étape 4 : Suite de Tests avec Mocking Réseau (<code>tests/test_io.py</code>)</h3>
-<p>Rédigez la suite de tests complète sous <code>tests/test_io.py</code> en exploitant <code>requests_mock</code> et <code>tmp_path</code> : 1. <strong>Validation du Cache-Miss :</strong> Vérifiez qu’une requête HTTP est émise et que le fichier est sauvegardé dans <code>tmp_path</code>. 2. <strong>Validation du Cache-Hit :</strong> Vérifiez qu’un fichier préexistant dans <code>tmp_path</code> est lu directement sans solliciter le réseau. 3. <strong>Simulation de Panne Réseau :</strong> Vérifiez qu’un code HTTP 500 ou une coupure réseau sans cache local lève rigoureusement <code>DataFetchError</code>. 4. <strong>Validation de la Matrice des Types :</strong> Vérifiez que <code>load_type_matrix</code> charge correctement les multiplicateurs élémentaires. 5. <strong>Validation Cartographique :</strong> Vérifiez que <code>load_arenas("data/arenes_occitanie.geojson")</code> renvoie la collection des arènes régionales conformes au schéma GeoJSON.</p>
+<p>Rédigez la suite de tests complète sous <code>tests/test_io.py</code> en exploitant les fixtures <code>requests_mock</code> et <code>tmp_path</code> :</p>
+<ol type="1">
+<li><strong>Validation du Cache-Miss :</strong> Vérifiez qu’en l’absence de fichier préexistant dans <code>tmp_path</code>, un appel à <code>fetcher.get_pokemon(id)</code> effectue bien la requête HTTP via le mock, enregistre le contenu JSON sous <code>tmp_path / f"{id}.json"</code> et retourne les données.</li>
+<li><strong>Validation du Cache-Hit (Isolation réseau absolue) :</strong> Écrivez manuellement un fichier <code>{id}.json</code> factice dans <code>tmp_path</code> avant l’appel. Vérifiez que <code>fetcher.get_pokemon(id)</code> retourne immédiatement son contenu <strong>sans déclarer aucun mock d’URL</strong> (si une requête HTTP était tentée, le test échouerait immédiatement).</li>
+<li><strong>Simulation de Panne Réseau :</strong> Vérifiez avec <code>pytest.raises(DataFetchError)</code> qu’une réponse HTTP d’erreur (ex: code 500 ou 404 simulé avec <code>requests_mock</code>) ou une coupure réseau sans cache préexistant lève formellement l’exception métier du projet.</li>
+<li><strong>Validation de la Matrice des Types :</strong> Vérifiez que <code>load_type_matrix("data/types.csv")</code> charge un <code>pd.DataFrame</code> dont les coefficients multiplicateurs sont strictement positifs ou nuls (ex: vérifier que le multiplicateur Eau contre Feu vaut bien <span class="math inline">\(2.0\)</span>).</li>
+<li><strong>Validation Cartographique &amp; Inversion Folium :</strong> Vérifiez que <code>load_arenas("data/arenes_occitanie.geojson")</code> valide la structure GeoJSON <code>FeatureCollection</code>, et testez que la fonction d’extraction de position géographique permute bien les coordonnées brutes <code>[lon, lat]</code> pour restituer le tuple <code>(latitude, longitude)</code> attendu par Folium.</li>
+<li><strong>Robustesse du Décodage Métier :</strong> Testez la fonction de conversion d’un payload PokéAPI en instance de <code>Fighter</code> : validez que les statistiques sont correctement normalisées au niveau 50 (<span class="math inline">\(PV_{\max} = \text{hp\_base} + 60\)</span>), que les types sont traduits en français et que <code>type_2</code> vaut rigoureusement <code>None</code> pour un Pokémon mono-type.</li>
+</ol>
 <hr>
 </section>
 <section id="étape-5-validation-qualité-audit-de-couverture-pull-request" class="level3">
 <h3 class="anchored" data-anchor-id="étape-5-validation-qualité-audit-de-couverture-pull-request">Étape 5 : Validation Qualité, Audit de Couverture &amp; Pull Request</h3>
 <ol type="1">
 <li><p>Vérifiez que la couverture globale de <code>pyarena.io</code> dépasse <strong><span class="math inline">\(90\%\)</span></strong> :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena.io <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena.io <span class="at">--cov-report</span><span class="op">=</span>term-missing</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Formatez et auditez le code avec Ruff :</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check src/ tests/</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> format src/ tests/</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check src/ tests/</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> format src/ tests/</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
 <li><p>Commitez, poussez votre branche sur GitHub et ouvrez la <strong>Pull Request</strong> ciblant <code>dev</code>.</p></li>
 </ol>
+
+
 </section>
 </section>
 
-</main>
-<!-- /main column -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
