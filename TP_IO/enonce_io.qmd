@@ -1,6 +1,6 @@
 ---
 title: "Cours-TP : Ingestion de Données, API REST, Cache Disque & Mocking"
-subtitle: "De la Capsule Corp aux Pipelines Résilients de PyArena"
+subtitle: "Pipelines Résilients de PyArena"
 author: "Bensaid Bilel"
 date: "06 Novembre 2026"
 lang: fr
@@ -37,7 +37,7 @@ Dans un système logiciel professionnel ou un projet de Data Science, **les donn
 | **Partie 3** | Mini-Cours Pandas : Matrices Tabulaires & Indexation Nommée | Cours & Exercice 3 (`loader.py`) |
 | **Partie 4** | Ingestion de Données Spatiales : Le Standard GeoJSON | **Semi-autonomie** (`loader.py`) |
 | **Partie 5** | Tests Unitaires Isolés & Mocking Réseau (`requests-mock`) | **Autonomie complète** (`test_fetcher.py`) |
-| **Partie 6** | Audit de Couverture & Chasse aux Branches Mortes | Diagnostic guidé |
+| **Partie 6** | Audit de Couverture | Diagnostic guidé |
 | **Synthèse** | **Devoir Maison Guidé (Hors séance) :** Pipeline `PyArena` | Projet Git en équipe |
 
 ---
@@ -48,7 +48,7 @@ Dans un système logiciel professionnel ou un projet de Data Science, **les donn
 
 En architecture logicielle, le principe de **Séparation des Responsabilités (*Separation of Concerns*)** impose d'isoler strictement la logique métier (nos modèles `BaseWarrior`, `SaiyanWarrior` sous `core/`) des mécanismes d'entrée/sortie réseau et fichier (**I/O** pour *Input/Output*).
 
-Si PokéAPI change d'adresse ou si le format d'un fichier CSV évolue, seuls les modules du sous-paquet `io/` doivent être modifiés, sans impacter une seule ligne de nos classes de combat.
+Si l'API change d'adresse ou si le format d'un fichier CSV évolue, seuls les modules du sous-paquet `io/` doivent être modifiés, sans impacter une seule ligne de nos classes de combat.
 
 Notre arborescence s'organise ainsi :
 
@@ -106,6 +106,9 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --strict-markers"
+markers = [
+    "slow: tests de calcul intensif ou de simulation lourde (Monte Carlo)",  #on comprendra cette ligne à la fin du TP
+]
 ```
 
 Installez ces bibliothèques dans votre environnement virtuel :
@@ -130,7 +133,7 @@ touch src/zarena/io/__init__.py
 
 ## 1.1 Motivation : Comment Dialoguent les Systèmes Modernes ?
 
-Pour récupérer les caractéristiques d'un guerrier stocké sur les serveurs de la Capsule Corp, notre machine locale doit initier une conversation à travers le Web. Le protocole universel de cet échange est **HTTP**.
+Pour récupérer les caractéristiques d'un guerrier stocké sur les serveurs, notre machine locale doit initier une conversation à travers le Web. Le protocole universel de cet échange est **HTTP**.
 
 Une transaction REST se décompose en deux phases :
 
@@ -170,17 +173,7 @@ if reponse.status_code == 200:
 
 ::: {.callout-danger}
 ### Règle d'or en Production : Toujours définir `timeout`
-Par défaut, si l'argument `timeout` est omis, `requests.get()` attend **indéfiniment** si le serveur distant ne répond pas. Votre pipeline de données, votre boucle d'entraînement ou votre serveur web peuvent rester gelés pendant des heures. **Tout appel réseau doit obligatoirement comporter un délai d'expiration (ex. `timeout=5.0`).**
-:::
-
-::: {.callout-note}
-### Note d'ingénierie : `response.raise_for_status()` vs Contrôle explicite de statut
-La bibliothèque `requests` propose la méthode native `response.raise_for_status()`, qui lève une exception `requests.exceptions.HTTPError` dès que le code HTTP est supérieur ou égal à 400 (erreurs client 4xx et serveur 5xx).
-
-Dans le cadre d'un client de données strict, nous préférons tester explicitement `if response.status_code != 200:` :
-
-1. Une API REST peut renvoyer un code `204 No Content` : pour `raise_for_status()`, c'est un succès, mais l'appel ultérieur à `response.json()` échoue avec un `JSONDecodeError`.
-2. Cela garantit le respect formel du contrat d'interface : la ressource JSON demandée doit renvoyer un statut `200 OK`, tout autre code déclenchant immédiatement notre exception métier `DataFetchError`.
+Par défaut, si l'argument `timeout` est omis, `requests.get()` attend **indéfiniment** même si le serveur distant ne répond pas. Votre pipeline de données, votre boucle d'entraînement ou votre serveur web peuvent rester gelés pendant des heures. **Tout appel réseau doit obligatoirement comporter un délai d'expiration (ex. `timeout=5.0`).**
 :::
 
 ---
@@ -198,6 +191,16 @@ class DataFetchError(ZArenaError):
     """Levée si l'API distante est injoignable ET qu'aucun cache local n'existe."""
     pass
 ```
+
+::: {.callout-note}
+### Note d'ingénierie : `response.raise_for_status()` vs Contrôle explicite de statut
+La bibliothèque `requests` propose la méthode native `response.raise_for_status()`, qui lève une exception `requests.exceptions.HTTPError` dès que le code HTTP est supérieur ou égal à 400 (erreurs client 4xx et serveur 5xx).
+
+Dans le cadre d'un client de données strict, nous préférons tester explicitement `if response.status_code != 200:` :
+
+1. Une API REST peut renvoyer un code `204 No Content` : pour `raise_for_status()`, c'est un succès, mais l'appel ultérieur à `response.json()` échoue avec un `JSONDecodeError`.
+2. Cela garantit le respect formel du contrat d'interface : la ressource JSON demandée doit renvoyer un statut `200 OK`, tout autre code déclenchant immédiatement notre exception métier `DataFetchError`.
+:::
 
 ---
 
@@ -417,9 +420,9 @@ class CapsuleCorpFetcher:
 
 Dans l'arène de combat, les dégâts d'une attaque dépendent de l'affinité entre la nature de l'attaque portée et la physiologie de la cible :
 
-* Une frappe physique (`Corps-à-corps`) est absorbée par le blindage d'un `Cyborg` ($	imes 0{,}5$).
-* Une décharge d'énergie (`Ki`) transperce un combattant ordinaire ($	imes 1{,}5$) mais est absorbée par un `Cyborg` ($	imes 0{,}5$).
-* Une technique occulte (`Magie`) contourne les blindages technologiques ($	imes 2{,}0$).
+* Une frappe physique (`Corps-à-corps`) est absorbée par le blindage d'un `Cyborg` ($\times 0{,}5$).
+* Une décharge d'énergie (`Ki`) transperce un combattant ordinaire ($\times 1{,}5$) mais est absorbée par un `Cyborg` ($\times 0{,}5$).
+* Une technique occulte (`Magie`) contourne les blindages technologiques ($\times 2{,}0$).
 
 Si nous stockions cette table dans un tableau NumPy brut $A \in \mathbb{R}^{4 \times 4}$ :
 ```python
@@ -510,7 +513,7 @@ Créez le fichier `src/zarena/io/loader.py`.
 
 1. Implémentez la fonction `load_style_matrix(filepath: str | Path = "data/styles_combat.csv") -> pd.DataFrame` :
    
-   * Vérifie que le fichier existe (lever `FileNotFoundError` sinon).
+   * Vérifie que le fichier existe (lever `FileNotFoundError` sinon: on peut utiliser `is_file()`).
    * Charge le fichier via `pd.read_csv(filepath, index_col=0)`.
    * Convertit l'ensemble des valeurs numériques en flottants avec `.astype(float)`.
    * Retourne le DataFrame.
@@ -520,8 +523,7 @@ Créez le fichier `src/zarena/io/loader.py`.
    * Retourne le coefficient extrait converti en `float`.
 3. Implémentez la fonction `build_style_lookup(df: pd.DataFrame) -> dict[str, dict[str, float]]` :
    
-   * Convertit le DataFrame en dictionnaire imbriqué indexé d'abord par style d'attaque, puis par race défenseure : `df.to_dict(orient="index")`.
-   * Permet un accès instantané en complexité $O(1)$ : `lookup["Magie"]["Cyborg"] == 2.0`.
+   * Convertit le DataFrame en dictionnaire imbriqué indexé d'abord par style d'attaque, puis par race défenseure : `df.to_dict(orient="index")` afin de permettre un accès instantané en complexité $O(1)$ : `lookup["Magie"]["Cyborg"] == 2.0`.
 
 ::: {.content-visible when-profile="solution"}
 ### Solution Enseignant (`src/zarena/io/loader.py`) :
@@ -568,7 +570,7 @@ def build_style_lookup(df: pd.DataFrame) -> dict[str, dict[str, float]]:
 
 ## 4.1 Motivation : Qu'est-ce que le GeoJSON et à quoi sert-il ?
 
-Dans le projet de fin de semestre, les tournois ne se déroulent pas dans le vide : ils prennent place dans des arènes réparties sur le territoire (les arènes d'Occitanie : Montpellier, Toulouse, Nîmes...). Dans le jalon final, ces arènes seront projetées sur une carte interactive via Streamlit et Folium.
+Les tournois ne se déroulent pas dans le vide : ils prennent place dans des arènes réparties sur le territoire. Dans le jalon final, ces arènes seront projetées sur une carte interactive via Streamlit et Folium.
 
 Faut-il installer des bibliothèques cartographiques lourdes (GDAL, GeoPandas) pour lire ces données ? **Absolument pas.**
 
@@ -655,6 +657,11 @@ Créez le fichier `data/arenas_dbz.geojson` :
 }
 ```
 
+ou chargez-le automatiquement avec:
+```bash
+curl -sSL "https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/data/arenas_dbz.geojson" -o data/arenas_dbz.geojson
+```
+
 ---
 
 ## 4.3 Exercice 4 : Chargement Sécurisé du GeoJSON (`src/zarena/io/loader.py`)
@@ -675,7 +682,7 @@ Implémentez la fonction `load_arenas(filepath: str | Path = "data/arenas_dbz.ge
 Implémentez la fonction `extract_arena_coordinates(feature: dict) -> tuple[float, float]` :
 
    * Extrait les coordonnées géométriques `feature["geometry"]["coordinates"]`.
-   * Retourne le tuple `(latitude, longitude)` au format conforme pour Folium.
+   * Retourne le tuple `(latitude, longitude)`.
 
 ::: {.content-visible when-profile="solution"}
 ### Solution Enseignant (Ajout dans `src/zarena/io/loader.py`) :
@@ -779,7 +786,7 @@ Rédigez les quatre tests unitaires suivants :
 2. `test_fetcher_cache_hit_does_not_call_network(requests_mock, tmp_path)` :
    
    * Écrit manuellement un fichier `1.json` dans `tmp_path` contenant `{"id": 1, "name": "Goku Local"}`.
-   * **Ne déclare aucun mock d'URL** (si une requête HTTP était émise, le test planterait immédiatement).
+   * **Ne déclare aucun mock d'URL**.
    * Appelle `get_warrior_data(1)`.
    * Vérifie que le résultat renvoyé est `"Goku Local"`.
 3. `test_fetcher_api_error_without_cache_raises_data_fetch_error(requests_mock, tmp_path)` :
@@ -788,6 +795,28 @@ Rédigez les quatre tests unitaires suivants :
    * Vérifie avec `pytest.raises(DataFetchError)` que la méthode refuse l'opération.
 4. `test_loader_style_matrix_and_arenas(tmp_path)` :
    
+   * On peut utiliser 
+   ```python
+    csv_file = tmp_path / "styles.csv"
+    csv_file.write_text(
+        "style,Saiyan,Cyborg\nCorps-a-corps,1.0,0.5\nKi,1.0,0.5\n",
+        encoding="utf-8")
+
+    arena_feature = {
+        "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [3.8767, 43.6108]},
+        "properties": {"name": "Arène Montpellier"},
+    }
+    geojson_file = tmp_path / "arenas.geojson"
+    geojson_file.write_text(
+        json.dumps({
+            "type": "FeatureCollection",
+            "features": [arena_feature],
+        }),
+        encoding="utf-8",
+    )
+    ```
+    pour simuler les fichiers csv et geojson.
    * Valide le chargement d'un CSV temporaire avec `load_style_matrix`.
    * Vérifie le calcul direct par `.loc` via `get_style_multiplier` et la détection d'index invalide (`ValueError`).
    * Vérifie la conversion en dictionnaire rapide `build_style_lookup(df)`.
@@ -805,6 +834,8 @@ from zarena.io.loader import (
     get_style_multiplier,
     load_arenas,
     load_style_matrix,
+    extract_arena_coordinates,
+    build_style_lookup
 )
 
 
@@ -1088,7 +1119,7 @@ La clé payload["types"] contient elle aussi une liste de dictionnaires, où cha
 ```
 
 * Règle des slots : Conformément à l'Annexe Technique, le type principal type_1 est impérativement celui avec slot == 1. Si la créature possède un second type, il est assigné à slot == 2 (sinon type_2 vaut None).
-* Traduction Anglais → Français : PokéAPI renvoie des noms anglais en minuscules ("fire", "water"), alors que la matrice tabulaire data/types.csv de PyArena utilise le français capitalisé ("Feu", "Eau").
+* Traduction Anglais → Français : PokéAPI renvoie des noms anglais en minuscules ("fire", "water"), alors que la matrice tabulaire data/types.csv utilise le français capitalisé ("Feu", "Eau").
   
 On procède donc en deux temps : un dictionnaire de correspondance, puis une extraction ordonnée par slot :
 ```python
