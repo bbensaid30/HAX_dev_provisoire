@@ -963,22 +963,28 @@ Assurez-vous d'atteindre un score de couverture **supérieur à $95\%$** sur `fe
 
 # Devoir Maison Guidé : Pipeline d'Ingestion de PyArena (Jalon 3)
 
-*Ce travail est à réaliser en équipe d'ici le prochain TP sur votre dépôt officiel de projet (`pyarena-groupe-XX`). Il concrétise les attendus de la **Section 5 de l'Annexe Technique**.*
+*Ce travail est à réaliser en équipe d'ici le prochain TP sur votre dépôt officiel de projet (`pyarena-groupe-XX`). Il concrétise les attendus de la **Section 5 de l'Annexe Technique** et prépare l'alimentation en données de l'ensemble du moteur de combat.*
 
-### Objectif
-Vous allez implémenter le client d'ingestion réseau de PokéAPI avec cache disque (`DataFetcher`) ainsi que les chargeurs de données statiques (`load_type_matrix` et `load_arenas`).
+---
+
+## Objectifs et Contrat d'Interface
+
+Dans le Jalon 2, vous avez implémenté le modèle objet (`Fighter`, `BaseFighter`, `BattleResult`). Dans ce Jalon 3, vous construisez la couche d'accès aux données (**I/O**) qui alimentera vos combattants à partir de l'API web officielle (**PokéAPI**) et de fichiers statiques (coefficients d'affinité élémentaire et arènes régionales).
 
 ::: {.callout-important}
 ### Respect Strict des Signatures de l'Annexe Technique
-Les bancs de test de la CI GitHub Actions reposent **strictement** sur les interfaces suivantes :
+Les bancs de test d'évaluation automatisée de la CI reposent **strictement** sur les interfaces suivantes :
 
-* Module `pyarena.io.fetcher` : classe `DataFetcher`.
-* Module `pyarena.io.loader` : fonctions `load_type_matrix` et `load_arenas`.
+* Module `src/pyarena/io/fetcher.py` : classe `DataFetcher` et fonction de fabrique `parse_pokemon`.
+* Module `src/pyarena/io/loader.py` : fonctions `load_type_matrix`, `get_type_multiplier`, `load_arenas` et `extract_arena_coordinates` (ainsi que `build_full_type_matrix` pour les groupes de 4).
 :::
 
 ---
 
-### Étape 1 : Branche Git de Fonctionnalité
+## Étape 1 : Branche Git de Fonctionnalité
+
+Chaque équipe se place sur sa branche `dev`, synchronise les derniers commits distants, et crée sa branche de travail :
+
 ```bash
 cd ~/pyarena-officiel
 git switch dev
@@ -988,39 +994,14 @@ git switch -c feat/io-pipeline
 
 ---
 
-### Étape 2 : Le Client d'Ingestion (`src/pyarena/io/fetcher.py`)
-Implémentez la classe `DataFetcher` conformément à la section 5.1 de l'Annexe Technique :
+## Étape 2 : Le Client d'Ingestion & Fabrique d'Entités (`src/pyarena/io/fetcher.py`)
 
-```python
-# src/pyarena/io/fetcher.py
-from pathlib import Path
-import requests
-from pyarena.core.exceptions import DataFetchError
-
-
-class DataFetcher:
-
-    def __init__(self, cache_dir: str | Path = "data/cache") -> None:
-        """Configure le gestionnaire d'ingestion avec le dossier de stockage local."""
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.base_url = "https://pokeapi.co/api/v2/pokemon"
-
-    def get_pokemon(self, pokemon_id: int) -> dict:
-        """Récupère le dictionnaire JSON décrivant la créature.
-
-        Stratégie :
-          1. Si 'data/cache/{pokemon_id}.json' existe sur le disque, charger le fichier.
-          2. Sinon, interroger l'API PokéAPI, enregistrer la réponse dans le cache puis la renvoyer.
-          3. En cas d'échec réseau sans cache disponible, lever DataFetchError.
-        """
-        ...
-```
+Dans `src/pyarena/io/fetcher.py`, vous devez implémenter le client d'ingestion réseau résilient avec mise en cache locale, ainsi que la fonction de fabrique transformant la réponse JSON en instance concrète de `Fighter`.
 
 ::: {.callout-note}
 ### Comprendre et Décoder la Structure JSON Imbriquée de PokéAPI
 
-Lorsque vous appelez votre méthode `fetcher.get_pokemon(pokemon_id)` (ou directement `response.json()`), l'API PokéAPI renvoie un volumineux dictionnaire Python racine que l'on nomme ici **`payload`** (la « charge utile » de la réponse HTTP).
+Lorsque vous interrogez l'API distante `https://pokeapi.co/api/v2/pokemon/{id}`, le serveur renvoie un volumineux dictionnaire Python racine que l'on nomme **`payload`** (la « charge utile » de la réponse HTTP).
 
 Contrairement à des données tabulaires simples, l'API ne stocke pas directement `payload["hp"]` ou `payload["attack"]`. Les données sont **fortement imbriquées** dans des sous-listes de dictionnaires.
 
@@ -1028,7 +1009,7 @@ Contrairement à des données tabulaires simples, l'API ne stocke pas directemen
 
 #### 1. Anatomie de la clé `payload["stats"]`
 
-Dans la réponse de l'API pour Pikachu (`id = 25`), la clé `"stats"` est associée à une **liste de 6 dictionnaires** (un par caractéristique) ayant la structure suivante :
+Dans la réponse de l'API pour Pikachu (`id = 25`), la clé `"stats"` est associée à une **liste de 6 dictionnaires** (un par statistique : HP, Attack, Defense, Special-Attack, Special-Defense, Speed) ayant la structure suivante :
 
 ```json
 {
@@ -1040,7 +1021,7 @@ Dans la réponse de l'API pour Pikachu (`id = 25`), la clé `"stats"` est associ
       "effort": 0,
       "stat": {
         "name": "hp",
-        "url": "[https://pokeapi.co/api/v2/stat/1/](https://pokeapi.co/api/v2/stat/1/)"
+        "url": "https://pokeapi.co/api/v2/stat/1/"
       }
     },
     {
@@ -1048,7 +1029,7 @@ Dans la réponse de l'API pour Pikachu (`id = 25`), la clé `"stats"` est associ
       "effort": 2,
       "stat": {
         "name": "attack",
-        "url": "[https://pokeapi.co/api/v2/stat/2/](https://pokeapi.co/api/v2/stat/2/)"
+        "url": "https://pokeapi.co/api/v2/stat/2/"
       }
     },
     {
@@ -1056,7 +1037,7 @@ Dans la réponse de l'API pour Pikachu (`id = 25`), la clé `"stats"` est associ
       "effort": 0,
       "stat": {
         "name": "defense",
-        "url": "[https://pokeapi.co/api/v2/stat/3/](https://pokeapi.co/api/v2/stat/3/)"
+        "url": "https://pokeapi.co/api/v2/stat/3/"
       }
     },
     {
@@ -1064,39 +1045,42 @@ Dans la réponse de l'API pour Pikachu (`id = 25`), la clé `"stats"` est associ
       "effort": 0,
       "stat": {
         "name": "speed",
-        "url": "[https://pokeapi.co/api/v2/stat/6/](https://pokeapi.co/api/v2/stat/6/)"
+        "url": "https://pokeapi.co/api/v2/stat/6/"
       }
     }
   ]
 }
 ```
 
-Pour chaque élément s de la liste payload["stats"] :
+Pour chaque élément `s` de la liste `payload["stats"]` :
 
-* s["base_stat"] est un entier représentant la valeur numérique brute de la statistique.
-* s["stat"] est un sous-dictionnaire dont le champ "name" contient la désignation textuelle en minuscules ("hp", "attack", "defense", "speed"...).
+* `s["base_stat"]` est un entier représentant la valeur numérique brute de la statistique de base.
+* `s["stat"]` est un **sous-dictionnaire** dont le champ `"name"` contient la désignation textuelle en minuscules (`"hp"`, `"attack"`, `"defense"`, `"speed"`...).
 
-Pour transformer cette liste imbriquée en un dictionnaire plat et directement indexable par nom, on utilise une compréhension de dictionnaire :
+Pour transformer cette liste imbriquée en un dictionnaire plat et directement indexable par nom, on utilise une **compréhension de dictionnaire** :
+
 ```python
 # payload est le dictionnaire renvoyé par get_pokemon(id)
 payload = fetcher.get_pokemon(25)
 
 # Extraction aplatie : chaque élément s produit la paire { "nom_stat": valeur }
 raw_stats = {s["stat"]["name"]: s["base_stat"] for s in payload["stats"]}
-#L'objet résultant raw_stats est un dictionnaire à plat
-# raw_stats = {'hp': 35, 'attack': 55, 'defense': 40, 'special-attack': 50, 'special-defense': 50, 'speed': 90}
+# Donne : {'hp': 35, 'attack': 55, 'defense': 40, 'special-attack': 50, 'special-defense': 50, 'speed': 90}
 
-#Vous pouvez ensuite extraire les caractéristiques nécessaires au constructeur de Fighter sans risque d'erreur d'indice :
+# Extraction directe pour initialiser Fighter :
 hp_base = raw_stats["hp"]
 attack_base = raw_stats["attack"]
 defense_base = raw_stats["defense"]
 speed_base = raw_stats["speed"]
 ```
 
-2. Anatomie de la clé payload["types"] et Règle des Slots
-   
-La clé payload["types"] contient elle aussi une liste de dictionnaires, où chaque entrée associe un type élémentaire à un ordre d'apparition (slot) :
-``` json
+---
+
+#### 2. Anatomie de la clé `payload["types"]` et Règle des Slots
+
+La clé `payload["types"]` contient elle aussi une liste de sous-dictionnaires, où chaque entrée associe un type élémentaire à un ordre d'apparition (**`slot`**) :
+
+```json
 {
   "name": "charizard",
   "types": [
@@ -1104,26 +1088,26 @@ La clé payload["types"] contient elle aussi une liste de dictionnaires, où cha
       "slot": 1,
       "type": {
         "name": "fire",
-        "url": "[https://pokeapi.co/api/v2/type/10/](https://pokeapi.co/api/v2/type/10/)"
+        "url": "https://pokeapi.co/api/v2/type/10/"
       }
     },
     {
       "slot": 2,
       "type": {
         "name": "flying",
-        "url": "[https://pokeapi.co/api/v2/type/3/](https://pokeapi.co/api/v2/type/3/)"
+        "url": "https://pokeapi.co/api/v2/type/3/"
       }
     }
   ]
 }
 ```
 
-* Règle des slots : Conformément à l'Annexe Technique, le type principal type_1 est impérativement celui avec slot == 1. Si la créature possède un second type, il est assigné à slot == 2 (sinon type_2 vaut None).
-* Traduction Anglais → Français : PokéAPI renvoie des noms anglais en minuscules ("fire", "water"), alors que la matrice tabulaire data/types.csv utilise le français capitalisé ("Feu", "Eau").
-  
-On procède donc en deux temps : un dictionnaire de correspondance, puis une extraction ordonnée par slot :
+* **Règle contractuelle des slots :** Le type principal `type_1` correspond impérativement au type dont le `slot` vaut `1`. Le second type éventuel correspond au `slot` valant `2`. Si la créature est mono-type (comme Pikachu), il n'y a pas de slot 2, et `type_2` doit impérativement valoir `None`.
+* **Traduction Anglais $\to$ Français :** PokéAPI renvoie des noms anglais en minuscules (`"fire"`, `"water"`), alors que la matrice de combat de PyArena utilise les dénominations officielles françaises capitalisées (`"Feu"`, `"Eau"`).
+
+On procède donc en deux temps : une table de traduction officielle, puis une extraction ordonnée par slot :
+
 ```python
-# Table de correspondance bilingue officielle
 TYPE_TRANSLATION: dict[str, str] = {
     "normal": "Normal", "fire": "Feu", "water": "Eau",
     "grass": "Plante", "electric": "Électrik", "ice": "Glace",
@@ -1133,75 +1117,245 @@ TYPE_TRANSLATION: dict[str, str] = {
     "steel": "Acier", "dark": "Ténèbres", "fairy": "Fée",
 }
 
-# Dictionnaire associant chaque numéro de slot au type français correspondant :
-# slots = {1: "Feu", 2: "Vol"} pour Dracaufeu
+# Dictionnaire associant chaque numéro de slot au type français :
+# Exemple pour Dracaufeu : slots = {1: "Feu", 2: "Vol"}
 slots = {
     t["slot"]: TYPE_TRANSLATION.get(t["type"]["name"], t["type"]["name"].capitalize())
     for t in payload["types"]
 }
 
 type_1: str = slots[1]
-type_2: str | None = slots.get(2, None)
+type_2: str | None = slots.get(2, None)  # None si mono-type !
+```
+:::
+
+### Spécification des Fonctions et Méthodes de `fetcher.py`
+
+#### 1. Fonction `parse_pokemon(payload: dict) -> Fighter`
+
+* **Signature :**
+  ```python
+  def parse_pokemon(payload: dict) -> Fighter:
+  ```
+* **Rôle :** Transforme le dictionnaire brut de PokéAPI en une instance concrète de `Fighter` (au niveau 50 par défaut).
+* **Spécifications :**
+  
+  1. Extrait `id` (`payload["id"]`) et le nom formaté (`payload["name"].capitalize()`).
+  2. Extrait `hp_base`, `attack_base`, `defense_base`, `speed_base` depuis `payload["stats"]`.
+  3. Extrait `type_1` et `type_2` depuis `payload["types"]` via `TYPE_TRANSLATION`.
+  4. Instancie et retourne `Fighter(id=..., name=..., type_1=..., type_2=..., hp_base=..., attack_base=..., defense_base=..., speed_base=...)`.
+
+#### 2. Classe `DataFetcher`
+
+* **Constructeur :**
+  ```python
+  def __init__(self, cache_dir: str | Path = "data/cache") -> None:
+  ```
+  Initialise le répertoire de stockage local sous la forme d'un objet `Path` et crée l'arborescence si nécessaire (`mkdir(parents=True, exist_ok=True)`).
+* **Méthode `fetch_remote_pokemon(self, pokemon_id: int) -> dict` :**
+  
+  * Construit l'URL cible : `https://pokeapi.co/api/v2/pokemon/{pokemon_id}`.
+  * Émet une requête GET sécurisée avec en-tête d'identification et temporisation : `requests.get(url, headers={"User-Agent": "PyArena/1.0"}, timeout=5.0)`.
+  * Si `response.status_code == 200`, renvoie le dictionnaire `response.json()`.
+  * Si le statut est différent de 200 ou en cas d'erreur réseau / timeout (`requests.RequestException`), intercepte l'incident et lève immédiatement `DataFetchError`.
+  
+* **Méthode** `get_pokemon(self, pokemon_id: int) -> dict` qui applique le patron **Cache-Aside**
+* **Méthode `get_fighter(self, pokemon_id: int) -> Fighter` :**
+  * Méthode de commodité enchaînant l'ingestion et la fabrication :
+    ```python
+    payload = self.get_pokemon(pokemon_id)
+    return parse_pokemon(payload)
+    ```
+
+---
+
+## Étape 3 : Chargement des Données Statiques (`src/pyarena/io/loader.py`)
+
+Les fichiers statiques du projet peuvent être téléchargés directement à la racine de votre dépôt via votre terminal :
+```bash
+mkdir -p data
+curl -sSL "https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/data_pyarena/types.csv" -o data/types.csv
+curl -sSL "https://raw.githubusercontent.com/bbensaid30/HAX_dev_provisoire/data-api/data_pyarena/arenes_occitanie.geojson" -o data/arenes_occitanie.geojson
 ```
 
-Grâce à slots.get(2, None), si le Pokémon est mono-type (comme Pikachu), la clé 2 n'existe pas et type_2 reçoit la valeur None, respectant le contrat d'interface de Fighter.
+Dans `src/pyarena/io/loader.py`, implémentez les fonctions suivantes en respectant les exigences de votre groupe :
 
-:::
+### Fonctions Communes (Groupes de 3 et Groupes de 4)
 
----
+#### 1. `load_type_matrix(filepath: str | Path = "data/types.csv") -> pd.DataFrame`
 
-### Étape 3 : Chargement des Données Statiques (`src/pyarena/io/loader.py`)
+* Vérifie que le fichier existe sur disque (lever `FileNotFoundError` sinon).
+* Charge le tableau avec `pd.read_csv(filepath, index_col=0).astype(float)`.
+* Retourne le DataFrame indexé par les noms des types attaquants.
 
-#### Consignes Différenciées selon la Taille du Groupe :
+#### 2. `load_arenas(filepath: str | Path = "data/arenes_occitanie.geojson") -> dict`
 
-::: {.callout-note}
-### Pour les Groupes de 3 Étudiants
+* Vérifie que le fichier cartographique existe (lever `FileNotFoundError` sinon).
+* Charge le contenu avec `json.load()`.
+* Valide le schéma GeoJSON formel (RFC 7946).
+* Retourne le dictionnaire GeoJSON.
 
-* **Périmètre :** Vous travaillez avec les **5 types élémentaires de base** (Normal, Feu, Eau, Plante, Électrik).
-* Le fichier `data/types.csv` fourni dans le dépôt contient une matrice $5 \times 5$.
-* Votre fonction `load_type_matrix` charge simplement cette matrice avec `pd.read_csv(filepath, index_col=0).astype(float)`.
-:::
+#### 3. `extract_arena_coordinates(feature: dict) -> tuple[float, float]`
 
-::: {.callout-warning}
-### Pour les Groupes de 4 Étudiants (Exigence Étendue)
-
-* **Périmètre :** Vous devez gérer l'intégralité des **18 types officiels** de Pokémon (matrice $18 \times 18$) **ET** le calcul combiné pour les Pokémon à double-type.
-* **Calcul du multiplicateur combiné :** Si un défenseur est de type double (ex. Dracaufeu : `type_1="Feu"`, `type_2="Vol"`), le multiplicateur d'une attaque subie est le produit des multiplicateurs élémentaires individuels :  
-  $$m_{\text{total}} = m(\text{type\_attaque}, \text{type\_1}) \times m(\text{type\_attaque}, \text{type\_2})$$  
-  Ce multiplicateur prend alors ses valeurs dans $\{0\,;\, 0{,}25\,;\, 0{,}5\,;\, 1{,}0\,;\, 2{,}0\,;\, 4{,}0\}$.
-* **Génération Automatique de la Matrice 18x18 via PokéAPI :** Ne remplissez **jamais** cette matrice à la main ! Implémentez une fonction utilitaire (par exemple `build_full_type_matrix()`) qui interroge les 18 endpoints PokéAPI `https://pokeapi.co/api/v2/type/{id}` (IDs de 1 à 18).
-  Dans chaque réponse, inspectez l'objet `damage_relations` :
-
-  * Les types listés dans `double_damage_to` reçoivent le coefficient $2.0$.
-  * Les types listés dans `half_damage_to` reçoivent le coefficient $0.5$.
-  * Les types listés dans `no_damage_to` reçoivent le coefficient $0.0$.
-  * Tous les autres types prennent la valeur par défaut $1.0$.
-  Le DataFrame obtenu est alors exporté automatiquement vers `data/types.csv`.
-:::
+* **Rôle :** Résout l'inversion cartographique entre GeoJSON et Folium.
+* Extrait les coordonnées `[longitude, latitude]` de `feature["geometry"]["coordinates"]`.
+* Retourne le tuple ordonné en `(latitude, longitude)` requis par `folium.Marker`.
 
 ---
 
-### Étape 4 : Suite de Tests avec Mocking Réseau (`tests/test_io.py`)
-Rédigez la suite de tests complète sous `tests/test_io.py` en exploitant les fixtures `requests_mock` et `tmp_path` :
+### Fonctions Différenciées selon la Taille de l'Équipe
 
-1. **Validation du Cache-Miss :** Vérifiez qu'en l'absence de fichier préexistant dans `tmp_path`, un appel à `fetcher.get_pokemon(id)` effectue bien la requête HTTP via le mock, enregistre le contenu JSON sous `tmp_path / f"{id}.json"` et retourne les données.
-2. **Validation du Cache-Hit (Isolation réseau absolue) :** Écrivez manuellement un fichier `{id}.json` factice dans `tmp_path` avant l'appel. Vérifiez que `fetcher.get_pokemon(id)` retourne immédiatement son contenu **sans déclarer aucun mock d'URL** (si une requête HTTP était tentée, le test échouerait immédiatement).
-3. **Simulation de Panne Réseau :** Vérifiez avec `pytest.raises(DataFetchError)` qu'une réponse HTTP d'erreur (ex: code 500 ou 404 simulé avec `requests_mock`) ou une coupure réseau sans cache préexistant lève formellement l'exception métier du projet.
-4. **Validation de la Matrice des Types :** Vérifiez que `load_type_matrix("data/types.csv")` charge un `pd.DataFrame` dont les coefficients multiplicateurs sont strictement positifs ou nuls (ex: vérifier que le multiplicateur Eau contre Feu vaut bien $2.0$).
-5. **Validation Cartographique & Inversion Folium :** Vérifiez que `load_arenas("data/arenes_occitanie.geojson")` valide la structure GeoJSON `FeatureCollection`, et testez que la fonction d'extraction de position géographique permute bien les coordonnées brutes `[lon, lat]` pour restituer le tuple `(latitude, longitude)` attendu par Folium.
-6. **Robustesse du Décodage Métier :** Testez la fonction de conversion d'un payload PokéAPI en instance de `Fighter` : validez que les statistiques sont correctement normalisées au niveau 50 ($PV_{\max} = \text{hp\_base} + 60$), que les types sont traduits en français et que `type_2` vaut rigoureusement `None` pour un Pokémon mono-type.
+#### Cas A : Équipes de 3 Étudiants (Tournoi à 5 Types — Mono-type)
+
+Pour les trinômes, l'arène est restreinte aux 5 types élémentaires : $\mathcal{T}_5 = \{\text{Normal}, \text{Feu}, \text{Eau}, \text{Plante}, \text{Électrik}\}$. Les combattants portent des attaques de leur type principal face au type principal adverse.
+
+* **Signature :**
+  ```python
+  def get_type_multiplier(
+      df_types: pd.DataFrame, 
+      attack_type: str, 
+      def_type: str
+  ) -> float:
+  ```
+* **Spécifications :**
+  
+  * Vérifie que `attack_type` est présent dans `df_types.index` et que `def_type` est présent dans `df_types.columns` (lever `ValueError` sinon).
+  * Extrait et retourne directement le coefficient $M(T_{	ext{att}}, T_{	ext{déf}}) \in \{0.5, 1.0, 2.0\}$ via `float(df_types.loc[attack_type, def_type])`.
 
 ---
 
-### Étape 5 : Validation Qualité, Audit de Couverture & Pull Request
+#### Cas B : Équipes de 4 Étudiants (Modèle Complet 18 Types & Double-Types)
 
-1. Vérifiez que la couverture globale de `pyarena.io` dépasse **$90\%$** :
+Pour les quatuors, le moteur gère la totalité des 18 types et le calcul combiné sur double-type.
+
+* **Signature étendue de `get_type_multiplier` :**
+  ```python
+  def get_type_multiplier(
+      df_types: pd.DataFrame,
+      attack_type: str,
+      def_type_1: str,
+      def_type_2: str | None = None,
+  ) -> float:
+  ```
+* **Spécifications du calcul combiné :**
+  
+  * Si `def_type_2 is None` : renvoie directement le coefficient simple `float(df_types.loc[attack_type, def_type_1])`.
+  * Si `def_type_2` est une chaîne valide : calcule et retourne le **produit algébrique** :
+    $$M_{\text{total}} = \text{df\_types.loc}[	\text{attack\_type}, \text{def\_type\_1}] 	\times 	\text{df\_types.loc}[\text{attack\_type}, \text{def\_type\_2}]$$
+  * Ce produit peut prendre ses valeurs dans $\{0.0, 0.25, 0.5, 1.0, 2.0, 4.0\}$.
+  * Lève une exception `ValueError` si l'un des types n'est pas répertorié dans la matrice.
+
+* **Génération Automatique de la Matrice 18x18 :**
+  Les groupes de 4 ne doivent **jamais** remplir manuellement le fichier `types.csv` pour 18 types ($18 \times 18 = 324$ cellules). Vous devez implémenter la fonction d'ingestion automatique :
+  ```python
+  def build_full_type_matrix(
+      output_path: str | Path = "data/types.csv"
+  ) -> pd.DataFrame:
+  ```
+  * **Algorithme d'ingestion :**
+  
+    1. Interroge les 18 endpoints PokéAPI `https://pokeapi.co/api/v2/type/{id}` (IDs de 1 à 18).
+    2. Pour chaque type attaquant, inspecte l'objet `damage_relations` :
+   
+       * Types listés dans `double_damage_to` : coefficient assigné à $2.0$.
+       * Types listés dans `half_damage_to` : coefficient assigné à $0.5$.
+       * Types listés dans `no_damage_to` : coefficient assigné à $0.0$ (immunité stricte).
+       * Tous les autres types prennent la valeur par défaut $1.0$.
+    3. Traduit les noms de types en français capitalisé (`TYPE_TRANSLATION`).
+    4. Assemble le DataFrame $18 \times 18$, l'enregistre sur disque (`df.to_csv(output_path)`) et le renvoie.
+
+---
+
+## Étape 4 : Suite de Tests Unitaires et Mocking Réseau (`tests/test_io.py`)
+
+Dans `tests/test_io.py`, concevez la suite de tests automatisés validant l'ensemble de votre chaîne d'ingestion. Chaque fonction ou méthode déclarée aux étapes précédentes doit être couverte.
+
+### 1. Tests Communs Obligatoires (Groupes de 3 et 4)
+
+1. **`test_fetcher_cache_miss_saves_to_disk(requests_mock, tmp_path)` :**
+   
+   * Configure un mock retournant un JSON valide sur l'URL de Pikachu (`.../pokemon/25`).
+   * Instancie `DataFetcher(cache_dir=tmp_path)`.
+   * Vérifie que le fichier `tmp_path / "25.json"` n'existe pas.
+   * Exécute `get_pokemon(25)`.
+   * Constate que la donnée est retournée et que le fichier `25.json` a bien été écrit sur disque.
+
+2. **`test_fetcher_cache_hit_isolated_from_network(requests_mock, tmp_path)` :**
+   
+   * Écrit manuellement un fichier factice `tmp_path / "1.json"` contenant `{"id": 1, "name": "BulbiLocal"}`.
+   * **N'enregistre aucun mock dans `requests_mock`** (si un paquet réseau était émis, le test échouerait immédiatement).
+   * Appelle `fetcher.get_pokemon(1)` et vérifie qu'il renvoie immédiatement la donnée locale.
+
+3. **`test_fetcher_network_error_raises_data_fetch_error(requests_mock, tmp_path)` :**
+   
+   * Configure un code d'erreur HTTP 500 ou 404 sur l'ID 999.
+   * Vérifie avec `pytest.raises(DataFetchError)` que l'appel échoue proprement sans faire crasher l'interpréteur avec des exceptions non gérées.
+
+4. **`test_parse_pokemon_to_fighter()` :**
+   
+   * Construit un payload JSON représentatif (avec ses 6 statistiques brutes et ses types).
+   * Appelle `fighter = parse_pokemon(payload)`.
+   * Vérifie que l'objet retourné est bien une instance de `Fighter`.
+   * Valide les formules d'échelonnement au Niveau 50 ($\text{max\_hp} = \text{hp\_base} + 60$, $	\text{stat} = \text{stat\_base} + 5$).
+   * Vérifie que `type_1` est en français capitalisé et que `type_2` vaut `None` pour un Pokémon mono-type.
+
+5. **`test_load_arenas_and_coordinate_extraction(tmp_path)` :**
+   
+   * Crée un fichier GeoJSON temporaire valide et vérifie qu'il est chargé correctement par `load_arenas`.
+   * Vérifie qu'un dictionnaire ne respectant pas `type == "FeatureCollection"` lève immédiatement une `ValueError`.
+   * Teste `extract_arena_coordinates` sur une arène aux coordonnées `[3.8767, 43.6108]` et valide que le tuple retourné est inversé en `(43.6108, 3.8767)` pour Folium.
+
+---
+
+### 2. Tests Différenciés sur la Matrice des Types
+
+#### Pour les Groupes de 3 :
+
+* **`test_load_type_matrix_and_multipliers(tmp_path)` :**
+  
+  * Valide le chargement d'un CSV $5 \times 5$ via `load_type_matrix`.
+  * Vérifie les interactions fondamentales avec `get_type_multiplier` (ex: Eau contre Feu $2.0$ ; Feu contre Eau $0.5$ ; Normal contre Normal $1.0$).
+  * Vérifie que passer un type inconnu lève une `ValueError`.
+
+#### Pour les Groupes de 4 :
+
+* **`test_double_type_multipliers()` :**
+  
+  * Charge la matrice des 18 types.
+  * Valide les 4 régimes du produit croisé :
+  
+    * Double faiblesse : Plante contre (Eau / Sol) $2.0 \times 2.0 = \mathbf{4.0}$.
+    * Compensation neutre : Électrik contre (Eau / Sol) $2.0 \times 0.0 = \mathbf{0.0}$ (immunité prioritaire).
+    * Double résistance : Feu contre (Eau / Dragon) $0.5 \times 0.5 = \mathbf{0.25}$.
+  
+* **`test_build_full_type_matrix(requests_mock, tmp_path)` :**
+  
+  * Simule les réponses JSON des endpoints `/type/1` à `/type/18`.
+  * Appelle `build_full_type_matrix(tmp_path / "types.csv")`.
+  * Vérifie que le DataFrame généré a bien les dimensions $18 \times 18$ et que les relations de dégâts sont fidèlement retranscrites.
+
+---
+
+## Étape 5 : Validation Qualité, Audit de Couverture & Pull Request
+
+1. **Mesure de la Couverture de Code :**
+   Lancez la mesure sur le sous-paquet `pyarena.io` et assurez-vous de franchir le seuil contractuel de votre équipe :
    ```bash
    pytest --cov=pyarena.io --cov-report=term-missing
    ```
-2. Formatez et auditez le code avec Ruff :
+
+2. **Audit de Style et Formatage :**
    ```bash
    ruff check src/ tests/
    ruff format src/ tests/
    ```
-3. Commitez, poussez votre branche sur GitHub et ouvrez la **Pull Request** ciblant `dev`.
+
+3. **Commit et Push vers la Branche de Fonctionnalité :**
+   ```bash
+   git add src/pyarena/io/ tests/test_io.py
+   git commit -m "feat(io): client DataFetcher avec cache, parse_pokemon et loaders statiques"
+   git push -u origin feat/io-pipeline
+   ```
+
+4. **Revue de Code et Pull Request :**
+   Ouvrez la Pull Request ciblant la branche `dev` sur GitHub. Chaque membre de l'équipe vérifie les changements, contrôle le passage au vert des workflows GitHub Actions et valide formellement la fusion (*Approval*).
