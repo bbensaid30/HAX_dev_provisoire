@@ -1,0 +1,605 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.8767,
+          43.6108
+        ]
+      },
+      "properties": {
+        "id": "arena-01",
+        "name": "Arène de l'Écusson",
+        "city": "Montpellier",
+        "level": 15,
+        "type": "Normal",
+        "champion_name": "Enzo",
+        "pokemon_id": 133,
+        "pokemon_name": "Évoli"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.1347,
+          43.6744
+        ]
+      },
+      "properties": {
+        "id": "arena-02",
+        "name": "Arène du Muscat",
+        "city": "Lunel",
+        "level": 17,
+        "type": "Plante",
+        "champion_name": "Chloé",
+        "pokemon_id": 43,
+        "pokemon_name": "Mystherbe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.6966,
+          43.4078
+        ]
+      },
+      "properties": {
+        "id": "arena-03",
+        "name": "Arène du Mont Saint-Clair",
+        "city": "Sète",
+        "level": 18,
+        "type": "Eau",
+        "champion_name": "Marin",
+        "pokemon_id": 120,
+        "pokemon_name": "Stari"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.4758,
+          43.3108
+        ]
+      },
+      "properties": {
+        "id": "arena-04",
+        "name": "Arène du Volcan Noir",
+        "city": "Agde",
+        "level": 20,
+        "type": "Feu",
+        "champion_name": "Lucas",
+        "pokemon_id": 37,
+        "pokemon_name": "Goupix"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.2158,
+          43.3442
+        ]
+      },
+      "properties": {
+        "id": "arena-05",
+        "name": "Arène des Écluses",
+        "city": "Béziers",
+        "level": 22,
+        "type": "Eau",
+        "champion_name": "Roxane",
+        "pokemon_id": 61,
+        "pokemon_name": "Têtarte"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.0042,
+          43.1836
+        ]
+      },
+      "properties": {
+        "id": "arena-06",
+        "name": "Arène de la Robine",
+        "city": "Narbonne",
+        "level": 23,
+        "type": "Normal",
+        "champion_name": "Guilhem",
+        "pokemon_id": 143,
+        "pokemon_name": "Ronflex"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.3601,
+          43.8367
+        ]
+      },
+      "properties": {
+        "id": "arena-07",
+        "name": "Arène de la Maison Carrée",
+        "city": "Nîmes",
+        "level": 24,
+        "type": "Électrik",
+        "champion_name": "Thomas",
+        "pokemon_id": 25,
+        "pokemon_name": "Pikachu"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.4194,
+          44.0125
+        ]
+      },
+      "properties": {
+        "id": "arena-08",
+        "name": "Arène du Duché",
+        "city": "Uzès",
+        "level": 25,
+        "type": "Plante",
+        "champion_name": "Sylvie",
+        "pokemon_id": 44,
+        "pokemon_name": "Ortide"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.0818,
+          44.1277
+        ]
+      },
+      "properties": {
+        "id": "arena-09",
+        "name": "Arène des Mines",
+        "city": "Alès",
+        "level": 27,
+        "type": "Feu",
+        "champion_name": "Marc",
+        "pokemon_id": 58,
+        "pokemon_name": "Caninos"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.6208,
+          44.1628
+        ]
+      },
+      "properties": {
+        "id": "arena-10",
+        "name": "Arène du Gard Rhodanien",
+        "city": "Bagnols-sur-Cèze",
+        "level": 28,
+        "type": "Électrik",
+        "champion_name": "Léa",
+        "pokemon_id": 100,
+        "pokemon_name": "Voltorbe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.6067,
+          43.9917
+        ]
+      },
+      "properties": {
+        "id": "arena-11",
+        "name": "Arène des Cévennes",
+        "city": "Le Vigan",
+        "level": 30,
+        "type": "Plante",
+        "champion_name": "Cédric",
+        "pokemon_id": 71,
+        "pokemon_name": "Empiflor"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.3537,
+          43.2122
+        ]
+      },
+      "properties": {
+        "id": "arena-12",
+        "name": "Arène des Remparts",
+        "city": "Carcassonne",
+        "level": 31,
+        "type": "Normal",
+        "champion_name": "Gauthier",
+        "pokemon_id": 115,
+        "pokemon_name": "Kangourex"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.2178,
+          43.0536
+        ]
+      },
+      "properties": {
+        "id": "arena-13",
+        "name": "Arène de la Blanquette",
+        "city": "Limoux",
+        "level": 32,
+        "type": "Eau",
+        "champion_name": "Mireille",
+        "pokemon_id": 55,
+        "pokemon_name": "Akwakwak"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.9536,
+          43.3183
+        ]
+      },
+      "properties": {
+        "id": "arena-14",
+        "name": "Arène du Grand Bassin",
+        "city": "Castelnaudary",
+        "level": 33,
+        "type": "Feu",
+        "champion_name": "Antonin",
+        "pokemon_id": 77,
+        "pokemon_name": "Ponyta"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.0783,
+          44.0983
+        ]
+      },
+      "properties": {
+        "id": "arena-15",
+        "name": "Arène du Viaduc",
+        "city": "Millau",
+        "level": 34,
+        "type": "Électrik",
+        "champion_name": "Hugo",
+        "pokemon_id": 125,
+        "pokemon_name": "Élektek"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.5019,
+          44.5181
+        ]
+      },
+      "properties": {
+        "id": "arena-16",
+        "name": "Arène du Gévaudan",
+        "city": "Mende",
+        "level": 35,
+        "type": "Normal",
+        "champion_name": "Benoît",
+        "pokemon_id": 128,
+        "pokemon_name": "Tauros"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.575,
+          44.3517
+        ]
+      },
+      "properties": {
+        "id": "arena-17",
+        "name": "Arène du Piton",
+        "city": "Rodez",
+        "level": 37,
+        "type": "Normal",
+        "champion_name": "Clément",
+        "pokemon_id": 36,
+        "pokemon_name": "Mélodelfe"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.1481,
+          43.9289
+        ]
+      },
+      "properties": {
+        "id": "arena-18",
+        "name": "Arène Sainte-Cécile",
+        "city": "Albi",
+        "level": 38,
+        "type": "Feu",
+        "champion_name": "Gabriel",
+        "pokemon_id": 126,
+        "pokemon_name": "Magmar"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.2403,
+          43.6061
+        ]
+      },
+      "properties": {
+        "id": "arena-19",
+        "name": "Arène de l'Agout",
+        "city": "Castres",
+        "level": 40,
+        "type": "Eau",
+        "champion_name": "Alice",
+        "pokemon_id": 131,
+        "pokemon_name": "Lokhlass"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.8956,
+          43.9014
+        ]
+      },
+      "properties": {
+        "id": "arena-20",
+        "name": "Arène du Vignoble",
+        "city": "Gaillac",
+        "level": 41,
+        "type": "Plante",
+        "champion_name": "Julien",
+        "pokemon_id": 103,
+        "pokemon_name": "Noadkoko"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.8956,
+          42.6986
+        ]
+      },
+      "properties": {
+        "id": "arena-21",
+        "name": "Arène du Castillet",
+        "city": "Perpignan",
+        "level": 42,
+        "type": "Feu",
+        "champion_name": "Esteban",
+        "pokemon_id": 6,
+        "pokemon_name": "Dracaufeu"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          2.7489,
+          42.4847
+        ]
+      },
+      "properties": {
+        "id": "arena-22",
+        "name": "Arène des Cerises",
+        "city": "Céret",
+        "level": 43,
+        "type": "Plante",
+        "champion_name": "Valérie",
+        "pokemon_id": 3,
+        "pokemon_name": "Florizarre"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.6067,
+          42.9667
+        ]
+      },
+      "properties": {
+        "id": "arena-23",
+        "name": "Arène des Comtes",
+        "city": "Foix",
+        "level": 45,
+        "type": "Électrik",
+        "champion_name": "David",
+        "pokemon_id": 26,
+        "pokemon_name": "Raichu"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.6111,
+          43.1167
+        ]
+      },
+      "properties": {
+        "id": "arena-24",
+        "name": "Arène des Trois Clochers",
+        "city": "Pamiers",
+        "level": 47,
+        "type": "Normal",
+        "champion_name": "Romain",
+        "pokemon_id": 132,
+        "pokemon_name": "Métamorph"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.7236,
+          43.1083
+        ]
+      },
+      "properties": {
+        "id": "arena-25",
+        "name": "Arène du Comminges",
+        "city": "Saint-Gaudens",
+        "level": 49,
+        "type": "Eau",
+        "champion_name": "Sophie",
+        "pokemon_id": 9,
+        "pokemon_name": "Tortank"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.3267,
+          43.4608
+        ]
+      },
+      "properties": {
+        "id": "arena-26",
+        "name": "Arène de la Louge",
+        "city": "Muret",
+        "level": 50,
+        "type": "Plante",
+        "champion_name": "Mathieu",
+        "pokemon_id": 114,
+        "pokemon_name": "Saquedeneu"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.4442,
+          43.6047
+        ]
+      },
+      "properties": {
+        "id": "arena-27",
+        "name": "Arène du Capitole",
+        "city": "Toulouse",
+        "level": 53,
+        "type": "Électrik",
+        "champion_name": "Alexandre",
+        "pokemon_id": 145,
+        "pokemon_name": "Électhor"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          1.355,
+          44.0175
+        ]
+      },
+      "properties": {
+        "id": "arena-28",
+        "name": "Arène d'Ingres",
+        "city": "Montauban",
+        "level": 55,
+        "type": "Normal",
+        "champion_name": "Camille",
+        "pokemon_id": 137,
+        "pokemon_name": "Porygon"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.5858,
+          43.6464
+        ]
+      },
+      "properties": {
+        "id": "arena-29",
+        "name": "Arène de Gascogne",
+        "city": "Auch",
+        "level": 57,
+        "type": "Feu",
+        "champion_name": "Florian",
+        "pokemon_id": 146,
+        "pokemon_name": "Sulfura"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          0.0781,
+          43.2328
+        ]
+      },
+      "properties": {
+        "id": "arena-30",
+        "name": "Arène de la Bigorre",
+        "city": "Tarbes",
+        "level": 60,
+        "type": "Eau",
+        "champion_name": "Aurélie",
+        "pokemon_id": 130,
+        "pokemon_name": "Léviator"
+      }
+    }
+  ]
+}
