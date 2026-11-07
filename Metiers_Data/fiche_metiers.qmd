@@ -202,7 +202,7 @@ L'intitulé de votre contrat dépend moins de vos compétences intrinsèques que
 
 ### C. Le Grand Groupe (CAC 40, Banques, Assurances, Énergie) : Silos et Cadre Réglementé
 
-* **La réalité :** Forte division du travail. Les environnements sont cloisonnés pour des raisons de conformité (RGPD, auditabilité des modèles de scoring de crédit, régulations bancaires Bâle III/Solvabilité II).
+* **La réalité :** Forte division du travail. Les environnements sont cloisonnés pour des raisons de conformité.
 * **Le quotidien :** 
   
   * Le **Data Analyst** prépare des reportings institutionnels, manipule des datamarts volumineux et utilise des outils décisionnels d'entreprise.
@@ -245,7 +245,7 @@ Les salaires sont exprimés en **milliers d’euros bruts annuels (€)**, hors 
 
 ::: {.callout-important}
 ### L'Écart Régional (Occitanie vs Paris) et l'Impact du Télétravail
-À qualification égale, les rémunérations en Île-de-France affichent un différentiel de **+12 % à +20 %** par rapport au marché local (Montpellier, Nîmes, Toulouse). Cet écart reflète le coût de la vie et la concentration des sièges sociaux.
+À qualification égale, les rémunérations en Île-de-France affichent un différentiel de **+12 % à +20 %** par rapport au marché provincial (Montpellier, Toulouse, ...). Cet écart reflète le coût de la vie et la concentration des sièges sociaux.
 
 Toutefois, la généralisation du télétravail partiel (2 à 3 jours par semaine) ou complet (*full remote*) permet aujourd'hui à des diplômés résidant en Occitanie d'être embauchés par des entreprises basées à Paris ou à l'international, accédant ainsi à des grilles salariales supérieures tout en conservant leur cadre de vie.
 :::
@@ -262,7 +262,7 @@ Les profils de **Data Engineer** et de **Machine Learning Engineer** bénéficie
 
 # 9. Les Compétences Différenciatrices qui Font Grimper la Rémunération
 
-Pour un diplômé de Master en Sciences des Données, le positionnement salarial à la sortie ne dépend pas de vos notes d'examens, mais de compétences techniques observables dès l'entretien technique :
+Pour un diplômé de Master en Sciences des Données, le positionnement salarial à la sortie ne dépend pas de vos notes d'examens, mais de compétences techniques observables dès l'entretien technique (bon j'avoue que la classe de l'Ecole d'Ingénieurs mais c'est propre à la France) :
 
 1. **La discipline de Génie Logiciel :** Présenter un projet GitHub personnel structuré (`pyproject.toml`), testé unitairement (`pytest`), audité par un linter (`ruff`) et doté d'une intégration continue vous positionne immédiatement dans le décile supérieur des candidats juniors.
 2. **La maîtrise du SQL analytique avancé :** Maîtriser sans hésiter les jointures complexes, les sous-requêtes corrélées et les fonctions de fenêtrage (`OVER (PARTITION BY ... ORDER BY ...)`).
@@ -279,7 +279,7 @@ Ne vous fiez jamais au seul titre d'une annonce. Examinez scrupuleusement la rub
 
 * **Mots-clés repérés :** *Excel, Power BI, Tableau, SQL, Google Analytics, DAX, KPI, reporting hebdomadaire*.
 * **Missions types :** *« Automatiser l'extraction des données de ventes, concevoir les tableaux de bord pour la direction générale, répondre aux demandes de données ponctuelles des équipes marketing »*.
-* **Ce qu'il faut comprendre :** C'est un rôle d'aide à la décision humaine. Excellent tremplin pour acquérir une compréhension intime des flux financiers d'une entreprise, mais sans composante de modélisation mathématique lourde.
+* **Ce qu'il faut comprendre :** C'est un rôle d'aide à la décision humaine. Excellent tremplin pour acquérir une compréhension des flux financiers d'une entreprise, mais sans composante de modélisation mathématique lourde.
 
 ### Diagnostic 2 : C'est un poste de Data Science de Modélisation Authentique
 
@@ -291,4 +291,36 @@ Ne vous fiez jamais au seul titre d'une annonce. Examinez scrupuleusement la rub
 
 * **Mots-clés repérés :** *Python, SQL, PostgreSQL, Docker, dbt, Airflow, Streamlit, CI/CD, AWS/GCP*.
 * **Missions types :** *« Prendre en charge la conception complète du pipeline de données : extraction API, structuration des bases, modélisation prédictive et mise à disposition d'une interface utilisateur »*.
-* **Ce qu'il faut comprendre :** Le poste parfait pour mettre en œuvre **l'intégralité du projet semestriel PyArena**. Vous y ferez de l'ingestion, de l'objet, du test, de la simulation et du tableau de bord. Forte autonomie et progression technique très rapide garanties.
+* **Ce qu'il faut comprendre :** Vous y ferez de l'ingestion, de l'objet, du test, de la simulation et du tableau de bord. Forte autonomie et progression technique très rapide garanties.
+
+# 11. Sources, Études Salariales et Références pour Approfondir
+
+Les rémunérations, les volumes d'embauches et les tendances technologiques présentés dans ce document sont issus du croisement de plusieurs études de référence publiées régulièrement :
+
+### Baromètres Annuels de Rémunération (France)
+
+* **Urban Linker — *Baromètre des Salaires de la Tech et de la Data* :**  
+  Cabinet de recrutement spécialisé dans l'écosystème startup/scale-up et tech en France. C'est l'une des sources les plus fines pour observer les salaires réels des Data Scientists, Data Engineers, MLE et Data Analysts, avec une segmentation claire entre Paris et les métropoles régionales.
+* **Silkhom — *Guide des Salaires IT & Data* :**  
+  Cabinet de recrutement spécialisé dans les métiers de l'informatique et de l'ingénierie, très présent en région (notamment dans le sud de la France et en Occitanie). Idéal pour calibrer le marché local hors Île-de-France.
+* **Hays France & Luxembourg — *Guide des Rémunérations (Pôle IT & Data)* :**  
+  Enquête nationale annuelle couvrant à la fois les grands groupes, les ESN et les PME, avec une analyse détaillée des rémunérations par région et par niveau d'expérience.
+* **Michael Page / Page Personnel — *Étude de Rémunérations Ingénieurs & Informatique* :**  
+  Baromètre de référence sur les grilles salariales des profils cadres techniques dans les structures traditionnelles et les grands comptes.
+
+### Enquêtes Techniques & Écosystème Logiciel
+
+* **Stack Overflow — *Developer Survey* (section Data & ML) :**  
+  La plus vaste enquête mondiale auprès des professionnels du code (plus de 60 000 répondants chaque année). Elle documente précisément les langages les plus utilisés, les technologies les plus recherchées, ainsi que la popularité comparée des outils (Docker, Git, AWS, PostgreSQL, Pandas).
+* **State of Data Engineering Report :**  
+  Rapport annuel analysant la montée en puissance de l'ingénierie des données, l'adoption des outils modernes (dbt, Dagster, Snowflake, Kafka) et la transition des équipes vers le paradigme du *Data Mesh*.
+* **State of AI Report (par Nathan Benaich et al.) :**  
+  Rapport annuel de référence synthétisant les avancées scientifiques, industrielles et économiques du Machine Learning et des modèles génératifs.
+
+### Sources Institutionnelles et Marché Cadre
+
+* **APEC (Association pour l'Emploi des Cadres) — *Fiches Métiers et Études Sectorielles Data* :**  
+  Données statistiques sur les tensions de recrutement, les types de contrats (CDI, statut cadre) et l'insertion professionnelle des diplômés de niveau Bac+5 (Master et écoles d'ingénieurs).
+* **Numeum (syndicat professionnel de l'écosystème numérique français) :**  
+  Chiffres macroéconomiques sur la croissance des services numériques, les investissements en R&D logicielle et les prévisions de créations d'emplois dans la filière numérique en France.
+

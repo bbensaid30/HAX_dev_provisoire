@@ -3,10 +3,16 @@ title: "Développement Logiciel (HAX712X)"
 subtitle: "Bensaid Bilel"
 ---
 
-Bienvenue sur le site du cours de Développement Logiciel.
+Bienvenue sur le site du cours de Développement Logiciel. 
 
+Une description des métiers autour de la Data est accessible sur le lien suivant: [Fiche Métier](Metiers_Data/fiche_metiers.qmd). Elle décrit les motivations autour de ce cours.
+
+Le rendu attendu est un projet par groupes réinvestissant les compétences de génie logiciel. 
+Le projet de 2026-2027 est décrit ci-dessous:
 * [Cahier des charges du Projet PyArena](Projet2026/cahier_des_charges.qmd)
 * [Contrat API du projet](Projet2026/contrat_api.qmd)
+
+Les cours de ce semestre sont les suivants:
 * [Cours-TP 1 : Prise en main de Linux & Bash](TP_bash/enonce_bash.qmd)
 * [Cours-TP 2 : Git](TP_git/enonce_git.qmd)
 * [Cours-TP 3 : Module et Packaging](TP_packaging/enonce_packaging.qmd)
