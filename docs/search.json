@@ -592,7 +592,7 @@
     "href": "index.html",
     "title": "Développement Logiciel (HAX712X)",
     "section": "",
-    "text": "Bienvenue sur le site du cours de Développement Logiciel.\nUne description des métiers autour de la Data est accessible sur le lien suivant: Fiche Métier. Elle décrit les motivations autour de ce cours.\nLe rendu attendu est un projet par groupes réinvestissant les compétences de génie logiciel. Le projet de 2026-2027 est décrit ci-dessous: * Cahier des charges du Projet PyArena * Contrat API du projet\nLes cours de ce semestre sont les suivants: * Cours-TP 1 : Prise en main de Linux & Bash * Cours-TP 2 : Git * Cours-TP 3 : Module et Packaging * Cours-TP 4 : POO * Cours-TP 5 : Tests * Cours-TP 6 : I/O * Guide d’installation Windows (WSL 2 & VS Code)\nLien vers l’ancien site du cours (utile pour des ressources complémentaires): Ancien site."
+    "text": "Bienvenue sur le site du cours de Développement Logiciel.\nUne description des métiers autour de la Data est accessible sur le lien suivant: Fiche Métier. Elle décrit les motivations autour de ce cours.\nLe rendu attendu est un projet par groupes réinvestissant les compétences de génie logiciel. Le projet de 2026-2027 est décrit ci-dessous:\n\nCahier des charges du Projet PyArena\nContrat API du projet\n\nLes cours de ce semestre sont les suivants:\n\nCours-TP 1 : Prise en main de Linux & Bash\nCours-TP 2 : Git\nCours-TP 3 : Module et Packaging\nCours-TP 4 : POO\nCours-TP 5 : Tests\nCours-TP 6 : I/O\nGuide d’installation Windows (WSL 2 & VS Code)\n\nLien vers l’ancien site du cours (utile pour des ressources complémentaires): Ancien site."
   },
   {
     "objectID": "Projet2026/cahier_des_charges.html",
