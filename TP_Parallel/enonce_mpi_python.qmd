@@ -1,0 +1,715 @@
+---
+title: "Calcul Haute Performance (HPC) & Mémoire Distribuée avec MPI et mpi4py"
+subtitle: "Du multi-cœurs local aux supercalculateurs de recherche (Mésocentre, Jean Zay, CINES)"
+author: "Bensaid Bilel"
+date: "13 Novembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire du TP Bonus"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Démarche Pédagogique
+
+Dans le cours-TP sur le parallélisme, nous avons exploité les cœurs d'un **unique ordinateur** (ou station de travail) via `concurrent.futures.ProcessPoolExecutor` et `joblib`. C'est le monde de la **mémoire partagée** : tous les cœurs sont soudés sur la même carte mère et accèdent physiquement aux mêmes barrettes de RAM.
+
+Or, dans les centres de calcul nationaux (comme le CINES à Montpellier, l'IDRIS ou le CEA) et dans les industries de pointe :
+
+* **En Modélisation & Analyse Numérique (MANU) :** La simulation du climat, l'aérodynamique d'un avion (résolution des équations de Navier-Stokes sur des maillages de 500 millions de cellules) ou la tomographie géophysique exigent des dizaines de téraoctets de données et des semaines de calcul.
+* **En Science des Données (SSD) & IA :** L'entraînement des grands modèles de fondation (*Large Language Models*), l'inférence bayésienne distribuée et le traitement de données massives dépassent la capacité mémoire d'une machine isolée.
+* **Le mur de l'ordinateur unique :** Aucun constructeur ne sait fabriquer une machine individuelle dotée de 10 000 cœurs et de 100 To de RAM. La seule solution consiste à assembler des milliers de serveurs indépendants (appelés des **nœuds de calcul**) reliés entre eux par un réseau ultra-rapide. C'est ce qu'on appelle un **Cluster de Calcul** ou un **Supercalculateur**.
+
+L'objectif de ce TP Bonus est d'acquérir les concepts fondamentaux du **Calcul Haute Performance (HPC — *High-Performance Computing*)**, de comprendre l'intérêt stratégique de **MPI en Python**, de manipuler les communications point-à-point et collectives, et de résoudre un problème classique de **décomposition de domaine (équation de la chaleur 1D)**.
+
+---
+
+## Faire du MPI en Python : Hérésie ou Choix Stratégique ?
+
+Une question légitime se pose immédiatement : *« Le C et le C++ n'étant-ils pas les rois du HPC, faire du MPI en Python a-t-il le moindre sens ? »*
+
+La réponse est **oui, absolument**, pour quatre raisons d'ingénierie majeures :
+
+1. **La vitesse native du protocole tampon (*Zero-Copy Buffer Protocol*) :**  
+   Grâce à la bibliothèque **`mpi4py`**, Python ne sérialise pas bêtement les tableaux NumPy avec `pickle`. `mpi4py` accède directement au pointeur mémoire C sous-jacent du tableau NumPy (`void*`). Les données voyagent à travers la carte réseau sans aucune copie mémoire intermédiaire : **la vitesse de communication en Python est rigoureusement identique à celle d'un code C ou Fortran natif**.
+2. **Le patron d'architecture « Cœur de calcul compilé / Orchestration Python » :**  
+   Dans l'industrie et la recherche (ex. bibliothèque de calcul matriciel distribué **PETSc / petsc4py**, ou simulateur par éléments finis **FEniCS**), les noyaux arithmétiques lourds sont compilés en C/C++/CUDA, tandis que la décomposition du domaine, le découpage des tâches et la gestion des scénarios sont écrits en Python. On gagne un facteur 10 en vitesse de développement sans perdre une seule microseconde en calcul.
+3. **L'écosystème IA Distribué :**  
+   Les frameworks modernes de Deep Learning distribué (PyTorch DDP, DeepSpeed, Megatron-LM) s'interfacent avec des couches de communication collective dérivées directement des primitives MPI.
+4. **La valeur pédagogique :**  
+   Apprendre les concepts d'inter-blocage (*deadlock*), de topologies de rangs, de communications non-bloquantes et de réduction globale en Python permet de se concentrer sur **l'algorithmique parallèle** sans se perdre dans la gestion manuelle des pointeurs C et des fichiers de compilation `Makefile`.
+
+---
+
+## Découpage de la Séance
+
+| Phase | Thématique abordée | Modalité & Pédagogie |
+| :--- | :--- | :---: |
+| **Partie 0** | **L'Architecture d'un Supercalculateur :** Nœuds, Réseau InfiniBand & Mémoire Distribuée | Cours interactif |
+| **Partie 1** | **Le Paradigme SPMD :** Communicateur, Rang et Taille avec `mpi4py` | Expérience 1 (Hello World MPI) |
+| **Partie 2** | **Point-à-Point :** Méthodes minuscules (`send`) vs Méthodes majuscules (`Send` NumPy) | Cours & Exercice 2 (L'anneau de calcul) |
+| **Partie 3** | **Le Danger de l'Inter-blocage (*Deadlock*) & Communications Non-Bloquantes** | Démonstration & Exercice 3 |
+| **Partie 4** | **Communications Collectives :** Diffusion (`Bcast`), Réduction (`Reduce`), Dispersion (`Scatter`) | Cours & Exercice 4 (Monte-Carlo distribué) |
+| **Partie 5** | **Application MANU : Décomposition de Domaine (Équation de la Chaleur 1D)** | **Projet guidé (Halo Exchange)** |
+| **Partie 6** | **Déploiement Industriel :** Soumission de jobs avec l'ordonnanceur Slurm | Fiche pratique |
+
+---
+
+# Partie 0 : L'Architecture d'un Supercalculateur (15 min)
+
+---
+
+## 0.1 Nœuds de Calcul et Réseau d'Interconnexion
+
+Un cluster de calcul est constitué de dizaines, de centaines ou de milliers d'ordinateurs individuels empilés dans des baies serveurs :
+
+```text
+                  ARCHITECTURE À MÉMOIRE DISTRIBUÉE (CLUSTER HPC)
+
+    ┌─────────────────────────┐               ┌─────────────────────────┐
+    │     NŒUD DE CALCUL 0    │               │     NŒUD DE CALCUL 1    │
+    │  ┌───────────────────┐  │               │  ┌───────────────────┐  │
+    │  │  Mémoire RAM 0    │  │               │  │  Mémoire RAM 1    │  │
+    │  └─────────┬─────────┘  │               │  └─────────┬─────────┘  │
+    │  ┌─────────┴─────────┐  │               │  ┌─────────┴─────────┐  │
+    │  │  CPUs (16 cœurs)  │  │               │  │  CPUs (16 cœurs)  │  │
+    │  └───────────────────┘  │               │  └───────────────────┘  │
+    └────────────┬────────────┘               └────────────┬────────────┘
+                 │                                         │
+                 └───────────────────┬─────────────────────┘
+                                     ▼
+             Réseau Dédié Haute Vitesse (InfiniBand : Latence < 1 µs, Débit > 200 Gb/s)
+                   Communication par Messages Explicites (Standard MPI)
+```
+
+* **Le Nœud de Calcul (*Node*) :** Un serveur autonome doté de sa propre carte mère, de ses processeurs et de ses barrettes de RAM.
+* **L'Étanchéité Physique :** Le processeur du Nœud 0 **ne peut physiquement pas** accéder aux barrettes de RAM du Nœud 1. Aucun pointeur mémoire ne peut traverser les nœuds.
+* **Le Réseau d'Interconnexion (InfiniBand) :** Un câble Ethernet classique (RJ45) a une latence de 50 à 100 microsecondes, ce qui paralyserait un calcul parallèle. Les supercalculateurs utilisent des liaisons spécialisées appelées **InfiniBand** (latence inférieure à $1\ \mu	ext{s}$, débit de $200$ à $400	ext{ Gb/s}$) permettant le transfert direct de mémoire à mémoire entre machines distantes (**RDMA** — *Remote Direct Memory Access*).
+
+---
+
+## 0.2 Qu'est-ce que le Standard MPI ?
+
+Créé en 1994 par un consortium international d'universités et de constructeurs (IBM, Intel), **MPI (*Message Passing Interface*)** n'est pas un logiciel ni un langage, mais **une norme formelle** qui définit une bibliothèque de fonctions pour s'échanger des données entre processus distants.
+
+* En C, C++ et Fortran, les deux moteurs MPI les plus utilisés au monde sont **OpenMPI** et **MPICH**.
+* En Python, la bibliothèque **`mpi4py`** enveloppe ces moteurs C pour fournir une interface élégante et performante.
+
+---
+
+# Partie 1 : Le Paradigme SPMD et Prise en Main de `mpi4py` (25 min)
+
+---
+
+## 1.1 Qu'est-ce que le SPMD (*Single Program, Multiple Data*) ?
+
+Dans le TP précédent avec `ProcessPoolExecutor`, nous utilisions le modèle *Maître / Esclave* : un script principal instancie des workers, leur donne du travail et attend le retour.
+
+En MPI, on utilise le paradigme **SPMD (*Single Program, Multiple Data*)** :
+
+> **Le même script Python est exécuté simultanément sur tous les cœurs et toutes les machines du cluster.**
+
+Puisque tout le monde exécute le même code, comment chaque processus sait-il quelle portion de la matrice il doit calculer ?  
+Il interroge le **Communicateur** pour connaître son **Rang** :
+
+1. **Le Communicateur (`MPI.COMM_WORLD`) :** Le groupe englobant l'ensemble des processus lancés ensemble.
+2. **La Taille (`size`) :** Le nombre total de processus participant au calcul.
+3. **Le Rang (`rank`) :** L'identifiant unique attribué à chaque processus, compris entre $0$ et $	ext{size} - 1$.
+   * Le processus de rang $0$ (souvent appelé le *maître*) se charge des affichages console et de la coordination.
+   * Les autres processus (rangs $1, 2, \dots$) exécutent leur part des calculs locaux.
+
+---
+
+## 1.2 Installation de l'Environnement MPI
+
+Sous Linux (Ubuntu / Debian) :
+```bash
+# 1. Installation du moteur MPI système et des compilateurs C
+sudo apt update
+sudo apt install -y libopenmpi-dev openmpi-bin
+
+# 2. Installation de la surcouche Python dans votre environnement virtuel
+source .venv/bin/activate
+pip install mpi4py
+```
+
+Vérifiez l'installation dans votre terminal :
+```bash
+mpirun --version
+```
+
+---
+
+## 1.3 Exercice 1 : Premier Script SPMD (`scripts/mpi_hello.py`)
+
+### Cahier des Charges
+Créez le fichier `scripts/mpi_hello.py` :
+
+1. Importe `MPI` depuis `mpi4py`.
+2. Récupère le communicateur global `comm = MPI.COMM_WORLD`.
+3. Récupère le rang local `rank = comm.Get_rank()` et la taille `size = comm.Get_size()`.
+4. Récupère le nom physique de la machine hôte via `nom_machine = MPI.Get_processor_name()`.
+5. Affiche le message : `[Nœud: {nom_machine}] Processus {rank} sur un total de {size} prêt.`
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`scripts/mpi_hello.py`) :
+
+```python
+# scripts/mpi_hello.py
+from mpi4py import MPI
+
+# TODO 1: Récupérer le communicateur mondial MPI.COMM_WORLD
+# TODO 2: Extraire le rang (Get_rank) et la taille totale (Get_size)
+# TODO 3: Extraire le nom de la machine (MPI.Get_processor_name)
+# TODO 4: Afficher le message d'identification
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`scripts/mpi_hello.py`) :
+
+```python
+# scripts/mpi_hello.py
+from mpi4py import MPI
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+node_name = MPI.Get_processor_name()
+
+print(f"[Nœud: {node_name}] Processus {rank} sur un total de {size} prêt.")
+```
+:::
+
+### Comment lancer un programme MPI ?
+On ne lance **jamais** un script MPI avec `python scripts/mpi_hello.py` (cela ne lancerait qu'un seul processus isolé). On utilise l'exécuteur **`mpirun`** avec l'option `-n` spécifiant le nombre de processus :
+
+```bash
+mpirun -n 4 python scripts/mpi_hello.py
+```
+
+Observez la sortie console : les 4 lignes s'affichent dans un ordre arbitraire car les 4 processus s'exécutent en concurrence pure.
+
+---
+
+# Partie 2 : Communications Point-à-Point : `send` vs `Send` (30 min)
+
+La communication point-à-point est l'action élémentaire par laquelle un processus émetteur envoie un message à un processus récepteur désigné par son rang.
+
+---
+
+## 2.1 La Dualité Fondamentale de `mpi4py` : Minuscules vs Majuscules
+
+C'est la distinction technique la plus importante de `mpi4py` :
+
+| Famille de Méthodes | Exemples | Types de données | Performance | Mécanisme sous-jacent |
+| :--- | :--- | :--- | :---: | :--- |
+| **Minuscules** | `comm.send()`, `comm.recv()` | N'importe quel objet Python (`dict`, `str`, listes) | **Lente** (overhead) | Sérialisation complète via `pickle.dumps()` et désérialisation via `pickle.loads()`. |
+| **Majuscules** | `comm.Send()`, `comm.Recv()` | **Tableaux contigus NumPy** (`float64`, `int32`...) | **Vitesse C native** (*Zero-Copy*) | Accès direct au pointeur mémoire C du tableau (`void*`). Aucun passage par Python : débit réseau maximal. |
+
+::: {.callout-important}
+### Règle d'or en Calcul Scientifique
+Pour échanger des scalaires ou des métadonnées légères, utilisez `send`/`recv`.  
+Dès que vous manipulez des vecteurs, des matrices ou des grilles de discrétisation, **utilisez impérativement les méthodes majuscules avec des tableaux NumPy contigus (`Send` / `Recv`)**.
+:::
+
+---
+
+## 2.2 Exercice 2 : L'Anneau de Calcul (*Ring Communication*)
+
+### Problématique
+Une topologie d'anneau (*Ring*) est un motif classique où chaque processus de rang $r$ envoie une donnée à son voisin de droite $r + 1$, et le dernier processus $	ext{size} - 1$ renvoie au processus $0$, formant un cercle fermé.
+
+```text
+       [Processus 0] ───────> [Processus 1]
+             ▲                       │
+             │                       ▼
+       [Processus 3] <─────── [Processus 2]
+```
+
+### Cahier des Charges
+Dans `scripts/mpi_ring.py`, implémentez l'anneau avec des tableaux NumPy via `comm.Send` et `comm.Recv` :
+
+1. Déterminez le voisin de destination : `dest = (rank + 1) % size`.
+2. Déterminez le voisin de provenance : `source = (rank - 1 + size) % size`.
+3. Le processus $0$ initialise un tableau NumPy de 5 flottants : `data = np.array([10.0, 20.0, 30.0, 40.0, 50.0], dtype=np.float64)`. Les autres processus initialisent un tableau vide de même dimension : `data = np.empty(5, dtype=np.float64)`.
+4. Pour éviter que tous les processus bloquent en même temps en attente de lecture :
+   * Le processus $0$ envoie d'abord son message à `dest`, puis reçoit la fin du tour depuis `source`.
+   * Tous les autres processus ($r > 0$) attendent d'abord de recevoir depuis `source`, ajoutent $1.0$ à chaque élément du tableau (`data += 1.0`), puis renvoient le tableau modifié à `dest`.
+5. Le processus $0$ affiche le tableau final après son tour complet d'anneau.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`scripts/mpi_ring.py`) :
+
+```python
+# scripts/mpi_ring.py
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+dest = (rank + 1) % size
+source = (rank - 1 + size) % size
+
+# TODO 1: Si rank == 0, créer le tableau data avec des valeurs initiales
+#         Sinon, créer un tableau récepteur vide avec np.empty(5, dtype=np.float64)
+
+# TODO 2: Structurer l'ordre d'émission et de réception pour éviter le blocage :
+#         - Rank 0 : Send vers dest, puis Recv depuis source
+#         - Rangs > 0 : Recv depuis source, incrémenter data += 1.0, puis Send vers dest
+
+# TODO 3: Le rank 0 affiche le tableau final (qui doit avoir augmenté de size - 1)
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`scripts/mpi_ring.py`) :
+
+```python
+# scripts/mpi_ring.py
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+if size < 2:
+    raise RuntimeError("Ce script nécessite au moins 2 processus.")
+
+dest = (rank + 1) % size
+source = (rank - 1 + size) % size
+
+if rank == 0:
+    data = np.array([10.0, 20.0, 30.0, 40.0, 50.0], dtype=np.float64)
+    print(f"[Rang 0] Données initiales émises : {data}")
+    # Émission vers le rang 1
+    comm.Send(data, dest=dest, tag=10)
+    # Réception de la fin de course depuis le dernier rang
+    comm.Recv(data, source=source, tag=10)
+    print(f"[Rang 0] Données reçues après le tour complet : {data}")
+else:
+    data = np.empty(5, dtype=np.float64)
+    # Attente du paquet depuis le voisin de gauche
+    comm.Recv(data, source=source, tag=10)
+    # Incrément local
+    data += 1.0
+    # Transmission au voisin de droite
+    comm.Send(data, dest=dest, tag=10)
+```
+:::
+
+Lancez le test sur 4 processus :
+```bash
+mpirun -n 4 python scripts/mpi_ring.py
+```
+*Le tableau initial `[10, 20, 30, 40, 50]` a été incrémenté 3 fois par les rangs 1, 2 et 3, et revient à 0 avec les valeurs `[13, 23, 33, 43, 53]`.*
+
+---
+
+# Partie 3 : L'Inter-blocage (*Deadlock*) et les Communications Non-Bloquantes (20 min)
+
+---
+
+## 3.1 Qu'est-ce qu'un Deadlock ?
+
+Considérez ce fragment de code en apparence anodin entre deux processus :
+
+```python
+# CODE DANGEREUX : RISQUE DE DEADLOCK IMMÉDIAT
+if rank == 0:
+    comm.send(data_0, dest=1)
+    comm.recv(source=1)
+elif rank == 1:
+    comm.send(data_1, dest=0)
+    comm.recv(source=0)
+```
+
+Dans la norme MPI, la fonction `send` classique est **bloquante** : elle ne rend la main que lorsque les données ont été copiées dans les tampons du système. Si la taille des données dépasse la mémoire tampon de la carte réseau :
+
+* Le Processus 0 attend que le Processus 1 reçoive son message avant de passer à la ligne suivante.
+* Le Processus 1 attend que le Processus 0 reçoive son message avant de passer à la ligne suivante.
+* **Résultat :** Les deux processus s'attendent mutuellement pour l'éternité. Le programme est gelé à 0 % de CPU : c'est l'**Inter-blocage (*Deadlock*)**.
+
+---
+
+## 3.2 La Solution : Les Communications Non-Bloquantes (`Isend` / `Irecv`)
+
+Pour éliminer définitivement le risque d'inter-blocage, MPI propose les variantes non-bloquantes (préfixées par la lettre **`I`** pour *Immediate*) :
+
+* **`req = comm.Isend(buffer, dest=...)` :** Déclenche l'envoi en arrière-plan sans attendre. Rend la main immédiatement et retourne un objet `MPI.Request`.
+* **`req = comm.Irecv(buffer, source=...)` :** Prépare la zone mémoire de réception en arrière-plan et rend la main immédiatement.
+* **`req.Wait()` :** Point de synchronisation où le processus attend explicitement que le transfert en arrière-plan soit achevé avant d'utiliser les données.
+
+```python
+# Patron d'échange bidirectionnel garanti sans deadlock :
+req_envoi = comm.Isend(buffer_emission, dest=autre_rang)
+req_reception = comm.Irecv(buffer_reception, source=autre_rang)
+
+# Le processeur peut effectuer d'autres calculs utiles ici pendant que les cartes réseau échangent !
+
+req_envoi.Wait()
+req_reception.Wait()
+```
+
+---
+
+# Partie 4 : Les Communications Collectives (30 min)
+
+Dans la majorité des algorithmes scientifiques, on ne communique pas nœud par nœud. On utilise des **opérations collectives** coordonnées à l'échelle de tout le cluster.
+
+```text
+ 1. DIFFUSION (Bcast)              2. DISPERSION (Scatter)            3. RÉDUCTION (Reduce - SUM)
+  Processus 0 (Maître)               Processus 0 (Maître)               Processus 0 (Maître)
+      [ D ]                              [ D0 | D1 | D2 ]                    [ Somme = 10 ]
+   ┌────┼────┐                        ┌────────┼────────┐                         ▲
+   ▼    ▼    ▼                        ▼        ▼        ▼                  ┌──────┼──────┐
+Proc 1 Proc 2 Proc 3               Proc 0   Proc 1   Proc 2              Proc 0 Proc 1 Proc 2
+  [D]  [D]  [D]                     [D0]     [D1]     [D2]                [ 2 ]  [ 5 ]  [ 3 ]
+```
+
+1. **`comm.Bcast(buf, root=0)` (*Broadcast*) :** Le processus maître transmet le même tableau à tous les processus.
+2. **`comm.Scatter(sendbuf, recvbuf, root=0)` (*Dispersion*) :** Le maître prend un grand tableau, le découpe en tranches égales et envoie une tranche à chaque processus.
+3. **`comm.Gather(sendbuf, recvbuf, root=0)` (*Rassemblement*) :** L'opération inverse de Scatter : rassemble les tranches calculées par chaque nœud dans un grand tableau sur le maître.
+4. **`comm.Reduce(sendbuf, recvbuf, op=MPI.SUM, root=0)` (*Réduction*) :** Applique une opération mathématique (`MPI.SUM`, `MPI.PROD`, `MPI.MAX`, `MPI.MIN`) sur les tableaux locaux et dépose le résultat combiné sur le maître.
+5. **`comm.Allreduce(sendbuf, recvbuf, op=MPI.SUM)` :** Identique à Reduce, mais le résultat final est distribué à **tous** les processus du cluster.
+
+---
+
+## 4.1 Exercice 3 : Monte-Carlo Distribué à 10 Millions de Tirages
+
+### Cahier des Charges
+Dans `scripts/mpi_monte_carlo.py`, simulez le taux de victoire de Monte-Carlo distribué sur $P$ processus MPI avec `comm.Reduce` :
+
+1. Le processus $0$ fixe le volume global $N = 10\,000\,000$.
+2. Le volume est diffusé à tous les processus via `comm.bcast(N, root=0)`.
+3. Chaque rang calcule sa part locale : $n_{	ext{local}} = N // 	ext{size}$.
+4. Pour garantir l'indépendance statistique des tirages, chaque processus initialise son générateur avec sa propre graine décorrélée : `rng = np.random.default_rng(2026 + rank)`.
+5. Chaque processus génère un vecteur de $n_{	ext{local}}$ tirages uniformes via `rng.random(n_local)` et compte ses victoires sous forme d'un tableau NumPy à 1 élément : `local_wins = np.array([np.sum(tirages > 0.48)], dtype=np.int64)`.
+6. Rassemblez la somme globale sur le processus 0 via `comm.Reduce(local_wins, total_wins, op=MPI.SUM, root=0)`.
+7. Le rang $0$ chronomètre l'opération et affiche le winrate global.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`scripts/mpi_monte_carlo.py`) :
+
+```python
+# scripts/mpi_monte_carlo.py
+import time
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+# TODO 1: Si rank == 0, définir N = 10_000_000. Sinon, N = None.
+#         Diffuser N à tous avec comm.bcast(N, root=0)
+
+# TODO 2: Calculer n_local = N // size. Synchroniser l'horloge avec comm.Barrier() et t0 = MPI.Wtime()
+
+# TODO 3: Initialiser rng avec seed = 2026 + rank. Générer n_local tirages NumPy et compter les succès.
+
+# TODO 4: Utiliser comm.Reduce avec op=MPI.SUM pour additionner les succès sur le rang 0.
+
+# TODO 5: Le rang 0 affiche le winrate global et le temps d'exécution total (MPI.Wtime() - t0).
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`scripts/mpi_monte_carlo.py`) :
+
+```python
+# scripts/mpi_monte_carlo.py
+import time
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+if rank == 0:
+    N = 10_000_000
+else:
+    N = None
+
+# Diffusion du paramètre global
+N = comm.bcast(N, root=0)
+n_local = N // size
+
+# Barrière de synchronisation de l'horloge
+comm.Barrier()
+t0 = MPI.Wtime()
+
+# Génération vectorisée locale indépendante
+rng = np.random.default_rng(2026 + rank)
+tirages = rng.random(n_local)
+local_wins = np.array([np.sum(tirages > 0.48)], dtype=np.int64)
+
+# Réduction collective avec zero-copy NumPy
+total_wins = np.zeros(1, dtype=np.int64) if rank == 0 else None
+comm.Reduce(local_wins, total_wins, op=MPI.SUM, root=0)
+
+comm.Barrier()
+t_total = MPI.Wtime() - t0
+
+if rank == 0:
+    winrate = total_wins[0] / N
+    print("==================================================")
+    print(f"  Simulation Monte-Carlo Distribuée (MPI)")
+    print(f"  Processus mobilisés      : {size}")
+    print(f"  Volume total de calcul   : {N:,} duels")
+    print(f"  Winrate global estimé    : {winrate:.5f}")
+    print(f"  Temps d'exécution        : {t_total:.3f} s")
+    print(f"  Débit de simulation      : {N / t_total:,.0f} duels/s")
+    print("==================================================")
+```
+:::
+
+Lancez sur 4 puis 8 cœurs pour mesurer le scaling :
+```bash
+mpirun -n 4 python scripts/mpi_monte_carlo.py
+mpirun -n 8 python scripts/mpi_monte_carlo.py
+```
+
+---
+
+# Partie 5 : Application MANU — Décomposition de Domaine & Équation de la Chaleur 1D (Halo Exchange) (45 min)
+
+Pour les étudiants d'analyse numérique (MANU), c'est le cœur absolu du calcul scientifique sur supercalculateur : **résoudre une équation aux dérivées partielles (EDP) en découpant le maillage spatial entre plusieurs machines**.
+
+---
+
+## 5.1 Modèle Physique et Discrétisation
+
+Considérons l'équation de la chaleur 1D sur le domaine spatial $x \in [0, L]$ pour $t \in [0, T_{	ext{final}}]$ :
+
+$$\frac{\partial u}{\partial t} = \alpha \frac{\partial^2 u}{\partial x^2}$$
+
+On discrétise l'espace en $M$ nœuds avec un pas $\Delta x$, et le temps avec un pas $\Delta t$.  
+Le schéma d'Euler explicite centré d'ordre 2 s'écrit pour chaque point intérieur $i$ :
+
+$$u_i^{n+1} = u_i^n + r \Big( u_{i+1}^n - 2 u_i^n + u_{i-1}^n \Big) \quad \text{avec} \quad r = \frac{\alpha \Delta t}{\Delta x^2} \le 0.5 \quad (\text{Condition CFL de stabilité})$$
+
+---
+
+## 5.2 Le Découpage en Sous-Domaines et les Cellules Fantômes (*Ghost Cells / Halo*)
+
+Si l'on dispose de $P$ processus MPI, on découpe les $M$ points en $P$ sous-domaines contigus de taille $m = M / P$.
+
+```text
+                  DÉCOMPOSITION DE DOMAINE & CELLULES FANTÔMES (HALO)
+
+        Sous-domaine Rang 0                   Sous-domaine Rang 1
+   [ x0 | x1 | ... | xm-1 | G_d ] <=== Échange ===> [ G_g | xm | ... | x2m-1 ]
+                            ▲                               ▲
+                            │                               │
+                       Fantôme Droite                 Fantôme Gauche
+```
+
+* Pour calculer $u_{m-1}^{n+1}$ au bord droit de son sous-domaine, le Rang 0 a besoin de la valeur $u_m^n$ qui appartient au Rang 1.
+* Pour calculer $u_m^{n+1}$ au bord gauche de son sous-domaine, le Rang 1 a besoin de la valeur $u_{m-1}^n$ qui appartient au Rang 0.
+* **Le Mécanisme de Halo Exchange :** À chaque pas de temps, chaque sous-domaine s'agrandit de deux cellules virtuelles appelées **cellules fantômes (*Ghost Cells*)**. Les processus s'échangent mutuellement leurs points de frontière avant d'exécuter le calcul local.
+
+---
+
+## 5.3 Exercice 4 : Implémentation du Solveur EDP Parallèle (`scripts/mpi_heat_equation.py`)
+
+### Cahier des Charges
+Dans `scripts/mpi_heat_equation.py`, implémentez la résolution distribuée de l'équation de la chaleur :
+
+1. Paramètres physiques : $L = 1.0$, $\alpha = 0.01$, $M = 800$ nœuds globaux ($m = M // \text{size}$ nœuds par processus), $r = 0.40$ (CFL respectée), $N_{\text{steps}} = 2\,000$ itérations temporelles.
+2. Chaque processus alloue un tableau local de taille $m + 2$ :
+   
+   * Les indices de $1$ à $m$ contiennent les données locales réelles.
+   * L'indice $0$ est la cellule fantôme gauche.
+   * L'indice $m + 1$ est la cellule fantôme droite.
+3. Condition initiale : le domaine est initialement à $0^\circ	ext{C}$, avec une source de chaleur au centre ($u(x, 0) = 100 \exp(-100(x - 0.5)^2)$).
+4. **La boucle temporelle (Halo Exchange avec `Isend` / `Irecv`) :**
+   
+   * Échange avec le voisin de gauche (`rank - 1`) si `rank > 0`.
+   * Échange avec le voisin de droite (`rank + 1`) si `rank < size - 1`.
+   * Application du stencil numérique sur les points intérieurs $[1, m]$ :
+     `u_new[1:m+1] = u[1:m+1] + r * (u[2:m+2] - 2*u[1:m+1] + u[0:m])`
+5. À la fin des $2\,000$ pas de temps, rassemblez les segments locaux sur le rang 0 via `comm.Gather(u[1:m+1], u_global, root=0)` et affichez la température maximale résiduelle.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`scripts/mpi_heat_equation.py`) :
+
+```python
+# scripts/mpi_heat_equation.py
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+# Paramètres
+M_GLOBAL = 800
+m_local = M_GLOBAL // size
+r = 0.40
+n_steps = 2000
+
+# Allocation locale avec 2 cellules fantômes (+2)
+u = np.zeros(m_local + 2, dtype=np.float64)
+u_new = np.zeros_like(u)
+
+# TODO 1: Initialiser la condition initiale sur les nœuds locaux [1:m_local+1]
+#         selon les coordonnées globales x_i = (rank * m_local + i - 1) / (M_GLOBAL - 1)
+
+# TODO 2: Boucler sur n_steps :
+#         a) Réaliser le Halo Exchange avec Isend / Irecv / Wait sur les voisins gauche et droite
+#         b) Calculer le schéma numérique u_new[1:m_local+1] = ...
+#         c) Permuter u[:] = u_new[:]
+
+# TODO 3: Utiliser comm.Gather pour fusionner les morceaux intérieurs u[1:m_local+1] sur le rang 0
+#         Le rang 0 affiche le succès et la température maximale atteinte
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`scripts/mpi_heat_equation.py`) :
+
+```python
+# scripts/mpi_heat_equation.py
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+M_GLOBAL = 800
+m_local = M_GLOBAL // size
+r = 0.40
+n_steps = 2000
+
+# Allocation locale : m_local points réels + 2 cellules fantômes
+u = np.zeros(m_local + 2, dtype=np.float64)
+u_new = np.zeros_like(u)
+
+# Coordonnées spatiales locales
+dx = 1.0 / (M_GLOBAL - 1)
+global_indices = rank * m_local + np.arange(m_local)
+x_local = global_indices * dx
+# Condition initiale gaussienne centrée en x = 0.5
+u[1 : m_local + 1] = 100.0 * np.exp(-100.0 * (x_local - 0.5) ** 2)
+
+# Voisins dans la topologie 1D
+left_neighbor = rank - 1 if rank > 0 else MPI.PROC_NULL
+right_neighbor = rank + 1 if rank < size - 1 else MPI.PROC_NULL
+
+comm.Barrier()
+t0 = MPI.Wtime()
+
+# Boucle temporelle
+for step in range(n_steps):
+    requests = []
+
+    # Halo Exchange non-bloquant avec le voisin gauche
+    if left_neighbor != MPI.PROC_NULL:
+        # Envoie son premier point réel u[1] et reçoit dans son fantôme gauche u[0]
+        requests.append(comm.Isend(u[1:2], dest=left_neighbor, tag=1))
+        requests.append(comm.Irecv(u[0:1], source=left_neighbor, tag=2))
+
+    # Halo Exchange non-bloquant avec le voisin droite
+    if right_neighbor != MPI.PROC_NULL:
+        # Envoie son dernier point réel u[m_local] et reçoit dans son fantôme droite u[m_local+1]
+        requests.append(comm.Isend(u[m_local : m_local + 1], dest=right_neighbor, tag=2))
+        requests.append(comm.Irecv(u[m_local + 1 : m_local + 2], source=right_neighbor, tag=1))
+
+    # Attente de la fin des échanges réseau
+    MPI.Request.Waitall(requests)
+
+    # Mise à jour du stencil numérique en différences finies
+    u_new[1 : m_local + 1] = u[1 : m_local + 1] + r * (
+        u[2 : m_local + 2] - 2.0 * u[1 : m_local + 1] + u[0 : m_local]
+    )
+
+    # Conditions aux limites de Dirichlet strictes (extrémités à 0°C)
+    if rank == 0:
+        u_new[1] = 0.0
+    if rank == size - 1:
+        u_new[m_local] = 0.0
+
+    u[:] = u_new[:]
+
+comm.Barrier()
+t_calc = MPI.Wtime() - t0
+
+# Rassemblement final sur le processus 0
+u_final_global = np.empty(M_GLOBAL, dtype=np.float64) if rank == 0 else None
+comm.Gather(u[1 : m_local + 1], u_final_global, root=0)
+
+if rank == 0:
+    print("==================================================")
+    print(f"  Solveur EDP Chaleur 1D (Décomposition de Domaine)")
+    print(f"  Nœuds MPI mobilisés         : {size}")
+    print(f"  Maillage global discrétisé   : {M_GLOBAL} points")
+    print(f"  Itérations temporelles       : {n_steps}")
+    print(f"  Temps de calcul distribué    : {t_calc:.3f} s")
+    print(f"  Température max résiduelle   : {np.max(u_final_global):.2f} °C")
+    print("==================================================")
+```
+:::
+
+Lancez la résolution distribuée sur 4 processus :
+```bash
+mpirun -n 4 python scripts/mpi_heat_equation.py
+```
+
+---
+
+# Partie 6 : Déploiement Industriel — Soumission de Jobs avec Slurm (10 min)
+
+Dans un centre de calcul universitaire (ex: le Mésocentre de l'Université de Montpellier) ou un supercalculateur national (IDRIS, TGCC), **il est interdit de lancer des calculs lourds en interactif sur la machine de connexion**.
+
+On utilise un ordonnanceur de travaux (*Workload Manager*), dont le standard mondial est **Slurm**.
+
+### Le Script de Soumission `job_mpi.sh`
+
+Créez le script de réservation de ressources :
+
+```bash
+#!/usr/bin/env bash
+#SBATCH --job-name=heat_mpi          # Nom du travail affiché dans la file
+#SBATCH --output=logs/heat_%j.log    # Fichier de sortie (%j = numéro du job)
+#SBATCH --error=logs/heat_%j.err     # Fichier des erreurs
+#SBATCH --nodes=2                    # Réserver 2 serveurs physiques distincts
+#SBATCH --ntasks-per-node=8          # 8 cœurs par serveur (Total = 16 processus MPI !)
+#SBATCH --time=00:15:00              # Temps maximal alloué : 15 minutes
+#SBATCH --partition=cpu_short        # File d'attente cible
+
+# Chargement des modules du cluster
+module purge
+module load openmpi/4.1.4
+module load python/3.10
+
+# Activation de l'environnement virtuel
+source ~/mon_env/bin/activate
+
+# Exécution distribuée via srun (l'équivalent de mpirun intégré à Slurm)
+srun python scripts/mpi_heat_equation.py
+```
+
+### Commandes Slurm Indispensables pour votre Carrière :
+
+* **Soumettre le travail à la file d'attente :**
+  ```bash
+  sbatch job_mpi.sh
+  ```
+* **Surveiller l'état de ses calculs en direct :**
+  ```bash
+  squeue -u $USER
+  ```
+* **Annuler un job erroné :**
+  ```bash
+  scancel <JOB_ID>
+  ```
