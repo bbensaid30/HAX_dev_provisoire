@@ -1,0 +1,1174 @@
+---
+title: "Cours-TP : Calcul Parallèle, Architecture Matérielle & Simulations de Monte-Carlo"
+subtitle: "Comprendre la machine, le GIL et distribuer le moteur stochastique de PyArena (3h00)"
+author: "Bensaid Bilel"
+date: "20 Novembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire de la séance"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Démarche Pédagogique
+
+Dans les cursus quantitatifs (Master 1 Science des Données et parcours Modélisation & Analyse Numérique — MANU), la programmation est souvent abordée comme une écriture mathématique pure : on conçoit un algorithme en supposant que l'ordinateur exécutera les opérations instantanément, quelle que soit la dimension du problème.
+
+Or, dès que l'on aborde des applications réelles, **le mur du matériel se dresse immédiatement** :
+
+* **En Science des Données (SSD) :** L'évaluation de milliers de combinaisons d'hyperparamètres (*Grid Search*, validation croisée), l'apprentissage d'arbres décisionnels indépendants au sein d'une forêt aléatoire (*Random Forest*), ou le calcul d'intervalles de confiance par rééchantillonnage (*Bootstrap*) exigent de répéter des millions d'expériences statistiques indépendantes.
+* **En Modélisation & Analyse Numérique (MANU) :** L'intégration numérique par méthodes particulaires ou stochastiques (Monte-Carlo en haute dimension), la quantification d'incertitudes sur des systèmes différentiels (EDO/EDP résolues pour des milliers de réalisations de paramètres), les études de sensibilité et la décomposition de domaine reposent sur des volumes de calcul qui saturent un cœur en quelques secondes.
+* **La fin de la « course aux GHz » :** Depuis 2005, la fréquence d'horloge des processeurs ne progresse plus (elle stagne entre 3 et 5 GHz pour des raisons physiques de dissipation thermique : c'est la fin de la *loi de Dennard*). Les constructeurs n'accélèrent plus un cœur isolé : **ils multiplient les cœurs de calcul sur la même puce**.
+* **L'illusion d'un code naïf :** Un programme standard s'exécute de façon strictement séquentielle sur un seul cœur. Sur une station de travail dotée de 8, 16 ou 32 cœurs, **85 % à 95 % de la puissance de calcul physique reste en veille**.
+
+L'objectif de cette séance de 3h00 est d'acquérir les **fondations matérielles et logicielles du calcul parallèle**, d'expérimenter directement les verrous de Python, et de concevoir une architecture distribuée robuste pour le simulateur stochastique de **PyArena**.
+
+---
+
+## Découpage Temporel & Progression (3h00)
+
+| Phase | Durée | Thématique abordée | Modalité & Pédagogie |
+| :--- | :---: | :--- | :---: |
+| **Partie 0** | 25 min | **Anatomie de la Machine :** CPU, Cœurs physiques, ALU/FPU, Caches & RAM | Cours & Expérience 0 (Audit matériel) |
+| **Partie 1** | 30 min | **Le Lexique Fondamental :** Processus, Threads, Concurrence vs Parallélisme | Cours & Expérience 1 (CPU vs I/O) |
+| **Partie 2** | 25 min | **Le Verrou du GIL & Le Paysage Outils :** C++, OpenMP, `multiprocessing`, MPI | Cours & Expérience 2 (Étanchéité mémoire) |
+| **Partie 3** | 25 min | **Le Hasard Parallèle :** Décorrélation stochastique formelle (`SeedSequence`) | Cours & Exercice 3 (Graines orthogonales) |
+| **Partie 4** | 40 min | **Le Fil Rouge Z-Arena :** Moteur multi-cœurs par découpage en lots (*Chunking*) | **Guidé** (À coder pas à pas) |
+| **Partie 5** | 20 min | **Métrologie & Théorie :** Speedup, Efficacité & Confrontation à la Loi d'Amdahl | **Semi-autonomie** (Mesure sur machine) |
+| **Partie 6** | 15 min | **Validation Industrielle :** Tests `pytest`, Théorème Central Limite & `@pytest.mark.slow` | **Autonomie complète** (À implémenter) |
+| **Synthèse** | - | **Devoir Maison Guidé (Hors séance) :** Moteur Parallèle `PyArena` (Jalon 3) | Projet Git en équipe |
+
+---
+
+# Partie 0 : Du Silicium aux Algorithmes — Anatomie du Matériel (25 min)
+
+Pour comprendre pourquoi et comment paralléliser un code, il est indispensable de poser un modèle mental précis des composants physiques de votre ordinateur.
+
+```text
+                     VUE D'ENSEMBLE D'UN NŒUD DE CALCUL MODERNE
+ ┌──────────────────────────────────────────────────────────────────────────────┐
+ │                              PROCESSEUR (CPU)                                │
+ │                                                                              │
+ │   ┌──────────────────────────┐            ┌──────────────────────────┐       │
+ │   │     CŒUR PHYSIQUE 0      │            │     CŒUR PHYSIQUE 1      │       │
+ │   │  ┌────────────────────┐  │            │  ┌────────────────────┐  │       │
+ │   │  │ Unités ALU / FPU   │  │            │  │ Unités ALU / FPU   │  │       │
+ │   │  │ (Circuits calcul)  │  │            │  │ (Circuits calcul)  │  │       │
+ │   │  └─────────┬──────────┘  │            │  └─────────┬──────────┘  │       │
+ │   │  ┌─────────┴──────────┐  │            │  ┌─────────┴──────────┐  │       │
+ │   │  │ Caches L1 / L2     │  │            │  │ Caches L1 / L2     │  │       │
+ │   │  └────────────────────┘  │            │  └────────────────────┘  │       │
+ │   └────────────┬─────────────┘            └────────────┬─────────────┘       │
+ │                │                                       │                     │
+ │                └───────────────────┬───────────────────┘                     │
+ │                                    ▼                                         │
+ │                      ┌───────────────────────────┐                           │
+ │                      │ Cache L3 Partagé (SRAM)   │                           │
+ │                      └─────────────┬─────────────┘                           │
+ └────────────────────────────────────┼─────────────────────────────────────────┘
+                                      ▼  Bus Mémoire (Goulot d'étranglement)
+ ┌──────────────────────────────────────────────────────────────────────────────┐
+ │                         MÉMOIRE CENTRALE : RAM (DRAM)                        │
+ │  Espace d'adressage global : Tableaux NumPy, Objets Python, Interpréteur     │
+ └──────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 0.1 Définitions du Matériel : Dépasser les Acronymes
+
+* **Le CPU (*Central Processing Unit* ou Processeur) :** C'est la puce de silicium physique insérée sur la carte mère de l'ordinateur.
+* **Le Cœur Physique (*Physical Core*) :** C'est une unité de traitement complète, indépendante et autonome gravée au sein du processeur. Chaque cœur physique possède ses propres circuits d'exécution matériels :
+  * **L'ALU (*Arithmetic Logic Unit* ou Unité Arithmétique et Logique) :** Le circuit électronique qui effectue les opérations sur les entiers (`+`, `-`, `*`, comparaisons booléennes).
+  * **La FPU (*Floating-Point Unit* ou Unité de Calcul en Virgule Flottante) :** Le circuit spécialisé dans les calculs mathématiques sur les nombres réels flottants (`float64`).
+* **Deux cœurs physiques peuvent exécuter deux flux d'instructions de manière strictement simultanée à la même nanoseconde.**
+
+---
+
+## 0.2 Cœurs Physiques vs Cœurs Logiques (Hyper-Threading / SMT)
+
+Sur vos ordinateurs, le système d'exploitation affiche souvent : *« 8 cœurs, 16 processeurs logiques »*. Cette technologie (appelée *Hyper-Threading* chez Intel ou *SMT* chez AMD) dédouble les registres d'entrée d'un cœur physique pour faire croire au système d'exploitation qu'il dispose de deux cœurs distincts.
+
+::: {.callout-warning}
+### L'Illusion de l'Hyper-Threading en Calcul Scientifique
+L'Hyper-Threading a été inventé pour la bureautique et le multitâche web : pendant qu'un thread attend une frappe au clavier ou un paquet réseau, le second thread utilise le cœur.
+
+En revanche, en **calcul scientifique pur** (Monte-Carlo, algèbre linéaire, dérivées numériques) :
+
+* Les circuits de calcul (FPU/ALU) du cœur physique tournent déjà à 100 % de saturation.
+* Lancer 16 calculs intensifs sur une machine à 8 cœurs physiques **n'apporte aucun gain d'accélération** : les deux flux d'instructions se battent pour les mêmes circuits d'addition et de multiplication physiques.
+* **Règle pratique :** Pour dimensionner un pool de calcul scientifique parallèle, on règle toujours le nombre de processus sur le **nombre de cœurs physiques réels**.
+:::
+
+---
+
+## 0.3 La Hiérarchie Mémoire : Le Goulot d'Étranglement
+
+Calculer une addition prend moins d'une nanoseconde ($10^{-9} \text{ s}$). Mais acheminer une donnée depuis la mémoire RAM jusqu'au cœur prend entre 50 et 100 nanosecondes ! Pour éviter que les cœurs passent leur temps à attendre les données, les processeurs intègrent des mémoires tampons ultra-rapides : les **caches**.
+
+| Niveau de Mémoire | Localisation | Capacité typique | Latence d'accès | Vitesse relative (analogie) |
+| :--- | :--- | :---: | :---: | :--- |
+| **Registres CPU** | Dans le cœur | ~1 Ko | $< 1 \text{ ns}$ | *L'idée présente dans votre tête* |
+| **Caches L1 / L2** | Dans le cœur | 32 Ko à 1 Mo | $1 - 4	\text{ ns}$ | *Le carnet de notes sur votre bureau* |
+| **Cache L3** | Partagé entre les cœurs | 8 à 64 Mo | $10 - 20	\text{ ns}$ | *L'étagère de livres dans votre bureau* |
+| **Mémoire RAM** | Barrettes externes | 16 à 64 Go | $60 - 100	\text{ ns}$ | *Aller chercher un livre à la bibliothèque municipale* |
+| **Disque SSD** | Périphérique externe | 512 Go à 2 To | $> 10\,000 \text{ ns}$ | *Commander un livre par courrier postal* |
+
+---
+
+## 0.4 Expérience 0 : Auditer le Matériel de sa Propre Machine (5 min)
+
+Ouvrez un terminal Python et exécutez ce script pour inspecter la topologie matérielle de votre poste de TP :
+
+```python
+import os
+import multiprocessing
+import psutil
+
+nb_logiques = os.cpu_count()
+print(f"Cœurs logiques détectés par l'OS : {nb_logiques}")
+
+try:
+    nb_physiques = psutil.cpu_count(logical=False)
+    print(f"Coeurs physiques réels            : {nb_physiques}")
+except ImportError:
+    print("(Installez psutil via 'pip install psutil' pour distinguer coeurs physiques et logiques)")
+```
+
+> *Transition : Maintenant que nous visualisons les cœurs physiques et la mémoire RAM, comment le système d'exploitation organise-t-il l'exécution de nos programmes sur ce matériel ? C'est la distinction fondamentale entre Processus et Threads.*
+
+---
+
+# Partie 1 : Le Lexique Fondamental du Parallélisme (30 min)
+
+---
+
+## 1.1 Processus vs Thread : Cuisines Séparées vs Cuisiniers Partagés
+
+Pour comprendre la différence entre un **Processus** et un **Thread**, utilisons l'analogie universelle du restaurant :
+
+```text
+       MODÈLE MULTI-THREADS                          MODÈLE MULTI-PROCESSUS
+      (Mémoire Vive Partagée)                       (Mémoires Isolées)
+
+    ┌────────────────────────┐                   ┌──────────────┐   ┌──────────────┐
+    │     PROCESSUS UNIQUE   │                   │ PROCESSUS 1  │   │ PROCESSUS 2  │
+    │                        │                   │   (PID 101)  │   │   (PID 102)  │
+    │  ┌──────────────────┐  │                   │  ┌────────┐  │   │  ┌────────┐  │
+    │  │ ESPACE MÉMOIRE   │  │                   │  │MÉMOIRE │  │   │  │MÉMOIRE │  │
+    │  │ (RAM Partagée)   │  │                   │  │PRIVÉE 1│  │   │  │PRIVÉE 2│  │
+    │  └────────┬─────────┘  │                   │  └────────┘  │   │  └────────┘  │
+    │           │            │                   └──────┬───────┘   └──────┬───────┘
+    │     ┌─────┴─────┐      │                          │                  │
+    │     ▼           ▼      │                          └──────┬───────────┘
+    │  Thread 1    Thread 2  │                                 ▼
+    │  (Cœur 0)    (Cœur 1)  │                     Communication par Tuyaux (IPC)
+    └────────────────────────┘                     Sérialisation d'octets requise !
+```
+
+### Le Processus (La Cuisine Indépendante)
+
+* Un **processus** est une instance d'un programme en cours d'exécution.
+* Le système d'exploitation lui attribue un identifiant unique (**PID** — *Process Identifier*) et **son propre espace mémoire fermé dans la RAM**.
+* Un processus ne peut pas lire ni modifier les variables d'un autre processus : ils sont totalement étanches.
+
+### Le Thread (Les Cuisiniers au sein de la même Cuisine)
+* Un **thread** (ou fil d'exécution) est une suite d'instructions qui s'exécute à l'intérieur d'un processus.
+* **Tous les threads d'un même processus partagent exactement le même espace mémoire RAM.**
+* *Avantage :* Partager une donnée entre threads est instantané (un thread écrit dans un tableau NumPy, tous les autres threads le lisent immédiatement).
+* *Danger mortel :* La **Course Critique (*Race Condition*)**. Si deux cuisiniers modifient simultanément la même marmite sans se coordonner (ex: deux threads incrémentent la même variable au même instant), les résultats deviennent faux de manière imprévisible.
+
+---
+
+## 1.2 Tâche CPU-Bound vs Tâche I/O-Bound
+
+Avant de paralléliser, il est impératif d'identifier ce qui bride votre programme :
+
+1. **Une Tâche CPU-Bound (*Limitée par le Processeur*) :**  
+   Le programme effectue du calcul mathématique pur (ex: simuler un duel de combat, inverser une matrice, calculer une intégrale). Le processeur tourne à 100 % de charge.
+2. **Une Tâche I/O-Bound (*Limitée par les Entrées/Sorties*) :**  
+   Le programme passe la quasi-totalité de son temps à **attendre** une réponse extérieure : attendre un téléchargement depuis une API sur le réseau, attendre une lecture sur disque, ou attendre une saisie utilisateur. Le processeur est inactif (0 % de charge) pendant cette attente.
+
+---
+
+## 1.3 Concurrence vs Parallélisme
+
+* **La Concurrence :** Gérer plusieurs tâches au cours d'un intervalle de temps donné (par exemple, un cœur CPU qui alterne si vite entre la musique et le traitement de texte qu'il donne l'illusion de tout faire en même temps).
+* **Le Parallélisme :** Exécuter plusieurs tâches **exactement au même instant physique** sur des cours distincts.
+
+---
+
+## 1.4 Expérience 1 : Multi-Threading sur CPU vs I/O (15 min)
+
+Testons concrètement le comportement des threads en Python sur ces deux types de tâches. Créez `tests/test_threads_choc.py` :
+
+```python
+# tests/test_threads_choc.py
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+# --- CAS 1 : TÂCHE I/O-BOUND (Attente réseau ou disque simulée) ---
+def tache_io(id_tache: int) -> None:
+    time.sleep(1.0)  # Simule 1 seconde d'attente d'une requête PokéAPI
+
+# --- CAS 2 : TÂCHE CPU-BOUND (Calcul mathématique pur) ---
+def tache_cpu(id_tache: int) -> int:
+    total = 0
+    for i in range(15_000_000):  # Calcul intensif sur le processeur
+        total += i
+    return total
+
+if __name__ == "__main__":
+    print("=== EXPÉRIENCE 1A : TÂCHES I/O-BOUND (Attente) ===")
+    t0 = time.perf_counter()
+    tache_io(1)
+    tache_io(2)
+    print(f"I/O Séquentiel (1 fil) : {time.perf_counter() - t0:.2f} s")
+
+    t0 = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        list(executor.map(tache_io, [1, 2]))
+    print(f"I/O Multi-threads (2 fils) : {time.perf_counter() - t0:.2f} s")
+
+    print("\n=== EXPÉRIENCE 1B : TÂCHES CPU-BOUND (Calcul Pur) ===")
+    t0 = time.perf_counter()
+    tache_cpu(1)
+    tache_cpu(2)
+    print(f"CPU Séquentiel (1 fil) : {time.perf_counter() - t0:.2f} s")
+
+    t0 = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        list(executor.map(tache_cpu, [1, 2]))
+    print(f"CPU Multi-threads (2 fils) : {time.perf_counter() - t0:.2f} s")
+```
+
+Exécutez ce script dans votre terminal :
+```bash
+python tests/test_threads_choc.py
+```
+
+### Analyse du Résultat (Le Paradoxe Python) :
+
+* Pour les tâches **I/O-Bound**, le multi-threading divise le temps par 2 (de 2.0 s à 1.0 s) : pendant que le fil 1 attend, le fil 2 avance.
+* Pour les tâches **CPU-Bound**, le multi-threading **n'accélère rien du tout** (le temps est souvent légèrement *plus long* qu'en séquentiel !).
+
+> *Transition : Pourquoi les threads sont-ils incapables d'accélérer un calcul mathématique en Python ? Pour le comprendre, nous devons examiner le cœur de CPython : le verrou du GIL.*
+
+---
+
+# Partie 2 : Le GIL de Python & Le Paysage des Outils (25 min)
+
+---
+
+## 2.1 Qu'est-ce que le GIL (*Global Interpreter Lock*) ?
+
+Python (dans son implémentation officielle CPython, écrite en C) gère sa mémoire automatiquement grâce au **comptage de références** (*reference counting*) :
+
+* Chaque objet en mémoire possède un compteur interne (`ob_refcnt`).
+* Quand vous assignez une variable (`b = a`), le compteur s'incrémente. Quand une variable est supprimée, il se décrémente. Dès qu'il atteint 0, la mémoire est libérée.
+
+**Le Problème sans verrou :**  
+Si deux threads s'exécutaient simultanément sur deux cœurs différents, ils pourraient modifier le compteur du même objet au même instant, provoquant des corruptions mémoires destructrices ou des plantages du logiciel.
+
+**La Solution Historique de Python :**  
+Pour protéger ce compteur, CPython impose un verrou unique mondial : le **GIL (*Global Interpreter Lock*)**.
+> **Règle absolue :** Pour exécuter du bytecode Python, un thread **doit détenir le GIL**. Comme il n'existe qu'un seul GIL par processus, **un seul thread Python peut s'exécuter à la fois**, quel que soit le nombre de cœurs physiques de votre ordinateur !
+
+### Pourquoi les autres langages (C++, Rust, Java, Go) ont-ils du vrai multi-threading ?
+
+* **En C / C++ :** Pas de ramasse-miettes automatique. Les threads accèdent directement à la mémoire sans verrou central. Si deux threads écrivent sur la même variable, le langage ne vérifie rien : c'est un comportement indéfini (*Data Race*), et c'est au développeur de poser des verrous locaux fins (`std::mutex` ou opérations atomiques).
+* **En Java / Go / C# :** Le ramasse-miettes (*Garbage Collector*) a été conçu dès l'origine pour être multi-threadé (les threads de calcul coopèrent avec les threads de nettoyage via des points de contrôle sans verrou global unique).
+* **En Rust :** Le compilateur prouve mathématiquement à la compilation l'absence de conflit mémoire grâce au système d'appartenance (*ownership*). Deux threads ne peuvent pas muter la même donnée sans verrou explicite (`Arc<Mutex<T>>`).
+* **Pourquoi Python n'a-t-il pas fait cela ?** En 1991, Guido van Rossum a privilégié la simplicité et la performance maximale du code mono-thread. Poser des milliers de verrous individuels aurait ralenti le code mono-thread de 40 %. *(Note : Python 3.13 a introduit une version expérimentale "free-threaded" sans GIL, mais son adoption industrielle prendra plusieurs années).*
+
+---
+
+## 2.2 Comment Contourner le GIL : Le Multi-Processus
+
+Pour faire du calcul intensif en Python pur, la seule solution consiste à **bypasser le GIL en créant plusieurs processus indépendants** (`concurrent.futures.ProcessPoolExecutor` ou `joblib.Parallel`).
+
+* Chaque processus possède son propre interpréteur Python.
+* Chaque processus possède **son propre GIL**.
+* Chaque processus peut donc saturer à 100 % un cœur physique différent.
+
+### Pourquoi un transfert sérialisé (`pickle`) alors qu'on est sur la même RAM ?
+Physiquement, tous les processus partagent les mêmes barrettes de RAM. Mais **logiquement**, le système d'exploitation attribue à chaque processus une **table de mémoire virtuelle étanche**.
+
+* Le pointeur mémoire `0x7ffe` du processus 1 n'a aucun sens pour le processus 2.
+* Si le processus 2 tentait de lire la mémoire du processus 1, le processeur et le noyau Linux lèveraient immédiatement un **Segmentation Fault (`SIGSEGV`)** pour empêcher qu'un bug ou un virus n'espionne la mémoire voisine.
+* **Conséquence :** Pour échanger des données, le processus père doit transformer l'objet en octets neutres (**sérialisation** avec `pickle.dumps()`), les injecter dans un canal OS (*pipe*), et le worker reconstruit l'objet dans sa propre mémoire (**désérialisation** avec `pickle.loads()`).
+
+::: {.callout-note}
+### Règle Impérative : Les Fonctions Sérialisables
+Pour être exécutée par un worker via `ProcessPoolExecutor`, une fonction doit être définie **au niveau supérieur du module** (*top-level*). Une fonction imbriquée ou une fonction `lambda` anonyme ne peut pas être sérialisée par `pickle` et lèvera une `PicklingError`.
+:::
+
+---
+
+## 2.3 Clarification Fondamentale : OpenMP vs `multiprocessing` vs MPI
+
+Dans les offres d'emploi, en data science, calcul scientifique et en ingénierie numérique, vous rencontrerez frequemment trois outils pour le parallélisme:
+
+| Outil / Framework | Langages cibles | Modèle Mémoire | Échelle Matérielle | Comment ça fonctionne concrètement ? |
+| :--- | :--- | :--- | :--- | :--- |
+| **OpenMP** | C, C++, Fortran | **Mémoire partagée** | **Une seule machine** (plusieurs cœurs d'un processeur) | **Multi-threading natif.** Tous les cœurs lisent et écrivent directement dans la même barrette de RAM sans aucune copie ni sérialisation. En Python pur, le GIL l'interdit (mais NumPy l'utilise en interne dans ses routines C/Fortran). |
+| **`multiprocessing` / `joblib`** | Python | **Mémoire isolée** | **Une seule machine** (plusieurs cœurs d'un processeur) | **Multi-processus.** Chaque cœur exécute un interpréteur Python distinct avec son propre GIL. Les données voyagent d'un cœur à l'autre sous forme de paquets d'octets sérialisés (`pickle`). Ne fonctionne pas sur un cluster de machines distinctes. |
+| **MPI** (*Message Passing Interface*) | C, C++, Fortran, Python (`mpi4py`) | **Mémoire distribuée** | **Plusieurs machines reliées en réseau** (Clusters, Supercalculateurs) | **Calcul distribué multi-serveurs.** Chaque machine a sa propre RAM. Les nœuds de calcul s'échangent des messages explicites par câbles réseau haute vitesse (InfiniBand). |
+
+::: {.callout-tip}
+### Et pour le Deep Learning sur Supercalculateur ?
+Quand PyTorch entraîne un grand modèle sur plusieurs machines (*DistributedDataParallel* — DDP), il lance un processus par GPU. Mais pour communiquer entre serveurs, il n'utilise pas `multiprocessing` standard : il utilise des bibliothèques réseau distribuées comme **NCCL** (Nvidia) ou **MPI** !
+:::
+
+---
+
+## 2.4 Expérience 2 : Valider l'Étanchéité Mémoire des Processus (5 min)
+
+Créez `tests/test_isolation_process.py` pour constater qu'un processus fils ne peut pas polluer la mémoire du processus père :
+
+```python
+# tests/test_isolation_process.py
+import multiprocessing
+
+VALEUR_GLOBALE = 100
+
+def modifier_memoire():
+    global VALEUR_GLOBALE
+    VALEUR_GLOBALE = 999  # Tentative de modification dans le processus fils
+    print(f"[Worker Fils] VALEUR_GLOBALE = {VALEUR_GLOBALE}")
+
+if __name__ == "__main__":
+    p = multiprocessing.Process(target=modifier_memoire)
+    p.start()
+    p.join()  # Attend la fin du worker
+
+    print(f"[Processus Père] VALEUR_GLOBALE = {VALEUR_GLOBALE}")
+    assert VALEUR_GLOBALE == 100, "Erreur : la mémoire n'est pas isolée !"
+```
+
+Exécutez ce script : la valeur du père reste à 100. Les mémoires sont parfaitement étanches.
+
+---
+
+# Partie 3 : Déterminisme et Aléa Parallèle (`SeedSequence`) (25 min)
+
+Dans les disciplines quantitatives (simulation stochastique, intégration Monte-Carlo, bootstrap), la reproductibilité est un impératif scientifique : nous devons pouvoir rejouer un calcul parallèle et obtenir **exactement le même résultat au bit près**.
+
+---
+
+## 3.1 Qu'est-ce qu'une Graine et le Danger du Recouvrement (*Overlap*) ?
+
+Un générateur de nombres pseudo-aléatoires (PRNG) n'est pas une source magique de hasard : c'est un **algorithme mathématique purement déterministe**.
+
+* Il possède un état interne fini $S$.
+* À chaque étape, il calcule $S_{n+1} = f(S_n)$ et produit un nombre $X_n = g(S_n)$.
+* Comme l'état est fini, la suite de nombres produite est **périodique** (la période du générateur PCG64 de NumPy est de $2^{128}$ nombres).
+* La **graine (*seed*)** n'est rien d'autre que l'état initial $S_0$ à partir duquel la séquence commence à être déroulée.
+
+```text
+  Cycle complet du générateur : [ x0, x1, x2, ... , x1000, ... , x2000, ... ]
+                                  ▲                    ▲
+                                  │                    │
+                       Worker 1 (Seed A)    Worker 2 (Seed B mal choisie)
+                       Tire 1 500 valeurs   Tire 1 500 valeurs
+                       [ x0 ------------> x1500 ]
+                                            [ x1000 -----------> x2500 ]
+                                            ▲
+                       ZONE DE RECOUVREMENT (*OVERLAP*) : 500 TIRAGES IDENTIQUES !
+```
+
+### Pourquoi ne pas juste faire `seed_worker = seed + rank` (ex: 42, 43, 44) ?
+
+1. **Corrélations à court terme :** Des graines entières proches peuvent générer des états initiaux situés dans la même région de l'espace d'état, introduisant des dépendances statistiques néfastes.
+2. **Le Recouvrement (*Overlap*) :** Si la graine du Worker 2 positionne son point de départ seulement $10^5$ pas après le Worker 1, dès que le Worker 1 dépasse $10^5$ tirages, **les deux workers consomment exactement les mêmes nombres pseudo-aléatoires**. Vos simulations ne sont plus indépendantes !
+
+---
+
+## 3.2 La Solution Moderne : `np.random.SeedSequence`
+
+Depuis NumPy 1.17, la classe **`SeedSequence`** utilise un algorithme de hachage cryptographique (SplitMix64) pour dériver des graines enfants garantissant mathématiquement **l'absence de recouvrement (*streams disjoints*) et l'absence de corrélation croisée (orthogonalité statistique)** :
+
+```text
+                        SeedSequence Racine (entropy=42)
+                                       │
+                      .spawn(4)        │ Dérivation formelle orthogonale
+             ┌──────────────┬──────────┴───────────┬──────────────┐
+             ▼              ▼                      ▼              ▼
+        Child Seed 0   Child Seed 1           Child Seed 2   Child Seed 3
+             │              │                      │              │
+        RNG Worker 0   RNG Worker 1           RNG Worker 2   RNG Worker 3
+       (indépendant)  (indépendant)          (indépendant)  (indépendant)
+```
+
+```python
+import numpy as np
+
+# 1. Graine maîtresse fixée pour la reproductibilité globale
+master_seed = np.random.SeedSequence(entropy=12345)
+
+# 2. Dérivation de 4 graines enfants indépendantes
+child_seeds = master_seed.spawn(4)
+
+# 3. Chaque worker initialise son propre générateur local isolé
+rng_0 = np.random.default_rng(child_seeds[0])
+rng_1 = np.random.default_rng(child_seeds[1])
+```
+
+---
+
+## 3.3 Exercice 3 : Validation de l'Orthogonalité des Générateurs (10 min)
+
+Créez le script temporaire `tests/verifier_rng.py` pour valider l'absence de corrélation :
+
+```python
+# tests/verifier_rng.py
+import numpy as np
+
+master_ss = np.random.SeedSequence(2026)
+s1, s2 = master_ss.spawn(2)
+
+rng1 = np.random.default_rng(s1)
+rng2 = np.random.default_rng(s2)
+
+echantillons_1 = rng1.random(100_000)
+echantillons_2 = rng2.random(100_000)
+
+assert not np.array_equal(echantillons_1, echantillons_2), "Erreur : flux identiques !"
+correlation = np.corrcoef(echantillons_1, echantillons_2)[0, 1]
+assert abs(correlation) < 0.01, f"Erreur : corrélation anormale ({correlation})"
+
+print(f"Indépendance stochastique validée avec succès (Corrélation r = {correlation:.5f}).")
+```
+
+Exécutez et nettoyez :
+```bash
+python tests/verifier_rng.py
+rm tests/verifier_rng.py
+```
+
+> *Transition : Nous avons le modèle matériel, la compréhension des processus et la maîtrise de l'aléa. Mettons ces concepts en pratique sur notre fil rouge Z-Arena : la simulation des Jeux de Cell.*
+
+---
+
+# Partie 4 : Le Fil Rouge Z-Arena — Moteur Multi-Cœurs et Chunking (40 min)
+
+Dans nos séances précédentes, nous avons conçu des combattants objets héritant de `ArenaFighter` (`BaseWarrior`, `SaiyanWarrior`, `Cyborg`). Ces combattants possèdent un état interne mutable (`self.hp`) qui décroît lors d'un duel.
+
+Dans l'arène des **Jeux de Cell**, nous voulons estimer par Monte-Carlo le taux de victoire de **Son Gohan SSJ2** face à **Perfect Cell** sur $N = 100\,000$ duels.
+
+---
+
+## Ajouter la Méthode `reset_stats()` dans `ArenaFighter`
+
+Pour pouvoir réutiliser une instance de combattant d'un duel à l'autre sans recréer d'objet à chaque fois, nous devons pouvoir restaurer ses points de vie et son ki.
+
+Ouvrez `src/zarena/warriors.py` et ajoutez la méthode concrète dans `ArenaFighter` :
+
+```python
+class ArenaFighter(ABC):
+    # ... (code existant) ...
+
+    def reset_stats(self) -> None:
+        """Restaure les points de vie et le ki (pour BaseWarrior) du combattant à leurs valeurs maximales."""
+        # A ecrire
+```
+
+
+---
+
+## Le Combat Stochastique Élémentaire (`src/zarena/battle.py`)
+
+### Problématique
+Avant de paralléliser, nous devons disposer d'une fonction rapide exécutant un duel stochastique unique entre deux entités `ArenaFighter`.
+
+### Cahier des Charges
+Dans `src/zarena/battle.py`, implémentez la fonction `simulate_duel_step(f1: ArenaFighter, f2: ArenaFighter, rng: np.random.Generator) -> int` :
+
+1. Réinitialise la santé des deux combattants via `f1.reset_stats()` et `f2.reset_stats()`.
+2. Boucle tant que `not f1.is_defeated and not f2.is_defeated` :
+3. 
+   * **Tour de f1 :** Calcule les dégâts avec critique à 10 % (multiplicateur $\times 1.5$ si `rng.random() < 0.10`, sinon $1.0$) et facteur d'aléa $U \sim \mathcal{U}([0.85, 1.15])$ via `rng.uniform(0.85, 1.15)`. Les dégâts valent :
+     $$\text{dmg}_1 = \max(1, \lfloor \text{f1.execute\_attack()} \times U \times \text{critique} \rfloor)$$
+     Si `f2` est vaincu, la fonction s'interrompt immédiatement et renvoie `1`.
+   * **Riposte de f2 :** Applique la même formule d'aléa pour la frappe de `f2` sur `f1`. Si `f1` est vaincu, renvoie `2`.
+4. Renvoie `1` si `f1` est en vie, et `2` sinon.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`src/zarena/battle.py`) :
+
+```python
+# src/zarena/battle.py
+import numpy as np
+from zarena.warriors import ArenaFighter
+
+
+def simulate_duel_step(
+    f1: ArenaFighter, 
+    f2: ArenaFighter, 
+    rng: np.random.Generator
+) -> int:
+    """Simule un duel complet jusqu'au K.-O. et renvoie l'identifiant du vainqueur (1 ou 2)."""
+    # TODO 1: Réinitialiser les statistiques des deux combattants
+    # TODO 2: Boucler tant qu'aucun des deux n'est vaincu
+    # TODO 3: Phase offensive de f1 avec tirage critique et U ~ [0.85, 1.15]
+    #         Si f2 est K.-O., retourner immédiatement 1.
+    # TODO 4: Phase de riposte de f2 selon la même logique. Si f1 est K.-O., retourner 2.
+    pass
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`src/zarena/battle.py`) :
+
+```python
+# src/zarena/battle.py
+import numpy as np
+from zarena.warriors import ArenaFighter
+
+
+def simulate_duel_step(
+    f1: ArenaFighter, 
+    f2: ArenaFighter, 
+    rng: np.random.Generator
+) -> int:
+    """Simule un duel complet jusqu'au K.-O. et renvoie l'identifiant du vainqueur (1 ou 2)."""
+    f1.reset_stats()
+    f2.reset_stats()
+
+    while not f1.is_defeated and not f2.is_defeated:
+        # 1. Attaque f1 avec aléa U ~ [0.85, 1.15] et critique 10%
+        crit1 = 1.5 if rng.random() < 0.10 else 1.0
+        dmg1 = max(1, int(f1.execute_attack() * rng.uniform(0.85, 1.15) * crit1))
+        f2.take_damage(dmg1)
+        if f2.is_defeated:
+            return 1
+
+        # 2. Riposte f2
+        crit2 = 1.5 if rng.random() < 0.10 else 1.0
+        dmg2 = max(1, int(f2.execute_attack() * rng.uniform(0.85, 1.15) * crit2))
+        f1.take_damage(dmg2)
+        if f1.is_defeated:
+            return 2
+
+    return 1 if not f1.is_defeated else 2
+```
+:::
+
+---
+
+## 4.3 Le Worker Parallèle et le Découpage en Lots (*Chunking*)
+
+### Problématique
+Si l'on envoyait $100\,000$ duels un par un aux cœurs de calcul, le système d'exploitation passerait son temps à sérialiser avec `pickle` $100\,000$ messages individuels à travers les tuyaux IPC. Le coût de communication détruirait toute performance.
+
+**La Solution : Le Chunking.**  
+On découpe les $N$ simulations en $P$ gros lots (*chunks*). Chaque worker reçoit la mission d'exécuter son lot localement en mémoire RAM et ne renvoie qu'un unique rapport final au processus père : le nombre de victoires obtenues.
+
+### Cahier des Charges
+Dans `src/zarena/parallel_engine.py`, implémentez la fonction exécutée par chaque processus travailleur :
+`def _monte_carlo_worker(batch_size: int, child_seed: np.random.SeedSequence, f1: ArenaFighter, f2: ArenaFighter) -> int:`
+
+1. Instancie son propre générateur stochastique local isolé : `rng = np.random.default_rng(child_seed)`.
+2. Initialise un compteur de victoires locales `f1_wins = 0`.
+3. Exécute `batch_size` combats.
+4. Incrémente `f1_wins` dès que le vainqueur renvoyé vaut `1`.
+5. Retourne `f1_wins`.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`src/zarena/parallel_engine.py`) :
+
+```python
+# src/zarena/parallel_engine.py (Partie Worker)
+import numpy as np
+from zarena.battle import simulate_duel_step
+from zarena.warriors import ArenaFighter
+
+
+def _monte_carlo_worker(
+    batch_size: int,
+    child_seed: np.random.SeedSequence,
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+) -> int:
+    """Tâche de calcul grossière (Chunk) exécutée en isolation sur un cœur dédié."""
+    # TODO 1: Instancier le RNG local isolé via np.random.default_rng(child_seed)
+    # TODO 2: Simuler les combats
+    # TODO 3: Compter et retourner le nombre total de victoires remportées par f1
+    pass
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`src/zarena/parallel_engine.py`) :
+
+```python
+# src/zarena/parallel_engine.py (Partie Worker)
+import numpy as np
+from zarena.battle import simulate_duel_step
+from zarena.warriors import ArenaFighter
+
+
+def _monte_carlo_worker(
+    batch_size: int,
+    child_seed: np.random.SeedSequence,
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+) -> int:
+    """Tâche de calcul grossière (Chunk) exécutée en isolation sur un cœur dédié."""
+    rng = np.random.default_rng(child_seed)
+    f1_wins = 0
+    for _ in range(batch_size):
+        if simulate_duel_step(f1, f2, rng) == 1:
+            f1_wins += 1
+    return f1_wins
+```
+:::
+
+---
+
+## 4.4 L'Orchestrateur Multi-Cœurs — Double Implémentation (*ProcessPoolExecutor* & *joblib*)
+
+Pour orchestrer les workers sur les cœurs de la machine, deux bibliothèques majeures coexistent en Python :
+
+1. **`concurrent.futures.ProcessPoolExecutor` :** Le standard natif officiel de la bibliothèque standard Python.
+2. **`joblib.Parallel` :** La bibliothèque tierce de référence dans l'écosystème Data Science et Machine Learning (utilisée par `scikit-learn` pour tous les paramètres `n_jobs`).
+
+---
+
+### A. Comprendre la Syntaxe de `ProcessPoolExecutor` (Standard Library)
+
+Le module standard `concurrent.futures` utilise un gestionnaire de contexte et des objets `Future` :
+
+1. **Instanciation du pool :**  
+   `with ProcessPoolExecutor(max_workers=P) as executor:`  
+   Démarre $P$ processus Python travailleurs en arrière-plan.
+2. **Soumission asynchrone non-bloquante (`executor.submit`) :**  
+   `future = executor.submit(fonction, arg1, arg2, ...)`  
+   Cette instruction est **instantanée**. Elle n'attend pas que le calcul soit fini : elle dépose la tâche dans la file du worker et renvoie immédiatement un objet `Future` (un « ticket » ou une promesse de résultat futur).
+3. **Barrière de synchronisation (`future.result()`) :**  
+   `resultat = future.result()`  
+   Cet appel est **bloquant**. Le processus père se met en pause jusqu'à ce que le worker ait terminé son calcul, puis récupère la valeur de retour désérialisée.
+
+---
+
+### B. Comprendre la Syntaxe de `joblib.Parallel` (Écosystème Data Science)
+
+`joblib` propose une syntaxe en compréhension de liste très expressive grâce au décorateur `delayed` :
+
+```python
+from joblib import Parallel, delayed
+
+resultats = Parallel(n_jobs=P, backend="loky")(
+    delayed(fonction)(arg1, arg2) for (arg1, arg2) in liste_arguments
+)
+```
+
+* **Le décorateur `delayed(fonction)(args)` :** Ne lance aucun calcul ! Il capture la fonction et ses arguments sous forme d'un tuple paresseux `(fonction, args, kwargs)`.
+* **L'exécuteur `Parallel(n_jobs=P, backend="loky")` :** Prend la liste des appels différés, les répartit automatiquement sur les $P$ processus de son backend optimisé (`loky`), attend la fin des calculs et renvoie directement la liste Python des résultats.
+
+---
+
+### C. Cahier des Charges de `run_parallel_monte_carlo`
+
+Dans `src/zarena/parallel_engine.py`, implémentez la fonction publique :
+`def run_parallel_monte_carlo(f1: ArenaFighter, f2: ArenaFighter, n_simulations: int = 50000, n_jobs: int = -1, seed: int | None = None, backend: str = "executor") -> dict[str, Any]:`
+
+1. **Contrôles d'entrée :**
+   
+   * Si `n_simulations <= 0`, lever une `ValueError`.
+   * Si `backend not in ("executor", "joblib")`, lever une `ValueError`.
+2. **Dimensionnement des cœurs :**
+   
+   * Récupère le nombre maximal de processeurs via `os.cpu_count() or 1`.
+   * Si `n_jobs == -1` ou `n_jobs > max_cpus`, allouer `workers` au nombre maximal de cpus. Sinon, `workers = max(1, n_jobs)`.
+3. **Partitionnement en lots (*Chunking*) :**
+   
+   * Calcule `base_chunk = n_simulations // workers` et le reste `remainder = n_simulations % workers`.
+   * Construit la liste `chunks` contenant la taille exacte de chaque lot (en distribuant le reste $+1$ sur les premiers workers).
+  
+4. **Graines orthogonales :**
+   
+   * Instancie `master_ss = np.random.SeedSequence(seed)`.
+   * Dérive les graines filles : `child_seeds = master_ss.spawn(actual_workers)`.
+5. **Dispatching selon l'argument `backend` :**
+   
+   * **Branche `"executor"` :** Utilise `ProcessPoolExecutor(max_workers=actual_workers)`. Soumet les $P$ workers via `executor.submit(...)`. Somme les résultats via `[f.result() for f in futures]`.
+   * **Branche `"joblib"` :** Vérifie que `joblib` est disponible (sinon lever `ImportError`). Exécute via `Parallel(n_jobs=actual_workers, backend="loky")(delayed(_monte_carlo_worker)(...) for i in range(actual_workers))` et somme la liste retournée.
+6. **Synthèse Statistique (Théorème Central Limite) :**
+   
+   * $\hat{p} = \frac{	\text{total\_victoires}}{n_{\text{simulations}}}$.
+   * Marge d'erreur à 95 % : $e = 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}}$.
+   * $\text{IC}_{95} = (\max(0.0, \hat{p} - e), \min(1.0, \hat{p} + e))$.
+   * Retourne un dictionnaire contenant : `"winrate"`, `"ci_95"`, `"n_simulations"`, `"workers_used"`, `"backend"`.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`src/zarena/parallel_engine.py`) :
+
+```python
+# src/zarena/parallel_engine.py (Suite Orchestration)
+from concurrent.futures import ProcessPoolExecutor
+import math
+import os
+from typing import Any
+import numpy as np
+
+try:
+    from joblib import Parallel, delayed
+except ImportError:
+    Parallel, delayed = None, None
+
+from zarena.battle import simulate_duel_step
+from zarena.warriors import ArenaFighter
+
+
+def run_parallel_monte_carlo(
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+    n_simulations: int = 50000,
+    n_jobs: int = -1,
+    seed: int | None = None,
+    backend: str = "executor",
+) -> dict[str, Any]:
+    """Orchestre la simulation distribuée via ProcessPoolExecutor ou joblib."""
+    # TODO 1: Valider n_simulations > 0 et backend in ("executor", "joblib")
+
+    # TODO 2: Déterminer le nombre de cœurs physiques (os.cpu_count) et borner workers
+
+    # TODO 3: Découper n_simulations en actual_workers parts équilibrées (chunks)
+
+    # TODO 4: Dériver actual_workers graines formelles via np.random.SeedSequence(seed).spawn(...)
+
+    # TODO 5A: Si backend == "executor", exécuter avec ProcessPoolExecutor et récupérer f.result()
+    # TODO 5B: Si backend == "joblib", exécuter avec Parallel(n_jobs=...)(delayed(...) ...)
+
+    # TODO 6: Calculer le winrate et l'intervalle de confiance asymptotique à 95% (TCL)
+    #         Retourner le dictionnaire de synthèse
+    pass
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant Complète (`src/zarena/parallel_engine.py`) :
+
+```python
+# src/zarena/parallel_engine.py
+from concurrent.futures import ProcessPoolExecutor
+import math
+import os
+from typing import Any
+import numpy as np
+
+try:
+    from joblib import Parallel, delayed
+except ImportError:
+    Parallel, delayed = None, None
+
+from zarena.battle import simulate_duel_step
+from zarena.warriors import ArenaFighter
+
+
+def _monte_carlo_worker(
+    batch_size: int,
+    child_seed: np.random.SeedSequence,
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+) -> int:
+    """Tâche de calcul grossière (Chunk) exécutée en isolation sur un cœur dédié."""
+    rng = np.random.default_rng(child_seed)
+    f1_wins = 0
+    for _ in range(batch_size):
+        if simulate_duel_step(f1, f2, rng) == 1:
+            f1_wins += 1
+    return f1_wins
+
+
+def run_parallel_monte_carlo(
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+    n_simulations: int = 50000,
+    n_jobs: int = -1,
+    seed: int | None = None,
+    backend: str = "executor",
+) -> dict[str, Any]:
+    """Orchestre la simulation distribuée via ProcessPoolExecutor ou joblib."""
+    if n_simulations <= 0:
+        raise ValueError("Le nombre de simulations doit être strictement positif.")
+    if backend not in ("executor", "joblib"):
+        raise ValueError("Le backend doit être 'executor' ou 'joblib'.")
+
+    # 1. Détection des cœurs physiques réels
+    max_cpus = os.cpu_count() or 1
+    workers = max_cpus if (n_jobs == -1 or n_jobs > max_cpus) else max(1, n_jobs)
+
+    # 2. Découpage équilibré de la charge (Chunking)
+    base_chunk = n_simulations // workers
+    remainder = n_simulations % workers
+    chunks = [base_chunk + (1 if i < remainder else 0) for i in range(workers)]
+    chunks = [c for c in chunks if c > 0]
+    actual_workers = len(chunks)
+
+    # 3. Dérivation formelle des graines indépendantes
+    master_ss = np.random.SeedSequence(seed)
+    child_seeds = master_ss.spawn(actual_workers)
+
+    # 4. Dispatch selon le backend choisi
+    total_f1_wins = 0
+
+    if backend == "executor":
+        # --- OPTION A : ProcessPoolExecutor (Bibliothèque standard) ---
+        with ProcessPoolExecutor(max_workers=actual_workers) as executor:
+            futures = [
+                executor.submit(_monte_carlo_worker, chunks[i], child_seeds[i], f1, f2)
+                for i in range(actual_workers)
+            ]
+            for f in futures:
+                total_f1_wins += f.result()
+
+    elif backend == "joblib":
+        # --- OPTION B : joblib.Parallel (Standard Machine Learning) ---
+        if Parallel is None:
+            raise ImportError("joblib n'est pas installé. Lancez 'pip install joblib'.")
+        
+        results = Parallel(n_jobs=actual_workers, backend="loky")(
+            delayed(_monte_carlo_worker)(chunks[i], child_seeds[i], f1, f2)
+            for i in range(actual_workers)
+        )
+        total_f1_wins = sum(results)
+
+    # 5. Calcul des grandeurs statistiques (Théorème Central Limite)
+    winrate = total_f1_wins / n_simulations
+    stderr = math.sqrt(winrate * (1.0 - winrate) / n_simulations)
+    ci_95 = (max(0.0, winrate - 1.96 * stderr), min(1.0, winrate + 1.96 * stderr))
+
+    return {
+        "winrate": float(winrate),
+        "ci_95": (float(ci_95[0]), float(ci_95[1])),
+        "n_simulations": n_simulations,
+        "workers_used": actual_workers,
+        "backend": backend,
+    }
+```
+:::
+
+::: {.callout-danger}
+### Règle d'or absolue sous Windows et macOS : `if __name__ == "__main__":`
+Sur certains systèmes d'exploitation, les processus workers démarrent en réimportant tout le script Python de haut en bas. Si votre code d'appel n'est pas protégé par `if __name__ == "__main__":`, chaque worker recrée un sous-pool de workers à l'infini, provoquant un plantage violent (*fork bomb*) de votre machine.
+:::
+
+# Partie 5 : Métrologie Numérique — Speedup, Amdahl & Seuil de Rentabilité (20 min)
+
+Pour les étudiants d'analyse numérique (MANU) comme pour les data scientists, un calcul parallèle s'évalue à l'aide d'indicateurs de performance universels.
+
+---
+
+## 5.1 Les Définitions Formelles de Performance
+
+Soit $T_1$ le temps d'exécution mesuré sur un cœur unique (séquentiel), et $T_P$ le temps d'exécution sur $P$ cœurs physiques identiques :
+
+* **L'Accélération (*Speedup*) :**
+  $$S(P) = \frac{T_1}{T_P}$$
+  Dans un monde théorique sans frottement, $S(P) = P$ (accélération linéaire parfaite).
+* **L'Efficacité Parallèle :**
+  $$E(P) = \frac{S(P)}{P} = \frac{T_1}{P \times T_P} \le 1.0 \quad (\text{ou } 100\%)$$
+  Elle mesure la part de puissance processeur convertie en calcul utile. Si $E(P) = 80\%$, $20\%$ du temps est gaspillé en communication et en synchronisation.
+
+---
+
+## 5.2 La Loi d'Amdahl (1967)
+
+Pourquoi l'accélération $S(P)$ n'atteint-elle jamais $P$ ?  
+Tout programme comporte une fraction $s \in [0, 1]$ d'opérations **strictement séquentielles** (initialisation de Python, création des processus, découpage des graines, agrégation des résultats) et une fraction parallélisable $p = 1 - s$.
+
+Le temps sur $P$ processeurs est minoré par :
+$$T_P = s T_1 + \frac{(1 - s) T_1}{P}$$
+
+Ce qui établit la borne théorique indépassable de l'**Accélération d'Amdahl** :
+$$S(P) = \frac{1}{s + \frac{1 - s}{P}} \xrightarrow[P \to \infty]{} \frac{1}{s}$$
+
+::: {.callout-note}
+### Exemple Concret d'Ingénierie
+Si seulement **5 %** de votre code est séquentiel ($s = 0.05$), même avec un supercalculateur doté de 1 000 cœurs, votre accélération maximale ne pourra **jamais dépasser 20** :
+$$S_{\max} = \frac{1}{0.05} = 20$$
+D'où l'importance cruciale de minimiser le travail effectué dans le processus père avant et après le calcul !
+:::
+
+---
+
+## 5.4 Exercice 4 : Benchmark Multi-Échelles et Comparaison des Backends
+
+### Cahier des Charges
+Dans `scripts/benchmark_scaling.py`, rédigez un protocole de métrologie qui :
+
+1. Instancie Gohan SSJ2 (`SaiyanWarrior("Gohan SSJ2", hp=150, ki=100, attack_power=65)`) et Cell (`Cyborg("Perfect Cell", hp=160, power=60, shield=10)`).
+2. Itère sur quatre échelles de simulations : $N \in [10\,000, 100\,000, 1\,000\,000, 10\,000\,000]$.
+3. Mesure au millième de seconde près via `time.perf_counter()` :
+   
+   * Le temps séquentiel $T_{\text{seq}}$ (`n_jobs=1`).
+   * Le temps multi-processus `ProcessPoolExecutor` $T_{\text{exec}}$.
+   * Le temps multi-processus `joblib` $T_{\text{joblib}}$ .
+4. Calcule et affiche le facteur d'accélération $S = T_{\text{seq}} / T_{\text{exec}}$ dans chaque cas.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`scripts/benchmark_scaling.py`) :
+
+```python
+# scripts/benchmark_scaling.py
+import time
+from zarena.parallel_engine import run_parallel_monte_carlo
+from zarena.warriors import SaiyanWarrior, Cyborg
+
+if __name__ == "__main__":
+    # TODO 1: Instancier Gohan et Cell
+    # TODO 2: Boucler sur N in [10_000, 100_000, 1_000_000]
+    # TODO 3: Mesurer T_seq (n_jobs=1), T_exec (backend='executor'), T_job (backend='joblib')
+    # TODO 4: Afficher le tableau comparatif et observer la bascule du Speedup
+    pass
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`scripts/benchmark_scaling.py`) :
+
+```python
+# scripts/benchmark_scaling.py
+import time
+from zarena.parallel_engine import run_parallel_monte_carlo
+from zarena.warriors import SaiyanWarrior, Cyborg
+
+if __name__ == "__main__":
+    gohan = SaiyanWarrior("Gohan SSJ2", hp=150, ki=100, attack_power=65)
+    cell = Cyborg("Perfect Cell", hp=160, power=60, shield=10)
+
+    tailles = [10_000, 100_000, 1_000_000]
+
+    print(f"{'N':>10} | {'T_seq (s)':>10} | {'T_exec (s)':>10} | {'T_joblib (s)':>12} | {'Speedup Exec':>12}")
+    print("-" * 65)
+
+    for N in tailles:
+        # Séquentiel (P = 1)
+        t0 = time.perf_counter()
+        run_parallel_monte_carlo(gohan, cell, n_simulations=N, n_jobs=1, seed=42)
+        t_seq = time.perf_counter() - t0
+
+        # Multi-cœurs ProcessPoolExecutor
+        t0 = time.perf_counter()
+        run_parallel_monte_carlo(gohan, cell, n_simulations=N, n_jobs=-1, seed=42, backend="executor")
+        t_exec = time.perf_counter() - t0
+
+        # Multi-cœurs joblib
+        t0 = time.perf_counter()
+        run_parallel_monte_carlo(gohan, cell, n_simulations=N, n_jobs=-1, seed=42, backend="joblib")
+        t_job = time.perf_counter() - t0
+
+        speedup = t_seq / t_exec
+        print(f"{N:>10,d} | {t_seq:>10.3f} | {t_exec:>10.3f} | {t_job:>12.3f} | {speedup:>11.2f}x")
+```
+:::
+
+Exécutez ce script :
+```bash
+python scripts/benchmark_scaling.py
+```
+*Constatez de vos propres yeux la décélération à $N=10\,000$ et l'accélération nette dès que $N \ge 10^5$.*
+
+---
+
+## 5.3 Le Seuil de Rentabilité (*Break-Even Point*) : Pourquoi ralentit-on pour $N = 10\,000$ ?
+
+Un duel stochastique élémentaire dans `simulate_duel_step` prend environ **$10\ \mu\text{s}$** de temps CPU.
+
+* **À $N = 10\,000$ duels :**  
+  Le calcul séquentiel dure seulement $T_1 \approx 10\,000 \times 10\ \mu\text{s} = \mathbf{0{,}10\text{ s}}$ ($100\text{ ms}$).  
+  Or, créer le pool de processus, sérialiser les données d'entrée via `pickle` et synchroniser les retours impose un surcoût incompressible (*overhead*) d'environ **$150\text{ ms}$**.  
+  Le temps parallèle vaut alors :
+  $$T_8 \approx 0{,}15\text{ s} + \frac{0{,}10\text{ s}}{8} = \mathbf{0{,}16\text{ s}} > T_1$$
+  Le speedup est de $S = 0{,}10 / 0{,}16 = \mathbf{0{,}6}$ : **le parallélisme ralentit le calcul de 40 % !**
+* **À $N = 1\,000\,000$ duels ($10^6$) :**  
+  Le calcul séquentiel dure $T_1 \approx 10\text{ s}$.  
+  L'overhead de $0{,}15\text{ s}$ devient alors totalement négligeable devant le temps de calcul :
+  $$T_8 \approx 0{,}15\text{ s} + \frac{10\text{ s}}{8} \approx \mathbf{1{,}4\text{ s}} \implies S(8) \approx \mathbf{7{,}1}$$
+* **À $N = 10\,000\,000$ duels ($10^7$) :**  
+  Le temps séquentiel dure $T_1 \approx 100\text{ s}$ et le temps parallèle tombe à $\approx 13\text{ s}$ (speedup $\approx 6$ à $8$).
+
+---
+
+# Partie 6 : Validation Industrielle avec `pytest` (15 min)
+
+### Cahier des Charges de la Suite de Tests (`tests/test_parallel_engine.py`)
+
+Rédigez la suite de tests automatisés validant la robustesse du moteur distribué :
+
+1. **`test_parallel_determinism_with_seed(match_fighters)` :**  
+   Vérifie que deux simulations multi-cœurs appelées avec la même graine `seed=123` renvoient **le même winrate et le même intervalle de confiance**.
+2. **`test_confidence_interval_mathematical_bounds(match_fighters)` :**  
+   Vérifie les invariants stochastiques : l'intervalle de confiance encadre bien la moyenne empirique ($0 \le \text{ci\_low} \le \hat{p} \le \text{ci\_high} \le 1$).
+3. **`test_backend_equivalence(match_fighters)` :**  
+   Vérifie avec `pytest.approx(..., abs=1e-5)` que `ProcessPoolExecutor` et `joblib` produisent rigoureusement le même winrate lorsqu'ils sont initialisés avec la même graine maîtresse.
+4. **`test_massive_monte_carlo_scaling(match_fighters)` :**  
+   Étiqueté avec le marqueur `@pytest.mark.slow`, simule $50\,000$ duels et valide que la demi-largeur de l'intervalle de confiance est strictement inférieure à $0.5\%$.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`tests/test_parallel_engine.py`) :
+
+```python
+# tests/test_parallel_engine.py
+import pytest
+from zarena.parallel_engine import run_parallel_monte_carlo
+from zarena.warriors import SaiyanWarrior, Cyborg
+
+
+@pytest.fixture
+def match_fighters():
+    gohan = SaiyanWarrior("Gohan SSJ2", hp=150, ki=100, attack_power=65)
+    cell = Cyborg("Perfect Cell", hp=160, power=60, shield=10)
+    return gohan, cell
+
+
+def test_parallel_determinism_with_seed(match_fighters):
+    # TODO: Vérifier res1['winrate'] == res2['winrate'] et res1['ci_95'] == res2['ci_95'] avec seed fixée
+    pass
+
+
+def test_confidence_interval_mathematical_bounds(match_fighters):
+    # TODO: Vérifier 0.0 <= ci_low <= p_hat <= ci_high <= 1.0
+    pass
+
+
+def test_backend_equivalence(match_fighters):
+    # TODO: Comparer backend='executor' et backend='joblib' avec pytest.approx
+    pass
+
+
+@pytest.mark.slow
+def test_massive_monte_carlo_scaling(match_fighters):
+    # TODO: Simuler N = 50 000 et vérifier que la demi-largeur de l'IC < 0.005
+    pass
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`tests/test_parallel_engine.py`) :
+
+```python
+# tests/test_parallel_engine.py
+import pytest
+from zarena.parallel_engine import run_parallel_monte_carlo
+from zarena.warriors import SaiyanWarrior, Cyborg
+
+
+@pytest.fixture
+def match_fighters():
+    gohan = SaiyanWarrior("Gohan SSJ2", hp=150, ki=100, attack_power=65)
+    cell = Cyborg("Perfect Cell", hp=160, power=60, shield=10)
+    return gohan, cell
+
+
+def test_parallel_determinism_with_seed(match_fighters):
+    """Deux simulations avec la même graine renvoient les mêmes résultats au bit près."""
+    gohan, cell = match_fighters
+    res1 = run_parallel_monte_carlo(gohan, cell, n_simulations=5000, n_jobs=2, seed=123)
+    res2 = run_parallel_monte_carlo(gohan, cell, n_simulations=5000, n_jobs=2, seed=123)
+
+    assert res1["winrate"] == res2["winrate"]
+    assert res1["ci_95"] == res2["ci_95"]
+
+
+def test_confidence_interval_mathematical_bounds(match_fighters):
+    """L'intervalle de confiance encadre la moyenne et est inclus dans [0, 1]."""
+    gohan, cell = match_fighters
+    res = run_parallel_monte_carlo(gohan, cell, n_simulations=3000, n_jobs=2, seed=42)
+
+    p_hat = res["winrate"]
+    ci_low, ci_high = res["ci_95"]
+
+    assert 0.0 <= ci_low <= p_hat <= ci_high <= 1.0
+
+
+def test_backend_equivalence(match_fighters):
+    """ProcessPoolExecutor et joblib produisent le même résultat statistique avec la même graine."""
+    gohan, cell = match_fighters
+    res_exec = run_parallel_monte_carlo(gohan, cell, n_simulations=5000, n_jobs=2, seed=99, backend="executor")
+    res_job = run_parallel_monte_carlo(gohan, cell, n_simulations=5000, n_jobs=2, seed=99, backend="joblib")
+
+    assert res_exec["winrate"] == pytest.approx(res_job["winrate"], abs=1e-5)
+
+
+@pytest.mark.slow
+def test_massive_monte_carlo_scaling(match_fighters):
+    """Validation sur un volume massif étiquetée @pytest.mark.slow."""
+    gohan, cell = match_fighters
+    res = run_parallel_monte_carlo(gohan, cell, n_simulations=50000, n_jobs=-1, seed=999)
+
+    assert res["n_simulations"] == 50000
+    ci_low, ci_high = res["ci_95"]
+    assert (ci_high - ci_low) / 2.0 < 0.005
+```
+:::
+
+Lancez vos tests unitaires en excluant le test lourd :
+```bash
+pytest tests/test_parallel_engine.py -m "not slow"
+```
+
+---
+
+# Devoir Maison Guidé : Le Moteur Distribué de PyArena (Jalon 3)
+
+*Ce travail est à réaliser en équipe d'ici le prochain TP sur votre dépôt officiel de projet (`pyarena-groupe-XX`). Il concrétise les attendus de la **Section 6 de l'Annexe Technique** et alimente le tableau de bord Streamlit.*
+
+---
+
+## Spécification Contractuelle de l'API Publique
+
+Dans `src/pyarena/simulation/monte_carlo.py`, vous devez exposer la fonction officielle de référence :
+
+```python
+def run_monte_carlo(
+    f1: BaseFighter, 
+    f2: BaseFighter, 
+    n_simulations: int = 5000, 
+    n_jobs: int = -1,
+    seed: int | None = None,
+) -> dict[str, Any]:
+    """
+    Exécute n_simulations duels indépendants entre f1 et f2 distribués sur plusieurs cœurs CPU.
+    
+    Paramètres :
+        f1, f2 : Combattants engagés.
+        n_simulations : Nombre total d'affrontements à simuler (défaut : 10^6).
+        n_jobs : Nombre de cœurs CPU alloués (-1 pour mobiliser tous les cœurs disponibles).
+        seed : Graine maître optionnelle garantissant la reproductibilité stricte du pool stochastique.
+        
+    Retourne :
+        Un dictionnaire contenant STRICTEMENT les clés suivantes :
+        - "winrate"      : float compris dans [0.0, 1.0], estimation du taux de victoire de f1.
+        - "ci_95"        : tuple[float, float], intervalle de confiance à 95 % : (borne_inf, borne_sup).
+        - "turns_mean"   : float, durée moyenne des combats (nombre de tours).
+        - "turns_median" : float, médiane empirique de la durée des combats.
+        - "turns_std"    : float, écart-type de la durée des combats (avec ddof=1).
+    """
+```
+
+---
+
+## Livrables et Workflow Git
+
+1. **Branche Git :**
+   ```bash
+   git switch dev
+   git pull origin dev
+   git switch -c feat/monte-carlo-engine
+   ```
+2. **Implémentation & Tests :**
+   * Implémentez `src/pyarena/simulation/monte_carlo.py` via `ProcessPoolExecutor` ou `joblib.Parallel`.
+   * Rédigez la suite de tests nécessaire (déterminisme avec seed, invariants géométriques, conformité des 5 clés contractuelles du dictionnaire, et test de scaling marqué `@pytest.mark.slow`, ...).
+3. **Audit de Qualité :**
+   ```bash
+   pytest --cov=pyarena.simulation --cov-report=term-missing
+   ruff check src/ tests/
+   ```
+4. **Pull Request :** Poussez votre branche sur GitHub et faites approuver la Pull Request ciblant `dev` par un coéquipier.
