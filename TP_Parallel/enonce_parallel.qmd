@@ -2,7 +2,7 @@
 title: "Cours-TP : Calcul Parallèle, Architecture Matérielle & Simulations de Monte-Carlo"
 subtitle: "Comprendre la machine, le GIL et distribuer le moteur stochastique de PyArena (3h00)"
 author: "Bensaid Bilel"
-date: "20 Novembre 2026"
+date: "13 Novembre 2026"
 lang: fr
 format:
   html:
