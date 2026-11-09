@@ -15,6 +15,7 @@ project:
     - TP_Test/enonce_test.qmd
     - TP_IO/enonce_io.qmd
     - Metiers_Data/fiche_metiers.qmd
+    - TP_Parallel/enonce_parallel.qmd
     # Les fichiers de correction ne sont pas mentionnés ici
 
 website:
@@ -45,6 +46,8 @@ website:
             text: "Exceptions et Tests unitaires"
           - href: TP_IO/enonce_io.qmd
             text: "HTTP et Données"
+          - href: TP_Parallel/enonce_parallel.qmd
+            text: "Introduction à la parallélisation"
       - text: "Autres"
         menu:
           - href: Metiers_Data/fiche_metiers.qmd

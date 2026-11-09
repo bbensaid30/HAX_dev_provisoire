@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr" xml:lang="fr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Bensaid Bilel">
+
+<title>Cours-TP : Calcul Parallèle, Architecture Matérielle &amp; Simulations de Monte-Carlo – HAX712X — Dev Logiciel</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-6a2b564723c042b0e428f357d9a015bd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Pas de résultats",
+    "search-matching-documents-text": "documents trouvés",
+    "search-copy-link-title": "Copier le lien vers la recherche",
+    "search-hide-matches-text": "Cacher les correspondances additionnelles",
+    "search-more-match-text": "correspondance de plus dans ce document",
+    "search-more-matches-text": "correspondances de plus dans ce document",
+    "search-clear-button-title": "Effacer",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Annuler",
+    "search-submit-button-title": "Envoyer",
+    "search-label": "Recherche"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">HAX712X — Dev Logiciel</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Recherche"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Basculer la navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Accueil</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-projets-2026-2027" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Projets 2026-2027</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-projets-2026-2027">    
+        <li>
+    <a class="dropdown-item" href="../Projet2026/cahier_des_charges.html">
+ <span class="dropdown-text">Cahier des charges</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../Projet2026/contrat_api.html">
+ <span class="dropdown-text">Contrat API</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-cours-tps-généraux" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Cours-TPs Généraux</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-cours-tps-généraux">    
+        <li>
+    <a class="dropdown-item" href="../TP_bash/enonce_bash.html">
+ <span class="dropdown-text">Linux &amp; Bash</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_git/enonce_git.html">
+ <span class="dropdown-text">Git avancé</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-cours-tps-python" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Cours-TPs Python</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-cours-tps-python">    
+        <li>
+    <a class="dropdown-item" href="../TP_packaging/enonce_packaging.html">
+ <span class="dropdown-text">Module et packaging</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_POO/enonce_poo.html">
+ <span class="dropdown-text">Orienté objet</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_Test/enonce_test.html">
+ <span class="dropdown-text">Exceptions et Tests unitaires</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_IO/enonce_io.html">
+ <span class="dropdown-text">HTTP et Données</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../TP_Parallel/enonce_parallel.html">
+ <span class="dropdown-text">Introduction à la parallélisation</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-autres" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Autres</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-autres">    
+        <li>
+    <a class="dropdown-item" href="../Metiers_Data/fiche_metiers.html">
+ <span class="dropdown-text">Métiers autour de la Data</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../installation_wsl.html">
+ <span class="dropdown-text">Guide WSL</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sommaire de la séance</h2>
+   
+  <ul>
+  <li><a href="#objectifs-et-démarche-pédagogique" id="toc-objectifs-et-démarche-pédagogique" class="nav-link active" data-scroll-target="#objectifs-et-démarche-pédagogique">Objectifs et Démarche Pédagogique</a>
+  <ul class="collapse">
+  <li><a href="#découpage-temporel-progression-3h00" id="toc-découpage-temporel-progression-3h00" class="nav-link" data-scroll-target="#découpage-temporel-progression-3h00">Découpage Temporel &amp; Progression (3h00)</a></li>
+  </ul></li>
+  <li><a href="#partie-0-du-silicium-aux-algorithmes-anatomie-du-matériel-25-min" id="toc-partie-0-du-silicium-aux-algorithmes-anatomie-du-matériel-25-min" class="nav-link" data-scroll-target="#partie-0-du-silicium-aux-algorithmes-anatomie-du-matériel-25-min">Partie 0 : Du Silicium aux Algorithmes — Anatomie du Matériel (25 min)</a>
+  <ul class="collapse">
+  <li><a href="#définitions-du-matériel-dépasser-les-acronymes" id="toc-définitions-du-matériel-dépasser-les-acronymes" class="nav-link" data-scroll-target="#définitions-du-matériel-dépasser-les-acronymes">0.1 Définitions du Matériel : Dépasser les Acronymes</a></li>
+  <li><a href="#cœurs-physiques-vs-cœurs-logiques-hyper-threading-smt" id="toc-cœurs-physiques-vs-cœurs-logiques-hyper-threading-smt" class="nav-link" data-scroll-target="#cœurs-physiques-vs-cœurs-logiques-hyper-threading-smt">0.2 Cœurs Physiques vs Cœurs Logiques (Hyper-Threading / SMT)</a></li>
+  <li><a href="#la-hiérarchie-mémoire-le-goulot-détranglement" id="toc-la-hiérarchie-mémoire-le-goulot-détranglement" class="nav-link" data-scroll-target="#la-hiérarchie-mémoire-le-goulot-détranglement">0.3 La Hiérarchie Mémoire : Le Goulot d’Étranglement</a></li>
+  <li><a href="#expérience-0-auditer-le-matériel-de-sa-propre-machine-5-min" id="toc-expérience-0-auditer-le-matériel-de-sa-propre-machine-5-min" class="nav-link" data-scroll-target="#expérience-0-auditer-le-matériel-de-sa-propre-machine-5-min">0.4 Expérience 0 : Auditer le Matériel de sa Propre Machine (5 min)</a></li>
+  </ul></li>
+  <li><a href="#partie-1-le-lexique-fondamental-du-parallélisme-30-min" id="toc-partie-1-le-lexique-fondamental-du-parallélisme-30-min" class="nav-link" data-scroll-target="#partie-1-le-lexique-fondamental-du-parallélisme-30-min">Partie 1 : Le Lexique Fondamental du Parallélisme (30 min)</a>
+  <ul class="collapse">
+  <li><a href="#processus-vs-thread-cuisines-séparées-vs-cuisiniers-partagés" id="toc-processus-vs-thread-cuisines-séparées-vs-cuisiniers-partagés" class="nav-link" data-scroll-target="#processus-vs-thread-cuisines-séparées-vs-cuisiniers-partagés">1.1 Processus vs Thread : Cuisines Séparées vs Cuisiniers Partagés</a>
+  <ul class="collapse">
+  <li><a href="#le-processus-la-cuisine-indépendante" id="toc-le-processus-la-cuisine-indépendante" class="nav-link" data-scroll-target="#le-processus-la-cuisine-indépendante">Le Processus (La Cuisine Indépendante)</a></li>
+  <li><a href="#le-thread-les-cuisiniers-au-sein-de-la-même-cuisine" id="toc-le-thread-les-cuisiniers-au-sein-de-la-même-cuisine" class="nav-link" data-scroll-target="#le-thread-les-cuisiniers-au-sein-de-la-même-cuisine">Le Thread (Les Cuisiniers au sein de la même Cuisine)</a></li>
+  </ul></li>
+  <li><a href="#tâche-cpu-bound-vs-tâche-io-bound" id="toc-tâche-cpu-bound-vs-tâche-io-bound" class="nav-link" data-scroll-target="#tâche-cpu-bound-vs-tâche-io-bound">1.2 Tâche CPU-Bound vs Tâche I/O-Bound</a></li>
+  <li><a href="#concurrence-vs-parallélisme" id="toc-concurrence-vs-parallélisme" class="nav-link" data-scroll-target="#concurrence-vs-parallélisme">1.3 Concurrence vs Parallélisme</a></li>
+  <li><a href="#expérience-1-multi-threading-sur-cpu-vs-io-15-min" id="toc-expérience-1-multi-threading-sur-cpu-vs-io-15-min" class="nav-link" data-scroll-target="#expérience-1-multi-threading-sur-cpu-vs-io-15-min">1.4 Expérience 1 : Multi-Threading sur CPU vs I/O (15 min)</a>
+  <ul class="collapse">
+  <li><a href="#analyse-du-résultat-le-paradoxe-python" id="toc-analyse-du-résultat-le-paradoxe-python" class="nav-link" data-scroll-target="#analyse-du-résultat-le-paradoxe-python">Analyse du Résultat (Le Paradoxe Python) :</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#partie-2-le-gil-de-python-le-paysage-des-outils-25-min" id="toc-partie-2-le-gil-de-python-le-paysage-des-outils-25-min" class="nav-link" data-scroll-target="#partie-2-le-gil-de-python-le-paysage-des-outils-25-min">Partie 2 : Le GIL de Python &amp; Le Paysage des Outils (25 min)</a>
+  <ul class="collapse">
+  <li><a href="#quest-ce-que-le-gil-global-interpreter-lock" id="toc-quest-ce-que-le-gil-global-interpreter-lock" class="nav-link" data-scroll-target="#quest-ce-que-le-gil-global-interpreter-lock">2.1 Qu’est-ce que le GIL (<em>Global Interpreter Lock</em>) ?</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-les-autres-langages-c-rust-java-go-ont-ils-du-vrai-multi-threading" id="toc-pourquoi-les-autres-langages-c-rust-java-go-ont-ils-du-vrai-multi-threading" class="nav-link" data-scroll-target="#pourquoi-les-autres-langages-c-rust-java-go-ont-ils-du-vrai-multi-threading">Pourquoi les autres langages (C++, Rust, Java, Go) ont-ils du vrai multi-threading ?</a></li>
+  </ul></li>
+  <li><a href="#comment-contourner-le-gil-le-multi-processus" id="toc-comment-contourner-le-gil-le-multi-processus" class="nav-link" data-scroll-target="#comment-contourner-le-gil-le-multi-processus">2.2 Comment Contourner le GIL : Le Multi-Processus</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-un-transfert-sérialisé-pickle-alors-quon-est-sur-la-même-ram" id="toc-pourquoi-un-transfert-sérialisé-pickle-alors-quon-est-sur-la-même-ram" class="nav-link" data-scroll-target="#pourquoi-un-transfert-sérialisé-pickle-alors-quon-est-sur-la-même-ram">Pourquoi un transfert sérialisé (<code>pickle</code>) alors qu’on est sur la même RAM ?</a></li>
+  </ul></li>
+  <li><a href="#clarification-fondamentale-openmp-vs-multiprocessing-vs-mpi" id="toc-clarification-fondamentale-openmp-vs-multiprocessing-vs-mpi" class="nav-link" data-scroll-target="#clarification-fondamentale-openmp-vs-multiprocessing-vs-mpi">2.3 Clarification Fondamentale : OpenMP vs <code>multiprocessing</code> vs MPI</a></li>
+  <li><a href="#expérience-2-valider-létanchéité-mémoire-des-processus-5-min" id="toc-expérience-2-valider-létanchéité-mémoire-des-processus-5-min" class="nav-link" data-scroll-target="#expérience-2-valider-létanchéité-mémoire-des-processus-5-min">2.4 Expérience 2 : Valider l’Étanchéité Mémoire des Processus (5 min)</a></li>
+  </ul></li>
+  <li><a href="#partie-3-déterminisme-et-aléa-parallèle-seedsequence-25-min" id="toc-partie-3-déterminisme-et-aléa-parallèle-seedsequence-25-min" class="nav-link" data-scroll-target="#partie-3-déterminisme-et-aléa-parallèle-seedsequence-25-min">Partie 3 : Déterminisme et Aléa Parallèle (<code>SeedSequence</code>) (25 min)</a>
+  <ul class="collapse">
+  <li><a href="#quest-ce-quune-graine-et-le-danger-du-recouvrement-overlap" id="toc-quest-ce-quune-graine-et-le-danger-du-recouvrement-overlap" class="nav-link" data-scroll-target="#quest-ce-quune-graine-et-le-danger-du-recouvrement-overlap">3.1 Qu’est-ce qu’une Graine et le Danger du Recouvrement (<em>Overlap</em>) ?</a>
+  <ul class="collapse">
+  <li><a href="#pourquoi-ne-pas-juste-faire-seed_worker-seed-rank-ex-42-43-44" id="toc-pourquoi-ne-pas-juste-faire-seed_worker-seed-rank-ex-42-43-44" class="nav-link" data-scroll-target="#pourquoi-ne-pas-juste-faire-seed_worker-seed-rank-ex-42-43-44">Pourquoi ne pas juste faire <code>seed_worker = seed + rank</code> (ex: 42, 43, 44) ?</a></li>
+  </ul></li>
+  <li><a href="#la-solution-moderne-np.random.seedsequence" id="toc-la-solution-moderne-np.random.seedsequence" class="nav-link" data-scroll-target="#la-solution-moderne-np.random.seedsequence">3.2 La Solution Moderne : <code>np.random.SeedSequence</code></a></li>
+  <li><a href="#exercice-3-validation-de-lorthogonalité-des-générateurs-10-min" id="toc-exercice-3-validation-de-lorthogonalité-des-générateurs-10-min" class="nav-link" data-scroll-target="#exercice-3-validation-de-lorthogonalité-des-générateurs-10-min">3.3 Exercice 3 : Validation de l’Orthogonalité des Générateurs (10 min)</a></li>
+  </ul></li>
+  <li><a href="#partie-4-le-fil-rouge-z-arena-moteur-multi-cœurs-et-chunking-40-min" id="toc-partie-4-le-fil-rouge-z-arena-moteur-multi-cœurs-et-chunking-40-min" class="nav-link" data-scroll-target="#partie-4-le-fil-rouge-z-arena-moteur-multi-cœurs-et-chunking-40-min">Partie 4 : Le Fil Rouge Z-Arena — Moteur Multi-Cœurs et Chunking (40 min)</a>
+  <ul class="collapse">
+  <li><a href="#ajouter-la-méthode-reset_stats-dans-arenafighter" id="toc-ajouter-la-méthode-reset_stats-dans-arenafighter" class="nav-link" data-scroll-target="#ajouter-la-méthode-reset_stats-dans-arenafighter">Ajouter la Méthode <code>reset_stats()</code> dans <code>ArenaFighter</code></a></li>
+  <li><a href="#le-combat-stochastique-élémentaire-srczarenabattle.py" id="toc-le-combat-stochastique-élémentaire-srczarenabattle.py" class="nav-link" data-scroll-target="#le-combat-stochastique-élémentaire-srczarenabattle.py">Le Combat Stochastique Élémentaire (<code>src/zarena/battle.py</code>)</a>
+  <ul class="collapse">
+  <li><a href="#problématique" id="toc-problématique" class="nav-link" data-scroll-target="#problématique">Problématique</a></li>
+  <li><a href="#cahier-des-charges" id="toc-cahier-des-charges" class="nav-link" data-scroll-target="#cahier-des-charges">Cahier des Charges</a></li>
+  </ul></li>
+  <li><a href="#le-worker-parallèle-et-le-découpage-en-lots-chunking" id="toc-le-worker-parallèle-et-le-découpage-en-lots-chunking" class="nav-link" data-scroll-target="#le-worker-parallèle-et-le-découpage-en-lots-chunking">4.3 Le Worker Parallèle et le Découpage en Lots (<em>Chunking</em>)</a>
+  <ul class="collapse">
+  <li><a href="#problématique-1" id="toc-problématique-1" class="nav-link" data-scroll-target="#problématique-1">Problématique</a></li>
+  <li><a href="#cahier-des-charges-1" id="toc-cahier-des-charges-1" class="nav-link" data-scroll-target="#cahier-des-charges-1">Cahier des Charges</a></li>
+  </ul></li>
+  <li><a href="#lorchestrateur-multi-cœurs-double-implémentation-processpoolexecutor-joblib" id="toc-lorchestrateur-multi-cœurs-double-implémentation-processpoolexecutor-joblib" class="nav-link" data-scroll-target="#lorchestrateur-multi-cœurs-double-implémentation-processpoolexecutor-joblib">4.4 L’Orchestrateur Multi-Cœurs — Double Implémentation (<em>ProcessPoolExecutor</em> &amp; <em>joblib</em>)</a>
+  <ul class="collapse">
+  <li><a href="#a.-comprendre-la-syntaxe-de-processpoolexecutor-standard-library" id="toc-a.-comprendre-la-syntaxe-de-processpoolexecutor-standard-library" class="nav-link" data-scroll-target="#a.-comprendre-la-syntaxe-de-processpoolexecutor-standard-library">A. Comprendre la Syntaxe de <code>ProcessPoolExecutor</code> (Standard Library)</a></li>
+  <li><a href="#b.-comprendre-la-syntaxe-de-joblib.parallel-écosystème-data-science" id="toc-b.-comprendre-la-syntaxe-de-joblib.parallel-écosystème-data-science" class="nav-link" data-scroll-target="#b.-comprendre-la-syntaxe-de-joblib.parallel-écosystème-data-science">B. Comprendre la Syntaxe de <code>joblib.Parallel</code> (Écosystème Data Science)</a></li>
+  <li><a href="#c.-cahier-des-charges-de-run_parallel_monte_carlo" id="toc-c.-cahier-des-charges-de-run_parallel_monte_carlo" class="nav-link" data-scroll-target="#c.-cahier-des-charges-de-run_parallel_monte_carlo">C. Cahier des Charges de <code>run_parallel_monte_carlo</code></a></li>
+  <li><a href="#règle-dor-absolue-sous-windows-et-macos-if-__name__-__main__" id="toc-règle-dor-absolue-sous-windows-et-macos-if-__name__-__main__" class="nav-link" data-scroll-target="#règle-dor-absolue-sous-windows-et-macos-if-__name__-__main__">Règle d’or absolue sous Windows et macOS : <code>if __name__ == "__main__":</code></a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#partie-5-métrologie-numérique-speedup-amdahl-seuil-de-rentabilité-20-min" id="toc-partie-5-métrologie-numérique-speedup-amdahl-seuil-de-rentabilité-20-min" class="nav-link" data-scroll-target="#partie-5-métrologie-numérique-speedup-amdahl-seuil-de-rentabilité-20-min">Partie 5 : Métrologie Numérique — Speedup, Amdahl &amp; Seuil de Rentabilité (20 min)</a>
+  <ul class="collapse">
+  <li><a href="#les-définitions-formelles-de-performance" id="toc-les-définitions-formelles-de-performance" class="nav-link" data-scroll-target="#les-définitions-formelles-de-performance">5.1 Les Définitions Formelles de Performance</a></li>
+  <li><a href="#la-loi-damdahl-1967" id="toc-la-loi-damdahl-1967" class="nav-link" data-scroll-target="#la-loi-damdahl-1967">5.2 La Loi d’Amdahl (1967)</a></li>
+  <li><a href="#exercice-4-benchmark-multi-échelles-et-comparaison-des-backends" id="toc-exercice-4-benchmark-multi-échelles-et-comparaison-des-backends" class="nav-link" data-scroll-target="#exercice-4-benchmark-multi-échelles-et-comparaison-des-backends">5.4 Exercice 4 : Benchmark Multi-Échelles et Comparaison des Backends</a>
+  <ul class="collapse">
+  <li><a href="#cahier-des-charges-2" id="toc-cahier-des-charges-2" class="nav-link" data-scroll-target="#cahier-des-charges-2">Cahier des Charges</a></li>
+  </ul></li>
+  <li><a href="#le-seuil-de-rentabilité-break-even-point-pourquoi-ralentit-on-pour-n-10000" id="toc-le-seuil-de-rentabilité-break-even-point-pourquoi-ralentit-on-pour-n-10000" class="nav-link" data-scroll-target="#le-seuil-de-rentabilité-break-even-point-pourquoi-ralentit-on-pour-n-10000">5.3 Le Seuil de Rentabilité (<em>Break-Even Point</em>) : Pourquoi ralentit-on pour <span class="math inline">\(N = 10\,000\)</span> ?</a></li>
+  </ul></li>
+  <li><a href="#partie-6-validation-industrielle-avec-pytest-15-min" id="toc-partie-6-validation-industrielle-avec-pytest-15-min" class="nav-link" data-scroll-target="#partie-6-validation-industrielle-avec-pytest-15-min">Partie 6 : Validation Industrielle avec <code>pytest</code> (15 min)</a>
+  <ul class="collapse">
+  <li><a href="#cahier-des-charges-de-la-suite-de-tests-teststest_parallel_engine.py" id="toc-cahier-des-charges-de-la-suite-de-tests-teststest_parallel_engine.py" class="nav-link" data-scroll-target="#cahier-des-charges-de-la-suite-de-tests-teststest_parallel_engine.py">Cahier des Charges de la Suite de Tests (<code>tests/test_parallel_engine.py</code>)</a></li>
+  </ul></li>
+  <li><a href="#devoir-maison-guidé-le-moteur-distribué-de-pyarena-jalon-3" id="toc-devoir-maison-guidé-le-moteur-distribué-de-pyarena-jalon-3" class="nav-link" data-scroll-target="#devoir-maison-guidé-le-moteur-distribué-de-pyarena-jalon-3">Devoir Maison Guidé : Le Moteur Distribué de PyArena (Jalon 3)</a>
+  <ul class="collapse">
+  <li><a href="#spécification-contractuelle-de-lapi-publique" id="toc-spécification-contractuelle-de-lapi-publique" class="nav-link" data-scroll-target="#spécification-contractuelle-de-lapi-publique">Spécification Contractuelle de l’API Publique</a></li>
+  <li><a href="#livrables-et-workflow-git" id="toc-livrables-et-workflow-git" class="nav-link" data-scroll-target="#livrables-et-workflow-git">Livrables et Workflow Git</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cours-TP : Calcul Parallèle, Architecture Matérielle &amp; Simulations de Monte-Carlo</h1>
+<p class="subtitle lead">Comprendre la machine, le GIL et distribuer le moteur stochastique de PyArena (3h00)</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Bensaid Bilel </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">20 novembre 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="objectifs-et-démarche-pédagogique" class="level1">
+<h1>Objectifs et Démarche Pédagogique</h1>
+<p>Dans les cursus quantitatifs (Master 1 Science des Données et parcours Modélisation &amp; Analyse Numérique — MANU), la programmation est souvent abordée comme une écriture mathématique pure : on conçoit un algorithme en supposant que l’ordinateur exécutera les opérations instantanément, quelle que soit la dimension du problème.</p>
+<p>Or, dès que l’on aborde des applications réelles, <strong>le mur du matériel se dresse immédiatement</strong> :</p>
+<ul>
+<li><strong>En Science des Données (SSD) :</strong> L’évaluation de milliers de combinaisons d’hyperparamètres (<em>Grid Search</em>, validation croisée), l’apprentissage d’arbres décisionnels indépendants au sein d’une forêt aléatoire (<em>Random Forest</em>), ou le calcul d’intervalles de confiance par rééchantillonnage (<em>Bootstrap</em>) exigent de répéter des millions d’expériences statistiques indépendantes.</li>
+<li><strong>En Modélisation &amp; Analyse Numérique (MANU) :</strong> L’intégration numérique par méthodes particulaires ou stochastiques (Monte-Carlo en haute dimension), la quantification d’incertitudes sur des systèmes différentiels (EDO/EDP résolues pour des milliers de réalisations de paramètres), les études de sensibilité et la décomposition de domaine reposent sur des volumes de calcul qui saturent un cœur en quelques secondes.</li>
+<li><strong>La fin de la « course aux GHz » :</strong> Depuis 2005, la fréquence d’horloge des processeurs ne progresse plus (elle stagne entre 3 et 5 GHz pour des raisons physiques de dissipation thermique : c’est la fin de la <em>loi de Dennard</em>). Les constructeurs n’accélèrent plus un cœur isolé : <strong>ils multiplient les cœurs de calcul sur la même puce</strong>.</li>
+<li><strong>L’illusion d’un code naïf :</strong> Un programme standard s’exécute de façon strictement séquentielle sur un seul cœur. Sur une station de travail dotée de 8, 16 ou 32 cœurs, <strong>85 % à 95 % de la puissance de calcul physique reste en veille</strong>.</li>
+</ul>
+<p>L’objectif de cette séance de 3h00 est d’acquérir les <strong>fondations matérielles et logicielles du calcul parallèle</strong>, d’expérimenter directement les verrous de Python, et de concevoir une architecture distribuée robuste pour le simulateur stochastique de <strong>PyArena</strong>.</p>
+<hr>
+<section id="découpage-temporel-progression-3h00" class="level2">
+<h2 class="anchored" data-anchor-id="découpage-temporel-progression-3h00">Découpage Temporel &amp; Progression (3h00)</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 27%">
+<col style="width: 22%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Phase</th>
+<th style="text-align: center;">Durée</th>
+<th style="text-align: left;">Thématique abordée</th>
+<th style="text-align: center;">Modalité &amp; Pédagogie</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 0</strong></td>
+<td style="text-align: center;">25 min</td>
+<td style="text-align: left;"><strong>Anatomie de la Machine :</strong> CPU, Cœurs physiques, ALU/FPU, Caches &amp; RAM</td>
+<td style="text-align: center;">Cours &amp; Expérience 0 (Audit matériel)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 1</strong></td>
+<td style="text-align: center;">30 min</td>
+<td style="text-align: left;"><strong>Le Lexique Fondamental :</strong> Processus, Threads, Concurrence vs Parallélisme</td>
+<td style="text-align: center;">Cours &amp; Expérience 1 (CPU vs I/O)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 2</strong></td>
+<td style="text-align: center;">25 min</td>
+<td style="text-align: left;"><strong>Le Verrou du GIL &amp; Le Paysage Outils :</strong> C++, OpenMP, <code>multiprocessing</code>, MPI</td>
+<td style="text-align: center;">Cours &amp; Expérience 2 (Étanchéité mémoire)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 3</strong></td>
+<td style="text-align: center;">25 min</td>
+<td style="text-align: left;"><strong>Le Hasard Parallèle :</strong> Décorrélation stochastique formelle (<code>SeedSequence</code>)</td>
+<td style="text-align: center;">Cours &amp; Exercice 3 (Graines orthogonales)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 4</strong></td>
+<td style="text-align: center;">40 min</td>
+<td style="text-align: left;"><strong>Le Fil Rouge Z-Arena :</strong> Moteur multi-cœurs par découpage en lots (<em>Chunking</em>)</td>
+<td style="text-align: center;"><strong>Guidé</strong> (À coder pas à pas)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Partie 5</strong></td>
+<td style="text-align: center;">20 min</td>
+<td style="text-align: left;"><strong>Métrologie &amp; Théorie :</strong> Speedup, Efficacité &amp; Confrontation à la Loi d’Amdahl</td>
+<td style="text-align: center;"><strong>Semi-autonomie</strong> (Mesure sur machine)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Partie 6</strong></td>
+<td style="text-align: center;">15 min</td>
+<td style="text-align: left;"><strong>Validation Industrielle :</strong> Tests <code>pytest</code>, Théorème Central Limite &amp; <code>@pytest.mark.slow</code></td>
+<td style="text-align: center;"><strong>Autonomie complète</strong> (À implémenter)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Synthèse</strong></td>
+<td style="text-align: center;">-</td>
+<td style="text-align: left;"><strong>Devoir Maison Guidé (Hors séance) :</strong> Moteur Parallèle <code>PyArena</code> (Jalon 3)</td>
+<td style="text-align: center;">Projet Git en équipe</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="partie-0-du-silicium-aux-algorithmes-anatomie-du-matériel-25-min" class="level1">
+<h1>Partie 0 : Du Silicium aux Algorithmes — Anatomie du Matériel (25 min)</h1>
+<p>Pour comprendre pourquoi et comment paralléliser un code, il est indispensable de poser un modèle mental précis des composants physiques de votre ordinateur.</p>
+<pre class="text"><code>                     VUE D'ENSEMBLE D'UN NŒUD DE CALCUL MODERNE
+ ┌──────────────────────────────────────────────────────────────────────────────┐
+ │                              PROCESSEUR (CPU)                                │
+ │                                                                              │
+ │   ┌──────────────────────────┐            ┌──────────────────────────┐       │
+ │   │     CŒUR PHYSIQUE 0      │            │     CŒUR PHYSIQUE 1      │       │
+ │   │  ┌────────────────────┐  │            │  ┌────────────────────┐  │       │
+ │   │  │ Unités ALU / FPU   │  │            │  │ Unités ALU / FPU   │  │       │
+ │   │  │ (Circuits calcul)  │  │            │  │ (Circuits calcul)  │  │       │
+ │   │  └─────────┬──────────┘  │            │  └─────────┬──────────┘  │       │
+ │   │  ┌─────────┴──────────┐  │            │  ┌─────────┴──────────┐  │       │
+ │   │  │ Caches L1 / L2     │  │            │  │ Caches L1 / L2     │  │       │
+ │   │  └────────────────────┘  │            │  └────────────────────┘  │       │
+ │   └────────────┬─────────────┘            └────────────┬─────────────┘       │
+ │                │                                       │                     │
+ │                └───────────────────┬───────────────────┘                     │
+ │                                    ▼                                         │
+ │                      ┌───────────────────────────┐                           │
+ │                      │ Cache L3 Partagé (SRAM)   │                           │
+ │                      └─────────────┬─────────────┘                           │
+ └────────────────────────────────────┼─────────────────────────────────────────┘
+                                      ▼  Bus Mémoire (Goulot d'étranglement)
+ ┌──────────────────────────────────────────────────────────────────────────────┐
+ │                         MÉMOIRE CENTRALE : RAM (DRAM)                        │
+ │  Espace d'adressage global : Tableaux NumPy, Objets Python, Interpréteur     │
+ └──────────────────────────────────────────────────────────────────────────────┘</code></pre>
+<hr>
+<section id="définitions-du-matériel-dépasser-les-acronymes" class="level2">
+<h2 class="anchored" data-anchor-id="définitions-du-matériel-dépasser-les-acronymes">0.1 Définitions du Matériel : Dépasser les Acronymes</h2>
+<ul>
+<li><strong>Le CPU (<em>Central Processing Unit</em> ou Processeur) :</strong> C’est la puce de silicium physique insérée sur la carte mère de l’ordinateur.</li>
+<li><strong>Le Cœur Physique (<em>Physical Core</em>) :</strong> C’est une unité de traitement complète, indépendante et autonome gravée au sein du processeur. Chaque cœur physique possède ses propres circuits d’exécution matériels :
+<ul>
+<li><strong>L’ALU (<em>Arithmetic Logic Unit</em> ou Unité Arithmétique et Logique) :</strong> Le circuit électronique qui effectue les opérations sur les entiers (<code>+</code>, <code>-</code>, <code>*</code>, comparaisons booléennes).</li>
+<li><strong>La FPU (<em>Floating-Point Unit</em> ou Unité de Calcul en Virgule Flottante) :</strong> Le circuit spécialisé dans les calculs mathématiques sur les nombres réels flottants (<code>float64</code>).</li>
+</ul></li>
+<li><strong>Deux cœurs physiques peuvent exécuter deux flux d’instructions de manière strictement simultanée à la même nanoseconde.</strong></li>
+</ul>
+<hr>
+</section>
+<section id="cœurs-physiques-vs-cœurs-logiques-hyper-threading-smt" class="level2">
+<h2 class="anchored" data-anchor-id="cœurs-physiques-vs-cœurs-logiques-hyper-threading-smt">0.2 Cœurs Physiques vs Cœurs Logiques (Hyper-Threading / SMT)</h2>
+<p>Sur vos ordinateurs, le système d’exploitation affiche souvent : <em>« 8 cœurs, 16 processeurs logiques »</em>. Cette technologie (appelée <em>Hyper-Threading</em> chez Intel ou <em>SMT</em> chez AMD) dédouble les registres d’entrée d’un cœur physique pour faire croire au système d’exploitation qu’il dispose de deux cœurs distincts.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Avertissement</span>L’Illusion de l’Hyper-Threading en Calcul Scientifique
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>L’Hyper-Threading a été inventé pour la bureautique et le multitâche web : pendant qu’un thread attend une frappe au clavier ou un paquet réseau, le second thread utilise le cœur.</p>
+<p>En revanche, en <strong>calcul scientifique pur</strong> (Monte-Carlo, algèbre linéaire, dérivées numériques) :</p>
+<ul>
+<li>Les circuits de calcul (FPU/ALU) du cœur physique tournent déjà à 100 % de saturation.</li>
+<li>Lancer 16 calculs intensifs sur une machine à 8 cœurs physiques <strong>n’apporte aucun gain d’accélération</strong> : les deux flux d’instructions se battent pour les mêmes circuits d’addition et de multiplication physiques.</li>
+<li><strong>Règle pratique :</strong> Pour dimensionner un pool de calcul scientifique parallèle, on règle toujours le nombre de processus sur le <strong>nombre de cœurs physiques réels</strong>.</li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+<section id="la-hiérarchie-mémoire-le-goulot-détranglement" class="level2">
+<h2 class="anchored" data-anchor-id="la-hiérarchie-mémoire-le-goulot-détranglement">0.3 La Hiérarchie Mémoire : Le Goulot d’Étranglement</h2>
+<p>Calculer une addition prend moins d’une nanoseconde (<span class="math inline">\(10^{-9} \text{ s}\)</span>). Mais acheminer une donnée depuis la mémoire RAM jusqu’au cœur prend entre 50 et 100 nanosecondes ! Pour éviter que les cœurs passent leur temps à attendre les données, les processeurs intègrent des mémoires tampons ultra-rapides : les <strong>caches</strong>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Niveau de Mémoire</th>
+<th style="text-align: left;">Localisation</th>
+<th style="text-align: center;">Capacité typique</th>
+<th style="text-align: center;">Latence d’accès</th>
+<th style="text-align: left;">Vitesse relative (analogie)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Registres CPU</strong></td>
+<td style="text-align: left;">Dans le cœur</td>
+<td style="text-align: center;">~1 Ko</td>
+<td style="text-align: center;"><span class="math inline">\(&lt; 1 \text{ ns}\)</span></td>
+<td style="text-align: left;"><em>L’idée présente dans votre tête</em></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Caches L1 / L2</strong></td>
+<td style="text-align: left;">Dans le cœur</td>
+<td style="text-align: center;">32 Ko à 1 Mo</td>
+<td style="text-align: center;"><span class="math inline">\(1 - 4 \text{ ns}\)</span></td>
+<td style="text-align: left;"><em>Le carnet de notes sur votre bureau</em></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Cache L3</strong></td>
+<td style="text-align: left;">Partagé entre les cœurs</td>
+<td style="text-align: center;">8 à 64 Mo</td>
+<td style="text-align: center;"><span class="math inline">\(10 - 20 \text{ ns}\)</span></td>
+<td style="text-align: left;"><em>L’étagère de livres dans votre bureau</em></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Mémoire RAM</strong></td>
+<td style="text-align: left;">Barrettes externes</td>
+<td style="text-align: center;">16 à 64 Go</td>
+<td style="text-align: center;"><span class="math inline">\(60 - 100 \text{ ns}\)</span></td>
+<td style="text-align: left;"><em>Aller chercher un livre à la bibliothèque municipale</em></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Disque SSD</strong></td>
+<td style="text-align: left;">Périphérique externe</td>
+<td style="text-align: center;">512 Go à 2 To</td>
+<td style="text-align: center;"><span class="math inline">\(&gt; 10\,000 \text{ ns}\)</span></td>
+<td style="text-align: left;"><em>Commander un livre par courrier postal</em></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="expérience-0-auditer-le-matériel-de-sa-propre-machine-5-min" class="level2">
+<h2 class="anchored" data-anchor-id="expérience-0-auditer-le-matériel-de-sa-propre-machine-5-min">0.4 Expérience 0 : Auditer le Matériel de sa Propre Machine (5 min)</h2>
+<p>Ouvrez un terminal Python et exécutez ce script pour inspecter la topologie matérielle de votre poste de TP :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> multiprocessing</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> psutil</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>nb_logiques <span class="op">=</span> os.cpu_count()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Cœurs logiques détectés par l'OS : </span><span class="sc">{</span>nb_logiques<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    nb_physiques <span class="op">=</span> psutil.cpu_count(logical<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Coeurs physiques réels            : </span><span class="sc">{</span>nb_physiques<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">ImportError</span>:</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"(Installez psutil via 'pip install psutil' pour distinguer coeurs physiques et logiques)"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote class="blockquote">
+<p><em>Transition : Maintenant que nous visualisons les cœurs physiques et la mémoire RAM, comment le système d’exploitation organise-t-il l’exécution de nos programmes sur ce matériel ? C’est la distinction fondamentale entre Processus et Threads.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="partie-1-le-lexique-fondamental-du-parallélisme-30-min" class="level1">
+<h1>Partie 1 : Le Lexique Fondamental du Parallélisme (30 min)</h1>
+<hr>
+<section id="processus-vs-thread-cuisines-séparées-vs-cuisiniers-partagés" class="level2">
+<h2 class="anchored" data-anchor-id="processus-vs-thread-cuisines-séparées-vs-cuisiniers-partagés">1.1 Processus vs Thread : Cuisines Séparées vs Cuisiniers Partagés</h2>
+<p>Pour comprendre la différence entre un <strong>Processus</strong> et un <strong>Thread</strong>, utilisons l’analogie universelle du restaurant :</p>
+<pre class="text"><code>       MODÈLE MULTI-THREADS                          MODÈLE MULTI-PROCESSUS
+      (Mémoire Vive Partagée)                       (Mémoires Isolées)
+
+    ┌────────────────────────┐                   ┌──────────────┐   ┌──────────────┐
+    │     PROCESSUS UNIQUE   │                   │ PROCESSUS 1  │   │ PROCESSUS 2  │
+    │                        │                   │   (PID 101)  │   │   (PID 102)  │
+    │  ┌──────────────────┐  │                   │  ┌────────┐  │   │  ┌────────┐  │
+    │  │ ESPACE MÉMOIRE   │  │                   │  │MÉMOIRE │  │   │  │MÉMOIRE │  │
+    │  │ (RAM Partagée)   │  │                   │  │PRIVÉE 1│  │   │  │PRIVÉE 2│  │
+    │  └────────┬─────────┘  │                   │  └────────┘  │   │  └────────┘  │
+    │           │            │                   └──────┬───────┘   └──────┬───────┘
+    │     ┌─────┴─────┐      │                          │                  │
+    │     ▼           ▼      │                          └──────┬───────────┘
+    │  Thread 1    Thread 2  │                                 ▼
+    │  (Cœur 0)    (Cœur 1)  │                     Communication par Tuyaux (IPC)
+    └────────────────────────┘                     Sérialisation d'octets requise !</code></pre>
+<section id="le-processus-la-cuisine-indépendante" class="level3">
+<h3 class="anchored" data-anchor-id="le-processus-la-cuisine-indépendante">Le Processus (La Cuisine Indépendante)</h3>
+<ul>
+<li>Un <strong>processus</strong> est une instance d’un programme en cours d’exécution.</li>
+<li>Le système d’exploitation lui attribue un identifiant unique (<strong>PID</strong> — <em>Process Identifier</em>) et <strong>son propre espace mémoire fermé dans la RAM</strong>.</li>
+<li>Un processus ne peut pas lire ni modifier les variables d’un autre processus : ils sont totalement étanches.</li>
+</ul>
+</section>
+<section id="le-thread-les-cuisiniers-au-sein-de-la-même-cuisine" class="level3">
+<h3 class="anchored" data-anchor-id="le-thread-les-cuisiniers-au-sein-de-la-même-cuisine">Le Thread (Les Cuisiniers au sein de la même Cuisine)</h3>
+<ul>
+<li>Un <strong>thread</strong> (ou fil d’exécution) est une suite d’instructions qui s’exécute à l’intérieur d’un processus.</li>
+<li><strong>Tous les threads d’un même processus partagent exactement le même espace mémoire RAM.</strong></li>
+<li><em>Avantage :</em> Partager une donnée entre threads est instantané (un thread écrit dans un tableau NumPy, tous les autres threads le lisent immédiatement).</li>
+<li><em>Danger mortel :</em> La <strong>Course Critique (<em>Race Condition</em>)</strong>. Si deux cuisiniers modifient simultanément la même marmite sans se coordonner (ex: deux threads incrémentent la même variable au même instant), les résultats deviennent faux de manière imprévisible.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="tâche-cpu-bound-vs-tâche-io-bound" class="level2">
+<h2 class="anchored" data-anchor-id="tâche-cpu-bound-vs-tâche-io-bound">1.2 Tâche CPU-Bound vs Tâche I/O-Bound</h2>
+<p>Avant de paralléliser, il est impératif d’identifier ce qui bride votre programme :</p>
+<ol type="1">
+<li><strong>Une Tâche CPU-Bound (<em>Limitée par le Processeur</em>) :</strong><br>
+Le programme effectue du calcul mathématique pur (ex: simuler un duel de combat, inverser une matrice, calculer une intégrale). Le processeur tourne à 100 % de charge.</li>
+<li><strong>Une Tâche I/O-Bound (<em>Limitée par les Entrées/Sorties</em>) :</strong><br>
+Le programme passe la quasi-totalité de son temps à <strong>attendre</strong> une réponse extérieure : attendre un téléchargement depuis une API sur le réseau, attendre une lecture sur disque, ou attendre une saisie utilisateur. Le processeur est inactif (0 % de charge) pendant cette attente.</li>
+</ol>
+<hr>
+</section>
+<section id="concurrence-vs-parallélisme" class="level2">
+<h2 class="anchored" data-anchor-id="concurrence-vs-parallélisme">1.3 Concurrence vs Parallélisme</h2>
+<ul>
+<li><strong>La Concurrence :</strong> Gérer plusieurs tâches au cours d’un intervalle de temps donné (par exemple, un cœur CPU qui alterne si vite entre la musique et le traitement de texte qu’il donne l’illusion de tout faire en même temps).</li>
+<li><strong>Le Parallélisme :</strong> Exécuter plusieurs tâches <strong>exactement au même instant physique</strong> sur des cours distincts.</li>
+</ul>
+<hr>
+</section>
+<section id="expérience-1-multi-threading-sur-cpu-vs-io-15-min" class="level2">
+<h2 class="anchored" data-anchor-id="expérience-1-multi-threading-sur-cpu-vs-io-15-min">1.4 Expérience 1 : Multi-Threading sur CPU vs I/O (15 min)</h2>
+<p>Testons concrètement le comportement des threads en Python sur ces deux types de tâches. Créez <code>tests/test_threads_choc.py</code> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/test_threads_choc.py</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> concurrent.futures <span class="im">import</span> ThreadPoolExecutor</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># --- CAS 1 : TÂCHE I/O-BOUND (Attente réseau ou disque simulée) ---</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tache_io(id_tache: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="fl">1.0</span>)  <span class="co"># Simule 1 seconde d'attente d'une requête PokéAPI</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># --- CAS 2 : TÂCHE CPU-BOUND (Calcul mathématique pur) ---</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tache_cpu(id_tache: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">15_000_000</span>):  <span class="co"># Calcul intensif sur le processeur</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> i</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"=== EXPÉRIENCE 1A : TÂCHES I/O-BOUND (Attente) ==="</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    tache_io(<span class="dv">1</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    tache_io(<span class="dv">2</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"I/O Séquentiel (1 fil) : </span><span class="sc">{</span>time<span class="sc">.</span>perf_counter() <span class="op">-</span> t0<span class="sc">:.2f}</span><span class="ss"> s"</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> ThreadPoolExecutor(max_workers<span class="op">=</span><span class="dv">2</span>) <span class="im">as</span> executor:</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="bu">list</span>(executor.<span class="bu">map</span>(tache_io, [<span class="dv">1</span>, <span class="dv">2</span>]))</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"I/O Multi-threads (2 fils) : </span><span class="sc">{</span>time<span class="sc">.</span>perf_counter() <span class="op">-</span> t0<span class="sc">:.2f}</span><span class="ss"> s"</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">=== EXPÉRIENCE 1B : TÂCHES CPU-BOUND (Calcul Pur) ==="</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    tache_cpu(<span class="dv">1</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    tache_cpu(<span class="dv">2</span>)</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"CPU Séquentiel (1 fil) : </span><span class="sc">{</span>time<span class="sc">.</span>perf_counter() <span class="op">-</span> t0<span class="sc">:.2f}</span><span class="ss"> s"</span>)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> time.perf_counter()</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> ThreadPoolExecutor(max_workers<span class="op">=</span><span class="dv">2</span>) <span class="im">as</span> executor:</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        <span class="bu">list</span>(executor.<span class="bu">map</span>(tache_cpu, [<span class="dv">1</span>, <span class="dv">2</span>]))</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"CPU Multi-threads (2 fils) : </span><span class="sc">{</span>time<span class="sc">.</span>perf_counter() <span class="op">-</span> t0<span class="sc">:.2f}</span><span class="ss"> s"</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Exécutez ce script dans votre terminal :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> tests/test_threads_choc.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="analyse-du-résultat-le-paradoxe-python" class="level3">
+<h3 class="anchored" data-anchor-id="analyse-du-résultat-le-paradoxe-python">Analyse du Résultat (Le Paradoxe Python) :</h3>
+<ul>
+<li>Pour les tâches <strong>I/O-Bound</strong>, le multi-threading divise le temps par 2 (de 2.0 s à 1.0 s) : pendant que le fil 1 attend, le fil 2 avance.</li>
+<li>Pour les tâches <strong>CPU-Bound</strong>, le multi-threading <strong>n’accélère rien du tout</strong> (le temps est souvent légèrement <em>plus long</em> qu’en séquentiel !).</li>
+</ul>
+<blockquote class="blockquote">
+<p><em>Transition : Pourquoi les threads sont-ils incapables d’accélérer un calcul mathématique en Python ? Pour le comprendre, nous devons examiner le cœur de CPython : le verrou du GIL.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+</section>
+<section id="partie-2-le-gil-de-python-le-paysage-des-outils-25-min" class="level1">
+<h1>Partie 2 : Le GIL de Python &amp; Le Paysage des Outils (25 min)</h1>
+<hr>
+<section id="quest-ce-que-le-gil-global-interpreter-lock" class="level2">
+<h2 class="anchored" data-anchor-id="quest-ce-que-le-gil-global-interpreter-lock">2.1 Qu’est-ce que le GIL (<em>Global Interpreter Lock</em>) ?</h2>
+<p>Python (dans son implémentation officielle CPython, écrite en C) gère sa mémoire automatiquement grâce au <strong>comptage de références</strong> (<em>reference counting</em>) :</p>
+<ul>
+<li>Chaque objet en mémoire possède un compteur interne (<code>ob_refcnt</code>).</li>
+<li>Quand vous assignez une variable (<code>b = a</code>), le compteur s’incrémente. Quand une variable est supprimée, il se décrémente. Dès qu’il atteint 0, la mémoire est libérée.</li>
+</ul>
+<p><strong>Le Problème sans verrou :</strong><br>
+Si deux threads s’exécutaient simultanément sur deux cœurs différents, ils pourraient modifier le compteur du même objet au même instant, provoquant des corruptions mémoires destructrices ou des plantages du logiciel.</p>
+<p><strong>La Solution Historique de Python :</strong><br>
+Pour protéger ce compteur, CPython impose un verrou unique mondial : le <strong>GIL (<em>Global Interpreter Lock</em>)</strong>. &gt; <strong>Règle absolue :</strong> Pour exécuter du bytecode Python, un thread <strong>doit détenir le GIL</strong>. Comme il n’existe qu’un seul GIL par processus, <strong>un seul thread Python peut s’exécuter à la fois</strong>, quel que soit le nombre de cœurs physiques de votre ordinateur !</p>
+<section id="pourquoi-les-autres-langages-c-rust-java-go-ont-ils-du-vrai-multi-threading" class="level3">
+<h3 class="anchored" data-anchor-id="pourquoi-les-autres-langages-c-rust-java-go-ont-ils-du-vrai-multi-threading">Pourquoi les autres langages (C++, Rust, Java, Go) ont-ils du vrai multi-threading ?</h3>
+<ul>
+<li><strong>En C / C++ :</strong> Pas de ramasse-miettes automatique. Les threads accèdent directement à la mémoire sans verrou central. Si deux threads écrivent sur la même variable, le langage ne vérifie rien : c’est un comportement indéfini (<em>Data Race</em>), et c’est au développeur de poser des verrous locaux fins (<code>std::mutex</code> ou opérations atomiques).</li>
+<li><strong>En Java / Go / C# :</strong> Le ramasse-miettes (<em>Garbage Collector</em>) a été conçu dès l’origine pour être multi-threadé (les threads de calcul coopèrent avec les threads de nettoyage via des points de contrôle sans verrou global unique).</li>
+<li><strong>En Rust :</strong> Le compilateur prouve mathématiquement à la compilation l’absence de conflit mémoire grâce au système d’appartenance (<em>ownership</em>). Deux threads ne peuvent pas muter la même donnée sans verrou explicite (<code>Arc&lt;Mutex&lt;T&gt;&gt;</code>).</li>
+<li><strong>Pourquoi Python n’a-t-il pas fait cela ?</strong> En 1991, Guido van Rossum a privilégié la simplicité et la performance maximale du code mono-thread. Poser des milliers de verrous individuels aurait ralenti le code mono-thread de 40 %. <em>(Note : Python 3.13 a introduit une version expérimentale “free-threaded” sans GIL, mais son adoption industrielle prendra plusieurs années).</em></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="comment-contourner-le-gil-le-multi-processus" class="level2">
+<h2 class="anchored" data-anchor-id="comment-contourner-le-gil-le-multi-processus">2.2 Comment Contourner le GIL : Le Multi-Processus</h2>
+<p>Pour faire du calcul intensif en Python pur, la seule solution consiste à <strong>bypasser le GIL en créant plusieurs processus indépendants</strong> (<code>concurrent.futures.ProcessPoolExecutor</code> ou <code>joblib.Parallel</code>).</p>
+<ul>
+<li>Chaque processus possède son propre interpréteur Python.</li>
+<li>Chaque processus possède <strong>son propre GIL</strong>.</li>
+<li>Chaque processus peut donc saturer à 100 % un cœur physique différent.</li>
+</ul>
+<section id="pourquoi-un-transfert-sérialisé-pickle-alors-quon-est-sur-la-même-ram" class="level3">
+<h3 class="anchored" data-anchor-id="pourquoi-un-transfert-sérialisé-pickle-alors-quon-est-sur-la-même-ram">Pourquoi un transfert sérialisé (<code>pickle</code>) alors qu’on est sur la même RAM ?</h3>
+<p>Physiquement, tous les processus partagent les mêmes barrettes de RAM. Mais <strong>logiquement</strong>, le système d’exploitation attribue à chaque processus une <strong>table de mémoire virtuelle étanche</strong>.</p>
+<ul>
+<li>Le pointeur mémoire <code>0x7ffe</code> du processus 1 n’a aucun sens pour le processus 2.</li>
+<li>Si le processus 2 tentait de lire la mémoire du processus 1, le processeur et le noyau Linux lèveraient immédiatement un <strong>Segmentation Fault (<code>SIGSEGV</code>)</strong> pour empêcher qu’un bug ou un virus n’espionne la mémoire voisine.</li>
+<li><strong>Conséquence :</strong> Pour échanger des données, le processus père doit transformer l’objet en octets neutres (<strong>sérialisation</strong> avec <code>pickle.dumps()</code>), les injecter dans un canal OS (<em>pipe</em>), et le worker reconstruit l’objet dans sa propre mémoire (<strong>désérialisation</strong> avec <code>pickle.loads()</code>).</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Règle Impérative : Les Fonctions Sérialisables
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Pour être exécutée par un worker via <code>ProcessPoolExecutor</code>, une fonction doit être définie <strong>au niveau supérieur du module</strong> (<em>top-level</em>). Une fonction imbriquée ou une fonction <code>lambda</code> anonyme ne peut pas être sérialisée par <code>pickle</code> et lèvera une <code>PicklingError</code>.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="clarification-fondamentale-openmp-vs-multiprocessing-vs-mpi" class="level2">
+<h2 class="anchored" data-anchor-id="clarification-fondamentale-openmp-vs-multiprocessing-vs-mpi">2.3 Clarification Fondamentale : OpenMP vs <code>multiprocessing</code> vs MPI</h2>
+<p>Dans les offres d’emploi, en data science, calcul scientifique et en ingénierie numérique, vous rencontrerez frequemment trois outils pour le parallélisme:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Outil / Framework</th>
+<th style="text-align: left;">Langages cibles</th>
+<th style="text-align: left;">Modèle Mémoire</th>
+<th style="text-align: left;">Échelle Matérielle</th>
+<th style="text-align: left;">Comment ça fonctionne concrètement ?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>OpenMP</strong></td>
+<td style="text-align: left;">C, C++, Fortran</td>
+<td style="text-align: left;"><strong>Mémoire partagée</strong></td>
+<td style="text-align: left;"><strong>Une seule machine</strong> (plusieurs cœurs d’un processeur)</td>
+<td style="text-align: left;"><strong>Multi-threading natif.</strong> Tous les cœurs lisent et écrivent directement dans la même barrette de RAM sans aucune copie ni sérialisation. En Python pur, le GIL l’interdit (mais NumPy l’utilise en interne dans ses routines C/Fortran).</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong><code>multiprocessing</code> / <code>joblib</code></strong></td>
+<td style="text-align: left;">Python</td>
+<td style="text-align: left;"><strong>Mémoire isolée</strong></td>
+<td style="text-align: left;"><strong>Une seule machine</strong> (plusieurs cœurs d’un processeur)</td>
+<td style="text-align: left;"><strong>Multi-processus.</strong> Chaque cœur exécute un interpréteur Python distinct avec son propre GIL. Les données voyagent d’un cœur à l’autre sous forme de paquets d’octets sérialisés (<code>pickle</code>). Ne fonctionne pas sur un cluster de machines distinctes.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>MPI</strong> (<em>Message Passing Interface</em>)</td>
+<td style="text-align: left;">C, C++, Fortran, Python (<code>mpi4py</code>)</td>
+<td style="text-align: left;"><strong>Mémoire distribuée</strong></td>
+<td style="text-align: left;"><strong>Plusieurs machines reliées en réseau</strong> (Clusters, Supercalculateurs)</td>
+<td style="text-align: left;"><strong>Calcul distribué multi-serveurs.</strong> Chaque machine a sa propre RAM. Les nœuds de calcul s’échangent des messages explicites par câbles réseau haute vitesse (InfiniBand).</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Astuce</span>Et pour le Deep Learning sur Supercalculateur ?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Quand PyTorch entraîne un grand modèle sur plusieurs machines (<em>DistributedDataParallel</em> — DDP), il lance un processus par GPU. Mais pour communiquer entre serveurs, il n’utilise pas <code>multiprocessing</code> standard : il utilise des bibliothèques réseau distribuées comme <strong>NCCL</strong> (Nvidia) ou <strong>MPI</strong> !</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="expérience-2-valider-létanchéité-mémoire-des-processus-5-min" class="level2">
+<h2 class="anchored" data-anchor-id="expérience-2-valider-létanchéité-mémoire-des-processus-5-min">2.4 Expérience 2 : Valider l’Étanchéité Mémoire des Processus (5 min)</h2>
+<p>Créez <code>tests/test_isolation_process.py</code> pour constater qu’un processus fils ne peut pas polluer la mémoire du processus père :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/test_isolation_process.py</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> multiprocessing</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>VALEUR_GLOBALE <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> modifier_memoire():</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> VALEUR_GLOBALE</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    VALEUR_GLOBALE <span class="op">=</span> <span class="dv">999</span>  <span class="co"># Tentative de modification dans le processus fils</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"[Worker Fils] VALEUR_GLOBALE = </span><span class="sc">{</span>VALEUR_GLOBALE<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> multiprocessing.Process(target<span class="op">=</span>modifier_memoire)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    p.start()</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    p.join()  <span class="co"># Attend la fin du worker</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"[Processus Père] VALEUR_GLOBALE = </span><span class="sc">{</span>VALEUR_GLOBALE<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> VALEUR_GLOBALE <span class="op">==</span> <span class="dv">100</span>, <span class="st">"Erreur : la mémoire n'est pas isolée !"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Exécutez ce script : la valeur du père reste à 100. Les mémoires sont parfaitement étanches.</p>
+<hr>
+</section>
+</section>
+<section id="partie-3-déterminisme-et-aléa-parallèle-seedsequence-25-min" class="level1">
+<h1>Partie 3 : Déterminisme et Aléa Parallèle (<code>SeedSequence</code>) (25 min)</h1>
+<p>Dans les disciplines quantitatives (simulation stochastique, intégration Monte-Carlo, bootstrap), la reproductibilité est un impératif scientifique : nous devons pouvoir rejouer un calcul parallèle et obtenir <strong>exactement le même résultat au bit près</strong>.</p>
+<hr>
+<section id="quest-ce-quune-graine-et-le-danger-du-recouvrement-overlap" class="level2">
+<h2 class="anchored" data-anchor-id="quest-ce-quune-graine-et-le-danger-du-recouvrement-overlap">3.1 Qu’est-ce qu’une Graine et le Danger du Recouvrement (<em>Overlap</em>) ?</h2>
+<p>Un générateur de nombres pseudo-aléatoires (PRNG) n’est pas une source magique de hasard : c’est un <strong>algorithme mathématique purement déterministe</strong>.</p>
+<ul>
+<li>Il possède un état interne fini <span class="math inline">\(S\)</span>.</li>
+<li>À chaque étape, il calcule <span class="math inline">\(S_{n+1} = f(S_n)\)</span> et produit un nombre <span class="math inline">\(X_n = g(S_n)\)</span>.</li>
+<li>Comme l’état est fini, la suite de nombres produite est <strong>périodique</strong> (la période du générateur PCG64 de NumPy est de <span class="math inline">\(2^{128}\)</span> nombres).</li>
+<li>La <strong>graine (<em>seed</em>)</strong> n’est rien d’autre que l’état initial <span class="math inline">\(S_0\)</span> à partir duquel la séquence commence à être déroulée.</li>
+</ul>
+<pre class="text"><code>  Cycle complet du générateur : [ x0, x1, x2, ... , x1000, ... , x2000, ... ]
+                                  ▲                    ▲
+                                  │                    │
+                       Worker 1 (Seed A)    Worker 2 (Seed B mal choisie)
+                       Tire 1 500 valeurs   Tire 1 500 valeurs
+                       [ x0 ------------&gt; x1500 ]
+                                            [ x1000 -----------&gt; x2500 ]
+                                            ▲
+                       ZONE DE RECOUVREMENT (*OVERLAP*) : 500 TIRAGES IDENTIQUES !</code></pre>
+<section id="pourquoi-ne-pas-juste-faire-seed_worker-seed-rank-ex-42-43-44" class="level3">
+<h3 class="anchored" data-anchor-id="pourquoi-ne-pas-juste-faire-seed_worker-seed-rank-ex-42-43-44">Pourquoi ne pas juste faire <code>seed_worker = seed + rank</code> (ex: 42, 43, 44) ?</h3>
+<ol type="1">
+<li><strong>Corrélations à court terme :</strong> Des graines entières proches peuvent générer des états initiaux situés dans la même région de l’espace d’état, introduisant des dépendances statistiques néfastes.</li>
+<li><strong>Le Recouvrement (<em>Overlap</em>) :</strong> Si la graine du Worker 2 positionne son point de départ seulement <span class="math inline">\(10^5\)</span> pas après le Worker 1, dès que le Worker 1 dépasse <span class="math inline">\(10^5\)</span> tirages, <strong>les deux workers consomment exactement les mêmes nombres pseudo-aléatoires</strong>. Vos simulations ne sont plus indépendantes !</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="la-solution-moderne-np.random.seedsequence" class="level2">
+<h2 class="anchored" data-anchor-id="la-solution-moderne-np.random.seedsequence">3.2 La Solution Moderne : <code>np.random.SeedSequence</code></h2>
+<p>Depuis NumPy 1.17, la classe <strong><code>SeedSequence</code></strong> utilise un algorithme de hachage cryptographique (SplitMix64) pour dériver des graines enfants garantissant mathématiquement <strong>l’absence de recouvrement (<em>streams disjoints</em>) et l’absence de corrélation croisée (orthogonalité statistique)</strong> :</p>
+<pre class="text"><code>                        SeedSequence Racine (entropy=42)
+                                       │
+                      .spawn(4)        │ Dérivation formelle orthogonale
+             ┌──────────────┬──────────┴───────────┬──────────────┐
+             ▼              ▼                      ▼              ▼
+        Child Seed 0   Child Seed 1           Child Seed 2   Child Seed 3
+             │              │                      │              │
+        RNG Worker 0   RNG Worker 1           RNG Worker 2   RNG Worker 3
+       (indépendant)  (indépendant)          (indépendant)  (indépendant)</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Graine maîtresse fixée pour la reproductibilité globale</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>master_seed <span class="op">=</span> np.random.SeedSequence(entropy<span class="op">=</span><span class="dv">12345</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Dérivation de 4 graines enfants indépendantes</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>child_seeds <span class="op">=</span> master_seed.spawn(<span class="dv">4</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Chaque worker initialise son propre générateur local isolé</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>rng_0 <span class="op">=</span> np.random.default_rng(child_seeds[<span class="dv">0</span>])</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>rng_1 <span class="op">=</span> np.random.default_rng(child_seeds[<span class="dv">1</span>])</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="exercice-3-validation-de-lorthogonalité-des-générateurs-10-min" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-3-validation-de-lorthogonalité-des-générateurs-10-min">3.3 Exercice 3 : Validation de l’Orthogonalité des Générateurs (10 min)</h2>
+<p>Créez le script temporaire <code>tests/verifier_rng.py</code> pour valider l’absence de corrélation :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tests/verifier_rng.py</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>master_ss <span class="op">=</span> np.random.SeedSequence(<span class="dv">2026</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>s1, s2 <span class="op">=</span> master_ss.spawn(<span class="dv">2</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>rng1 <span class="op">=</span> np.random.default_rng(s1)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>rng2 <span class="op">=</span> np.random.default_rng(s2)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>echantillons_1 <span class="op">=</span> rng1.random(<span class="dv">100_000</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>echantillons_2 <span class="op">=</span> rng2.random(<span class="dv">100_000</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="kw">not</span> np.array_equal(echantillons_1, echantillons_2), <span class="st">"Erreur : flux identiques !"</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>correlation <span class="op">=</span> np.corrcoef(echantillons_1, echantillons_2)[<span class="dv">0</span>, <span class="dv">1</span>]</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">abs</span>(correlation) <span class="op">&lt;</span> <span class="fl">0.01</span>, <span class="ss">f"Erreur : corrélation anormale (</span><span class="sc">{</span>correlation<span class="sc">}</span><span class="ss">)"</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Indépendance stochastique validée avec succès (Corrélation r = </span><span class="sc">{</span>correlation<span class="sc">:.5f}</span><span class="ss">)."</span>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Exécutez et nettoyez :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> tests/verifier_rng.py</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> tests/verifier_rng.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote class="blockquote">
+<p><em>Transition : Nous avons le modèle matériel, la compréhension des processus et la maîtrise de l’aléa. Mettons ces concepts en pratique sur notre fil rouge Z-Arena : la simulation des Jeux de Cell.</em></p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="partie-4-le-fil-rouge-z-arena-moteur-multi-cœurs-et-chunking-40-min" class="level1">
+<h1>Partie 4 : Le Fil Rouge Z-Arena — Moteur Multi-Cœurs et Chunking (40 min)</h1>
+<p>Dans nos séances précédentes, nous avons conçu des combattants objets héritant de <code>ArenaFighter</code> (<code>BaseWarrior</code>, <code>SaiyanWarrior</code>, <code>Cyborg</code>). Ces combattants possèdent un état interne mutable (<code>self.hp</code>) qui décroît lors d’un duel.</p>
+<p>Dans l’arène des <strong>Jeux de Cell</strong>, nous voulons estimer par Monte-Carlo le taux de victoire de <strong>Son Gohan SSJ2</strong> face à <strong>Perfect Cell</strong> sur <span class="math inline">\(N = 100\,000\)</span> duels.</p>
+<hr>
+<section id="ajouter-la-méthode-reset_stats-dans-arenafighter" class="level2">
+<h2 class="anchored" data-anchor-id="ajouter-la-méthode-reset_stats-dans-arenafighter">Ajouter la Méthode <code>reset_stats()</code> dans <code>ArenaFighter</code></h2>
+<p>Pour pouvoir réutiliser une instance de combattant d’un duel à l’autre sans recréer d’objet à chaque fois, nous devons pouvoir restaurer ses points de vie et son ki.</p>
+<p>Ouvrez <code>src/zarena/warriors.py</code> et ajoutez la méthode concrète dans <code>ArenaFighter</code> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ArenaFighter(ABC):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ... (code existant) ...</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset_stats(<span class="va">self</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Restaure les points de vie et le ki (pour BaseWarrior) du combattant à leurs valeurs maximales."""</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># A ecrire</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="le-combat-stochastique-élémentaire-srczarenabattle.py" class="level2">
+<h2 class="anchored" data-anchor-id="le-combat-stochastique-élémentaire-srczarenabattle.py">Le Combat Stochastique Élémentaire (<code>src/zarena/battle.py</code>)</h2>
+<section id="problématique" class="level3">
+<h3 class="anchored" data-anchor-id="problématique">Problématique</h3>
+<p>Avant de paralléliser, nous devons disposer d’une fonction rapide exécutant un duel stochastique unique entre deux entités <code>ArenaFighter</code>.</p>
+</section>
+<section id="cahier-des-charges" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges">Cahier des Charges</h3>
+<p>Dans <code>src/zarena/battle.py</code>, implémentez la fonction <code>simulate_duel_step(f1: ArenaFighter, f2: ArenaFighter, rng: np.random.Generator) -&gt; int</code> :</p>
+<ol type="1">
+<li>Réinitialise la santé des deux combattants via <code>f1.reset_stats()</code> et <code>f2.reset_stats()</code>.</li>
+<li>Boucle tant que <code>not f1.is_defeated and not f2.is_defeated</code> :</li>
+<li><ul>
+<li><strong>Tour de f1 :</strong> Calcule les dégâts avec critique à 10 % (multiplicateur <span class="math inline">\(\times 1.5\)</span> si <code>rng.random() &lt; 0.10</code>, sinon <span class="math inline">\(1.0\)</span>) et facteur d’aléa <span class="math inline">\(U \sim \mathcal{U}([0.85, 1.15])\)</span> via <code>rng.uniform(0.85, 1.15)</code>. Les dégâts valent : <span class="math display">\[\text{dmg}_1 = \max(1, \lfloor \text{f1.execute\_attack()} \times U \times \text{critique} \rfloor)\]</span> Si <code>f2</code> est vaincu, la fonction s’interrompt immédiatement et renvoie <code>1</code>.</li>
+<li><strong>Riposte de f2 :</strong> Applique la même formule d’aléa pour la frappe de <code>f2</code> sur <code>f1</code>. Si <code>f1</code> est vaincu, renvoie <code>2</code>.</li>
+</ul></li>
+<li>Renvoie <code>1</code> si <code>f1</code> est en vie, et <code>2</code> sinon.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="le-worker-parallèle-et-le-découpage-en-lots-chunking" class="level2">
+<h2 class="anchored" data-anchor-id="le-worker-parallèle-et-le-découpage-en-lots-chunking">4.3 Le Worker Parallèle et le Découpage en Lots (<em>Chunking</em>)</h2>
+<section id="problématique-1" class="level3">
+<h3 class="anchored" data-anchor-id="problématique-1">Problématique</h3>
+<p>Si l’on envoyait <span class="math inline">\(100\,000\)</span> duels un par un aux cœurs de calcul, le système d’exploitation passerait son temps à sérialiser avec <code>pickle</code> <span class="math inline">\(100\,000\)</span> messages individuels à travers les tuyaux IPC. Le coût de communication détruirait toute performance.</p>
+<p><strong>La Solution : Le Chunking.</strong><br>
+On découpe les <span class="math inline">\(N\)</span> simulations en <span class="math inline">\(P\)</span> gros lots (<em>chunks</em>). Chaque worker reçoit la mission d’exécuter son lot localement en mémoire RAM et ne renvoie qu’un unique rapport final au processus père : le nombre de victoires obtenues.</p>
+</section>
+<section id="cahier-des-charges-1" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges-1">Cahier des Charges</h3>
+<p>Dans <code>src/zarena/parallel_engine.py</code>, implémentez la fonction exécutée par chaque processus travailleur : <code>def _monte_carlo_worker(batch_size: int, child_seed: np.random.SeedSequence, f1: ArenaFighter, f2: ArenaFighter) -&gt; int:</code></p>
+<ol type="1">
+<li>Instancie son propre générateur stochastique local isolé : <code>rng = np.random.default_rng(child_seed)</code>.</li>
+<li>Initialise un compteur de victoires locales <code>f1_wins = 0</code>.</li>
+<li>Exécute <code>batch_size</code> combats.</li>
+<li>Incrémente <code>f1_wins</code> dès que le vainqueur renvoyé vaut <code>1</code>.</li>
+<li>Retourne <code>f1_wins</code>.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="lorchestrateur-multi-cœurs-double-implémentation-processpoolexecutor-joblib" class="level2">
+<h2 class="anchored" data-anchor-id="lorchestrateur-multi-cœurs-double-implémentation-processpoolexecutor-joblib">4.4 L’Orchestrateur Multi-Cœurs — Double Implémentation (<em>ProcessPoolExecutor</em> &amp; <em>joblib</em>)</h2>
+<p>Pour orchestrer les workers sur les cœurs de la machine, deux bibliothèques majeures coexistent en Python :</p>
+<ol type="1">
+<li><strong><code>concurrent.futures.ProcessPoolExecutor</code> :</strong> Le standard natif officiel de la bibliothèque standard Python.</li>
+<li><strong><code>joblib.Parallel</code> :</strong> La bibliothèque tierce de référence dans l’écosystème Data Science et Machine Learning (utilisée par <code>scikit-learn</code> pour tous les paramètres <code>n_jobs</code>).</li>
+</ol>
+<hr>
+<section id="a.-comprendre-la-syntaxe-de-processpoolexecutor-standard-library" class="level3">
+<h3 class="anchored" data-anchor-id="a.-comprendre-la-syntaxe-de-processpoolexecutor-standard-library">A. Comprendre la Syntaxe de <code>ProcessPoolExecutor</code> (Standard Library)</h3>
+<p>Le module standard <code>concurrent.futures</code> utilise un gestionnaire de contexte et des objets <code>Future</code> :</p>
+<ol type="1">
+<li><strong>Instanciation du pool :</strong><br>
+<code>with ProcessPoolExecutor(max_workers=P) as executor:</code><br>
+Démarre <span class="math inline">\(P\)</span> processus Python travailleurs en arrière-plan.</li>
+<li><strong>Soumission asynchrone non-bloquante (<code>executor.submit</code>) :</strong><br>
+<code>future = executor.submit(fonction, arg1, arg2, ...)</code><br>
+Cette instruction est <strong>instantanée</strong>. Elle n’attend pas que le calcul soit fini : elle dépose la tâche dans la file du worker et renvoie immédiatement un objet <code>Future</code> (un « ticket » ou une promesse de résultat futur).</li>
+<li><strong>Barrière de synchronisation (<code>future.result()</code>) :</strong><br>
+<code>resultat = future.result()</code><br>
+Cet appel est <strong>bloquant</strong>. Le processus père se met en pause jusqu’à ce que le worker ait terminé son calcul, puis récupère la valeur de retour désérialisée.</li>
+</ol>
+<hr>
+</section>
+<section id="b.-comprendre-la-syntaxe-de-joblib.parallel-écosystème-data-science" class="level3">
+<h3 class="anchored" data-anchor-id="b.-comprendre-la-syntaxe-de-joblib.parallel-écosystème-data-science">B. Comprendre la Syntaxe de <code>joblib.Parallel</code> (Écosystème Data Science)</h3>
+<p><code>joblib</code> propose une syntaxe en compréhension de liste très expressive grâce au décorateur <code>delayed</code> :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> joblib <span class="im">import</span> Parallel, delayed</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>resultats <span class="op">=</span> Parallel(n_jobs<span class="op">=</span>P, backend<span class="op">=</span><span class="st">"loky"</span>)(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    delayed(fonction)(arg1, arg2) <span class="cf">for</span> (arg1, arg2) <span class="kw">in</span> liste_arguments</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><strong>Le décorateur <code>delayed(fonction)(args)</code> :</strong> Ne lance aucun calcul ! Il capture la fonction et ses arguments sous forme d’un tuple paresseux <code>(fonction, args, kwargs)</code>.</li>
+<li><strong>L’exécuteur <code>Parallel(n_jobs=P, backend="loky")</code> :</strong> Prend la liste des appels différés, les répartit automatiquement sur les <span class="math inline">\(P\)</span> processus de son backend optimisé (<code>loky</code>), attend la fin des calculs et renvoie directement la liste Python des résultats.</li>
+</ul>
+<hr>
+</section>
+<section id="c.-cahier-des-charges-de-run_parallel_monte_carlo" class="level3">
+<h3 class="anchored" data-anchor-id="c.-cahier-des-charges-de-run_parallel_monte_carlo">C. Cahier des Charges de <code>run_parallel_monte_carlo</code></h3>
+<p>Dans <code>src/zarena/parallel_engine.py</code>, implémentez la fonction publique : <code>def run_parallel_monte_carlo(f1: ArenaFighter, f2: ArenaFighter, n_simulations: int = 50000, n_jobs: int = -1, seed: int | None = None, backend: str = "executor") -&gt; dict[str, Any]:</code></p>
+<ol type="1">
+<li><p><strong>Contrôles d’entrée :</strong></p>
+<ul>
+<li>Si <code>n_simulations &lt;= 0</code>, lever une <code>ValueError</code>.</li>
+<li>Si <code>backend not in ("executor", "joblib")</code>, lever une <code>ValueError</code>.</li>
+</ul></li>
+<li><p><strong>Dimensionnement des cœurs :</strong></p>
+<ul>
+<li>Récupère le nombre maximal de processeurs via <code>os.cpu_count() or 1</code>.</li>
+<li>Si <code>n_jobs == -1</code> ou <code>n_jobs &gt; max_cpus</code>, allouer <code>workers</code> au nombre maximal de cpus. Sinon, <code>workers = max(1, n_jobs)</code>.</li>
+</ul></li>
+<li><p><strong>Partitionnement en lots (<em>Chunking</em>) :</strong></p>
+<ul>
+<li>Calcule <code>base_chunk = n_simulations // workers</code> et le reste <code>remainder = n_simulations % workers</code>.</li>
+<li>Construit la liste <code>chunks</code> contenant la taille exacte de chaque lot (en distribuant le reste <span class="math inline">\(+1\)</span> sur les premiers workers).</li>
+</ul></li>
+<li><p><strong>Graines orthogonales :</strong></p>
+<ul>
+<li>Instancie <code>master_ss = np.random.SeedSequence(seed)</code>.</li>
+<li>Dérive les graines filles : <code>child_seeds = master_ss.spawn(actual_workers)</code>.</li>
+</ul></li>
+<li><p><strong>Dispatching selon l’argument <code>backend</code> :</strong></p>
+<ul>
+<li><strong>Branche <code>"executor"</code> :</strong> Utilise <code>ProcessPoolExecutor(max_workers=actual_workers)</code>. Soumet les <span class="math inline">\(P\)</span> workers via <code>executor.submit(...)</code>. Somme les résultats via <code>[f.result() for f in futures]</code>.</li>
+<li><strong>Branche <code>"joblib"</code> :</strong> Vérifie que <code>joblib</code> est disponible (sinon lever <code>ImportError</code>). Exécute via <code>Parallel(n_jobs=actual_workers, backend="loky")(delayed(_monte_carlo_worker)(...) for i in range(actual_workers))</code> et somme la liste retournée.</li>
+</ul></li>
+<li><p><strong>Synthèse Statistique (Théorème Central Limite) :</strong></p>
+<ul>
+<li><span class="math inline">\(\hat{p} = \frac{  \text{total\_victoires}}{n_{\text{simulations}}}\)</span>.</li>
+<li>Marge d’erreur à 95 % : <span class="math inline">\(e = 1.96 \sqrt{\frac{\hat{p}(1 - \hat{p})}{n_{\text{simulations}}}}\)</span>.</li>
+<li><span class="math inline">\(\text{IC}_{95} = (\max(0.0, \hat{p} - e), \min(1.0, \hat{p} + e))\)</span>.</li>
+<li>Retourne un dictionnaire contenant : <code>"winrate"</code>, <code>"ci_95"</code>, <code>"n_simulations"</code>, <code>"workers_used"</code>, <code>"backend"</code>.</li>
+</ul></li>
+</ol>
+</section>
+<section id="règle-dor-absolue-sous-windows-et-macos-if-__name__-__main__" class="level3 callout-danger">
+<h3 class="anchored" data-anchor-id="règle-dor-absolue-sous-windows-et-macos-if-__name__-__main__">Règle d’or absolue sous Windows et macOS : <code>if __name__ == "__main__":</code></h3>
+<p>Sur certains systèmes d’exploitation, les processus workers démarrent en réimportant tout le script Python de haut en bas. Si votre code d’appel n’est pas protégé par <code>if __name__ == "__main__":</code>, chaque worker recrée un sous-pool de workers à l’infini, provoquant un plantage violent (<em>fork bomb</em>) de votre machine.</p>
+</section>
+</section>
+</section>
+<section id="partie-5-métrologie-numérique-speedup-amdahl-seuil-de-rentabilité-20-min" class="level1">
+<h1>Partie 5 : Métrologie Numérique — Speedup, Amdahl &amp; Seuil de Rentabilité (20 min)</h1>
+<p>Pour les étudiants d’analyse numérique (MANU) comme pour les data scientists, un calcul parallèle s’évalue à l’aide d’indicateurs de performance universels.</p>
+<hr>
+<section id="les-définitions-formelles-de-performance" class="level2">
+<h2 class="anchored" data-anchor-id="les-définitions-formelles-de-performance">5.1 Les Définitions Formelles de Performance</h2>
+<p>Soit <span class="math inline">\(T_1\)</span> le temps d’exécution mesuré sur un cœur unique (séquentiel), et <span class="math inline">\(T_P\)</span> le temps d’exécution sur <span class="math inline">\(P\)</span> cœurs physiques identiques :</p>
+<ul>
+<li><strong>L’Accélération (<em>Speedup</em>) :</strong> <span class="math display">\[S(P) = \frac{T_1}{T_P}\]</span> Dans un monde théorique sans frottement, <span class="math inline">\(S(P) = P\)</span> (accélération linéaire parfaite).</li>
+<li><strong>L’Efficacité Parallèle :</strong> <span class="math display">\[E(P) = \frac{S(P)}{P} = \frac{T_1}{P \times T_P} \le 1.0 \quad (\text{ou } 100\%)\]</span> Elle mesure la part de puissance processeur convertie en calcul utile. Si <span class="math inline">\(E(P) = 80\%\)</span>, <span class="math inline">\(20\%\)</span> du temps est gaspillé en communication et en synchronisation.</li>
+</ul>
+<hr>
+</section>
+<section id="la-loi-damdahl-1967" class="level2">
+<h2 class="anchored" data-anchor-id="la-loi-damdahl-1967">5.2 La Loi d’Amdahl (1967)</h2>
+<p>Pourquoi l’accélération <span class="math inline">\(S(P)\)</span> n’atteint-elle jamais <span class="math inline">\(P\)</span> ?<br>
+Tout programme comporte une fraction <span class="math inline">\(s \in [0, 1]\)</span> d’opérations <strong>strictement séquentielles</strong> (initialisation de Python, création des processus, découpage des graines, agrégation des résultats) et une fraction parallélisable <span class="math inline">\(p = 1 - s\)</span>.</p>
+<p>Le temps sur <span class="math inline">\(P\)</span> processeurs est minoré par : <span class="math display">\[T_P = s T_1 + \frac{(1 - s) T_1}{P}\]</span></p>
+<p>Ce qui établit la borne théorique indépassable de l’<strong>Accélération d’Amdahl</strong> : <span class="math display">\[S(P) = \frac{1}{s + \frac{1 - s}{P}} \xrightarrow[P \to \infty]{} \frac{1}{s}\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exemple Concret d’Ingénierie
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Si seulement <strong>5 %</strong> de votre code est séquentiel (<span class="math inline">\(s = 0.05\)</span>), même avec un supercalculateur doté de 1 000 cœurs, votre accélération maximale ne pourra <strong>jamais dépasser 20</strong> : <span class="math display">\[S_{\max} = \frac{1}{0.05} = 20\]</span> D’où l’importance cruciale de minimiser le travail effectué dans le processus père avant et après le calcul !</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="exercice-4-benchmark-multi-échelles-et-comparaison-des-backends" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-4-benchmark-multi-échelles-et-comparaison-des-backends">5.4 Exercice 4 : Benchmark Multi-Échelles et Comparaison des Backends</h2>
+<section id="cahier-des-charges-2" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges-2">Cahier des Charges</h3>
+<p>Dans <code>scripts/benchmark_scaling.py</code>, rédigez un protocole de métrologie qui :</p>
+<ol type="1">
+<li><p>Instancie Gohan SSJ2 (<code>SaiyanWarrior("Gohan SSJ2", hp=150, ki=100, attack_power=65)</code>) et Cell (<code>Cyborg("Perfect Cell", hp=160, power=60, shield=10)</code>).</p></li>
+<li><p>Itère sur quatre échelles de simulations : <span class="math inline">\(N \in [10\,000, 100\,000, 1\,000\,000, 10\,000\,000]\)</span>.</p></li>
+<li><p>Mesure au millième de seconde près via <code>time.perf_counter()</code> :</p>
+<ul>
+<li>Le temps séquentiel <span class="math inline">\(T_{\text{seq}}\)</span> (<code>n_jobs=1</code>).</li>
+<li>Le temps multi-processus <code>ProcessPoolExecutor</code> <span class="math inline">\(T_{\text{exec}}\)</span>.</li>
+<li>Le temps multi-processus <code>joblib</code> <span class="math inline">\(T_{\text{joblib}}\)</span> .</li>
+</ul></li>
+<li><p>Calcule et affiche le facteur d’accélération <span class="math inline">\(S = T_{\text{seq}} / T_{\text{exec}}\)</span> dans chaque cas.</p></li>
+</ol>
+<p>Exécutez ce script :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> scripts/benchmark_scaling.py</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Constatez de vos propres yeux la décélération à <span class="math inline">\(N=10\,000\)</span> et l’accélération nette dès que <span class="math inline">\(N \ge 10^5\)</span>.</em></p>
+<hr>
+</section>
+</section>
+<section id="le-seuil-de-rentabilité-break-even-point-pourquoi-ralentit-on-pour-n-10000" class="level2">
+<h2 class="anchored" data-anchor-id="le-seuil-de-rentabilité-break-even-point-pourquoi-ralentit-on-pour-n-10000">5.3 Le Seuil de Rentabilité (<em>Break-Even Point</em>) : Pourquoi ralentit-on pour <span class="math inline">\(N = 10\,000\)</span> ?</h2>
+<p>Un duel stochastique élémentaire dans <code>simulate_duel_step</code> prend environ <strong><span class="math inline">\(10\ \mu\text{s}\)</span></strong> de temps CPU.</p>
+<ul>
+<li><strong>À <span class="math inline">\(N = 10\,000\)</span> duels :</strong><br>
+Le calcul séquentiel dure seulement <span class="math inline">\(T_1 \approx 10\,000 \times 10\ \mu\text{s} = \mathbf{0{,}10\text{ s}}\)</span> (<span class="math inline">\(100\text{ ms}\)</span>).<br>
+Or, créer le pool de processus, sérialiser les données d’entrée via <code>pickle</code> et synchroniser les retours impose un surcoût incompressible (<em>overhead</em>) d’environ <strong><span class="math inline">\(150\text{ ms}\)</span></strong>.<br>
+Le temps parallèle vaut alors : <span class="math display">\[T_8 \approx 0{,}15\text{ s} + \frac{0{,}10\text{ s}}{8} = \mathbf{0{,}16\text{ s}} &gt; T_1\]</span> Le speedup est de <span class="math inline">\(S = 0{,}10 / 0{,}16 = \mathbf{0{,}6}\)</span> : <strong>le parallélisme ralentit le calcul de 40 % !</strong></li>
+<li><strong>À <span class="math inline">\(N = 1\,000\,000\)</span> duels (<span class="math inline">\(10^6\)</span>) :</strong><br>
+Le calcul séquentiel dure <span class="math inline">\(T_1 \approx 10\text{ s}\)</span>.<br>
+L’overhead de <span class="math inline">\(0{,}15\text{ s}\)</span> devient alors totalement négligeable devant le temps de calcul : <span class="math display">\[T_8 \approx 0{,}15\text{ s} + \frac{10\text{ s}}{8} \approx \mathbf{1{,}4\text{ s}} \implies S(8) \approx \mathbf{7{,}1}\]</span></li>
+<li><strong>À <span class="math inline">\(N = 10\,000\,000\)</span> duels (<span class="math inline">\(10^7\)</span>) :</strong><br>
+Le temps séquentiel dure <span class="math inline">\(T_1 \approx 100\text{ s}\)</span> et le temps parallèle tombe à <span class="math inline">\(\approx 13\text{ s}\)</span> (speedup <span class="math inline">\(\approx 6\)</span> à <span class="math inline">\(8\)</span>).</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="partie-6-validation-industrielle-avec-pytest-15-min" class="level1">
+<h1>Partie 6 : Validation Industrielle avec <code>pytest</code> (15 min)</h1>
+<section id="cahier-des-charges-de-la-suite-de-tests-teststest_parallel_engine.py" class="level3">
+<h3 class="anchored" data-anchor-id="cahier-des-charges-de-la-suite-de-tests-teststest_parallel_engine.py">Cahier des Charges de la Suite de Tests (<code>tests/test_parallel_engine.py</code>)</h3>
+<p>Rédigez la suite de tests automatisés validant la robustesse du moteur distribué :</p>
+<ol type="1">
+<li><strong><code>test_parallel_determinism_with_seed(match_fighters)</code> :</strong><br>
+Vérifie que deux simulations multi-cœurs appelées avec la même graine <code>seed=123</code> renvoient <strong>le même winrate et le même intervalle de confiance</strong>.</li>
+<li><strong><code>test_confidence_interval_mathematical_bounds(match_fighters)</code> :</strong><br>
+Vérifie les invariants stochastiques : l’intervalle de confiance encadre bien la moyenne empirique (<span class="math inline">\(0 \le \text{ci\_low} \le \hat{p} \le \text{ci\_high} \le 1\)</span>).</li>
+<li><strong><code>test_backend_equivalence(match_fighters)</code> :</strong><br>
+Vérifie avec <code>pytest.approx(..., abs=1e-5)</code> que <code>ProcessPoolExecutor</code> et <code>joblib</code> produisent rigoureusement le même winrate lorsqu’ils sont initialisés avec la même graine maîtresse.</li>
+<li><strong><code>test_massive_monte_carlo_scaling(match_fighters)</code> :</strong><br>
+Étiqueté avec le marqueur <code>@pytest.mark.slow</code>, simule <span class="math inline">\(50\,000\)</span> duels et valide que la demi-largeur de l’intervalle de confiance est strictement inférieure à <span class="math inline">\(0.5\%\)</span>.</li>
+</ol>
+<p>Lancez vos tests unitaires en excluant le test lourd :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> tests/test_parallel_engine.py <span class="at">-m</span> <span class="st">"not slow"</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="devoir-maison-guidé-le-moteur-distribué-de-pyarena-jalon-3" class="level1">
+<h1>Devoir Maison Guidé : Le Moteur Distribué de PyArena (Jalon 3)</h1>
+<p><em>Ce travail est à réaliser en équipe d’ici le prochain TP sur votre dépôt officiel de projet (<code>pyarena-groupe-XX</code>). Il concrétise les attendus de la <strong>Section 6 de l’Annexe Technique</strong> et alimente le tableau de bord Streamlit.</em></p>
+<hr>
+<section id="spécification-contractuelle-de-lapi-publique" class="level2">
+<h2 class="anchored" data-anchor-id="spécification-contractuelle-de-lapi-publique">Spécification Contractuelle de l’API Publique</h2>
+<p>Dans <code>src/pyarena/simulation/monte_carlo.py</code>, vous devez exposer la fonction officielle de référence :</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_monte_carlo(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    f1: BaseFighter, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    f2: BaseFighter, </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    n_simulations: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5000</span>, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    n_jobs: <span class="bu">int</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    seed: <span class="bu">int</span> <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="bu">dict</span>[<span class="bu">str</span>, Any]:</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Exécute n_simulations duels indépendants entre f1 et f2 distribués sur plusieurs cœurs CPU.</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Paramètres :</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">        f1, f2 : Combattants engagés.</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co">        n_simulations : Nombre total d'affrontements à simuler (défaut : 10^6).</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">        n_jobs : Nombre de cœurs CPU alloués (-1 pour mobiliser tous les cœurs disponibles).</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co">        seed : Graine maître optionnelle garantissant la reproductibilité stricte du pool stochastique.</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co">        </span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co">    Retourne :</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Un dictionnaire contenant STRICTEMENT les clés suivantes :</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">        - "winrate"      : float compris dans [0.0, 1.0], estimation du taux de victoire de f1.</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">        - "ci_95"        : tuple[float, float], intervalle de confiance à 95 % : (borne_inf, borne_sup).</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co">        - "turns_mean"   : float, durée moyenne des combats (nombre de tours).</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co">        - "turns_median" : float, médiane empirique de la durée des combats.</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="co">        - "turns_std"    : float, écart-type de la durée des combats (avec ddof=1).</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="livrables-et-workflow-git" class="level2">
+<h2 class="anchored" data-anchor-id="livrables-et-workflow-git">Livrables et Workflow Git</h2>
+<ol type="1">
+<li><p><strong>Branche Git :</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch dev</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull origin dev</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> switch <span class="at">-c</span> feat/monte-carlo-engine</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p><strong>Implémentation &amp; Tests :</strong></p>
+<ul>
+<li>Implémentez <code>src/pyarena/simulation/monte_carlo.py</code> via <code>ProcessPoolExecutor</code> ou <code>joblib.Parallel</code>.</li>
+<li>Rédigez la suite de tests nécessaire (déterminisme avec seed, invariants géométriques, conformité des 5 clés contractuelles du dictionnaire, et test de scaling marqué <code>@pytest.mark.slow</code>, …).</li>
+</ul></li>
+<li><p><strong>Audit de Qualité :</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span><span class="op">=</span>pyarena.simulation <span class="at">--cov-report</span><span class="op">=</span>term-missing</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ruff</span> check src/ tests/</span></code></pre></div><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p><strong>Pull Request :</strong> Poussez votre branche sur GitHub et faites approuver la Pull Request ciblant <code>dev</code> par un coéquipier.</p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copié");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copié");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
