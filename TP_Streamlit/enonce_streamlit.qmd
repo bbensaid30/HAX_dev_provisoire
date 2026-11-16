@@ -1,0 +1,1348 @@
+---
+title: "Cours-TP : Interfaces Décisionnelles Interactives & Cartographie Web"
+subtitle: "Architecture Réactive, Visualisation Dynamique et SIG avec Streamlit, Plotly et Folium (3h00)"
+author: "Bensaid Bilel"
+date: "20 Novembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire de la séance"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Démarche Pédagogique
+
+Jusqu'à présent, l'ensemble de nos développements s'exécutait exclusivement dans un **terminal texte** : nos simulations de combat Z-Arena, nos estimations de Monte-Carlo parallélisées et nos chargements de données affichaient des nombres bruts dans la console.
+
+Or, dans le monde professionnel (Data Science, Recherche Opérationnelle, Ingénierie Numérique), **un modèle mathématique ou un simulateur enfermé dans un terminal n'a que peu d'impact décisionnel** :
+
+* **En Science des Données (SSD) :** Un directeur produit, un médecin ou un responsable marketing ne lancera jamais un script Python en ligne de commande. Pour qu'un modèle soit adopté, il faut lui offrir une interface graphique intuitive permettant d'explorer les données, de tester des scénarios et de visualiser les incertitudes.
+* **En Modélisation & Analyse Numérique (MANU) :** Lorsqu'on étudie un système dynamique ou une équation aux dérivées partielles, pouvoir faire varier un paramètre physique à la souris (viscosité, pas de temps, condition initiale) et observer instantanément l'évolution des courbes accélère considérablement l'analyse qualitative par rapport à la génération manuelle de dizaines de fichiers PNG statiques.
+* **Le verrou du développement Web traditionnel :** Concevoir une application web classique exige de maîtriser trois langages distincts (**HTML** pour la structure, **CSS** pour la mise en page, **JavaScript** pour l'interactivité) en plus d'un serveur backend (**FastAPI**, **Flask** ou **Django**).
+
+L'écosystème Python moderne (**Streamlit**, **Plotly**, **Folium**) lève ce verrou en permettant à un ingénieur ou un scientifique de bâtir une **application web interactive complète en pur Python**, tout en conservant une architecture logicielle rigoureuse.
+
+---
+
+## Découpage Temporel & Progression (3h00)
+
+| Phase | Durée | Thématique abordée | Modalité & Pédagogie |
+| :--- | :---: | :--- | :---: |
+| **Partie 0** | 25 min | **Architecture Web & Découplage :** Client-Serveur, `src/` vs `app/` & Mise en page | Cours & Expérience 0 (Première app) |
+| **Partie 1** | 35 min | **Le Paradigme Réactif & La Mémoire :** *Rerun*, `st.session_state` & `@st.cache_data` | Cours & Expérience 1 (Le piège du compteur) |
+| **Partie 2** | 40 min | **Visualisation Scientifique Interactive :** Syntaxe **Plotly** (`px` & `go`) & Validation | Cours & Exercice 1 (Télémétrie Z-Arena) |
+| **Partie 3** | 40 min | **Cartographie Géospatiale Web :** Tuiles, Leaflet.js & Syntaxe **Folium** | Cours & Exercice 2 (Carte des Arènes DBZ) |
+| **Partie 4** | 40 min | **Synthèse Fil Rouge :** Assemblage du Simulateur Complet Z-Arena | **Autonomie guidée** (App multi-onglets) |
+| **Synthèse** | - | **Devoir Maison Guidé (Hors séance) :** Dashboard Décisionnel `PyArena` (Jalon 4) | Projet Git en équipe |
+
+---
+
+# Partie 0 : Du Terminal au Navigateur — Architecture Web & Découplage (25 min)
+
+Avant de manipuler les widgets graphiques, comprenons ce qui se passe techniquement lorsque vous lancez une application web Python.
+
+---
+
+## 0.1 Anatomie d'une Application Web : Client vs Serveur
+
+Lorsque vous exécutez un script Python classique (`python script.py`), le programme lit vos instructions, affiche du texte dans le terminal et s'arrête.
+
+Lorsque vous lancez une application Streamlit (`streamlit run app/main.py`), vous démarrez un **serveur web local** :
+
+```text
+   ORDINATEUR DE L'UTILISATEUR (ou Serveur Cloud)
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │                                                                         │
+ │   ┌───────────────────────────────┐     Protocole HTTP / WebSocket      │
+ │   │      NAVIGATEUR WEB           │  ◄───────────────────────────────►  │
+ │   │   (Chrome, Firefox, Edge)     │     1. Envoie les clics / curseurs  │
+ │   │                               │     2. Reçoit le rendu HTML/JS      │
+ │   │   "Le Client" (Interface)     │                                     │
+ │   └───────────────────────────────┘                                     │
+ │                                                                         │
+ │                                     ┌───────────────────────────────┐   │
+ │                                     │      SERVEUR PYTHON           │   │
+ │                                     │   (Processus Streamlit)       │   │
+ │                                     │                               │   │
+ │                                     │   Exécute app/main.py         │   │
+ │                                     │   Appelle le package zarena   │   │
+ │                                     │   "Le Backend" (Calculs)      │   │
+ │                                     └───────────────────────────────┘   │
+ └─────────────────────────────────────────────────────────────────────────┘
+```
+
+* **Le Serveur (Backend Python) :** C'est le processus Python qui tourne dans votre terminal. Il écoute sur un port réseau local (par défaut `localhost:8501`), exécute vos calculs NumPy/Monte-Carlo et prépare les données à afficher.
+* **Le Client (Navigateur Web) :** C'est votre navigateur. Il ne fait aucun calcul Python : il reçoit des instructions graphiques via une connexion persistante (**WebSocket**) et dessine les boutons, les graphiques Plotly et les cartes Folium à l'écran.
+
+---
+
+## 0.2 Règle d'Architecture : Séparation Stricte `src/` vs `app/`
+
+C'est la règle d'or du génie logiciel appliquée aux interfaces : **l'interface graphique ne doit contenir aucune logique métier ni aucune formule mathématique**.
+
+```text
+tp-exercices/
+├── pyproject.toml
+├── data/
+│   └── arenas_dbz.geojson
+├── src/
+│   └── zarena/                   <── LE CŒUR MÉTIER (Indépendant de toute interface)
+│       ├── warriors.py           (Modèles POO : SaiyanWarrior, Cyborg)
+│       ├── battle.py             (Moteur de combat)
+│       ├── parallel_engine.py    (Simulateur Monte-Carlo multi-cœurs)
+│       └── io/
+│           └── loader.py         (Chargement GeoJSON & extraction coordonnées)
+└── app/                          <── LA COUCHE DE PRÉSENTATION (Streamlit)
+    ├── charts.py                 (Fonctions de création de graphiques Plotly)
+    ├── map_utils.py              (Fonctions de création de cartes Folium)
+    └── main.py                   (Point d'entrée Streamlit : widgets et mise en page)
+```
+
+### Pourquoi ce découplage est-il vital ?
+
+1. **Testabilité :** Vos tests `pytest` valident `src/zarena/` sans avoir besoin de lancer un navigateur web.
+2. **Réutilisabilité :** Si demain vous remplacez Streamlit par une API REST (`FastAPI`) ou un script en ligne de commande, votre moteur de calcul dans `src/zarena/` fonctionne sans modifier une seule ligne.
+
+---
+
+## 0.3 Installation des Nouvelles Dépendances
+
+Mettez à jour votre fichier `pyproject.toml` en ajoutant `streamlit`, `plotly`, `folium` et `streamlit-folium` dans la liste `dependencies`, puis installez-les dans votre environnement virtuel actif :
+
+Créez le dossier de l'application à la racine de votre espace de travail :
+
+```bash
+mkdir -p app
+```
+
+---
+
+## 0.4 Expérience 0 : Première Page et Structuration de l'Espace (10 min)
+
+Une interface professionnelle ne présente pas une longue colonne indigeste de texte. Streamlit fournit des conteneurs de mise en page inspirés du design web moderne :
+
+* **`st.set_page_config(...)` :** Configure le titre de l'onglet du navigateur et active le mode pleine largeur (`layout="wide"`). *Doit impérativement être la première commande Streamlit du fichier.*
+* **`st.sidebar` :** Crée un panneau latéral rétractable idéal pour regrouper tous les paramètres de contrôle (sélection des combattants, curseurs).
+* **`st.columns(n)` :** Découpe l'écran horizontalement en $n$ colonnes côte à côte.
+* **`st.tabs(["Onglet 1", "Onglet 2"])` :** Organise l'application en onglets thématiques.
+* **`st.metric(label, value, delta)` :** Affiche un indicateur clé de performance (KPI) grand format avec une flèche de variation.
+
+Créez `app/hello_app.py` et testez ces composants :
+
+```python
+# app/hello_app.py
+import streamlit as st
+
+# 1. Configuration globale de la page (toujours en premier !)
+st.set_page_config(
+    page_title="Z-Arena — Tableau de Bord",
+    layout="wide",
+)
+
+# 2. En-tête principal
+st.title("Simulateur Stochastique Z-Arena")
+st.markdown("Interface décisionnelle d'analyse des affrontements du *Cell Game*.")
+
+# 3. Panneau latéral de configuration
+with st.sidebar:
+    st.header("Paramètres du Duel")
+    n_sims = st.slider("Nombre de simulations", min_value=100, max_value=10_000, value=1_000, step=100)
+    st.info(f"Configuration prête pour {n_sims} duels.")
+
+# 4. Affichage en colonnes et indicateurs KPI
+col1, col2, col3 = st.columns(3)
+col1.metric(label="Combattant 1", value="Son Gohan SSJ2", delta="Attaque +25%")
+col2.metric(label="Combattant 2", value="Perfect Cell", delta="Bouclier 10")
+col3.metric(label="Volume Monte-Carlo", value=f"{n_sims:,} duels")
+```
+
+Lancez le serveur dans votre terminal :
+```bash
+streamlit run app/hello_app.py
+```
+*Ouvrez l'URL locale affichée (`http://localhost:8501`) et déplacez le curseur dans la barre latérale : observez la mise à jour instantanée des métriques.*
+
+> *Transition : Ce premier essai semble magique. Mais comment Streamlit parvient-il à mettre à jour l'écran dès que vous bougez un curseur ? Comprendre son moteur d'exécution est indispensable pour éviter le piège n°1 des débutants.*
+
+
+# Partie 1 : Le Paradigme Réactif & La Mémoire (35 min)
+
+---
+
+## 1.1 Le Modèle d'Exécution Réactif (*Top-to-Bottom Rerun*)
+
+Contrairement à une interface graphique classique (comme Tkinter ou Qt) où l'on attache des fonctions *callbacks* à chaque bouton, **Streamlit adopte un modèle d'exécution déclaratif et réactif** (proche de la philosophie de *React* en JavaScript) :
+
+> **À chaque fois que l'utilisateur interagit avec un widget (clic sur un bouton, déplacement d'un curseur, choix dans une liste), Streamlit réexécute l'intégralité de votre script Python de la première à la dernière ligne !**
+
+```text
+  [ Action Utilisateur : déplacement du curseur ]
+                        │
+                        ▼
+  ┌───────────────────────────────────────────┐
+  │  Streamlit relance app/main.py depuis la  │
+  │  ligne 1 jusqu'à la fin du fichier !      │
+  │                                           │
+  │  • Les variables Python locales sont      │
+  │    recalculées ou réinitialisées.         │
+  │  • La valeur du widget est mise à jour.   │
+  └─────────────────────┬─────────────────────┘
+                        │
+                        ▼
+  [ Mise à jour différentielle de l'écran ]
+```
+
+### Les Deux Conséquences Directes de ce Modèle :
+
+1. **L'amnésie des variables locales :** Une variable ordinaire `score = 0` écrite dans le script est remise à `0` à chaque clic !
+2. **Le risque de recalcul inutile :** Si vous appelez une fonction lente (`run_parallel_monte_carlo` sur $50\,000$ duels ou téléchargement réseau) directement dans le flux du script, **elle sera relancée à chaque fois que l'utilisateur clique sur n'importe quel bouton de la page** !
+
+---
+
+## 1.2 Expérience 1 : Le Piège du Compteur et `st.session_state` (15 min)
+
+Pour conserver des données en mémoire entre deux réexécutions du script (par exemple : l'historique des tours d'un combat en direct ou un compteur d'actions), Streamlit fournit un dictionnaire persistant attaché à l'onglet du navigateur de l'utilisateur : **`st.session_state`**.
+
+Créez `app/demo_state.py` pour observer la différence entre une variable classique et `st.session_state` :
+
+```python
+# app/demo_state.py
+import streamlit as st
+
+st.title("Démonstration : Variable Locale vs Session State")
+
+# --- APPROCHE 1 : VARIABLE PYTHON CLASSIQUE (ÉCHEC) ---
+compteur_naif = 0
+if st.button("Incrémenter le compteur naïf"):
+    compteur_naif += 1
+st.write(f"Compteur naïf (remis à zéro à chaque rerun) : **{compteur_naif}**")
+
+st.divider()
+
+# --- APPROCHE 2 : PERSISTANCE VIA st.session_state (SUCCÈS) ---
+# 1. Initialisation uniquement lors de la toute première visite
+if "compteur_persistant" not in st.session_state:
+    st.session_state["compteur_persistant"] = 0
+
+# 2. Modification de l'état lors du clic
+if st.button("Incrémenter le compteur persistant"):
+    st.session_state["compteur_persistant"] += 1
+
+st.write(f"Compteur persistant (conservé en mémoire) : **{st.session_state['compteur_persistant']}**")
+```
+
+Testez ce script avec `streamlit run app/demo_state.py` : cliquez plusieurs fois sur chacun des deux boutons pour constater l'amnésie de la variable locale face à la persistance de `st.session_state`.
+
+---
+
+## 1.3 La Mise en Cache Applicative : `@st.cache_data` vs `@st.cache_resource`
+
+Dans le TP sur l'I/O, nous avons implémenté un **cache disque** (`data/cache/*.json`) pour éviter de re-télécharger les données depuis l'API distante.  
+Dans une application web interactive, nous devons ajouter un **cache en mémoire vive (RAM)** pour éviter de relancer des calculs coûteux lors des réexécutions de l'interface.
+
+Streamlit propose deux décorateurs complémentaires :
+
+| Décorateur | Usage recommandé | Mécanisme interne | Exemples concrets |
+| :--- | :--- | :--- | :--- |
+| **`@st.cache_data`** | **Données et Résultats de Calcul** (DataFrames, dictionnaires, listes, résultats Monte-Carlo) | **Mémoïsation** *(technique d'optimisation consistant à stocker le résultat d'un appel de fonction pur dans un dictionnaire indexé par l'empreinte des arguments, à ne pas confondre avec « mémorisation »)*. Si la fonction est rappelée avec les mêmes arguments, Streamlit renvoie instantanément une **copie** du résultat stocké en RAM sans exécuter la fonction. | Chargement d'un CSV/GeoJSON, exécution de `run_parallel_monte_carlo(f1, f2, n_sims)`. |
+| **`@st.cache_resource`** | **Objets Partagés Non Sérialisables** (Connexions bases de données, modèles ML chargés en GPU) | **Singleton.** Conserve l'objet unique en mémoire vive et le partage directement entre tous les utilisateurs sans le copier. | Connexion SQL, modèle PyTorch/HuggingFace de 2 Go. |
+
+::: {.callout-tip}
+### Exemple d'Enrobage d'un Moteur de Calcul avec `@st.cache_data`
+```python
+@st.cache_data(show_spinner="Simulation Monte-Carlo en cours...")
+def cached_monte_carlo(f1_name: str, f2_name: str, n_sims: int, seed: int) -> dict:
+    # Cette fonction lourde ne s'exécute QUE si l'un des 4 paramètres change !
+    ...
+```
+*Note pédagogique :* Passez des paramètres simples et hachables (`int`, `str`, `float`, `tuple`) aux fonctions décorées par `@st.cache_data` afin que Streamlit calcule leur empreinte sans erreur.
+:::
+
+
+# Partie 2 : Visualisation Scientifique Interactive avec Plotly (40 min)
+
+---
+
+## 2.1 Pourquoi Plotly plutôt que Matplotlib dans une Application Web ?
+
+* **Matplotlib** produit des images matricielles statiques (`.png`). C'est l'outil idéal pour figer une figure dans un article scientifique LaTeX ou un rapport PDF. Mais sur le web, l'utilisateur ne peut ni zoomer, ni isoler une courbe, ni lire la valeur exacte d'un point au survol de la souris.
+* **Plotly** repose sur la bibliothèque JavaScript **`plotly.js`**. Python génère une spécification déclarative en JSON que le navigateur web rend en vectoriel interactif (**SVG / WebGL**). L'utilisateur dispose nativement du zoom, du panoramique, des infobulles dynamiques (*hover tooltips*) et de l'export d'image.
+
+### Les Deux Niveaux d'API et leur Syntaxe Essentielle :
+
+#### 1. `plotly.express` (`import plotly.express as px`) — L'API rapide de haut niveau
+Permet de créer un graphique complet en un seul appel de fonction :
+
+```python
+import plotly.express as px
+
+# Créer un histogramme à partir d'une liste de nombres
+fig = px.histogram(
+    x=ma_liste_valeurs,
+    nbins=15,                                       # Nombre de barres (classes)
+    title="Titre du graphique",
+    labels={"x": "Nom de l'axe X", "y": "Nom de l'axe Y"},
+)
+
+# Ajouter une ligne verticale repère (ex: la moyenne)
+fig.add_vline(
+    x=valeur_moyenne,
+    line_dash="dash",                               # Style pointillé
+    line_color="red",
+    annotation_text="Moyenne",                      # Étiquette affichée sur la ligne
+)
+
+# Personnaliser la mise en page globale
+fig.update_layout(yaxis_title="Fréquence", template="plotly_white")
+```
+
+#### 2. `plotly.graph_objects` (`import plotly.graph_objects as go`) — L'API modulaire de bas niveau
+Permet d'assembler des graphiques complexes couche par couche (comme les diagrammes radar) :
+
+```python
+import plotly.graph_objects as go
+
+# 1. Créer une figure vierge
+fig = go.Figure()
+
+# 2. Ajouter une couche (trace) polaire (diagramme radar)
+fig.add_trace(
+    go.Scatterpolar(
+        r=[100, 80, 60, 100],                       # Rayons (valeurs numériques)
+        theta=["PV", "Attaque", "Défense", "PV"],   # Angles (noms des axes, fermé sur le 1er)
+        fill="toself",                              # Remplissage coloré intérieur
+        name="Nom de la série",
+    )
+)
+
+# 3. Configurer les axes polaires et le titre
+fig.update_layout(
+    polar=dict(radialaxis=dict(visible=True)),
+    title="Comparaison Radar",
+)
+```
+
+Pour afficher une figure dans Streamlit : `st.plotly_chart(fig, width="stretch")`.
+
+---
+
+## 2.2 Exercice 1 : Télémétrie Interactive des Combats Z-Arena (30 min)
+
+### Problématique
+Dans notre simulateur Z-Arena, connaître uniquement le taux de victoire moyen ($\hat{p} = 0.62$) masque la dynamique du combat : le match se termine-t-il en 2 tours expéditifs ou en une bataille d'usure de 25 tours ?
+
+### Cahier des Charges
+Dans un fichier `app/charts.py`, implémentez deux fonctions pures (sans appel Streamlit à l'intérieur, afin de garder les fonctions testables) :
+
+1. **`plot_turns_distribution(turns_list: list[int], f1_name: str, f2_name: str) -> go.Figure` :**
+   
+   * Calcule la moyenne `mean_turns = float(np.mean(turns_list))`.
+   * Crée l'histogramme via `px.histogram` (`nbins=15`, titre explicite incluant `f1_name` et `f2_name`).
+   * Ajoute une ligne verticale rouge pointillée à `x=mean_turns` via `fig.add_vline(...)`.
+   * Retourne `fig`.
+
+2. **`plot_fighters_radar(f1_stats: dict[str, int], f2_stats: dict[str, int], f1_name: str, f2_name: str) -> go.Figure` :**
+   
+   * Extrait les noms des caractéristiques (`categories = list(f1_stats.keys())`).
+   * *Astuce géométrique :* Pour que le polygone du radar soit proprement fermé, répétez le premier élément à la fin des listes `theta` et `r` (ex. `categories_closed = categories + [categories[0]]`).
+   * Instancie `fig = go.Figure()` et ajoute deux traces `go.Scatterpolar` (`fill="toself"`) pour `f1_name` et `f2_name`.
+   * Retourne `fig`.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`app/charts.py`) :
+
+```python
+# app/charts.py
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+
+
+def plot_turns_distribution(
+    turns_list: list[int], f1_name: str, f2_name: str
+) -> go.Figure:
+    """Construit un histogramme Plotly de la durée des combats avec ligne de moyenne."""
+    # TODO 1: Calculer la moyenne avec np.mean(turns_list)
+    # TODO 2: Créer l'histogramme avec px.histogram(x=turns_list, nbins=15, ...)
+    # TODO 3: Ajouter la ligne verticale de moyenne avec fig.add_vline(...)
+    # TODO 4: Mettre à jour le layout (template="plotly_white") et retourner fig
+    pass
+
+
+def plot_fighters_radar(
+    f1_stats: dict[str, int],
+    f2_stats: dict[str, int],
+    f1_name: str,
+    f2_name: str,
+) -> go.Figure:
+    """Construit un diagramme radar comparant les caractéristiques des deux combattants."""
+    categories = list(f1_stats.keys())
+    # Fermeture du polygone
+    categories_closed = categories + [categories[0]]
+    v1 = list(f1_stats.values()) + [list(f1_stats.values())[0]]
+    v2 = list(f2_stats.values()) + [list(f2_stats.values())[0]]
+
+    fig = go.Figure()
+
+    # TODO 1: Ajouter la trace go.Scatterpolar pour f1 via fig.add_trace(...)
+    # TODO 2: Ajouter la trace go.Scatterpolar pour f2 via fig.add_trace(...)
+    # TODO 3: Configurer le titre via fig.update_layout(...) et retourner fig
+    pass
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`app/charts.py`) :
+
+```python
+# app/charts.py
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+
+
+def plot_turns_distribution(
+    turns_list: list[int], f1_name: str, f2_name: str
+) -> go.Figure:
+    """Construit un histogramme Plotly de la durée des combats avec ligne de moyenne."""
+    mean_turns = float(np.mean(turns_list))
+
+    fig = px.histogram(
+        x=turns_list,
+        nbins=15,
+        title=f"Distribution de la durée des duels : {f1_name} vs {f2_name}",
+        labels={"x": "Nombre de tours", "y": "Nombre de simulations"},
+        color_discrete_sequence=["#1f77b4"],
+    )
+
+    fig.add_vline(
+        x=mean_turns,
+        line_dash="dash",
+        line_color="#d62728",
+        annotation_text=f"Moyenne : {mean_turns:.1f} tours",
+        annotation_position="top right",
+    )
+
+    fig.update_layout(
+        yaxis_title="Nombre de combats",
+        bargap=0.05,
+        template="plotly_white",
+    )
+    return fig
+
+
+def plot_fighters_radar(
+    f1_stats: dict[str, int],
+    f2_stats: dict[str, int],
+    f1_name: str,
+    f2_name: str,
+) -> go.Figure:
+    """Construit un diagramme radar comparant les caractéristiques des deux combattants."""
+    categories = list(f1_stats.keys())
+    categories_closed = categories + [categories[0]]
+    v1 = list(f1_stats.values()) + [list(f1_stats.values())[0]]
+    v2 = list(f2_stats.values()) + [list(f2_stats.values())[0]]
+
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Scatterpolar(
+            r=v1,
+            theta=categories_closed,
+            fill="toself",
+            name=f1_name,
+        )
+    )
+
+    fig.add_trace(
+        go.Scatterpolar(
+            r=v2,
+            theta=categories_closed,
+            fill="toself",
+            name=f2_name,
+        )
+    )
+
+    fig.update_layout(
+        polar=dict(radialaxis=dict(visible=True)),
+        title=f"Profil Comparatif : {f1_name} vs {f2_name}",
+        template="plotly_white",
+    )
+    return fig
+```
+:::
+
+### Banc d'auto-validation immédiate
+Ajoutez ce bloc tout en bas de `app/charts.py` et lancez `python app/charts.py` pour ouvrir immédiatement vos deux graphiques interactifs dans votre navigateur :
+
+```python
+if __name__ == "__main__":
+    # Test visuel immédiat des deux fonctions
+    fig_hist = plot_turns_distribution([4, 5, 6, 6, 7, 8, 5, 9, 10, 6], "Gohan", "Cell")
+    fig_hist.show()
+
+    s1 = {"PV Max": 150, "Attaque": 65, "Ki": 100}
+    s2 = {"PV Max": 160, "Attaque": 60, "Ki": 80}
+    fig_rad = plot_fighters_radar(s1, s2, "Gohan", "Cell")
+    fig_rad.show()
+```
+
+
+# Partie 3 : Cartographie Géospatiale Web avec Folium (40 min)
+
+---
+
+## 3.1 Comment Fonctionne une Carte Web Interactive ?
+
+Lorsque vous consultez une carte numérique (OpenStreetMap, Google Maps), le navigateur n'affiche pas une image unique géante. Il assemble dynamiquement une mosaïque de petites images carrées de $256 \times 256$ pixels appelées des **tuiles (*tiles*)**, téléchargées à la demande selon votre niveau de zoom.
+
+* **Leaflet.js :** C'est la bibliothèque JavaScript open-source de référence mondiale pour afficher ces tuiles et superposer des marqueurs vectoriels.
+* **Folium :** C'est une bibliothèque Python qui génère le code HTML/JavaScript Leaflet à partir de vos données Python.
+* **`streamlit-folium` :** C'est le pont qui intègre une carte Folium dans une page Streamlit via la fonction `st_folium(carte, width=..., height=...)`.
+
+### La Syntaxe Essentielle de Folium :
+
+```python
+import folium
+
+# 1. Créer la carte vierge centrée sur [Latitude, Longitude]
+carte = folium.Map(
+    location=[43.6108, 3.8767],       # ATTENTION : [Latitude, Longitude] !
+    zoom_start=6,                     # Niveau de zoom initial (1 = monde, 12 = ville)
+    tiles="OpenStreetMap",         # Fond de carte épuré
+)
+
+# 2. Ajouter un marqueur ponctuel sur la carte
+folium.Marker(
+    location=[43.6108, 3.8767],
+    popup="Texte affiché au clic sur le marqueur",
+    tooltip="Texte affiché au survol de la souris",
+    icon=folium.Icon(color="green", icon="star"),  # Couleurs : 'red', 'blue', 'green', 'orange'...
+).add_to(carte)
+
+# 3. Sauvegarder la carte en fichier autonome pour la tester dans un navigateur
+carte.save("ma_carte.html")
+```
+
+::: {.callout-danger}
+### Rappel Critique du TP I/O : L'Inversion des Coordonnées !
+
+* Dans votre fichier **`data/arenas_dbz.geojson`** (norme RFC 7946), les coordonnées sont enregistrées dans l'ordre mathématique $[X, Y]$, soit **`[Longitude, Latitude]`**.
+* Dans **`folium.Map`** et **`folium.Marker`**, la bibliothèque exige impérativement l'ordre géographique **`[Latitude, Longitude]`** !
+
+Utilisez systématiquement votre fonction `extract_arena_coordinates(feature)` codée lors du TP I/O pour récupérer le tuple `(lat, lon)`.
+:::
+
+---
+
+## 3.2 Exercice 2 : Projection Cartographique des Arènes DBZ (`app/map_utils.py`)
+
+### Rappel sur la Structure de `data/arenas_dbz.geojson` et la Méthode `.get()`
+Dans le fichier `data/arenas_dbz.geojson` créé lors du TP I/O, chaque arène possède un dictionnaire `properties` contenant les clés `"id"`, `"name"`, `"environment"` et `"capacity"` (ex. `10000`, `500`, `50000`).
+
+Pour lire une clé sans risquer de crasher si le champ était manquant sur une donnée externe, on utilise la méthode Python **`dictionnaire.get(cle, valeur_par_defaut)`** :
+
+* Si `cle` existe dans le dictionnaire, `.get()` renvoie sa valeur.
+* Si `cle` est absente, `.get()` renvoie `valeur_par_defaut` au lieu de lever une erreur `KeyError`.
+
+### Cahier des Charges
+Dans `app/map_utils.py`, implémentez la fonction `build_arenas_map(geojson_data: dict, min_capacity: int = 0) -> folium.Map` :
+
+1. Instancie une carte Folium centrée sur `location=[43.6, 5.0]` avec `zoom_start=4` et `tiles="OpenStreetMap""`.
+2. Définit un dictionnaire de correspondance de couleurs selon l'environnement :
+   ```python
+   ENV_COLORS = {
+       "Plaine": "green",
+       "Sanctuaire": "blue",
+       "Désert": "orange",
+   }
+   ```
+3. Parcourt chaque `feature` de `geojson_data["features"]` :
+   
+   * Extrait `props = feature["properties"]` et la capacité `capacity = props.get("capacity", 0)`.
+   * Filtre les arènes : n'ajoute le marqueur que si `capacity >= min_capacity`.
+   * Extrait `(lat, lon)` via `extract_arena_coordinates(feature)` (importée depuis `zarena.io.loader`).
+   * Choisit la couleur avec `ENV_COLORS.get(env, "red")`.
+   * Crée une chaîne de texte simple pour le `popup` (ex. `f"{props['name']} | Environnement : {env} | Capacité : {capacity} places"`).
+   * Crée le `folium.Marker` et l'ajoute à `carte` via `.add_to(carte)`.
+4. Retourne l'objet `carte`.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`app/map_utils.py`) :
+
+```python
+# app/map_utils.py
+import folium
+from zarena.io.loader import extract_arena_coordinates
+
+ENV_COLORS: dict[str, str] = {
+    "Plaine": "green",
+    "Sanctuaire": "blue",
+    "Désert": "orange",
+}
+
+
+def build_arenas_map(geojson_data: dict, min_capacity: int = 0) -> folium.Map:
+    """Construit une carte Folium interactive des arènes filtrées par capacité."""
+    carte = folium.Map(location=[43.6, 5.0], zoom_start=4, tiles="OpenStreetMap")
+
+    for feature in geojson_data["features"]:
+        props = feature["properties"]
+        capacity = props.get("capacity", 0)
+
+        # TODO 1: Vérifier que capacity >= min_capacity
+        # TODO 2: Extraire (lat, lon) via extract_arena_coordinates(feature)
+        # TODO 3: Récupérer l'environnement props.get("environment", "Inconnu") et la couleur associée
+        # TODO 4: Construire le texte du popup (f-string simple) et le tooltip
+        # TODO 5: Instancier folium.Marker(...) et appeler .add_to(carte)
+
+    return carte
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`app/map_utils.py`) :
+
+```python
+# app/map_utils.py
+import folium
+from zarena.io.loader import extract_arena_coordinates
+
+ENV_COLORS: dict[str, str] = {
+    "Plaine": "green",
+    "Sanctuaire": "blue",
+    "Désert": "orange",
+}
+
+
+def build_arenas_map(geojson_data: dict, min_capacity: int = 0) -> folium.Map:
+    """Construit une carte Folium interactive des arènes filtrées par capacité."""
+    carte = folium.Map(location=[43.6, 5.0], zoom_start=4, tiles="OpenStreetMap")
+
+    for feature in geojson_data["features"]:
+        props = feature["properties"]
+        capacity = props.get("capacity", 0)
+
+        if capacity >= min_capacity:
+            lat, lon = extract_arena_coordinates(feature)
+            env = props.get("environment", "Inconnu")
+            color = ENV_COLORS.get(env, "red")
+
+            texte_popup = (
+                f"{props['name']} — "
+                f"Environnement : {env} — "
+                f"Capacité : {capacity} spectateurs"
+            )
+
+            folium.Marker(
+                location=[lat, lon],
+                popup=texte_popup,
+                tooltip=f"{props['name']} ({env})",
+                icon=folium.Icon(color=color, icon="star"),
+            ).add_to(carte)
+
+    return carte
+```
+:::
+
+### Banc d'auto-validation immédiate
+Ajoutez ce bloc tout en bas de `app/map_utils.py` et lancez `python app/map_utils.py` : cela génère le fichier `test_carte.html` que vous pouvez double-cliquer pour vérifier que vos marqueurs sont bien placés sur la carte (Tokyo, Florence, Montpellier) et non au milieu de l'océan !
+
+```python
+if __name__ == "__main__":
+    from zarena.io.loader import load_arenas
+
+    donnees_geojson = load_arenas("data/arenas_dbz.geojson")
+    carte_test = build_arenas_map(donnees_geojson, min_capacity=0)
+    carte_test.save("test_carte.html")
+    print("Carte générée avec succès : ouvrez 'test_carte.html' dans votre navigateur.")
+```
+
+
+# Partie 4 : Synthèse Fil Rouge — L'Application Complète Z-Arena (40 min)
+
+Nous disposons désormais de toutes les briques de notre architecture logicielle :
+
+* Le moteur orienté objet et parallèle (`zarena`).
+* Les graphiques interactifs validés (`app/charts.py`).
+* La carte géospatiale validée (`app/map_utils.py`).
+
+---
+
+## 4.1 Préparation du Packaging : Rendre `app` Importable et Créer une Commande CLI
+
+Avant d'assembler `app/main.py`, réglons un piège classique d'architecture Python.
+
+Lorsque vous exécutez `streamlit run app/main.py`, Python place le dossier du script (`app/`) en tête de `sys.path`, et **non** la racine du projet (`.`). Résultat : écrire `from app.charts import ...` déclenche une erreur `ModuleNotFoundError: No module named 'app'` si l'on n'ajoute pas manuellement `PYTHONPATH=.`.
+
+### La Solution Propre via `pyproject.toml`
+
+1. **Déclarer `app` comme un sous-paquet installable :**
+   Créez un fichier vide `app/__init__.py` (`touch app/__init__.py`), puis mettez à jour la section `[tool.setuptools.packages.find]` de `pyproject.toml` :
+   ```toml
+   [tool.setuptools.packages.find]
+   where = ["src", "."]
+   include = ["zarena*", "app*"]
+   ```
+
+2. **Créer une commande terminal dédiée (`[project.scripts]`) :**
+   Dans `src/zarena/cli.py`, écrivez un lanceur de 6 lignes :
+   ```python
+   # src/zarena/cli.py
+   import subprocess
+   import sys
+   from pathlib import Path
+
+
+   def launch_app() -> None:
+       """Lance l'interface web Streamlit (compatible installation standard et éditable)."""
+       try:
+           import app
+
+           app_path = Path(app.__file__).resolve().parent / "main.py"
+       except ImportError:
+           app_path = Path.cwd() / "app" / "main.py"
+
+       if not app_path.exists():
+           raise FileNotFoundError(
+               f"Fichier introuvable : {app_path}. "
+               "Vérifiez app/__init__.py et relancez 'pip install -e .'."
+           )
+
+       subprocess.run(
+           [sys.executable, "-m", "streamlit", "run", str(app_path)],
+           check=True,
+       )
+   ```
+   Puis déclarez ce point d'entrée dans `pyproject.toml` :
+   ```toml
+   [project.scripts]
+   zarena-app = "zarena.cli:launch_app"
+   ```
+
+3. **Réinstaller en mode éditable :**
+   ```bash
+   pip install -e .
+   ```
+   Désormais, `app` est reconnu partout dans votre environnement virtuel, et vous pouvez lancer votre dashboard simplement en tapant `zarena-app` dans le terminal !
+
+---
+
+## 4.2 Refactoring Propre : Récupérer la Durée des Duels sans Dupliquer de Code
+
+Pour tracer l'histogramme de distribution des tours dans l'interface Streamlit, nous avons besoin de la liste des durées des combats simulés.
+
+::: {.callout-important}
+### Règle d'Architecture : Ne Jamais Recoder de Boucle de Combat dans `app/`
+
+Écrire une fonction de simulation de duel directement dans `app/main.py` violerait deux principes fondamentaux :
+1. **DRY (*Don't Repeat Yourself*) :** la boucle de duel existe déjà dans `src/zarena/battle.py`.
+2. **Séparation des responsabilités :** `app/` ne doit contenir aucun calcul métier.
+
+La solution propre consiste à enrichir légèrement le retour de `src/zarena/` pour qu'il expose directement la durée des combats en plus du taux de victoire (exactement comme le contrat de `PyArena`).
+:::
+
+### Mise à jour rapide du moteur (`src/zarena/`) :
+
+0. **Vérification dans `src/zarena/warriors.py` :** Assurez-vous que `BaseWarrior.reset_stats()` appelle bien `super().reset_stats()` avant de réinitialiser `self.ki`, sinon les points de vie ne seront pas restaurés entre deux duels.
+
+1. **Dans `src/zarena/battle.py` :** Faites en sorte que `simulate_duel_step(f1, f2, rng)` retourne le tuple `(winner, turns)` au lieu du seul vainqueur :
+   ```python
+   def simulate_duel_step(
+       f1: ArenaFighter, f2: ArenaFighter, rng: np.random.Generator
+   ) -> tuple[int, int]:
+       """Simule un duel complet et retourne (winner_id, turns)."""
+       f1.reset_stats()
+       f2.reset_stats()
+       turns = 0
+       while not f1.is_defeated() and not f2.is_defeated():
+           turns += 1
+           crit1 = 1.5 if rng.random() < 0.10 else 1.0
+           dmg1 = max(1, int(f1.execute_attack() * rng.uniform(0.85, 1.15) * crit1))
+           f2.take_damage(dmg1)
+           if f2.is_defeated():
+               return 1, turns
+
+           crit2 = 1.5 if rng.random() < 0.10 else 1.0
+           dmg2 = max(1, int(f2.execute_attack() * rng.uniform(0.85, 1.15) * crit2))
+           f1.take_damage(dmg2)
+           if f1.is_defeated():
+               return 2, turns
+       return (1 if not f1.is_defeated() else 2), turns
+   ```
+
+2. **Dans `src/zarena/parallel_engine.py` :** Mettez à jour `_monte_carlo_worker` pour qu'il collecte les durées de son lot (`turns_list: list[int]`) et retourne `(f1_wins, turns_list)`. Dans `run_parallel_monte_carlo`, agrégez l'ensemble des durées dans `all_turns` et ajoutez les clés `"turns": all_turns` et `"turns_mean": float(np.mean(all_turns))` au dictionnaire retourné.
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`src/zarena/parallel_engine.py` mis à jour) :
+
+```python
+# src/zarena/parallel_engine.py
+from concurrent.futures import ProcessPoolExecutor
+import math
+import os
+from typing import Any
+import numpy as np
+
+try:
+    from joblib import Parallel, delayed
+except ImportError:
+    Parallel, delayed = None, None
+
+from zarena.battle import simulate_duel_step
+from zarena.warriors import ArenaFighter
+
+
+def _monte_carlo_worker(
+    batch_size: int,
+    child_seed: np.random.SeedSequence,
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+) -> tuple[int, list[int]]:
+    """Tâche de calcul grossière (Chunk) exécutée en isolation sur un cœur dédié.
+    
+    Retourne :
+        (f1_wins, turns_list) : nombre de victoires de f1 et liste des durées des duels du lot.
+    """
+    rng = np.random.default_rng(child_seed)
+    f1_wins = 0
+    turns_list: list[int] = []
+
+    for _ in range(batch_size):
+        winner, turns = simulate_duel_step(f1, f2, rng)
+        if winner == 1:
+            f1_wins += 1
+        turns_list.append(turns)
+
+    return f1_wins, turns_list
+
+
+def run_parallel_monte_carlo(
+    f1: ArenaFighter,
+    f2: ArenaFighter,
+    n_simulations: int = 50000,
+    n_jobs: int = -1,
+    seed: int | None = None,
+    backend: str = "executor",
+) -> dict[str, Any]:
+    """Orchestre la simulation distribuée via ProcessPoolExecutor ou joblib."""
+    if n_simulations <= 0:
+        raise ValueError("Le nombre de simulations doit être strictement positif.")
+    if backend not in ("executor", "joblib"):
+        raise ValueError("Le backend doit être 'executor' ou 'joblib'.")
+
+    # 1. Détection des cœurs physiques réels
+    max_cpus = os.cpu_count() or 1
+    workers = max_cpus if (n_jobs == -1 or n_jobs > max_cpus) else max(1, n_jobs)
+
+    # 2. Découpage équilibré de la charge (Chunking)
+    base_chunk = n_simulations // workers
+    remainder = n_simulations % workers
+    chunks = [base_chunk + (1 if i < remainder else 0) for i in range(workers)]
+    chunks = [c for c in chunks if c > 0]
+    actual_workers = len(chunks)
+
+    # 3. Dérivation formelle des graines indépendantes
+    master_ss = np.random.SeedSequence(seed)
+    child_seeds = master_ss.spawn(actual_workers)
+
+    # 4. Dispatch selon le backend choisi
+    total_f1_wins = 0
+    all_turns: list[int] = []
+
+    if backend == "executor":
+        with ProcessPoolExecutor(max_workers=actual_workers) as executor:
+            futures = [
+                executor.submit(_monte_carlo_worker, chunks[i], child_seeds[i], f1, f2)
+                for i in range(actual_workers)
+            ]
+            for f in futures:
+                wins, turns = f.result()
+                total_f1_wins += wins
+                all_turns.extend(turns)
+
+    elif backend == "joblib":
+        if Parallel is None:
+            raise ImportError("joblib n'est pas installé. Lancez 'pip install joblib'.")
+
+        results = Parallel(n_jobs=actual_workers, backend="loky")(
+            delayed(_monte_carlo_worker)(chunks[i], child_seeds[i], f1, f2)
+            for i in range(actual_workers)
+        )
+        for wins, turns in results:
+            total_f1_wins += wins
+            all_turns.extend(turns)
+
+    # 5. Calcul des grandeurs statistiques (Théorème Central Limite)
+    winrate = total_f1_wins / n_simulations
+    stderr = math.sqrt(winrate * (1.0 - winrate) / n_simulations)
+    ci_95 = (max(0.0, winrate - 1.96 * stderr), min(1.0, winrate + 1.96 * stderr))
+
+    return {
+        "winrate": float(winrate),
+        "ci_95": (float(ci_95[0]), float(ci_95[1])),
+        "turns": all_turns,
+        "turns_mean": float(np.mean(all_turns)),
+        "n_simulations": n_simulations,
+        "workers_used": actual_workers,
+        "backend": backend,
+    }
+```
+:::
+
+---
+
+## 4.3 Exercice 3 : Assemblage de `app/main.py` [Autonomie Guidée]
+
+::: {.callout-note}
+### Syntaxe Streamlit : Placer des Éléments avec `with` (`st.tabs` et `st.columns`)
+Les fonctions `st.tabs(...)` et `st.columns(...)` retournent des **conteneurs graphiques** (un par onglet ou par colonne) que l'on récupère par déballage de tuple (*tuple unpacking*). Pour injecter des widgets à l'intérieur d'un conteneur précis, on utilise le gestionnaire de contexte Python **`with`** :
+
+```python
+# 1. Création de deux onglets
+onglet_1, onglet_2 = st.tabs(["Simulateur", "Carte"])
+
+with onglet_1:
+    # Tout appel st.* indenté ici s'affichera uniquement dans le 1er onglet
+    col_gauche, col_droite = st.columns(2)
+    with col_gauche:
+        st.write("Contenu de la colonne de gauche")
+    with col_droite:
+        st.write("Contenu de la colonne de droite")
+
+with onglet_2:
+    # Tout appel st.* indenté ici s'affichera uniquement dans le 2e onglet
+    st.write("Contenu de la carte")
+```
+:::
+
+::: {.callout-danger}
+### Pourquoi `joblib` et non `ProcessPoolExecutor` sous Streamlit (macOS / Windows) ?
+Sous macOS et Windows, le module standard `multiprocessing` utilise la méthode `spawn` : chaque worker démarre un nouvel interpréteur vierge et tente de réimporter le module principal (`__main__`).  
+Or, sous Streamlit, `__main__` n'est pas `app/main.py`, mais le lanceur CLI de Streamlit exécuté dans un fil secondaire (`ScriptRunner`), ce qui provoque l'arrêt brutal des workers (`BrokenProcessPool`).
+
+**La solution :** Utilisez **`backend="joblib"`** lors de l'appel à `run_parallel_monte_carlo`. Le moteur `loky` de `joblib` a été conçu spécifiquement pour les environnements interactifs (Jupyter, Streamlit) : il démarre des processus travailleurs propres sans réimporter `__main__`, garantissant un fonctionnement identique sur Linux, macOS et Windows.
+:::
+
+### Cahier des Charges de `app/main.py`
+
+1. **Catalogue des combattants (`get_fighters_roster`) :**
+   
+   * Écrivez une fonction `get_fighters_roster() -> dict[str, ArenaFighter]` qui instancie et renvoie un dictionnaire associant 4 noms lisibles (`"Son Goku (SSJ)"`, `"Vegeta (Prince)"`, `"Son Gohan (SSJ2)"`, `"C-17 (Cyborg)"`) à des instances neuves de `SaiyanWarrior` et `Cyborg`.
+   * *Pourquoi une fonction plutôt qu'un dictionnaire global ?* Parce que les combats mutent les points de vie (`self.hp`) : appeler la fonction garantit des combattants frais à chaque simulation.
+2. **Barre Latérale (`st.sidebar`) :**
+   
+   * Deux listes déroulantes `st.selectbox` pour choisir `f1_choice` et `f2_choice`.
+   * Un curseur `st.slider` réglant le volume Monte-Carlo $N \in [500, 200\,000]$.
+3. **Mise en Cache Applicative (`@st.cache_data`) :**
+   
+   * `cached_load_arenas()` : charge `data/arenas_dbz.geojson` via `load_arenas()`.
+   * `cached_simulation(f1_name: str, f2_name: str, n_sims: int) -> dict` : récupère `f1` et `f2` via `get_fighters_roster()` et appelle directement `run_parallel_monte_carlo(f1, f2, n_simulations=n_sims, n_jobs=-1, seed=42, backend="joblib")`.
+4. **Onglets (`st.tabs`) et Colonnes (`st.columns`) :**
+5. 
+   * **Onglet 1 (« Simulateur de Duel & Télémétrie ») :** Affiche un avertissement `st.warning` si `f1_choice == f2_choice`. Sinon, affiche 3 colonnes `st.metric` (taux de victoire, intervalle de confiance à 95 %, durée moyenne des combats), puis 2 colonnes côte à côte contenant le **diagramme radar** et l'**histogramme des durées** alimenté directement par `res["turns"]`.
+   * *Note géométrique & polymorphisme pour le radar :* Un diagramme polaire à seulement 2 axes (`PV Max` et `Attaque`) trace un segment plat sans surface. Pour respecter le contrat polymorphique d'`ArenaFighter` (sans accéder aux attributs spécifiques des sous-classes comme `ki` ou `shield`), écrivez une fonction `build_fighter_stats(fighter: ArenaFighter) -> dict[str, float]` calculant un 3ᵉ axe synthétique à partir de l'interface commune : `"Indice Global": round((hp * atk) ** 0.5, 1)`.
+   * **Onglet 2 (« Cartographie des Arènes ») :** Curseur `st.slider` filtrant par capacité minimale et affichage de la carte Folium via `st_folium(carte, width=1000, height=500)`.
+
+::: {.content-visible when-profile="student"}
+### Squelette à compléter (`app/main.py`) :
+
+```python
+# app/main.py
+import streamlit as st
+from streamlit_folium import st_folium
+
+from app.charts import plot_fighters_radar, plot_turns_distribution
+from app.map_utils import build_arenas_map
+from zarena.io.loader import load_arenas
+from zarena.parallel_engine import run_parallel_monte_carlo
+from zarena.warriors import ArenaFighter, Cyborg, SaiyanWarrior
+
+st.set_page_config(page_title="Z-Arena — Simulateur Décisionnel", layout="wide")
+
+
+def get_fighters_roster() -> dict[str, ArenaFighter]:
+    """Construit et retourne le dictionnaire des combattants disponibles."""
+    # TODO: Retourner un dict associant 4 noms à des instances neuves de SaiyanWarrior / Cyborg
+    pass
+
+
+def build_fighter_stats(fighter: ArenaFighter) -> dict[str, float]:
+    """Extrait un profil à 3 axes à partir de l'interface commune ArenaFighter."""
+    # TODO: Calculer hp = float(fighter.max_hp), atk = float(fighter.execute_attack())
+    #       et retourner {"PV Max": hp, "Attaque": atk, "Indice Global": round((hp * atk) ** 0.5, 1)}
+    pass
+
+
+@st.cache_data
+def cached_load_arenas() -> dict:
+    return load_arenas("data/arenas_dbz.geojson")
+
+
+@st.cache_data(show_spinner="Exécution des simulations Monte-Carlo multi-cœurs...")
+def cached_simulation(f1_name: str, f2_name: str, n_sims: int) -> dict:
+    # TODO: Récupérer f1 et f2 via get_fighters_roster()
+    # TODO: Appeler et retourner run_parallel_monte_carlo(..., backend="joblib")
+    pass
+
+
+st.title("Z-Arena : Moteur Stochastique & Analyse Décisionnelle")
+
+# TODO: Construire la st.sidebar (2 selectbox + 1 slider)
+# TODO: Créer les 2 onglets avec tab_duel, tab_map = st.tabs([...])
+# TODO: Remplir tab_duel (with tab_duel:) et tab_map (with tab_map:)
+```
+:::
+
+::: {.content-visible when-profile="solution"}
+### Solution Enseignant (`app/main.py`) :
+
+```python
+# app/main.py
+import streamlit as st
+from streamlit_folium import st_folium
+
+from app.charts import plot_fighters_radar, plot_turns_distribution
+from app.map_utils import build_arenas_map
+from zarena.io.loader import load_arenas
+from zarena.parallel_engine import run_parallel_monte_carlo
+from zarena.warriors import ArenaFighter, Cyborg, SaiyanWarrior
+
+st.set_page_config(page_title="Z-Arena — Simulateur Décisionnel", layout="wide")
+
+
+def get_fighters_roster() -> dict[str, ArenaFighter]:
+    """Construit le catalogue des combattants disponibles."""
+    return {
+        "Son Goku (SSJ)": SaiyanWarrior("Son Goku", hp=140, ki=100, attack_power=60, rage_multiplier=1.5),
+        "Vegeta (Prince)": SaiyanWarrior("Vegeta", hp=135, ki=100, attack_power=62, rage_multiplier=1.6),
+        "Son Gohan (SSJ2)": SaiyanWarrior("Son Gohan", hp=150, ki=100, attack_power=65, rage_multiplier=1.8),
+        "C-17 (Cyborg)": Cyborg("C-17", hp=160, power=58, shield=12),
+    }
+
+
+def build_fighter_stats(fighter: ArenaFighter) -> dict[str, float]:
+    """Extrait un profil à 3 axes à partir de l'interface commune ArenaFighter."""
+    hp = float(fighter.max_hp)
+    atk = float(fighter.execute_attack())
+    return {
+        "PV Max": hp,
+        "Attaque": atk,
+        "Indice Global": round((hp * atk) ** 0.5, 1),
+    }
+
+
+@st.cache_data
+def cached_load_arenas() -> dict:
+    return load_arenas("data/arenas_dbz.geojson")
+
+
+@st.cache_data(show_spinner="Exécution des simulations Monte-Carlo multi-cœurs...")
+def cached_simulation(f1_name: str, f2_name: str, n_sims: int) -> dict:
+    roster = get_fighters_roster()
+    f1 = roster[f1_name]
+    f2 = roster[f2_name]
+
+    # backend="joblib" évite BrokenProcessPool sous Streamlit (macOS/Windows)
+    return run_parallel_monte_carlo(
+        f1, f2, n_simulations=n_sims, n_jobs=-1, seed=42, backend="joblib"
+    )
+
+
+# --- INTERFACE PRINCIPALE ---
+st.title("Z-Arena : Moteur Stochastique & Analyse Décisionnelle")
+
+roster = get_fighters_roster()
+fighter_names = list(roster.keys())
+
+with st.sidebar:
+    st.header("Configuration de l'Arène")
+    f1_choice = st.selectbox("Combattant 1 (Coin Bleu)", fighter_names, index=2)
+    f2_choice = st.selectbox("Combattant 2 (Coin Rouge)", fighter_names, index=3)
+    n_sims = st.slider(
+        "Volume Monte-Carlo (N)", min_value=500, max_value=200_000, value=5_000, step=1000
+    )
+
+tab_duel, tab_map = st.tabs(
+    ["Simulateur de Duel & Télémétrie", "Cartographie des Arènes"]
+)
+
+# --- ONGLET 1 : SIMULATEUR ---
+with tab_duel:
+    if f1_choice == f2_choice:
+        st.warning("Veuillez sélectionner deux combattants distincts dans le menu latéral.")
+    else:
+        res = cached_simulation(f1_choice, f2_choice, n_sims)
+        winrate_pct = res["winrate"] * 100
+        ci_low, ci_high = res["ci_95"][0] * 100, res["ci_95"][1] * 100
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric(f"Taux de victoire ({f1_choice})", f"{winrate_pct:.1f} %")
+        c2.metric("Intervalle de Confiance (95 %)", f"[{ci_low:.1f} % ; {ci_high:.1f} %]")
+        c3.metric("Durée moyenne", f"{res['turns_mean']:.1f} tours")
+
+        st.divider()
+
+        col_left, col_right = st.columns(2)
+        with col_left:
+            stats_1 = build_fighter_stats(roster[f1_choice])
+            stats_2 = build_fighter_stats(roster[f2_choice])
+            fig_radar = plot_fighters_radar(stats_1, stats_2, f1_choice, f2_choice)
+            st.plotly_chart(fig_radar, width="stretch")
+
+        with col_right:
+            fig_hist = plot_turns_distribution(
+                res["turns"], f1_choice, f2_choice
+            )
+            st.plotly_chart(fig_hist, width="stretch")
+
+# --- ONGLET 2 : CARTE ---
+with tab_map:
+    st.subheader("Répartition Géographique des Arènes de Tournoi")
+    min_cap = st.slider(
+        "Capacité minimale d'accueil (spectateurs)", 0, 50_000, 0, step=5_000
+    )
+    arenas_geojson = cached_load_arenas()
+    folium_map = build_arenas_map(arenas_geojson, min_capacity=min_cap)
+    st_folium(folium_map, width=1000, height=500)
+```
+:::
+
+Lancez l'application directement avec votre nouvelle commande CLI :
+```bash
+zarena-app
+```
+
+---
+
+# Devoir Maison Guidé : Le Tableau de Bord Décisionnel de PyArena (Jalon 4)
+
+*Ce travail constitue l'aboutissement visuel de votre projet semestriel (`pyarena-groupe-XX`). Il concrétise les spécifications du **Cahier des Charges** ainsi que le volet graphique de votre extension thématique.*
+
+---
+
+## 1. Architecture Multipages : Comment Fonctionnent `app/main.py` et `app/pages/` ?
+
+Dans le cours-TP (Z-Arena), nous avons regroupé deux vues dans un seul fichier `app/main.py` grâce à des onglets (`st.tabs`). Pour un projet complet comportant 4 à 5 modules développés en équipe de 3 ou 4 étudiants, placer tout le code dans `main.py` créerait un fichier monolithique illisible et multiplierait les conflits de fusion Git.
+
+Streamlit résout ce problème grâce à un mécanisme natif de **routage automatique par fichiers** (*Multipage Apps*) :
+
+```text
+pyarena/
+├── pyproject.toml                  # Déclare src/ et app/, ainsi que la commande pyarena-app
+├── src/pyarena/                    # Moteur pur (core, io, simulation, extensions)
+└── app/
+    ├── __init__.py
+    ├── main.py                     # Page d'accueil (lanceur)
+    ├── utils.py                    # Fonctions partagées (graphiques Plotly, cartes Folium)
+    └── pages/                      # Dossier détecté AUTOMATIQUEMENT par Streamlit
+        ├── 1_Simulateur_Duel.py    # Module 1 : Combat & Monte-Carlo
+        ├── 2_Catalogue_EDA.py      # Module 2 : Exploration statistique
+        ├── 3_Carte_Occitanie.py    # Module 3 : Carte Folium des 30 arènes
+        ├── 4_Synergie_Equipe.py    # Module 4 : Analyseur de trio (Groupes de 4 / Bonus G3)
+        └── 5_Extension.py          # Module 5 : Vues Macro & Micro de votre extension
+```
+
+### Règles de Fonctionnement de `app/pages/` :
+
+1. **Détection automatique :** Dès que vous lancez `streamlit run app/main.py` (ou `pyarena-app`), Streamlit inspecte automatiquement le sous-dossier `app/pages/` et génère un menu de navigation latéral contenant `main` ainsi que chaque fichier `.py` présent dans `pages/`.
+2. **Convention de nommage :** Le préfixe numérique fixe l'ordre d'affichage dans le menu, et les underscores (`_`) sont convertis en espaces (par exemple, `1_Simulateur_Duel.py` s'affiche sous le nom *« Simulateur Duel »*).
+3. **Indépendance et partage de mémoire :** Chaque fichier dans `app/pages/` est un script Python autonome qui importe ses dépendances (`from pyarena...`, `from app.utils import ...`). En revanche, toutes les pages d'une même session **partagent automatiquement le même dictionnaire `st.session_state` et le même cache `@st.cache_data`**.
+4. **Organisation Git idéale :** Chaque membre de l'équipe peut développer sa page dédiée en parallèle sans toucher aux fichiers des autres coéquipiers.
+
+### Exemple Concret : Articulation entre `app/main.py` et `app/pages/`
+
+Une erreur fréquente consiste à vouloir importer `1_Simulateur_Duel.py` depuis `main.py` (`from app.pages import ...`). **Il ne faut jamais importer les fichiers de `pages/` dans `main.py`** : c'est Streamlit qui se charge automatiquement de les exécuter lorsque l'utilisateur clique dessus dans le menu latéral (ou via un lien `st.page_link`).
+
+Voici un squelette minimal illustrant comment les fichiers communiquent entre eux :
+
+#### 1. Le point d'entrée (`app/main.py`)
+```python
+# app/main.py
+import streamlit as st
+from pyarena.io.fetcher import DataFetcher
+
+st.set_page_config(page_title="PyArena — Accueil", layout="wide")
+
+# 1. Initialisation d'une ressource partagée dans st.session_state
+#    (elle sera directement accessible dans toutes les pages de app/pages/)
+if "fetcher" not in st.session_state:
+    st.session_state["fetcher"] = DataFetcher(cache_dir="data/cache")
+
+st.title("PyArena — Tableau de Bord Décisionnel")
+st.markdown(
+    "Utilisez le menu de navigation à gauche ou les raccourcis ci-dessous "
+    "pour explorer les modules de l'application."
+)
+
+# 2. Liens explicites vers les pages (chemins relatifs au dossier app/)
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.page_link("pages/1_Simulateur_Duel.py", label="1. Simulateur de Duel")
+with col2:
+    st.page_link("pages/2_Catalogue_EDA.py", label="2. Catalogue & Statistiques")
+with col3:
+    st.page_link("pages/3_Carte_Occitanie.py", label="3. Carte des Arènes")
+```
+
+#### 2. Une page autonome (`app/pages/1_Simulateur_Duel.py`)
+
+```python
+# app/pages/1_Simulateur_Duel.py
+import streamlit as st
+from pyarena.io.fetcher import DataFetcher
+from pyarena.simulation.monte_carlo import run_monte_carlo
+from app.utils import plot_turns_distribution
+
+st.set_page_config(page_title="PyArena — Simulateur", layout="wide")
+st.header("Simulateur de Duel & Monte-Carlo")
+
+# Récupération du fetcher partagé (ou création si l'utilisateur a ouvert cette URL directement)
+if "fetcher" not in st.session_state:
+    st.session_state["fetcher"] = DataFetcher(cache_dir="data/cache")
+fetcher = st.session_state["fetcher"]
+
+# Widgets et appels au moteur métier src/pyarena/
+# ...
+```
+
+#### 3. Une seconde page autonome (`app/pages/3_Carte_Occitanie.py`)
+
+```python
+# app/pages/3_Carte_Occitanie.py
+import streamlit as st
+from streamlit_folium import st_folium
+from pyarena.io.loader import load_arenas
+from app.utils import build_occitanie_map
+
+st.set_page_config(page_title="PyArena — Carte Occitanie", layout="wide")
+st.header("Cartographie des 30 Arènes d'Occitanie")
+
+@st.cache_data
+def get_arenas() -> dict:
+    return load_arenas("data/arenes_occitanie.geojson")
+
+carte = build_occitanie_map(get_arenas())
+st_folium(carte, width=1000, height=500)
+```
+
+> **Point clé à retenir :** Si un utilisateur rafraîchit son navigateur alors qu'il se trouve déjà sur `1_Simulateur_Duel.py`, Streamlit exécute uniquement ce fichier sans repasser par `main.py`. C'est pourquoi chaque page initialise `st.session_state` défensivement (`if "fetcher" not in st.session_state:`).
+
+::: {.callout-important}
+### Interdiction de Dupliquer la Logique Métier
+Votre application Streamlit (`main.py`, `pages/*.py`, `utils.py`) doit importer vos classes et fonctions directement depuis le paquet installé (`from pyarena.io.fetcher import DataFetcher`, `from pyarena.simulation.monte_carlo import run_monte_carlo`, etc.). Toute formule de dégâts recodée dans `app/` sera sanctionnée lors de la revue d'architecture.
+:::
+
+---
+
+## 2. Prérequis Technique : Extraction des Sprites dans `src/pyarena/io/`
+
+Lors du TP sur l'I/O, vous avez implémenté `DataFetcher` (`src/pyarena/io/fetcher.py`) pour télécharger et mettre en cache disque (`data/cache/*.json`) les fiches JSON complètes de PokéAPI, puis en extraire les statistiques de combat. L'extraction de l'image (**le sprite**) n'avait pas encore été ajoutée.
+
+### Où se trouve le sprite dans les fichiers JSON déjà en cache ?
+Dans le dictionnaire JSON retourné par PokéAPI (`https://pokeapi.co/api/v2/pokemon/{id}`), la clé `"sprites"` contient directement l'URL officielle de l'illustration frontale :
+
+```python
+payload["sprites"]["front_default"]
+# Exemple : "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png"
+```
+
+### Mise à jour à effectuer dans `src/pyarena/io/fetcher.py` :
+Ajoutez une méthode dédiée dans `DataFetcher` (afin que `app/` n'ait jamais à manipuler la structure brute du JSON PokéAPI) :
+
+```python
+def get_sprite_url(self, identifier: int | str) -> str | None:
+    """Retourne l'URL du sprite officiel d'un Pokémon depuis le cache local."""
+    payload = self.fetch_pokemon(identifier)
+    sprites = payload.get("sprites") or {}
+    return sprites.get("front_default")
+```
+
+### Affichage dans Streamlit (`app/pages/1_Simulateur_Duel.py`) :
+Dans l'interface, il suffit de passer l'URL retournée à `st.image()` (en prévoyant un repli si l'URL vaut `None`) :
+
+```python
+sprite_url = fetcher.get_sprite_url(pokemon_id)
+if sprite_url:
+    st.image(sprite_url, width=120, caption=pokemon_name)
+else:
+    st.info("Sprite indisponible")
+```
+
+---
+
+## 3. Cahier des Charges des Pages à Implémenter
+
+### Page d'Accueil (`app/main.py`)
+
+* Configure la page (`st.set_page_config(page_title="PyArena", layout="wide")`).
+* Présente le projet, les membres de l'équipe, l'extension choisie et vérifie que le cache local (`data/cache/`) et le GeoJSON sont prêts.
+
+### Module 1 (`app/pages/1_Simulateur_Duel.py`) : Simulateur de Duel et Télémétrie (Commun à tous)
+
+* **Sélecteurs :** Deux menus déroulants `st.selectbox` permettant de choisir les combattants $A$ et $B$ parmi le catalogue autorisé ($151$ créatures pour les trinômes ; $251$ pour les quatuors).
+* **Fiches Combattants :** Affichage immédiat des sprites officiels via `fetcher.get_sprite_url(...)` et `st.image(...)`, ainsi que des caractéristiques normalisées au Niveau 50 ($PV_{\max}, A, D, V$).
+* **Contrôle Monte-Carlo :** Un curseur `st.slider` réglant le nombre de simulations $N \in [1000, 1000\,000]$.
+* **Restitution Post-Calcul (protégée par `@st.cache_data`) :**
+  
+  * Jauges de winrate et intervalle de confiance à 95 % (`st.metric`).
+  * Histogramme Plotly interactif de la distribution de la durée des combats (en nombre de tours, en exposant la liste des durées depuis `src/pyarena/simulation/monte_carlo.py` sans recoder de simulation dans `app/`).
+  * Journal textuel (*log*) d'un combat témoin exécuté avec une graine fixée (`seed=42`).
+
+### Module 2 (`app/pages/2_Catalogue_EDA.py`) : Catalogue et Analyse Exploratoire des Données (Commun à tous)
+
+* **Tableau Interactif (`st.dataframe`) :** Filtrable dynamiquement par type élémentaire principal (`st.multiselect`) et par seuil minimal de statistiques.
+* **Nuage de Points Plotly (`px.scatter`) :** *Attaque* (axe X) vs *Défense* (axe Y), taille des bulles proportionnelle aux *PV max*, couleur selon le type principal, et affichage du nom du Pokémon au survol.
+* **Boîtes à Moustaches Plotly (`px.box`) :** Comparaison de la distribution de la *Vitesse* entre les différents types élémentaires.
+
+### Module 3 (`app/pages/3_Carte_Occitanie.py`) : Cartographie Géospatiale des Arènes (Commun à tous)
+
+* Chargement de `data/arenes_occitanie.geojson` (30 arènes régionales) via `load_arenas()`.
+* Projection interactive via `streamlit-folium` avec marqueurs colorés selon le type de l'arène (`tiles="OpenStreetMap"`).
+* **Pop-up détaillé au clic :** Affiche le nom de la ville, le niveau de l'arène, le nom du champion local, le nom de son Pokémon emblématique et ses statistiques.
+
+### Module 4 (`app/pages/4_Synergie_Equipe.py`) : Analyseur de Synergie d'Équipe (Obligatoire Groupes de 4 / Bonus Groupes de 3)
+Outil d'aide à la composition d'un trio de combattants $E = \{C_1, C_2, C_3\}$ :
+
+1. **Bilan des Vulnérabilités Défensives :**  
+   Pour chacun des 18 types offensifs $t \in \mathcal{T}$, calcule combien de membres du trio subissent des dégâts critiques ($M_{\text{total}} \ge 2.0$). Affiche une alerte visuelle rouge (`st.error`) dès que $\ge 2$ membres partagent la même faiblesse critique.
+2. **Couverture Offensive Globale :**  
+   Calcule le pourcentage des 18 types adverses frappés avec un avantage ($M > 1.0$) par au moins un membre du trio, et restitue le profil sous forme d'un **diagramme radar Plotly (`go.Scatterpolar`)**.
+
+---
+
+## 4. Intégration de Votre Extension Thématique (`app/pages/5_Extension.py`)
+
+Cette page dédiée met en scène les résultats de votre extension exclusive (1 à 10) :
+
+* **Vue Macro :** Visualisation statistique agrégée sur $N = 5\,000$ simulations (ex. : heatmap $5 \times 5$ des objets pour l'Ext. 1, classement des permutations pour l'Ext. 2, graphe circulaire des cycles d'intransitivité pour l'Ext. 3, tracé Folium des deux tournées TSP pour l'Ext. 9...).
+* **Vue Micro :** Télémétrie pas-à-pas d'un combat témoin illustrant les mécaniques propres à votre extension (jauges de PP, badges de statut, icônes météo...).
+
+---
+
+## 5. Workflow Git & Préparation au Déploiement
+
+1. **Branche de Fonctionnalité :**
+   ```bash
+   git switch dev
+   git pull origin dev
+   git switch -c feat/streamlit-dashboard
+   ```
+2. **Configuration du Point d'Entrée CLI (`pyproject.toml`) :**
+   Ajoutez `app*` dans `[tool.setuptools.packages.find]` et créez la commande `pyarena-app` sous `[project.scripts]` afin de pouvoir lancer l'interface depuis n'importe quel répertoire après `pip install -e .`. Utilisez `joblib` dans `run_monte_carlo` pour garantir la compatibilité multi-OS sous Streamlit.
+3. **Vérification Locale :** Testez l'intégralité de la navigation entre `main.py` et toutes les pages de `app/pages/` sans aucune erreur console ni exception Python non gérée :
+   ```bash
+   streamlit run app/main.py
+   ```
+4. **Audit de Qualité & Pull Request :**
+   ```bash
+   ruff check app/ src/
+   git add app/ src/ pyproject.toml
+   git commit -m "feat(app): dashboard décisionnel multipages Streamlit, Plotly et Folium"
+   git push -u origin feat/streamlit-dashboard
+   ```
+5. **Bonus Déploiement Cloud (+0,5 pt) :** Si vous déployez l'application sur *Streamlit Community Cloud*, vérifiez que le fichier `requirements.txt` ou `pyproject.toml` à la racine contient bien toutes les dépendances (`streamlit`, `plotly`, `folium`, `streamlit-folium`, `pandas`, `requests`, `joblib`) et documentez l'URL publique dès l'en-tête de votre `README.md`.
