@@ -1,8 +1,8 @@
 ---
 title: "Fiche Méthodologique : Documentation, Docstrings & Standards de Projet"
-subtitle: "Rédiger un code lisible, maintenir une base logicielle et structurer le dépôt PyArena (30 min + 2h30 Tutorat)"
+subtitle: "Rédiger un code lisible, maintenir une base logicielle et structurer le dépôt PyArena"
 author: "Bensaid Bilel"
-date: "23 Décembre 2026"
+date: "23 Novembre 2026"
 lang: fr
 format:
   html:
@@ -221,7 +221,7 @@ Deux outils dominent l'écosystème Python :
 
 ## 3.3 Exercice Flash (5 min) : Inspection et Audit
 
-1. Ouvrez l'un de vos modules dans `src/`
+1. Ouvrez l'un de vos modules de DBZ. 
 2. Rédigez une docstring complète (au style NumPy ou Google) pour la classe principale et l'une de ses méthodes.
 3. Vérifiez le rendu dans un terminal Python :
    ```bash

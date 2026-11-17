@@ -60,7 +60,7 @@
     "href": "fiche_documentation.html#exercice-flash-5-min-inspection-et-audit",
     "title": "Fiche Méthodologique : Documentation, Docstrings & Standards de Projet",
     "section": "3.3 Exercice Flash (5 min) : Inspection et Audit",
-    "text": "3.3 Exercice Flash (5 min) : Inspection et Audit\n\nOuvrez l’un de vos modules dans src/\nRédigez une docstring complète (au style NumPy ou Google) pour la classe principale et l’une de ses méthodes.\nVérifiez le rendu dans un terminal Python :\npython -c \"from pyarena.io.fetcher import DataFetcher; help(DataFetcher)\""
+    "text": "3.3 Exercice Flash (5 min) : Inspection et Audit\n\nOuvrez l’un de vos modules de DBZ.\nRédigez une docstring complète (au style NumPy ou Google) pour la classe principale et l’une de ses méthodes.\nVérifiez le rendu dans un terminal Python :\npython -c \"from pyarena.io.fetcher import DataFetcher; help(DataFetcher)\""
   },
   {
     "objectID": "TP_Parallel/enonce_parallel.html",
