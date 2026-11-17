@@ -17,6 +17,7 @@ project:
     - Metiers_Data/fiche_metiers.qmd
     - TP_Parallel/enonce_parallel.qmd
     - TP_Streamlit/enonce_streamlit.qmd
+    - fiche_documentation.qmd
     # Les fichiers de correction ne sont pas mentionnés ici
 
 website:

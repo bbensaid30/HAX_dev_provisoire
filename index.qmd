@@ -25,4 +25,6 @@ Les cours de ce semestre sont les suivants:
 * [Cours-TP 8 : DataViz](TP_Streamlit/enonce_streamlit.qmd)
 * [Guide d'installation Windows (WSL 2 & VS Code)](installation_wsl.qmd)
 
+[Dernière séance: documentation et tutorat](fiche_documentation.qmd)
+
 Lien vers l'ancien site du cours (utile pour des ressources complémentaires): [Ancien site](https://bbensaid30.github.io/Course-Software-Development-HAX712X/).
