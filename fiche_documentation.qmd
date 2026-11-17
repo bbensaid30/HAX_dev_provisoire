@@ -1,0 +1,241 @@
+---
+title: "Fiche Méthodologique : Documentation, Docstrings & Standards de Projet"
+subtitle: "Rédiger un code lisible, maintenir une base logicielle et structurer le dépôt PyArena (30 min + 2h30 Tutorat)"
+author: "Bensaid Bilel"
+date: "23 Décembre 2026"
+lang: fr
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: "Sommaire de la fiche"
+    number-sections: false
+    theme: cosmo
+    code-copy: true
+---
+
+# Objectifs et Organisation de la Séance (3h00)
+
+À un mois de la remise finale du projet **PyArena**, les équipes avancent à des rythmes différents selon les jalons. Quel que soit l'état d'avancement de votre dépôt, la **qualité de la documentation** constitue un critère transversal déterminant : un code non documenté est impossible à maintenir en équipe, difficile à évaluer et inutilisable par un tiers.
+
+Cette dernière séance de 3h00 s'articule en deux temps :
+
+| Temps | Durée | Format | Contenu |
+| :--- | :---: | :---: | :--- |
+| **Temps 1** | **30 min** | **Exposé méthodologique & exercice flash** | Commentaires vs Docstrings (PEP 257), formats NumPy/Google, `README.md` reproductible et aperçu de Sphinx/MkDocs. |
+| **Temps 2** | **2h30** | **Tutorat par équipe** | Revue du projet |
+
+---
+
+# Partie 1 : Commentaires vs Docstrings — Deux Usages Distincts (10 min)
+
+En Python, il existe deux mécanismes pour annoter un programme. Les confondre est l'une des erreurs les plus fréquentes chez les développeurs débutants.
+
+```text
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  COMMENTAIRE (# ...)                  DOCSTRING ("""...""")             │
+  │                                                                         │
+  │  • Destinataire : le développeur      • Destinataire : l'utilisateur    │
+  │    qui lit l'intérieur du code.         qui appelle la fonction/classe. │
+  │  • Rôle : explique le « POURQUOI »    • Rôle : définit le CONTRAT       │
+  │    d'un choix technique complexe.       d'interface (entrées/sorties).  │
+  │  • Ignoré par Python à l'exécution.   • Compilé dans l'attribut __doc__ │
+  │                                         et affiché par help() / IDE.    │
+  └─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 1.1 Le Commentaire (`#`) : Expliquer le « Pourquoi », Jamais le « Quoi »
+
+Un commentaire explique une **intention algorithmique**, une **subtilité mathématique** ou un **contournement système** qui ne se devine pas à la lecture du code.
+
+```python
+# MAUVAIS : paraphrase inutilement le code Python
+x = x + 1  # Incrémente x de 1
+
+# BON : explique la raison métier ou technique non évidente
+# Inversion [lon, lat] -> [lat, lon] requise par Folium (norme GeoJSON RFC 7946)
+lat, lon = coords[1], coords[0]
+```
+
+---
+
+## 1.2 La Docstring (`"""..."""`) : Le Contrat d'Interface (PEP 257)
+
+Définie par la convention officielle **PEP 257**, une **docstring** (*documentation string*) est une chaîne de caractères entourée de triples guillemets doubles `"""..."""` placée comme **toute première instruction** d'un module, d'une classe, d'une méthode ou d'une fonction.
+
+Contrairement aux commentaires, Python conserve cette chaîne en mémoire dans l'attribut spécial `__doc__` :
+
+* Taper `help(ma_fonction)` dans un terminal affiche immédiatement la docstring.
+* Survoler la fonction dans VS Code ou PyCharm affiche la docstring dans une infobulle.
+* Les outils de documentation automatique (Sphinx, MkDocs) extraient ces chaînes pour construire un site web complet.
+
+### Règle fondamentale : Typage Statique + Docstring
+En Python moderne ($\ge 3.10$), les **annotations de types** (*Type Hints*) indiquent déjà la nature informatique des variables (`n_simulations: int`). La docstring ne doit pas se contenter de répéter « *entier* » : elle doit préciser **le sens physique ou métier, les bornes de validité, les unités et la structure exacte des objets retournés**.
+
+---
+
+# Partie 2 : Les Standards Professionnels (NumPy & Google) (10 min)
+
+Dans l'écosystème Python scientifique et Data Science, deux formats de docstrings font autorité : le **style NumPy** (utilisé par NumPy, SciPy, Pandas, scikit-learn) et le **style Google** (utilisé par Google, TensorFlow, FastAPI).
+
+**Règle d'équipe :** Choisissez **un seul style** pour l'ensemble du dépôt `PyArena` et appliquez-le partout.
+
+---
+
+## 2.1 Exemple de Référence : Style NumPy (Recommandé en Calcul Scientifique)
+
+```python
+def run_monte_carlo(
+    f1: BaseFighter,
+    f2: BaseFighter,
+    n_simulations: int = 5000,
+    n_jobs: int = -1,
+    seed: int | None = None,
+) -> dict[str, Any]:
+    """Estime l'issue d'un duel par simulation de Monte-Carlo multi-cœurs.
+
+    Exécute ``n_simulations`` combats indépendants entre ``f1`` et ``f2``
+    en répartissant la charge sur plusieurs processus travailleurs isolés.
+    Chaque worker reçoit une graine orthogonale dérivée via ``SeedSequence``.
+
+    Parameters
+    ----------
+    f1 : BaseFighter
+        Premier combattant engagé (statistiques normalisées au niveau 50).
+    f2 : BaseFighter
+        Second combattant engagé.
+    n_simulations : int, default=5000
+        Nombre total de duels à simuler. Doit être strictement positif.
+    n_jobs : int, default=-1
+        Nombre de processus parallèles alloués (``-1`` mobilise tous les
+        cœurs physiques disponibles).
+    seed : int or None, default=None
+        Graine maîtresse garantissant la reproductibilité stricte des tirages.
+
+    Returns
+    -------
+    dict[str, Any]
+        Dictionnaire de synthèse statistique contenant les clés suivantes :
+        - ``"winrate"`` (float) : probabilité empirique de victoire de ``f1`` dans [0, 1].
+        - ``"ci_95"`` (tuple[float, float]) : intervalle de confiance asymptotique à 95 %.
+        - ``"turns_mean"`` (float) : durée moyenne des affrontements (en tours).
+        - ``"turns_median"`` (float) : médiane empirique de la durée des combats.
+        - ``"turns_std"`` (float) : écart-type corrigé (``ddof=1``) des durées.
+
+    Raises
+    ------
+    ValueError
+        Si ``n_simulations <= 0``.
+    """
+```
+
+---
+
+## 2.2 Variante : Style Google (Plus Compact)
+
+```python
+def get_sprite_url(self, identifier: int | str) -> str | None:
+    """Récupère l'URL de l'illustration officielle d'un Pokémon.
+
+    Interroge le cache disque local (ou PokéAPI en cas d'absence) et extrait
+    le lien vers le sprite frontal par défaut.
+
+    Args:
+        identifier: Identifiant numérique Pokédex (ex. 25) ou nom anglais
+            en minuscules (ex. ``"pikachu"``).
+
+    Returns:
+        L'URL publique du fichier PNG si disponible, ou ``None`` si la fiche
+        ne contient pas d'illustration.
+
+    Raises:
+        DataFetchError: Si l'identifiant est inconnu ou si le réseau est inaccessible.
+    """
+```
+
+---
+
+## 2.3 Vérification Automatique de la Syntaxe avec `ruff`
+
+L'outil `ruff` que vous utilisez déjà dans votre CI/CD intègre les règles **`pydocstyle` (code `D`)** qui auditent automatiquement vos docstrings :
+
+* Présence d'une docstring sur chaque module, classe et fonction publique.
+* Première ligne rédigée à l'impératif et terminée par un point (`.`).
+* Présence d'une ligne vide entre le résumé d'une ligne et la description détaillée.
+
+Testez cet audit sur votre code métier via :
+```bash
+ruff check src/ --select D
+```
+
+---
+
+# Partie 3 : Le `README.md` Reproductible & Les Générateurs Web (10 min)
+
+---
+
+## 3.1 Anatomie d'un `README.md` Professionnel
+
+À la racine de votre dépôt GitHub, le fichier `README.md` est la vitrine de votre projet. Un correcteur ou un recruteur doit pouvoir installer et lancer votre application en moins de deux minutes sans vous poser de question.
+
+Votre `README.md` doit impérativement comporter ces **6 sections** :
+
+1. **Titre & Présentation :** Nom du projet (`PyArena`), contexte du module M1, présentation de l'extension thématique attribuée (1 à 10) et lien public vers l'application déployée (le cas échéant).
+2. **Architecture du Dépôt :** Arborescence commentée distinguant `src/pyarena/` (moteur métier), `app/` (interface multipages Streamlit), `tests/` (suite `pytest`) et `data/` (cache et GeoJSON).
+3. **Installation Reproductible :** Commandes exactes étape par étape :
+   ```bash
+   git clone <url-du-depot>
+   cd pyarena
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -e ".[dev]"
+   ```
+4. **Utilisation & Lancement du Dashboard :**
+   ```bash
+   pyarena-app
+   
+   ```
+5. **Tests & Qualité Logicielle :** Commandes permettant de rejouer les tests unitaires et de vérifier la couverture :
+   ```bash
+   pytest --cov=pyarena --cov-report=term-missing
+   ruff check src/ app/ tests/
+   ```
+6. **Équipe & Contributions :** Liste des membres du groupe et répartition des modules développés.
+
+---
+
+## 3.2 Comment Génère-t-on la Documentation Web des Bibliothèques ? (Sphinx & MkDocs)
+
+Lorsque vous consultez la documentation officielle en ligne de **NumPy**, **Pandas** ou **Scikit-Learn**, personne n'a écrit ces milliers de pages HTML à la main : elles sont **générées automatiquement à partir des docstrings du code source**.
+
+Deux outils dominent l'écosystème Python :
+
+* **Sphinx (`sphinx-doc.org`) :** Le standard historique du calcul scientifique. Grâce aux extensions `sphinx.ext.autodoc` et `sphinx.ext.napoleon`, Sphinx importe vos modules Python, lit vos docstrings au format NumPy/Google et génère un site HTML ou un manuel PDF LaTeX.
+* **MkDocs + `mkdocstrings` :** L'alternative moderne en pur Markdown, très rapide à déployer gratuitement sur **GitHub Pages** via une action CI.
+
+> *Pour le rendu de PyArena, il n'est pas exigé de déployer un site Sphinx complet : la priorité absolue est d'avoir des **docstrings complètes et homogènes** dans `src/pyarena/` et un **`README.md` irréprochable**.*
+
+---
+
+## 3.3 Exercice Flash (5 min) : Inspection et Audit
+
+1. Ouvrez l'un de vos modules dans `src/`
+2. Rédigez une docstring complète (au style NumPy ou Google) pour la classe principale et l'une de ses méthodes.
+3. Vérifiez le rendu dans un terminal Python :
+   ```bash
+   python -c "from pyarena.io.fetcher import DataFetcher; help(DataFetcher)"
+   ```
+
+---
+
+# Partie 4 : Organisation des 2h30 de Tutorat — Feuille de Route par Avancement
+
+Les groupes étant à des stades différents et disposant encore d'un mois avant le rendu final, identifiez votre situation ci-dessous pour tirer le meilleur parti des **2h30 d'accompagnement** :
+
+| Niveau d'avancement actuel | Priorités à traiter pendant la séance de tutorat | Objectif de fin de séance |
+| :--- | :--- | :--- |
+| **Groupe en retard sur les Jalons 1–2** *(Modèle objet, matrice des types, `DataFetcher` & cache JSON)* | 1. Stabiliser l'héritage `BaseFighter` / `Fighter` et `reset_stats()`.<br>2. Valider le cache disque `data/cache/*.json` pour éviter les erreurs réseau en CI.<br>3. Vérifier l'installation éditable `pip install -e .`. | Avoir une suite `pytest` verte sur `core/` et `io/` avant d'attaquer la simulation. |
+| **Groupe au Jalon 3** *(Moteur de combat & Monte-Carlo parallèle)* | 1. Vérifier le découplage strict (zéro `print` ni `streamlit` dans `src/pyarena/`).<br>2. Implémenter `run_monte_carlo` avec `joblib` (`backend="loky"`) et `SeedSequence`.<br>3. Exposer `turns_mean`, `turns_median` et `turns_std` (`ddof=1`). | Valider le test de déterminisme avec graine fixée et atteindre $\ge 70\%$ de couverture. |
+| **Groupe au Jalon 4** *(Extension thématique & Interface Streamlit)* | 1. Structurer `app/main.py` et `app/pages/` (1 fichier par module).<br>2. Protéger les calculs lourds avec `@st.cache_data` et vérifier le rafraîchissement (`F5`) sur chaque page.<br>3. | Avoir une navigation multipages fonctionnelle et une CI au vert sur GitHub. |
